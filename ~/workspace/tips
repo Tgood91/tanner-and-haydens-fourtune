@@ -1,0 +1,33 @@
+You stocked your own loadout this time — glock19, machete, bear spray. Proper Los Santos shopping list. And it runs exactly right:
+
+```
+Used a water
+You don't have a water
+You don't have a phone
+```
+
+Notice the third line: `phone` isn't even *in* your table, and the guard still catches it — `inv[item]` comes back empty, the `if` fails, same message. That's why your server code checks before it acts. Lesson 4: done.
+
+**Lua Lesson 5 — loops**
+
+One concept: visiting every item in a table. Your glock and machete just sat there unused — this is how the game would list a whole inventory:
+
+```lua
+local inventory = {
+    water = 1,
+    sandwich = 1,
+    glock19 = 1,
+    machete = 1,
+    bearspray = 1,
+}
+
+for item, count in pairs(inventory) do
+    print(item .. ": " .. count)
+end
+```
+
+New piece: `for item, count in pairs(table) do ... end` — `pairs` walks the table and hands you each name and number, one at a time. Roughly JS's `for (const [item, count] of Object.entries(inventory))`.
+
+One warning so it doesn't look broken: the lines can come out in **any order**. `pairs` doesn't promise to keep the order you wrote them in. That's normal Lua, not a bug.
+
+Run it and paste me what it prints — order and all.
