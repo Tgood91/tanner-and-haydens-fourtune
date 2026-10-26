@@ -1,0 +1,23 @@
+Lua Lesson 2 — here it is fresh so you don't have to scroll:
+One concept: functions. In JS it's function add(a, b) { return a + b }. In Lua there are no curly braces — the function ends with the word end, and no types:
+Lua
+local cash = 500
+
+local function addMoney(current, amount)
+    return current + amount
+end
+
+cash = addMoney(cash, 220)
+print("Cash after paycheck: $" .. cash)
+The 220 is your mechanic paycheck from your jobs resource. Paste it into the Lua demo, run it, and tell me the one line it prints — that unlocks Lesson 3.
+(Your Kotlin Lesson 2 from this morning is still sitting there too, whenever you want it — no rush.)
+##
+##
+local cash = 500
+
+local function addMoney(current, amount)
+    return current + amount
+end
+
+cash = addMoney(cash, 220)
+print("Cash after paycheck: $" .. cash)
