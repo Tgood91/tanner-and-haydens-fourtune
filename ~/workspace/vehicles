@@ -1,0 +1,6 @@
+cd ~/workspace && ls gta-rp-server/.env 2>/dev/null
+rm -f your_files/gta-rp-server.zip
+zip -qr your_files/gta-rp-server.zip gta-rp-server -x "gta-rp-server/node_modules/*" "*/node_modules/*" "gta-rp-server/.env"
+ls -lh your_files/gta-rp-server.zip
+unzip -l your_files/gta-rp-server.zip | tail -3
+unzip -l your_files/gta-rp-server.zip | grep -c "catalog.lua\|TWO-CITIES\|_car-template\|VEHICLES.md"
