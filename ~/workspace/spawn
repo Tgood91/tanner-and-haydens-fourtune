@@ -1,0 +1,19 @@
+For your next PC run, here's a smoke-test checklist that covers everything built today — in order:
+
+**Prereq:** unzip the latest export, your Cfx key into server.cfg, API on :4000, web on :3000, FXServer up, then F8 → `connect 127.0.0.1:30120`.
+
+**1. Atlanta baseline:** `/serverinfo`, `/balance`, `/cities`
+
+**2. Inventory:** `/inventory` should show your starters — water ×2, sandwich ×1, phone ×1. Then from the server console:
+- `giveitem <playerId> blackdraco 1`
+- `giveitem <playerId> halfhalf 1`
+
+Check `/inventory` again, then `/useitem halfhalf` — the Guccilucci should drink and consume 1, anywhere. And `/useitem glock19` should refuse — it's carried gear, not usable.
+
+**3. Cars, free first:** `/cars`, then `/veh zentorno` — preview only, nothing saved. Get in and check the game's own name plate reads **Pegassi Zentorno**, not just the chat message — that's the new name wiring. Same check with `/veh sultan` for Karin Sultan. Only if you want to spend after that: `/buyveh sultan` charges exactly **$120,000** from your bank — check `/balance` first, that one's real.
+
+**4. The drive:** head north — Atlanta → GeePee → Chicago. Watch for the city announcements and the HUD city field changing as you cross.
+
+**5. Chicago tune check:** these coords are the approximations, so walk them once: spawn (-450, 6015, 33), sheriff (-448, 6011, 31.7), Beeker's mechanic (-70, 6406, 31), EMS (-245, 6325, 33), taxi (-400, 6030, 33), garage (-435, 6020, 33). If a marker lands inside a building or off the road, just note which one.
+
+Report back only three things: which Chicago point (if any) was off, whether the Zentorno name plate showed right, and whether the Guccilucci used cleanly.
