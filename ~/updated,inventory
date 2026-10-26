@@ -1,0 +1,112 @@
+local inventory = {
+    water = 2,
+    sandwich = 1,
+    phone = 1,
+}
+
+print("Water: " .. inventory.water)
+
+inventory.water = inventory.water - 1
+print("Water after drinking: " .. inventory.water)
+WRAP THE "TABLE" IN{} brackets.
+~/workspace/gta-rp-
+# Cfx.re / FiveM — Open-Source Docs & Code Index
+
+Collected 2026-10-24 from the official docs site and the public GitHub API
+(`api.github.com/orgs/citizenfx/repos` — 87 repos in the org). Everything below
+is the official Cfx.re surface. "Open on GitHub" does **not** automatically mean
+"free to reuse" — check each repo's license first (noted where GitHub reports one;
+many repos report no license, which legally means all-rights-reserved by default).
+
+## 1. The official documentation — docs.fivem.net
+Source repo: https://github.com/citizenfx/fivem-docs (the site is built from it; PRs welcome)
+
+| Section (in the repo) | What it covers | Why you need it |
+|---|---|---|
+| `getting-started` | Installing FiveM, setting up a server | Your Phase 0 — start here |
+| `server-manual` | server.cfg, convars/commands, txAdmin setup, OneSync, proxy, server issues | Running FXServer legally and correctly |
+| `client-manual` | Player client install/troubleshooting | Support docs for your players |
+| `scripting-manual` | Lua/JS/C# resource scripting: events, exports, state bags, NUI | The core of your custom Lua resources |
+| `scripting-reference` | Runtimes, fxmanifest reference, function/command reference | Lookup while coding |
+| `resources` | Per-resource docs for the bundled/default resources | How chat, mapmanager, etc. behave |
+| `developers` | Developer tooling and internals | Deeper platform work |
+| `cookbook` | Short recipes/snippets for common tasks | Fast answers for small features |
+| `game-references` | Vehicle/weapon/ped models, blips, etc. | IDs/hashes for jobs, vehicles, HUD |
+| `fxdk` | FxDK (the in-world creator tool / editor) | Building/testing content in-game |
+| `assets-manual` | Streaming custom assets (models, textures, audio) | Custom cars/maps later |
+| `support` | Client/server troubleshooting | First stop when something breaks |
+| `contributing` | How to contribute to the docs/code | If you PR fixes upstream |
+| `alchemist` | Alchemist asset conversion tooling | Asset pipeline |
+
+## 2. Natives reference (the GTA V function bible)
+- Site: https://docs.fivem.net/natives/ — every native, searchable by namespace
+- Source repo: https://github.com/citizenfx/natives — "GTA V Natives Documentation"
+  (folders per namespace: PED, VEHICLE-adjacent namespaces like ENTITY, HUD, NETWORK, AUDIO, GRAPHICS…)
+- Tooling: https://github.com/citizenfx/native-doc-tooling
+
+## 3. Key open-source code repos (citizenfx org — the ones that matter for a server build)
+| Repo | What it is | License (per GitHub) |
+|---|---|---|
+| citizenfx/fivem | Source for FiveM, RedM and FXServer itself (C++) | NOASSERTION — dual license, read `code/LICENSE` in-repo before any reuse |
+| citizenfx/fivem-docs | Source of docs.fivem.net | none declared |
+| citizenfx/natives | GTA V natives database powering the natives reference | none declared |
+| citizenfx/cfx-server-data | The default/bundled server resources (chat, mapmanager, spawnmanager…) in `[gamemodes] [gameplay] [local] [managers] [system] [test]` | none declared |
+| citizenfx/cfx-server-data-experimental | Experimental variants of the default resources | none declared |
+| citizenfx/example-resources | Small example resources to learn resource structure from | none declared |
+| citizenfx/txAdmin | Official server management panel (27k+ servers) — TypeScript | MIT |
+| citizenfx/txAdmin-recipes | Official txAdmin deployer recipes (one-click server bases) | MIT |
+| citizenfx/txAdmin-playerGen | Dev tool to mock txAdmin player lists | MIT |
+| citizenfx/screenshot-basic | Client screenshot resource (TypeScript) | MIT |
+| citizenfx/fxcode | FxDK code editor (VS Code fork) | MIT |
+| citizenfx/AnimKit | Tool for creating/editing GTA V animations (C#) | AGPL-3.0 |
+| citizenfx/cfx-dotnet | .NET runtime support for FXServer (C# resources) | none declared |
+| citizenfx/msgpack-cs | C# MsgPack for FiveM/RedM/FXServer | none declared |
+| citizenfx/lua | The Lua interpreter mirror FiveM ships (Lua 5.4 line) | none declared |
+| citizenfx/lua-cmsgpack · lua-rapidjson · lmprof | Lua modules/profiler bundled for resources | mixed (rapidjson MIT; others none declared) |
+| citizenfx/NativeUI | Classic GTA V UI/menu library (C#) | MIT |
+| citizenfx/project-lambdamenu | Lambda Menu for CitizenFX | none declared |
+| citizenfx/http-wrapper | HTTP wrapper for Node.js usage in CitizenFX | none declared |
+| citizenfx/rfc | Community feedback / RFCs for Cfx products | none declared |
+
+The other ~60 repos in the org are mostly upstream forks/libraries FiveM builds on
+(Chromium/CEF, bgfx, imgui, enet, libuv, mono, node, EASTL, oneTBB, etc.) — useful
+only if you are building FiveM itself, not a server on top of it.
+
+## 4. txAdmin docs (inside citizenfx/txAdmin `docs/`)
+`recipe.md` (deployer recipes) · `permissions.md` · `events.md` · `logs.md` ·
+`env-config.md` · `development.md` · `dev-notes.md` · `discord-status.md` ·
+`custom-server-log.md` · `translation.md` · `menu.md`
+
+## 5. Official support & community docs
+- Support centre: https://support.cfx.re — includes "How to create a server
+  license key" (note: Keymaster is being deprecated 1 Dec 2025 in favour of Portal)
+- Cfx.re Portal: https://portal.cfx.re — server keys + subscriptions (replaces Keymaster)
+- Community forum: https://forum.cfx.re — release notes, resource releases, support threads
+- Server list / artifacts: linked from fivem.net (recommended vs latest server builds)
+
+## 6. Legal documents (not "docs" but binding — see docs/SETUP.md flow)
+- FiveM terms: https://fivem.net/terms → redirects to the **Creator Platform License
+  Agreement** (Rockstar Games / Take-Two; current version dated 10 Sept 2026 on static.cfx.re)
+- It incorporates the Rockstar Terms of Service, Community Guidelines and Mod Guidelines.
+
+## How this maps to our build (~/workspace/gta-rp-server)
+- Writing Lua resources → §1 `scripting-manual` + `scripting-reference` + §2 natives
+- server.cfg / txAdmin → §1 `server-manual` + §4
+- Default resources we `ensure` → §3 `cfx-server-data`
+- Asset/vehicle IDs → §1 `game-references`
+
+
+
+
+
+local cash = 77777
+
+local function addMoney(current, amount)
+    return current + amount
+end
+
+cash = addMoney(cash, 77777)
+print("Cash after paycheck: $" .. cash)
+##
+##
+Cash after paycheck: $155554
