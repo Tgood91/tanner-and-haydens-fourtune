@@ -5,7 +5,7 @@ local inventory = {
     machete = 1,
     bearspray = 1,
     ["mythical black Draco"] = 1,
-    medkit = 1,
+    medkit = 7,
 }
 
 local function useItem(inv, item)
