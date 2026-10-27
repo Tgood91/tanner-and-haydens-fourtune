@@ -1,0 +1,44 @@
+Good — this is the map version of the car glitch rules we did. Textures "breaking" in FiveM is almost always one of these five, and they're all preventable:
+1. The texture isn't there when the game looks for it
+Every model points at a texture dictionary (a .ytd file). If the texture isn't embedded in the model's own dictionary or the .ytd isn't streamed with the map, the surface renders pink/checkered or invisible. Rule: textures travel with the model, always — never rely on a texture living somewhere else.
+2. Textures too big → the whole city melts
+This is the famous one: a few 4K textures on small objects blow the game's texture budget, and then everything goes blurry and muddy, even stock buildings. Rule: props get 512 or 1024 max, big building faces 2048 at most — and if players ever report "the map went blurry," a fat texture is suspect #1.
+3. Wrong size or format
+Textures must be power-of-two (256, 512, 1024…) and saved as DDS with compression (DXT1 for plain color, DXT5 when there's transparency). A random-sized PNG renamed into the pack will shimmer, distort, or fail to load.
+4. No mipmaps
+Mipmaps are the pre-shrunk copies of a texture for distance. Without them, surfaces sparkle and crawl as you drive toward them. Rule: generate mipmaps on export, every time — one checkbox saves this entire category.
+5. No LODs
+LODs are the low-detail versions for far away. Without them, objects pop in late or vanish — the "that sign wasn't there a second ago" break. Same fix as the cars: every placed object needs its LOD, and map files need their SLODs for the far view.
+Where you stand right now: your Chicago/Atlanta/GeePee world is a config layer on the stock map, so there's literally nothing custom to break yet — these rules switch on the moment we add your first custom assets, like city welcome signs or Backroads road signs.
+##
+That's `docs/VEHICLES.md` — the car rulebook inside your project. Here's what it holds, section by section:
+
+**How cars work today**
+Your `vehicles` resource: one garage per city, same list in both, per character. Five commands — `/garage` lists your cars, `/buyveh` buys at the catalog price from your bank, `/spawnveh` pulls one of yours out, `/cars` prints the whole catalog, and `/veh` spawns a free preview of anything, saved nowhere. That last one is your glitch-check tool.
+
+**The three kinds of cars**
+1. **Stock** — already inside GTA V. No install, no stream cost, just work.
+2. **Add-on** — custom cars that aren't in the game. Each one becomes *its own resource*, so a bad one can be fixed or removed without touching anything else.
+3. **Replace** — overwrites a stock car's files. The doc says no: every player has to agree on what that model is, and replace mods are the classic source of "your car looks different on my screen" bugs.
+
+**Importing an add-on**
+Copy the template folder, rename it, drop the car's model/textures into `stream/`, its metas into `data/`, swap `TEMPLATE_CAR` for the real model name, ensure it, restart, preview. And one hard rule: only models whose author allows FiveM server use.
+
+**The glitch checklist — the heart of the doc**
+Preview every import *alone first*, close up, at distance, and at night with lights on. Then match the symptom:
+- Won't spawn → the meta's `modelName` doesn't match the `.yft` filename
+- Crashes or handles wrong → `handlingId` has no matching handling entry
+- Flickers or vanishes at distance → missing LODs
+- Wrong colors or wheels → carvariations/carcols metas missing or mismatched
+- Blurry textures and frame drops around the car → oversized `.ytd` — keep a car's textures under ~16 MB total
+- Whole area stutters when customs park together → too many high-poly cars blowing the stream budget
+
+And the law written under the table: **a car that fails the alone test never goes on sale.** Models with no LODs or giant texture packs get rejected, not fixed — they cost every nearby player frames. That connects straight to the map texture rules from before: same budget, same discipline.
+
+**The catalog**
+All 38 cars — 33 buyable, 5 emergency job-locked and never sold. Prices and display names live in exactly one place, `catalog.lua`; if the doc and the file ever disagree, the file wins.
+
+**Names on screen, staying legal**
+When a player gets in a car, the name plate they see comes from that same catalog, registered at runtime with `AddTextEntry` — in memory only, no game files touched, nothing ripped, your code MIT. That's the compliance section.
+
+That's the whole doc: how cars run, how they get in, how they get rejected, and what they cost.
