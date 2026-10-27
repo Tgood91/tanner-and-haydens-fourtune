@@ -1,6 +1,10 @@
 local inventory = {
     water = 1,
     sandwich = 1,
+    
+    phone = 1,
+    mythical black chrome Draco = 1,
+
 }
 
 local function useItem(inv, item)
@@ -16,8 +20,10 @@ print(useItem(inventory, "water"))
 print(useItem(inventory, "water"))
 print(useItem(inventory, "phone"))
 local inventory = {
+    [mythical black chrome Draco] = 1,
     water = 1,
     sandwich = 1,
+    phone =1,
 }
 
 local function useItem(inv, item)
