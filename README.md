@@ -1,6 +1,7 @@
 # tanner-KAOS-haydens-fourtune
 game
-#
+# better name when public.
+# this is Tgood91 pooling knowledge, so Tgood91s crew will have no worries in the futurea
 Inventory is built and verified. Phase 1's first piece is done:
 What you got
 •
