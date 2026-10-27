@@ -1,7 +1,7 @@
 local inventory = {
     water = 1,
     sandwich = 1,
-    glock19 = 1,
+    glizzy1nine = 1,
     machete = 1,
     bearspray = 1,
     ["mythical black Draco"] = 1,
@@ -21,3 +21,4 @@ print(useItem(inventory, "water"))
 print(useItem(inventory, "water"))
 print(useItem(inventory, "phone"))
 print(useItem(inventory, "mythical black Draco"))
+print(useItem(inventory, "glizzy1nine"))
