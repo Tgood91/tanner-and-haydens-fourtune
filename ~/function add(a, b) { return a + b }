@@ -21,3 +21,35 @@ end
 
 cash = addMoney(cash, 220)
 print("Cash after paycheck: $" .. cash)
+##
+##
+Lua-code lesson 6
+**Lua Lesson 6 — the pairs loop report** 🐺
+
+One new idea: `pairs` walks a table and hands you each key and its value, one at a time — like `Object.entries()` in JS. Paste this under your loadout table (or run it on its own):
+
+```lua
+local loadout = {
+  water = 2,
+  sandwich = 1,
+  ["grape blunt"] = 1,
+  ["kevlar vest"] = 1,
+}
+
+for item, count in pairs(loadout) do
+  print(item .. " x" .. count)
+end
+```
+
+It prints one line per item:
+
+```
+water x2
+sandwich x1
+grape blunt x1
+kevlar vest x1
+```
+
+Two things to notice: the multi-word names use the bracket-string keys you just learned, and the loop doesn't care — it reads them back out as plain text. The order may come out different on your run; `pairs` doesn't promise an order, that's normal.
+
+Remix it with the rest of your loadout when you're ready, and paste me what it prints.
