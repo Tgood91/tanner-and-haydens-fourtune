@@ -31,3 +31,27 @@ New piece: `for item, count in pairs(table) do ... end` — `pairs` walks the ta
 One warning so it doesn't look broken: the lines can come out in **any order**. `pairs` doesn't promise to keep the order you wrote them in. That's normal Lua, not a bug.
 
 Run it and paste me what it prints — order and all.
+##if you want to add inventory and not use##
+Good instinct — and the answer is the nicest rule in Lua: **looking never uses anything.** Only that `inv[item] = inv[item] - 1` line inside useItem consumes. Printing just reads.
+
+So to check your water without touching it:
+
+```lua
+print(inventory.water)
+```
+
+Prints `2`, and you still have 2. Want it labeled:
+
+```lua
+print("Water: " .. inventory.water)
+```
+
+Prints `Water: 2`. For a multi-word name, read it back with the same brackets you wrote it with:
+
+```lua
+print(inventory["grape blunt"])
+```
+
+One warning about the line you wrote — `print(useItem(inventory, "water"))`: wrapping useItem in print doesn't stop it using the item, because useItem does its subtracting *inside itself* before print ever sees anything. And since your useItem returns nothing, that line would also print a stray `nil` under its message.
+
+Rule of thumb: **print reads, functions act.** If you only want to look, print the table value directly and never call the function at all.
