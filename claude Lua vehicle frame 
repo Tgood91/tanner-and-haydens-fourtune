@@ -1,0 +1,100 @@
+-- ============================================================
+-- cars.lua — Lesson 2: cars
+-- Built after inventory.lua. Plain Lua, no game-engine functions,
+-- no dependencies — it runs the same way inventory.lua does.
+--
+-- NEW IDEAS IN THIS LESSON
+--   1. A boolean: engineOn is either true or false (on or off).
+--   2. An if with more than one check: key first, then fuel.
+--   3. The same recipe as the shop: check -> move -> report.
+--
+-- This file stands alone so you can run it by itself. It reuses
+-- the two car items from inventory.lua with the same starting
+-- values: carKey = 1, fuelCan = 1.
+-- ============================================================
+
+-- The car: one slot per fact, same as the inventory
+carModel = "Sedan"
+carSpeed = 0
+carFuel = 50        -- out of 100
+engineOn = false    -- false = off, true = on
+
+-- From inventory.lua
+carKey = 1          -- the key cut for YOUR car; not buyable
+fuelCan = 1         -- full can, ready to pour in
+
+-- ============================================================
+-- DISPLAY — print the car's state
+-- ============================================================
+function showCar()
+    print("--- " .. carModel .. " ---")
+    if engineOn then
+        print("Engine: ON | Speed: " .. carSpeed .. " | Fuel: " .. carFuel)
+    else
+        print("Engine: OFF | Speed: " .. carSpeed .. " | Fuel: " .. carFuel)
+    end
+end
+
+-- ============================================================
+-- START — needs the key AND fuel, in that order
+-- ============================================================
+function startCar()
+    if carKey < 1 then
+        print("No car key! You can't start a car that isn't yours.")
+    elseif carFuel <= 0 then
+        print("Tank is empty. Refuel before you start.")
+    else
+        engineOn = true
+        print("Engine started.")
+    end
+end
+
+-- ============================================================
+-- DRIVE — only works with the engine on, and it costs fuel
+-- ============================================================
+function drive()
+    if not engineOn then
+        print("Engine is off. Start the car first.")
+    elseif carFuel <= 0 then
+        print("Out of fuel! The engine stalls.")
+        engineOn = false
+        carSpeed = 0
+    else
+        carSpeed = carSpeed + 20
+        carFuel = carFuel - 10
+        print("Driving... Speed: " .. carSpeed .. " | Fuel: " .. carFuel)
+    end
+end
+
+-- ============================================================
+-- STOP — engine off, speed back to zero
+-- ============================================================
+function stopCar()
+    engineOn = false
+    carSpeed = 0
+    print("Engine off. Car stopped.")
+end
+
+-- ============================================================
+-- REFUEL — spends one fuel can, fuel caps at 100
+-- ============================================================
+function refuel()
+    if fuelCan < 1 then
+        print("No fuel cans left!")
+    else
+        fuelCan = fuelCan - 1
+        carFuel = math.min(100, carFuel + 50)
+        print("Refueled. Fuel: " .. carFuel .. " | Fuel cans left: " .. fuelCan)
+    end
+end
+
+-- ============================================================
+-- TRY IT — a short drive, in order
+-- ============================================================
+showCar()      -- Engine OFF, fuel 50
+startCar()     -- needs key (have it) and fuel (have it) -> ON
+drive()        -- speed 20, fuel 40
+drive()        -- speed 40, fuel 30
+refuel()       -- spends the fuel can, fuel 80
+stopCar()      -- engine OFF, speed 0
+showCar()      -- the end state, all in one place
