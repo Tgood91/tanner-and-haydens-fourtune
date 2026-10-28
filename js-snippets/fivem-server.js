@@ -53,6 +53,9 @@ function perform(result) {
             case "setHealth":
                 emitNet("fourtune:setHealth", a.target, a.value + 100);
                 break;
+            case "revive":
+                emitNet("fourtune:revive", a.target, { pedHealth: a.health + 100, pos: a.pos });
+                break;
             case "spawnVehicle": {
                 const veh = CreateVehicleServerSetter(GetHashKey(a.model), "automobile", a.pos.x + 3, a.pos.y, a.pos.z, 0.0);
                 SetVehicleNumberPlateText(veh, a.plate);
@@ -107,7 +110,7 @@ for (const name of game.commandNames) {
         const id = Number(source);
         if (id === 0) return perform(tellConsole(game.command({ isConsole: true }, name, args)));
 
-        game.syncHealth(id, readHealth(id));
+        perform(game.syncHealth(id, readHealth(id)));
         const result = game.command({ id, pos: posOf(id), vehiclePlate: nearestVehiclePlate(id), now: Date.now() }, name, args);
         tell(id, result.msg);
         perform(result);
@@ -119,10 +122,17 @@ function tellConsole(result) {
     return result;
 }
 
+// The client says "I think I just died" so EMS hear right away, not at the next
+// minute tick. The server doesn't take its word: it reads the real ped health.
+onNet("fourtune:checkHealth", () => {
+    const id = Number(global.source);
+    perform(game.syncHealth(id, readHealth(id)));
+});
+
 // ---------------- time ----------------
 // One in-game "minute" of needs/pay every real 60 seconds.
 setInterval(() => {
-    for (const id of getPlayers()) game.syncHealth(Number(id), readHealth(Number(id)));
+    for (const id of getPlayers()) perform(game.syncHealth(Number(id), readHealth(Number(id))));
     perform(game.tick(1, Date.now()));
 }, 60 * 1000);
 

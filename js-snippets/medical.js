@@ -1,0 +1,88 @@
+// ============================================================
+// medical.js — going down, getting revived, respawning at hospital
+// At 0 health you're DOWNED, not gone: you stay where you fell and
+// on-duty EMS get an alert with your id. From there, two ways up:
+//   1. EMS walks over and /revive's you (uses one of THEIR medkits,
+//      EMS gets a bonus from the city) — free for you
+//   2. After BLEEDOUT_MIN you can /respawn at the nearest hospital
+//      for a bill — so waiting for EMS is always the better deal
+// Either way you get up with enough food/water not to drop again.
+//
+// Hospital coords: Chicago is your EMS spot from the smoke test;
+// Atlanta and GeePee are placeholders. All numbers are placeholders.
+// ============================================================
+
+const inventory = require("./inventory");
+const { distance } = require("./cities");
+
+const REVIVE_RANGE = 3.0;   // metres from the patient
+const BLEEDOUT_MIN = 5;     // minutes before /respawn unlocks
+const REVIVE_HEALTH = 50;   // out of 100
+const RESPAWN_HEALTH = 50;
+const MIN_NEEDS_AFTER = 30; // hunger/thirst topped up to at least this
+const EMS_REVIVE_BONUS = 150;
+const HOSPITAL_BILL = 500;
+
+const HOSPITALS = {
+    atlanta: { label: "Atlanta General", pos: { x: 298.0, y: -584.0, z: 43.3 } },  // placeholder
+    geepee:  { label: "GeePee Medical",  pos: { x: 1839.0, y: 3672.0, z: 34.3 } }, // placeholder
+    chicago: { label: "Chicago EMS",     pos: { x: -245.0, y: 6325.0, z: 33.0 } },
+};
+
+// Returns true only on the moment someone goes down (so alerts fire once).
+function knockDown(c, now) {
+    if (c.downed) return false;
+    c.downed = true;
+    c.downedAt = now;
+    c.health = 0;
+    return true;
+}
+
+function getUp(c, health) {
+    c.downed = false;
+    c.downedAt = null;
+    c.health = health;
+    c.hunger = Math.max(c.hunger, MIN_NEEDS_AFTER);
+    c.thirst = Math.max(c.thirst, MIN_NEEDS_AFTER);
+}
+
+function minutesUntilRespawn(c, now) {
+    const waited = (now - c.downedAt) / 60000;
+    return Math.max(0, Math.ceil(BLEEDOUT_MIN - waited));
+}
+
+function revive(medic, patient) {
+    if (medic.job.name !== "ems") return { ok: false, msg: "Only EMS can revive" };
+    if (!medic.onDuty) return { ok: false, msg: "Clock in first (/duty)" };
+    if (!patient) return { ok: false, msg: "No player with that id" };
+    if (patient === medic) return { ok: false, msg: "You can't revive yourself" };
+    if (!patient.downed) return { ok: false, msg: `${patient.name} isn't down` };
+    if (!medic.pos || !patient.pos || distance(medic.pos, patient.pos) > REVIVE_RANGE) {
+        return { ok: false, msg: `Get closer to ${patient.name}` };
+    }
+    if (!medic.inventory.medkit) return { ok: false, msg: "You need a medkit" };
+
+    inventory.removeItem(medic.inventory, "medkit", 1);
+    getUp(patient, REVIVE_HEALTH);
+    medic.bank += EMS_REVIVE_BONUS;
+    return { ok: true, msg: `Revived ${patient.name}. +$${EMS_REVIVE_BONUS} bonus to your bank` };
+}
+
+// city = where they went down. Bill is whatever they can cover, up to HOSPITAL_BILL.
+function respawn(c, now, city) {
+    if (!c.downed) return { ok: false, msg: "You're not down" };
+    const wait = minutesUntilRespawn(c, now);
+    if (wait > 0) return { ok: false, msg: `Hang on for EMS — you can respawn in ${wait} min` };
+
+    const hospital = HOSPITALS[city] || HOSPITALS.atlanta;
+    const bill = Math.min(c.bank, HOSPITAL_BILL);
+    c.bank -= bill;
+    getUp(c, RESPAWN_HEALTH);
+    return { ok: true, msg: `You woke up at ${hospital.label}. Hospital bill: $${bill}`, pos: { ...hospital.pos } };
+}
+
+module.exports = {
+    REVIVE_RANGE, BLEEDOUT_MIN, REVIVE_HEALTH, RESPAWN_HEALTH, MIN_NEEDS_AFTER,
+    EMS_REVIVE_BONUS, HOSPITAL_BILL, HOSPITALS,
+    knockDown, getUp, minutesUntilRespawn, revive, respawn,
+};

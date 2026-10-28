@@ -9,7 +9,8 @@
 //
 // Every command returns { msg, notify: [{ id, msg }], actions: [...] }
 // Action types the platform must perform:
-//   setHealth { target, value }            value is 0..100
+//   setHealth { target, value }            value is 0..100 (0 = downed)
+//   revive { target, health, pos }         bring the ped back; pos = where (hospital or same spot)
 //   spawnVehicle { target, model, plate, pos }
 //   despawnVehicle { plate }
 //   setVehicleLocked { plate, locked }
@@ -24,11 +25,13 @@ const jobs = require("./jobs");
 const needs = require("./needs");
 const cities = require("./cities");
 const shops = require("./shops");
+const medical = require("./medical");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
 
 const PAY_INTERVAL_MIN = 30;
+const ALLOWED_WHILE_DOWN = ["help", "status", "respawn", "911"];
 
 function reply(msg, extra = {}) {
     return { msg, notify: [], actions: [], ...extra };
@@ -76,15 +79,39 @@ function createGame() {
         return characters.get(id) || null;
     }
 
+    // Tell on-duty EMS someone just went down; tell the patient their options.
+    function downedAlert(c) {
+        const city = cities.CITIES[cities.cityAt(c.pos || { x: 0, y: 0, z: 0 })].label;
+        const notify = [];
+        for (const other of characters.values()) {
+            if (other.job.name === "ems" && other.onDuty && other !== c) {
+                notify.push({ id: other.id, msg: `EMS call: ${c.name} is down in ${city} — /revive ${c.id}` });
+            }
+        }
+        notify.push({
+            id: c.id,
+            msg: notify.length > 0
+                ? `You're down. EMS has been alerted (${notify.length} on duty). /respawn unlocks in ${medical.BLEEDOUT_MIN} min.`
+                : `You're down and no EMS is on duty. /respawn unlocks in ${medical.BLEEDOUT_MIN} min.`,
+        });
+        return notify;
+    }
+
     // The platform reads the ped's real health (bullets, crashes) before commands/ticks.
-    function syncHealth(id, value) {
+    // Returns alerts when that reading is the moment someone goes down.
+    function syncHealth(id, value, now = Date.now()) {
         const c = characters.get(id);
-        if (c) c.health = Math.max(0, Math.min(c.maxHealth, Math.round(value)));
+        if (!c || c.downed) return reply("");
+        c.health = Math.max(0, Math.min(c.maxHealth, Math.round(value)));
+        if (c.health === 0 && medical.knockDown(c, now)) return reply("", { notify: downedAlert(c) });
+        return reply("");
     }
 
     function updatePosition(id, pos) {
         const c = characters.get(id);
-        return c ? cities.updateCity(c, pos) : null;
+        if (!c) return null;
+        c.pos = { ...pos };
+        return cities.updateCity(c, pos);
     }
 
     // ---------------- commands ----------------
@@ -178,6 +205,51 @@ function createGame() {
             },
         },
 
+        // ----- medical -----
+        revive: {
+            help: "<playerId> (EMS, uses a medkit)",
+            run: ({ c, args }) => {
+                const patient = get(Number(args[0]));
+                const res = medical.revive(c, patient);
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, {
+                    notify: [{ id: patient.id, msg: `${c.name} revived you. ${needs.status(patient)}` }],
+                    actions: [{ type: "revive", target: patient.id, health: patient.health, pos: { ...patient.pos } }],
+                });
+            },
+        },
+        respawn: {
+            help: "wake up at the hospital (after the bleedout timer, costs a bill)",
+            run: ({ c, ctx }) => {
+                const res = medical.respawn(c, ctx.now, cities.cityAt(c.pos));
+                if (!res.ok) return reply(res.msg);
+                c.pos = res.pos;
+                return reply(res.msg, { actions: [{ type: "revive", target: c.id, health: c.health, pos: res.pos }] });
+            },
+        },
+        911: {
+            help: "call EMS to where you are",
+            run: ({ c }) => {
+                if (!c.downed) return reply("Only for when you're down — use your phone for the rest");
+                const notify = downedAlert(c);
+                return reply("", { notify });
+            },
+        },
+        forcerevive: {
+            help: "<playerId>",
+            consoleOnly: true,
+            run: ({ args }) => {
+                const target = get(Number(args[0]));
+                if (!target) return reply(`No player with id ${args[0]}`);
+                if (!target.downed) return reply(`${target.name} isn't down`);
+                medical.getUp(target, target.maxHealth);
+                return reply(`Revived ${target.name}`, {
+                    notify: [{ id: target.id, msg: "An admin revived you." }],
+                    actions: [{ type: "revive", target: target.id, health: target.health, pos: { ...(target.pos || { x: 0, y: 0, z: 0 }) } }],
+                });
+            },
+        },
+
         // ----- needs / world -----
         status: { help: "health, hunger, thirst", run: ({ c }) => reply(needs.status(c)) },
         cities: { help: "the cities, south to north", run: () => reply(cities.listCities()) },
@@ -266,7 +338,8 @@ function createGame() {
 
         const c = characters.get(ctx.id);
         if (!c) return reply("Your character isn't loaded yet.");
-        if (c.health === 0 && name !== "help" && name !== "status") return reply("You're down. Wait for EMS.");
+        if (ctx.pos) c.pos = { ...ctx.pos };
+        if (c.downed && !ALLOWED_WHILE_DOWN.includes(name)) return reply("You're down. Wait for EMS, /911, or /respawn when it unlocks.");
         return cmd.run({ c, args, ctx: { now: Date.now(), pos: { x: 0, y: 0, z: 0 }, ...ctx } });
     }
 
@@ -276,9 +349,11 @@ function createGame() {
         const out = { notify: [], actions: [] };
 
         for (const c of characters.values()) {
+            if (c.downed) continue; // needs freeze while you're down
             const { warnings, damaged } = needs.decay(c, minutes);
             for (const msg of warnings) out.notify.push({ id: c.id, msg });
             if (damaged) out.actions.push({ type: "setHealth", target: c.id, value: c.health });
+            if (c.health === 0 && medical.knockDown(c, now)) out.notify.push(...downedAlert(c));
         }
 
         minutesSincePay += minutes;
