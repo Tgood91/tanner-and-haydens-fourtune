@@ -1,0 +1,43 @@
+Got it — two versions of the same marketplace.lua file. The first one is the module-only version (ends with return {...}), the second has the full demo block at the bottom.
+Here's what this file already does well and where it connects to your server:
+What's solid:
+Vendor:new() is a proper OOP class using setmetatable — same pattern your FiveM resources will use
+PricingEngine with scarcity multiplier + reputation discount is exactly how you'd want in-game economy to work
+Transaction logging is clean
+The FUTURE: PREMIUM/VIP MECHANICS stub at the bottom is already there — that's where we fold in monetization
+Stripping pay-to-win, adding fair monetization:
+The stub comment lists ideas that are all borderline. Here's how to sort them:
+Idea from stub
+Keep?
+Why
+Vendor membership tiers (access exclusive items)
+✅ Cosmetic-only tier
+Fine if the items are visual (skin, outfit) — NOT if they're gameplay items like weapons
+Bulk discount pass
+❌ Strip
+Paying real money to get cheaper in-game prices = pay-to-win
+Early access to restocks
+⚠️ Borderline
+If it's scarce weapons, that's an advantage. If it's cosmetics only, fine
+Black market faction reputation
+✅ Keep
+Earned in-game, not purchased
+Vendor loyalty rewards
+✅ Keep
+Earned through play, not purchased
+What to actually implement:
+-- In Vendor:new(), add:
+self.vipOnly = false  -- if true, requires VIP flag to access this vendor
+
+-- New function on Marketplace:
+function Marketplace:canAccessVendor(playerName, vendorName, playerFlags)
+    local vendor = self:findVendor(vendorName)
+    if not vendor then return false end
+    if vendor.vipOnly and not playerFlags.vip then
+        return false, "VIP membership required"
+    end
+    return true
+end
+Then your VIP vendors sell cosmetics only — outfits, car liveries, emotes, name tags. Nothing in ItemDB that gives a combat edge.
+The Tebex webhook hits your Node API, flips players.vip = true in the DB, and the Lua server checks that flag via exports.player:GetPlayer(source).vip before allowing access.
+Want me to write out the full VIP vendor integration — both the Lua side and the Node webhook route — so they connect end to end?
