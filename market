@@ -1,0 +1,365 @@
+
+-- ============================================================
+-- marketplace.lua — GTA5/6 style dynamic marketplace system
+-- Full vendor system, pricing algorithms, transaction history
+-- No dependencies. Pure Lua arcade game logic.
+-- ============================================================
+
+-- ============================================================
+-- MARKETPLACE STATE
+-- ============================================================
+local Marketplace = {}
+Marketplace.vendors = {}
+Marketplace.transactions = {}
+Marketplace.priceHistory = {}
+Marketplace.playerReputation = 0
+Marketplace.globalPriceMultiplier = 1.0
+
+-- ============================================================
+-- VENDOR CLASS
+-- ============================================================
+local Vendor = {}
+Vendor.__index = Vendor
+
+function Vendor:new(name, location, type, inventory)
+    local self = setmetatable({}, Vendor)
+    self.name = name
+    self.location = location
+    self.type = type -- "gunshop", "food", "medical", "tools", "black_market"
+    self.inventory = inventory or {}
+    self.cash = 50000
+    self.reputation = 100
+    self.openTime = 0 -- 24h format
+    self.closeTime = 23
+    self.lastRestock = 0
+    self.markup = 1.2 -- 20% markup standard
+    self.urgencyMultiplier = 1.0
+    return self
+end
+
+function Vendor:isOpen(hour)
+    hour = hour or 12
+    return hour >= self.openTime and hour < self.closeTime
+end
+
+function Vendor:getStock(itemName)
+    return self.inventory[itemName] or 0
+end
+
+function Vendor:setStock(itemName, quantity)
+    self.inventory[itemName] = math.max(0, quantity)
+end
+
+function Vendor:addCash(amount)
+    self.cash = self.cash + amount
+end
+
+function Vendor:subtractCash(amount)
+    if self.cash >= amount then
+        self.cash = self.cash - amount
+        return true
+    end
+    return false
+end
+
+-- ============================================================
+-- ITEM DATABASE
+-- ============================================================
+local ItemDB = {
+    -- Weapons
+    ar1five = { name = "AR-15", category = "weapon", basePrice = 500, weight = 3.5 },
+    pistol = { name = "Pistol 9mm", category = "weapon", basePrice = 250, weight = 0.8 },
+    shotgun = { name = "Shotgun", category = "weapon", basePrice = 400, weight = 3.0 },
+    sniper = { name = "Sniper Rifle", category = "weapon", basePrice = 1200, weight = 4.2 },
+    
+    -- Ammo
+    rifle_ammo = { name = "Rifle Ammo (box)", category = "ammo", basePrice = 2, weight = 0.1 },
+    pistol_ammo = { name = "Pistol Ammo (box)", category = "ammo", basePrice = 1, weight = 0.05 },
+    shotgun_ammo = { name = "Shotgun Shells (box)", category = "ammo", basePrice = 3, weight = 0.15 },
+    
+    -- Medical
+    bandages = { name = "Bandages", category = "medical", basePrice = 25, weight = 0.2 },
+    medkit = { name = "Medical Kit", category = "medical", basePrice = 120, weight = 0.8 },
+    stimpack = { name = "Stimpack", category = "medical", basePrice = 80, weight = 0.3 },
+    
+    -- Food
+    burger = { name = "Burger", category = "food", basePrice = 50, weight = 0.4 },
+    pizza = { name = "Pizza Slice", category = "food", basePrice = 35, weight = 0.3 },
+    water = { name = "Water Bottle", category = "food", basePrice = 10, weight = 0.2 },
+    energy_drink = { name = "Energy Drink", category = "food", basePrice = 20, weight = 0.25 },
+    
+    -- Tools
+    lockpick = { name = "Lockpick", category = "tool", basePrice = 35, weight = 0.1 },
+    repairkit = { name = "Repair Kit", category = "tool", basePrice = 40, weight = 0.5 },
+    flashlight = { name = "Flashlight", category = "tool", basePrice = 30, weight = 0.3 },
+    hacking_device = { name = "Hacking Device", category = "tool", basePrice = 200, weight = 0.4 },
+    
+    -- Armor
+    kevlar_vest = { name = "Kevlar Vest", category = "armor", basePrice = 300, weight = 2.0 },
+    helmet = { name = "Tactical Helmet", category = "armor", basePrice = 150, weight = 1.0 },
+}
+
+-- ============================================================
+-- PRICING ENGINE
+-- ============================================================
+local PricingEngine = {}
+
+function PricingEngine:calculateBuyPrice(itemKey, vendor, playerRep, supplyLevel)
+    local item = ItemDB[itemKey]
+    if not item then return 0 end
+    
+    local basePrice = item.basePrice
+    supplyLevel = supplyLevel or vendor:getStock(itemKey)
+    
+    -- Scarcity multiplier: low stock = higher price
+    local scarcityMult = 1.0
+    if supplyLevel == 0 then
+        scarcityMult = 2.0 -- Can't buy, but price doubles if restocked
+    elseif supplyLevel < 3 then
+        scarcityMult = 1.5
+    elseif supplyLevel > 20 then
+        scarcityMult = 0.85 -- Overstock discount
+    end
+    
+    -- Reputation discount (negative rep = you pay more)
+    -- Every 10 rep points = 1% discount. Max 15% off at +150 rep
+    local repMult = 1.0 - math.min(0.15, (playerRep / 10) * 0.01)
+    repMult = math.max(0.85, repMult) -- Floor at 85% (max 15% off)
+    
+    -- Vendor markup
+    local vendorMarkup = vendor.markup
+    
+    -- Global market conditions
+    local globalMult = Marketplace.globalPriceMultiplier
+    
+    local finalPrice = basePrice * vendorMarkup * scarcityMult * repMult * globalMult
+    return math.ceil(finalPrice)
+end
+
+function PricingEngine:calculateSellPrice(itemKey, vendor, playerRep, condition)
+    local item = ItemDB[itemKey]
+    if not item then return 0 end
+    
+    local basePrice = item.basePrice
+    condition = condition or 1.0 -- 1.0 = perfect, 0.5 = half condition
+    
+    -- Vendors buy back at ~40% of buy price
+    local buyPrice = self:calculateBuyPrice(itemKey, vendor, playerRep, vendor:getStock(itemKey))
+    local sellPrice = math.ceil(buyPrice * 0.4 * condition)
+    
+    -- Vendor will only buy if they have cash
+    if vendor.cash < sellPrice then
+        sellPrice = math.ceil(vendor.cash * 0.8)
+    end
+    
+    return math.max(0, sellPrice)
+end
+
+-- ============================================================
+-- TRANSACTION SYSTEM
+-- ============================================================
+local TransactionLog = {}
+
+function TransactionLog:new(tType, player, vendor, itemKey, quantity, priceEach, timestamp)
+    local tx = {
+        type = tType, -- "buy", "sell"
+        player = player,
+        vendor = vendor,
+        itemKey = itemKey,
+        itemName = ItemDB[itemKey].name,
+        quantity = quantity,
+        priceEach = priceEach,
+        totalPrice = priceEach * quantity,
+        timestamp = timestamp or os.time(),
+    }
+    return tx
+end
+
+-- ============================================================
+-- MARKETPLACE INTERFACE
+-- ============================================================
+
+function Marketplace:registerVendor(vendor)
+    table.insert(self.vendors, vendor)
+end
+
+function Marketplace:findVendor(name)
+    for _, vendor in ipairs(self.vendors) do
+        if vendor.name == name then return vendor end
+    end
+    return nil
+end
+
+function Marketplace:buyFromVendor(playerName, vendorName, itemKey, quantity)
+    local vendor = self:findVendor(vendorName)
+    if not vendor then
+        return { success = false, reason = "Vendor not found: " .. vendorName }
+    end
+    
+    -- Check vendor has stock
+    if vendor:getStock(itemKey) < quantity then
+        return { success = false, reason = string.format(
+            "%s only has %d in stock (you want %d)",
+            vendor.name, vendor:getStock(itemKey), quantity
+        ) }
+    end
+    
+    -- Calculate price
+    local priceEach = PricingEngine:calculateBuyPrice(itemKey, vendor, self.playerReputation)
+    local totalPrice = priceEach * quantity
+    
+    -- Execute transaction
+    vendor:setStock(itemKey, vendor:getStock(itemKey) - quantity)
+    vendor:addCash(totalPrice)
+    
+    -- Log it
+    local tx = TransactionLog:new("buy", playerName, vendor.name, itemKey, quantity, priceEach)
+    table.insert(self.transactions, tx)
+    
+    return {
+        success = true,
+        itemName = ItemDB[itemKey].name,
+        quantity = quantity,
+        priceEach = priceEach,
+        totalPrice = totalPrice,
+        vendorName = vendor.name
+    }
+end
+
+function Marketplace:sellToVendor(playerName, vendorName, itemKey, quantity, condition)
+    local vendor = self:findVendor(vendorName)
+    if not vendor then
+        return { success = false, reason = "Vendor not found: " .. vendorName }
+    end
+    
+    condition = condition or 1.0
+    
+    -- Calculate price
+    local priceEach = PricingEngine:calculateSellPrice(itemKey, vendor, self.playerReputation, condition)
+    local totalPrice = priceEach * quantity
+    
+    -- Check vendor has cash
+    if not vendor:subtractCash(totalPrice) then
+        return { success = false, reason = string.format(
+            "%s only has $%d (you want $%d)",
+            vendor.name, vendor.cash, totalPrice
+        ) }
+    end
+    
+    -- Execute transaction
+    vendor:setStock(itemKey, vendor:getStock(itemKey) + quantity)
+    
+    -- Log it
+    local tx = TransactionLog:new("sell", playerName, vendor.name, itemKey, quantity, priceEach)
+    table.insert(self.transactions, tx)
+    
+    return {
+        success = true,
+        itemName = ItemDB[itemKey].name,
+        quantity = quantity,
+        priceEach = priceEach,
+        totalPrice = totalPrice,
+        vendorName = vendor.name
+    }
+end
+
+function Marketplace:getVendorCatalog(vendorName)
+    local vendor = self:findVendor(vendorName)
+    if not vendor then return nil end
+    
+    local catalog = {}
+    for itemKey, stock in pairs(vendor.inventory) do
+        if stock > 0 then
+            local item = ItemDB[itemKey]
+            local buyPrice = PricingEngine:calculateBuyPrice(itemKey, vendor, self.playerReputation)
+            table.insert(catalog, {
+                itemKey = itemKey,
+                itemName = item.name,
+                stock = stock,
+                price = buyPrice,
+                category = item.category
+            })
+        end
+    end
+    
+    table.sort(catalog, function(a, b)
+        return a.itemName < b.itemName
+    end)
+    
+    return catalog
+end
+
+function Marketplace:printVendorCatalog(vendorName)
+    local vendor = self:findVendor(vendorName)
+    if not vendor then
+        print("ERROR: Vendor not found")
+        return
+    end
+    
+    print("\n╔════════════════════════════════════════════════╗")
+    print("║ " .. string.format("%-45s", vendor.name .. " — " .. vendor.location) .. " ║")
+    print("╠════════════════════════════════════════════════╣")
+    
+    local catalog = self:getVendorCatalog(vendorName)
+    if #catalog == 0 then
+        print("║ (out of stock) ║")
+    else
+        for _, item in ipairs(catalog) do
+            local line = string.format(
+                "║ %-30s $%-8d [%d] ║",
+                item.itemName:sub(1, 30),
+                item.price,
+                item.stock
+            )
+            print(line)
+        end
+    end
+    
+    print("╠════════════════════════════════════════════════╣")
+    print(string.format("║ Vendor Cash: $%-37d ║", vendor.cash))
+    print("╚════════════════════════════════════════════════╝\n")
+end
+
+function Marketplace:printTransactionHistory(count)
+    count = count or 10
+    print("\n--- Recent Transactions (last " .. count .. ") ---")
+    
+    local start = math.max(1, #self.transactions - count + 1)
+    for i = start, #self.transactions do
+        local tx = self.transactions[i]
+        local action = tx.type == "buy" and "BOUGHT" or "SOLD"
+        print(string.format(
+            "[%s] %s %d x %s @ $%d each = $%d (via %s)",
+            action, tx.player, tx.quantity, tx.itemName, tx.priceEach, tx.totalPrice, tx.vendor
+        ))
+    end
+    print()
+end
+
+function Marketplace:updateReputation(delta)
+    self.playerReputation = self.playerReputation + delta
+    print(string.format("Reputation: %+d (now %d)", delta, self.playerReputation))
+end
+
+-- ============================================================
+-- FUTURE: PREMIUM/VIP MECHANICS (stubbed for later)
+-- ============================================================
+-- Placeholder for potential pay-to-play or exclusive vendor tiers
+-- when/if needed down the line. Leave empty for now.
+--
+-- Ideas (implement if ever needed):
+-- - Vendor membership tiers (access exclusive items)
+-- - Bulk discount pass (buy 5+ items at once = extra 2%)
+-- - Early access to restocks (notify member before public sale)
+-- - Black market faction reputation (separate from main rep)
+-- - Vendor loyalty rewards (accumulate points, redeem for free items)
+
+-- Export for module use
+return {
+    Marketplace = Marketplace,
+    Vendor = Vendor,
+    ItemDB = ItemDB,
+    PricingEngine = PricingEngine,
+    TransactionLog = TransactionLog
+}
+##hope Kaos will check this out and tell me he read this 🐛 🪲 🐞 🐛 
