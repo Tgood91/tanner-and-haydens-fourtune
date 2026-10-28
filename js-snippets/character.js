@@ -23,6 +23,10 @@ function createCharacter(id, name, saved = null) {
         maxHealth: 100,
         hunger: s.hunger ?? 100,
         thirst: s.thirst ?? 100,
+        // Logging out while down doesn't get you up: the bleedout clock restarts on login
+        downed: s.downed ?? false,
+        downedAt: s.downed ? Date.now() : null,
+        pos: null, // last known position, kept fresh by game.updatePosition
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
         garage: (s.garage || []).map((car) => ({ ...car })),
@@ -42,6 +46,7 @@ function serialize(c) {
         health: c.health,
         hunger: c.hunger,
         thirst: c.thirst,
+        downed: c.downed,
         inventory: { ...c.inventory },
         garage: c.garage.map((car) => ({ ...car })),
     };

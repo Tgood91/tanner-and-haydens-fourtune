@@ -181,8 +181,116 @@ test("save and reload round-trips the character", () => {
     assert.deepEqual(again.inventory, saved.inventory);
 });
 
-test("downed players can't run commands", () => {
-    const { game, a, as } = setup();
-    a.health = 0;
-    assert.match(game.command(as(1), "inventory").msg, /down/);
+// ---------------- revive flow ----------------
+function medicalSetup() {
+    const env = setup();
+    const { game, b, as } = env;
+    game.command(CONSOLE, "setjob", ["2", "ems", "0"]);
+    game.command(as(2), "duty");
+    b.inventory.medkit = 2;
+    const spot = { x: -300, y: 6100, z: 31 }; // Chicago
+    game.updatePosition(1, spot);
+    game.updatePosition(2, { x: -301, y: 6100, z: 31 });
+    return { ...env, spot };
+}
+
+test("going down from damage alerts on-duty EMS once, and locks most commands", () => {
+    const { game, a, as } = medicalSetup();
+    const first = game.syncHealth(1, 0, 0);
+    assert.ok(a.downed);
+    assert.ok(first.notify.some((n) => n.id === 2 && n.msg.includes("/revive 1") && n.msg.includes("Chicago")));
+    assert.ok(first.notify.some((n) => n.id === 1 && n.msg.includes("EMS has been alerted")));
+    assert.equal(game.syncHealth(1, 0, 0).notify.length, 0); // no repeat alert
+
+    assert.match(game.command(as(1), "inventory").msg, /You're down/);
+    assert.match(game.command(as(1), "status").msg, /Health: 0/);
+    assert.ok(game.command(as(1), "911").notify.some((n) => n.id === 2));
+});
+
+test("starving to 0 knocks you down; needs freeze while down", () => {
+    const { game, a } = medicalSetup();
+    a.hunger = 0; a.thirst = 0; a.health = 4;
+    const out = game.tick(1, 0);
+    assert.ok(a.downed);
+    assert.ok(out.notify.some((n) => n.id === 2));
+    game.tick(30, 0);
+    assert.equal(a.hunger, 0); // didn't keep draining / no double alert
+});
+
+test("revive: EMS only, on duty, close, with a medkit — then you're up and fed", () => {
+    const { game, a, b, as, spot } = medicalSetup();
+    game.syncHealth(1, 0, 0);
+    const medicAt = (pos) => as(2, { pos });
+
+    assert.match(game.command(as(3), "revive", ["1"]).msg, /isn't loaded|Only EMS/);
+    game.join(3, "Rando");
+    assert.match(game.command(as(3, { pos: spot }), "revive", ["1"]).msg, /Only EMS/);
+    assert.match(game.command(medicAt({ x: 0, y: 0, z: 0 }), "revive", ["1"]).msg, /Get closer/);
+    assert.match(game.command(medicAt(spot), "revive", ["2"]).msg, /yourself/);
+
+    game.command(as(2, { pos: spot }), "duty"); // clock out
+    assert.match(game.command(medicAt(spot), "revive", ["1"]).msg, /Clock in/);
+    game.command(as(2, { pos: spot }), "duty"); // back in
+
+    const res = game.command(medicAt(spot), "revive", ["1"]);
+    assert.equal(a.downed, false);
+    assert.equal(a.health, 50);
+    assert.equal(a.hunger, 100);
+    assert.equal(b.inventory.medkit, 1);
+    assert.equal(b.bank, 5150);
+    assert.equal(res.actions[0].type, "revive");
+    assert.match(game.command(medicAt(spot), "revive", ["1"]).msg, /isn't down/);
+
+    // No medkits left
+    b.inventory = {};
+    game.syncHealth(1, 0, 0);
+    assert.match(game.command(medicAt(spot), "revive", ["1"]).msg, /medkit/);
+});
+
+test("revive tops up empty needs so you don't drop straight back down", () => {
+    const { game, a, as, spot } = medicalSetup();
+    a.hunger = 0; a.thirst = 0; a.health = 1;
+    game.tick(1, 0);
+    game.command(as(2, { pos: spot }), "revive", ["1"]);
+    assert.equal(a.hunger, 30);
+    assert.equal(a.thirst, 30);
+});
+
+test("respawn: waits for bleedout, bills the bank, sends you to the city's hospital", () => {
+    const { game, a, as, spot } = medicalSetup();
+    game.syncHealth(1, 0, 0);
+    assert.match(game.command(as(1, { pos: spot, now: 60 * 1000 }), "respawn").msg, /respawn in 4 min/);
+
+    const res = game.command(as(1, { pos: spot, now: 5 * 60 * 1000 }), "respawn");
+    assert.match(res.msg, /Chicago EMS/);
+    assert.equal(a.bank, 4500);
+    assert.equal(a.downed, false);
+    assert.deepEqual(res.actions[0].pos, { x: -245, y: 6325, z: 33 });
+
+    // Broke: bill is whatever's in the bank
+    a.bank = 120;
+    game.syncHealth(1, 0, 0);
+    game.command(as(1, { now: 10 * 60 * 1000 }), "respawn");
+    assert.equal(a.bank, 0);
+});
+
+test("no EMS on duty: the patient is told so", () => {
+    const { game, as } = setup();
+    const out = game.syncHealth(1, 0, 0);
+    assert.match(out.notify[0].msg, /no EMS is on duty/);
+    assert.match(game.command(as(1), "respawn").msg, /respawn in 5 min/);
+});
+
+test("logging out while down keeps you down; console can force-revive", () => {
+    const { game, as } = medicalSetup();
+    game.syncHealth(1, 0, 0);
+    const { saved } = game.leave(1);
+    assert.equal(saved.downed, true);
+
+    const back = game.join(1, "Tanner", saved);
+    assert.ok(back.downed);
+    assert.match(game.command(as(1), "forcerevive", ["1"]).msg, /Console only/);
+    game.command(CONSOLE, "forcerevive", ["1"]);
+    assert.equal(back.downed, false);
+    assert.equal(back.health, 100);
 });

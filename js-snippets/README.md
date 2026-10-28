@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 12 checks across every system
+node --test js-snippets/game.test.js  # 18 checks across every system
 ```
 
 ## What's in here
@@ -21,6 +21,7 @@ node --test js-snippets/game.test.js  # 12 checks across every system
 | `inventory.js` | Items, weights, 30 kg limit, use/drop. Food and drink values live here |
 | `economy.js` | Cash/bank, deposit, withdraw, pay another player |
 | `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi. Grades, duty, paychecks every 30 min |
+| `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` at the hospital after 5 min for a bill |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
 | `cities.js` | Atlanta → GeePee → Chicago by how far north you are, with "Welcome to…" announcements |
 | `shops.js` | 24/7s and hardware stores. Every check runs before money is taken, so you can't pay and get nothing |
@@ -31,14 +32,15 @@ node --test js-snippets/game.test.js  # 12 checks across every system
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /revive /respawn /911 /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /trunk /trunkput /trunktake`
 
-Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`
+Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`
 
 ## Placeholders — tune these
 
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
+- Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, Atlanta and GeePee hospital coords (`medical.js`)
 - Starting money (`character.js`), job pay (`jobs.js`), hunger/thirst rates (`needs.js`)
 - Atlanta and GeePee spawns and **both city borders** (`cities.js`); all shop locations and prices (`shops.js`)
 - The Chicago job spots are the approximate coords from your smoke test. Walk them

@@ -55,7 +55,7 @@ once every 5 minutes. The real limits are FiveM-side, and those can only be meas
 | | In-game smoke test of the JS adapter (OneSync on) | 3 | Tanner (PC) | 1 | Open |
 | | Wire save/load to the API on :4000 | 6 | Claude, Tanner tests | 1–2 | **Blocked:** API routes aren't in the repo |
 | | Walk & tune placeholders (city borders, shops, job spots, prices) | 6 | Hayden | 1–3 | Open |
-| **1 — friends (≤32)** | **Death/revive flow** — today a downed player is stuck with no `/revive` | 5 | Claude + Tanner | 2 | **Gap** |
+| **1 — friends (≤32)** | Death/revive flow — `/revive`, `/respawn`, `/911`, EMS alerts | 5 | Claude + Tanner | 2 | Built; needs in-game test |
 | | Admin tools: kick/ban, action logs (txAdmin covers part) | 5 | Claude + Tanner | 3 | Open |
 | | Command rate limit (spam protection) | 2 | Claude | 3 | Open |
 | | Crash-safe saving: only save changed characters, save on shutdown | 3 | Claude | 3 | Open |
@@ -78,8 +78,7 @@ once every 5 minutes. The real limits are FiveM-side, and those can only be meas
 1. **Unblock the API first.** Push the `gta-rp-server` API folder (minus `.env`) to the repo, or share it via Remote
    Control. That alone unblocks 6 hours of Gate 0.
 2. **Give Hayden the tuning and walking.** That moves about 6 hrs off Tanner and brings Tanner to roughly 80%.
-3. **Build revive before anyone else joins.** Right now, starving or getting shot to 0 health leaves you stuck.
-   Friends will hit this on day one.
+3. **Test revive in-game before anyone else joins.** It's built (`js-snippets/medical.js`), but never run in FXServer.
 4. **Hold at 48 slots.** The code can handle far more, but don't pay for a bigger tier until the Gate 2 stress
    night shows real numbers.
 5. **Fix the setup script line** in the environment settings so cloud sessions start clean.
