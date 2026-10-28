@@ -1,0 +1,62 @@
+// ============================================================
+// shops.js — buy items with cash or card
+// Every check happens BEFORE anything changes: the shop sells it,
+// you can afford it, AND it fits in your bag. Only then is money
+// taken and the item given — so you can never pay and get nothing.
+//
+// Shop coords and prices are placeholders: walk them in-game and tune.
+// No weapons for sale — that's a separate decision.
+// ============================================================
+
+const inventory = require("./inventory");
+const economy = require("./economy");
+const { distance } = require("./cities");
+
+const SHOP_RANGE = 3.0; // metres from the counter
+
+const STOCK_247 = { water: 5, sandwich: 8, coffee: 4, donut: 3, halfhalf: 6, bandage: 25 };
+const STOCK_HARDWARE = { repairkit: 350, toolbox: 200, lockpick: 75, fuelcan: 60, radio: 150, phone: 300 };
+
+const SHOPS = {
+    atl_247:      { label: "24/7 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },
+    atl_hardware: { label: "Atlanta Hardware",   city: "atlanta", pos: { x: 45.0,   y: -1748.0, z: 29.6 }, items: STOCK_HARDWARE },
+    gp_247:       { label: "24/7 GeePee",        city: "geepee",  pos: { x: 1698.0, y: 4924.0,  z: 42.1 }, items: STOCK_247 },
+    chi_247:      { label: "24/7 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
+    chi_hardware: { label: "Chicago Hardware",   city: "chicago", pos: { x: -420.0, y: 6025.0,  z: 31.5 }, items: STOCK_HARDWARE },
+};
+
+function findShopNear(pos) {
+    for (const [id, shop] of Object.entries(SHOPS)) {
+        if (distance(pos, shop.pos) <= SHOP_RANGE) return { id, shop };
+    }
+    return null;
+}
+
+function listShop(shop) {
+    const lines = [`--- ${shop.label} ---`];
+    for (const [item, price] of Object.entries(shop.items)) {
+        lines.push(`${inventory.ITEMS[item].label} (${item}) — ${economy.money(price)}`);
+    }
+    return lines.join("\n");
+}
+
+function buy(c, shop, item, count = 1, payWith = "cash") {
+    const price = shop.items[item];
+    if (price === undefined) return { ok: false, msg: `${shop.label} doesn't sell ${item}` };
+    if (!inventory.isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };
+    if (!economy.ACCOUNTS.includes(payWith)) return { ok: false, msg: "Pay with cash or bank" };
+
+    const total = price * count;
+    if (c[payWith] < total) {
+        return { ok: false, msg: `Not enough ${payWith} — ${count}x costs ${economy.money(total)}, you have ${economy.money(c[payWith])}` };
+    }
+    const fits = inventory.canAddItem(c.inventory, item, count);
+    if (!fits.ok) return fits;
+
+    // All checks passed — now act. Neither of these can fail anymore.
+    economy.removeMoney(c, payWith, total);
+    inventory.addItem(c.inventory, item, count);
+    return { ok: true, msg: `Bought ${count}x ${inventory.ITEMS[item].label} for ${economy.money(total)} (${payWith})` };
+}
+
+module.exports = { SHOPS, SHOP_RANGE, findShopNear, listShop, buy };

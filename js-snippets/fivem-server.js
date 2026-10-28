@@ -1,83 +1,142 @@
 // ============================================================
-// fivem-server.js — the same commands, as a FiveM JavaScript resource
-// FiveM's server runs JS on Node, so inventory.js / vehicles.js work as-is.
+// fivem-server.js — the GTA 5 (FiveM) side of game.js
+// All the rules live in game.js. This file only:
+//   - tells the game who joined / left and where they are
+//   - turns chat commands into game.command(...)
+//   - performs the actions the game sends back (health, cars, props)
 //
-// fxmanifest.lua for this resource:
-//   fx_version 'cerulean'
-//   game 'gta5'
-//   server_script 'fivem-server.js'
-//
-// This only runs inside FXServer (RegisterCommand, emitNet, etc. are
-// FiveM globals) — it won't run with plain `node`.
+// Only runs inside FXServer (needs OneSync for the server-side
+// entity natives) — it won't run with plain `node`.
+// NOT YET TESTED IN-GAME. Saving to your API is still a TODO.
 // ============================================================
 
 const resourcePath = GetResourcePath(GetCurrentResourceName());
-const inv = require(`${resourcePath}/inventory.js`);
-const veh = require(`${resourcePath}/vehicles.js`);
+const { createGame } = require(`${resourcePath}/game.js`);
 
-// In-memory per player. In your real server this lives on the character
-// and goes through autosave/disconnect save into the API, like money does.
-const inventories = {};
-const characters = {};
+const game = createGame();
+const spawned = new Map(); // plate -> entity handle
 
-function getInv(source) {
-    if (!inventories[source]) inventories[source] = inv.loadInventory(null); // TODO: load from API
-    return inventories[source];
+// ---------------- helpers ----------------
+function tell(id, msg) {
+    if (id === 0) return console.log(msg); // server console
+    for (const line of msg.split("\n")) {
+        emitNet("chat:addMessage", id, { args: ["Server", line] });
+    }
 }
 
-function getCharacter(source) {
-    if (!characters[source]) characters[source] = { bank: 0, garage: [] }; // TODO: load from API
-    return characters[source];
+function posOf(id) {
+    const [x, y, z] = GetEntityCoords(GetPlayerPed(id));
+    return { x, y, z };
 }
 
-function tell(source, msg) {
-    if (source === 0) return console.log(msg); // server console
-    emitNet("chat:addMessage", source, { args: ["Server", msg] });
+// GTA ped health: 100 = dead, 200 = full. The game uses 0..100.
+function readHealth(id) {
+    return Math.max(0, GetEntityHealth(GetPlayerPed(id)) - 100);
 }
 
-// Health is read on the SERVER from the ped, never trusted from the client.
-function getPlayerState(source) {
-    const ped = GetPlayerPed(source);
-    return { health: GetEntityHealth(ped), maxHealth: GetEntityMaxHealth(ped) };
+function nearestVehiclePlate(id, range = 4.0) {
+    const me = posOf(id);
+    let best = null;
+    for (const veh of GetAllVehicles()) {
+        const [x, y, z] = GetEntityCoords(veh);
+        const d = Math.hypot(me.x - x, me.y - y, me.z - z);
+        if (d <= range && (!best || d < best.d)) best = { d, plate: GetVehicleNumberPlateText(veh).trim() };
+    }
+    return best ? best.plate : null;
 }
 
-RegisterCommand("inventory", (source) => {
-    tell(source, inv.listInventory(getInv(source)));
-}, false);
+function perform(result) {
+    if (!result) return;
+    for (const n of result.notify || []) tell(n.id, n.msg);
+    for (const a of result.actions || []) {
+        switch (a.type) {
+            case "setHealth":
+                emitNet("fourtune:setHealth", a.target, a.value + 100);
+                break;
+            case "spawnVehicle": {
+                const veh = CreateVehicleServerSetter(GetHashKey(a.model), "automobile", a.pos.x + 3, a.pos.y, a.pos.z, 0.0);
+                SetVehicleNumberPlateText(veh, a.plate);
+                SetVehicleDoorsLocked(veh, 2);
+                spawned.set(a.plate, veh);
+                break;
+            }
+            case "despawnVehicle": {
+                const veh = spawned.get(a.plate);
+                if (veh && DoesEntityExist(veh)) DeleteEntity(veh);
+                spawned.delete(a.plate);
+                break;
+            }
+            case "setVehicleLocked": {
+                const veh = spawned.get(a.plate);
+                if (veh) SetVehicleDoorsLocked(veh, a.locked ? 2 : 1);
+                break;
+            }
+            case "pickupCreated":
+            case "pickupRemoved":
+                emitNet(`fourtune:${a.type}`, -1, a); // every client draws/removes the prop
+                break;
+        }
+    }
+}
 
-RegisterCommand("useitem", (source, args) => {
-    const item = (args[0] || "").toLowerCase();
-    tell(source, inv.useItem(getInv(source), item, getPlayerState(source)).msg);
-}, false);
+// ---------------- players ----------------
+function load(id) {
+    // TODO: fetch the saved character from your API (:4000) and pass it instead of null
+    game.join(id, GetPlayerName(id), null);
+}
 
-RegisterCommand("dropitem", (source, args) => {
-    const item = (args[0] || "").toLowerCase();
-    const count = parseInt(args[1] || "1", 10);
-    tell(source, inv.dropItem(getInv(source), item, count).msg);
-}, false);
+on("playerJoining", () => load(Number(global.source)));
 
-// giveitem <playerId> <item> <count> — server console ONLY.
-// source 0 = the console; any real player is refused.
-RegisterCommand("giveitem", (source, args) => {
-    if (source !== 0) return tell(source, "Console only.");
-    const [target, item, countText] = args;
-    if (!GetPlayerName(target)) return console.log(`No player with id ${target}`);
-    const result = inv.addItem(getInv(target), (item || "").toLowerCase(), parseInt(countText || "1", 10));
-    console.log(result.msg);
-    if (result.ok) tell(Number(target), result.msg);
-}, true);
-
-RegisterCommand("cars", (source) => {
-    tell(source, veh.listCars());
-}, false);
-
-RegisterCommand("buyveh", (source, args) => {
-    const model = (args[0] || "").toLowerCase();
-    tell(source, veh.buyVehicle(getCharacter(source), model).msg);
-}, false);
+// Resource restarted while people are online
+on("onResourceStart", (name) => {
+    if (name !== GetCurrentResourceName()) return;
+    for (const id of getPlayers()) load(Number(id));
+});
 
 on("playerDropped", () => {
-    // TODO: save inventories[source] / characters[source] to the API first
-    delete inventories[global.source];
-    delete characters[global.source];
+    const id = Number(global.source);
+    const { saved, actions } = game.leave(id);
+    perform({ actions });
+    // TODO: POST `saved` to your API (same route your money uses)
+    void saved;
 });
+
+// ---------------- commands ----------------
+for (const name of game.commandNames) {
+    RegisterCommand(name, (source, args) => {
+        const id = Number(source);
+        if (id === 0) return perform(tellConsole(game.command({ isConsole: true }, name, args)));
+
+        game.syncHealth(id, readHealth(id));
+        const result = game.command({ id, pos: posOf(id), vehiclePlate: nearestVehiclePlate(id), now: Date.now() }, name, args);
+        tell(id, result.msg);
+        perform(result);
+    }, false);
+}
+
+function tellConsole(result) {
+    console.log(result.msg);
+    return result;
+}
+
+// ---------------- time ----------------
+// One in-game "minute" of needs/pay every real 60 seconds.
+setInterval(() => {
+    for (const id of getPlayers()) game.syncHealth(Number(id), readHealth(Number(id)));
+    perform(game.tick(1, Date.now()));
+}, 60 * 1000);
+
+// City announcements: check where everyone is every 5 seconds.
+setInterval(() => {
+    for (const id of getPlayers()) {
+        const msg = game.updatePosition(Number(id), posOf(Number(id)));
+        if (msg) tell(Number(id), msg);
+    }
+}, 5 * 1000);
+
+// Autosave every 5 minutes.
+setInterval(() => {
+    const snapshot = game.saveAll();
+    // TODO: POST snapshot.players and snapshot.trunks to your API
+    void snapshot;
+}, 5 * 60 * 1000);
