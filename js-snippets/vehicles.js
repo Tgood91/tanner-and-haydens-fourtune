@@ -23,7 +23,23 @@ function listCars() {
         .join("\n");
 }
 
-// character = { bank, garage: [] }
+// Plates are how trunks.js tells two Sultans apart.
+const usedPlates = new Set();
+function newPlate() {
+    let plate;
+    do {
+        plate = "FT" + String(Math.floor(Math.random() * 1000000)).padStart(6, "0");
+    } while (usedPlates.has(plate));
+    usedPlates.add(plate);
+    return plate;
+}
+
+// Call when loading saved garages so new plates never collide with old ones.
+function reservePlates(garage) {
+    for (const car of garage) usedPlates.add(car.plate);
+}
+
+// character = { bank, garage: [{ model, plate }] }
 function buyVehicle(character, model) {
     const car = CATALOG[model];
     if (!car) return { ok: false, msg: `No car called ${model}` };
@@ -33,14 +49,27 @@ function buyVehicle(character, model) {
     }
 
     character.bank -= car.price;
-    character.garage.push(model);
-    return { ok: true, msg: `Bought a ${car.name} for $${car.price}. Bank: $${character.bank}` };
+    const plate = newPlate();
+    character.garage.push({ model, plate });
+    return { ok: true, msg: `Bought a ${car.name} (plate ${plate}) for $${car.price}. Bank: $${character.bank}`, plate };
+}
+
+function listGarage(character) {
+    if (character.garage.length === 0) return "Your garage is empty.";
+    return character.garage
+        .map((car) => `${CATALOG[car.model]?.name || car.model} — plate ${car.plate}`)
+        .join("\n");
 }
 
 // Only cars you own come out of the garage. (/veh previews are free and
 // saved nowhere — that's a separate glitch-check tool, not this function.)
-function canSpawn(character, model) {
-    return character.garage.includes(model);
+function findOwned(character, modelOrPlate) {
+    const key = (modelOrPlate || "").toUpperCase();
+    return character.garage.find((car) => car.plate === key || car.model.toUpperCase() === key) || null;
 }
 
-module.exports = { CATALOG, listCars, buyVehicle, canSpawn };
+function canSpawn(character, modelOrPlate) {
+    return findOwned(character, modelOrPlate) !== null;
+}
+
+module.exports = { CATALOG, listCars, buyVehicle, listGarage, findOwned, canSpawn, reservePlates };

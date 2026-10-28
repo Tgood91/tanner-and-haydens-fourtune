@@ -15,14 +15,15 @@
 const MAX_WEIGHT = 30.0; // kg
 
 // usable: can /useitem it. onUse: returns an error string to refuse, or nothing.
+// hunger / thirst / heal: what using it restores (needs.js applies these).
 const ITEMS = {
-    water:     { label: "Water",      weight: 0.5, usable: true },
-    sandwich:  { label: "Sandwich",   weight: 0.3, usable: true },
-    coffee:    { label: "Coffee",     weight: 0.3, usable: true },
-    donut:     { label: "Donut",      weight: 0.2, usable: true },
-    bandage:   { label: "Bandage",    weight: 0.1, usable: true,
+    water:     { label: "Water",      weight: 0.5, usable: true, thirst: 40 },
+    sandwich:  { label: "Sandwich",   weight: 0.3, usable: true, hunger: 40 },
+    coffee:    { label: "Coffee",     weight: 0.3, usable: true, thirst: 20 },
+    donut:     { label: "Donut",      weight: 0.2, usable: true, hunger: 20 },
+    bandage:   { label: "Bandage",    weight: 0.1, usable: true, heal: 15,
                  onUse: (player) => (player.health >= player.maxHealth ? "You're already at full health" : null) },
-    medkit:    { label: "Medkit",     weight: 1.0, usable: true,
+    medkit:    { label: "Medkit",     weight: 1.0, usable: true, heal: 60,
                  onUse: (player) => (player.health >= player.maxHealth ? "You're already at full health" : null) },
     phone:     { label: "Phone",      weight: 0.2, usable: false },
     radio:     { label: "Radio",      weight: 0.4, usable: false },
@@ -32,7 +33,7 @@ const ITEMS = {
     fuelcan:   { label: "Fuel Can",   weight: 5.0, usable: true },
 
     // From your smoke-test list
-    halfhalf:    { label: "Guccilucci", weight: 0.5, usable: true },
+    halfhalf:    { label: "Guccilucci", weight: 0.5, usable: true, thirst: 30 },
     glock19:     { label: "Glock 19",   weight: 1.0, usable: false }, // carried gear, not usable
     blackdraco:  { label: "Black Draco", weight: 3.5, usable: false },
 };
@@ -67,15 +68,22 @@ function isValidCount(count) {
     return Number.isInteger(count) && count > 0;
 }
 
-function addItem(inv, item, count = 1) {
+// Check-only: would this fit? Changes nothing. maxWeight lets trunks reuse it.
+function canAddItem(inv, item, count = 1, maxWeight = MAX_WEIGHT) {
     if (!ITEMS[item]) return { ok: false, msg: `Unknown item: ${item}` };
     if (!isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };
 
-    const newWeight = getWeight(inv) + ITEMS[item].weight * count;
-    // exactly 30.0 is allowed, anything over is refused
-    if (Math.round(newWeight * 100) / 100 > MAX_WEIGHT) {
-        return { ok: false, msg: `Too heavy — that would be ${newWeight.toFixed(2)} / ${MAX_WEIGHT} kg` };
+    const newWeight = Math.round((getWeight(inv) + ITEMS[item].weight * count) * 100) / 100;
+    // exactly the limit is allowed, anything over is refused
+    if (newWeight > maxWeight) {
+        return { ok: false, msg: `Too heavy — that would be ${newWeight.toFixed(2)} / ${maxWeight} kg` };
     }
+    return { ok: true, msg: "" };
+}
+
+function addItem(inv, item, count = 1, maxWeight = MAX_WEIGHT) {
+    const check = canAddItem(inv, item, count, maxWeight);
+    if (!check.ok) return check;
 
     inv[item] = (inv[item] || 0) + count;
     return { ok: true, msg: `Received ${count}x ${ITEMS[item].label}` };
@@ -123,6 +131,6 @@ function loadInventory(saved) {
 
 module.exports = {
     MAX_WEIGHT, ITEMS, STARTER_ITEMS,
-    getWeight, listInventory,
-    addItem, removeItem, useItem, dropItem, loadInventory,
+    getWeight, listInventory, isValidCount,
+    canAddItem, addItem, removeItem, useItem, dropItem, loadInventory,
 };
