@@ -1,6 +1,6 @@
 # Capacity Plan: Fourtune server framework, before max capacity
 
-**Period:** Nov 2 – Dec 13, 2026 (6 weeks) | **Team size:** 2 (Tanner, Hayden) + Claude sessions
+**Period:** Nov 2 – Dec 13, 2026 (6 weeks) | **Team size:** 3 (Tanner, Hayden, Kaos) + Claude sessions
 
 > **Assumed, please correct:** weekly hours per person and the 48-slot target. Nothing in the repo says either.
 > Change the hours in the first table and the weeks at the bottom shift with them.
@@ -15,16 +15,18 @@ until the gate before is done.
 |---|---|---|---|---|
 | Tanner — lead, in-game testing, all PC/FXServer steps | 10 hrs/wk *(assumed)* | 10 | 0 | 100% ⚠️ |
 | Hayden — playtesting, coord walking, tuning | 5 hrs/wk *(assumed)* | 2 | 3 | 40% |
+| Kaos — role not set yet | 5 hrs/wk *(assumed)* | 0 | 5 | 0% |
 | Claude sessions — code, tests, docs | on demand | — | — | not a limit |
 
 Tanner is at 100% because **every in-game step needs Tanner's PC**: the Cfx key, FXServer, the API on :4000, MySQL.
-Hayden can take the walking and tuning, which frees roughly 3 hrs/wk.
+Hayden can take the walking and tuning, which frees roughly 3 hrs/wk. Kaos is unassigned: good fits are the
+stress night (Gate 2) and playtesting the new systems (revive, ammo) while Tanner hosts.
 
 ## Capacity summary
 
-- **Total capacity:** 15 hrs/week
-- **Target (80%, leaving room for broken builds and life):** 12 hrs/week, about 72 hrs over the 6 weeks
-- **Planned demand below:** 47 hrs → fits, with about 25 hrs of buffer
+- **Total capacity:** 20 hrs/week
+- **Target (80%, leaving room for broken builds and life):** 16 hrs/week, about 96 hrs over the 6 weeks
+- **Planned demand below:** 47 hrs → fits, with about 49 hrs of buffer
 - **Overallocated:** Tanner, until the PC-only work is shared out (see Recommendations)
 
 ## Load test: is the code the limit?

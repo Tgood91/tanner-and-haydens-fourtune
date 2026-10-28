@@ -56,6 +56,11 @@ function perform(result) {
             case "revive":
                 emitNet("fourtune:revive", a.target, { pedHealth: a.health + 100, pos: a.pos });
                 break;
+            case "setAmmo":
+            case "giveWeapon":
+            case "removeWeapon":
+                emitNet(`fourtune:${a.type}`, a.target, a);
+                break;
             case "spawnVehicle": {
                 const veh = CreateVehicleServerSetter(GetHashKey(a.model), "automobile", a.pos.x + 3, a.pos.y, a.pos.z, 0.0);
                 SetVehicleNumberPlateText(veh, a.plate);
@@ -105,11 +110,47 @@ on("playerDropped", () => {
 });
 
 // ---------------- commands ----------------
+// ---------------- ammo ----------------
+// These commands act on loaded rounds, so the server needs the count
+// AFTER the latest shots, not the one from up to 10 seconds ago.
+const NEEDS_FRESH_AMMO = new Set(["loadammo", "unloadammo", "equip"]);
+const ammoWaiters = new Map(); // player id -> resolve()
+
+function freshAmmo(id) {
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => { ammoWaiters.delete(id); resolve(false); }, 1500);
+        ammoWaiters.set(id, () => { clearTimeout(timer); resolve(true); });
+        emitNet("fourtune:requestAmmoReport", id);
+    });
+}
+
+onNet("fourtune:ammoReport", (reports) => {
+    const id = Number(global.source);
+    game.syncAmmo(id, reports); // only ever lowers — see ammo.js
+    const waiter = ammoWaiters.get(id);
+    if (waiter) { ammoWaiters.delete(id); waiter(); }
+});
+
+// The client is up: give it the loaded ammo the server has on record.
+// Until this arrives, the client doesn't send reports (it would report 0s).
+onNet("fourtune:ready", () => {
+    const id = Number(global.source);
+    const c = game.get(id);
+    if (!c) return;
+    const { AMMO_TYPES } = require(`${resourcePath}/ammo.js`);
+    const pools = {};
+    for (const [type, t] of Object.entries(AMMO_TYPES)) pools[t.gta] = c.ammo[type] || 0;
+    emitNet("fourtune:setAllAmmo", id, pools);
+});
+
 for (const name of game.commandNames) {
-    RegisterCommand(name, (source, args) => {
+    RegisterCommand(name, async (source, args) => {
         const id = Number(source);
         if (id === 0) return perform(tellConsole(game.command({ isConsole: true }, name, args)));
 
+        if (NEEDS_FRESH_AMMO.has(name) && !(await freshAmmo(id))) {
+            return tell(id, "Couldn't check your ammo — try again in a second.");
+        }
         perform(game.syncHealth(id, readHealth(id)));
         const result = game.command({ id, pos: posOf(id), vehiclePlate: nearestVehiclePlate(id), now: Date.now() }, name, args);
         tell(id, result.msg);

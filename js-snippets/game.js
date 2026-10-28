@@ -11,6 +11,9 @@
 // Action types the platform must perform:
 //   setHealth { target, value }            value is 0..100 (0 = downed)
 //   revive { target, health, pos }         bring the ped back; pos = where (hospital or same spot)
+//   setAmmo { target, ammoType, rounds }   GTA ammo pool, e.g. AMMO_PISTOL — set, not add
+//   giveWeapon { target, weapon, ammoType, rounds }
+//   removeWeapon { target, weapon }
 //   spawnVehicle { target, model, plate, pos }
 //   despawnVehicle { plate }
 //   setVehicleLocked { plate, locked }
@@ -26,6 +29,7 @@ const needs = require("./needs");
 const cities = require("./cities");
 const shops = require("./shops");
 const medical = require("./medical");
+const ammo = require("./ammo");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -205,6 +209,40 @@ function createGame() {
             },
         },
 
+        // ----- weapons & ammo -----
+        ammo: { help: "your loaded rounds and boxes", run: ({ c }) => reply(ammo.listAmmo(c)) },
+        loadammo: {
+            help: "<pistol|smg|rifle|shotgun|sniper> [boxes]",
+            run: ({ c, args }) => {
+                const res = ammo.loadAmmo(c, args[0], toCount(args[1]));
+                return reply(res.msg, { actions: res.ok ? [setAmmoAction(c, res.type)] : [] });
+            },
+        },
+        unloadammo: {
+            help: "<type> (full boxes back into your bag)",
+            run: ({ c, args }) => {
+                const res = ammo.unloadAmmo(c, args[0]);
+                return reply(res.msg, { actions: res.ok ? [setAmmoAction(c, res.type)] : [] });
+            },
+        },
+        equip: {
+            help: "<weapon>",
+            run: ({ c, args }) => {
+                const res = ammo.equip(c, lower(args[0]));
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, {
+                    actions: [{ type: "giveWeapon", target: c.id, weapon: res.weapon, ammoType: res.ammoType, rounds: res.rounds }],
+                });
+            },
+        },
+        holster: {
+            help: "put your gun away",
+            run: ({ c }) => {
+                const res = ammo.holster(c);
+                return reply(res.msg, { actions: res.ok ? [{ type: "removeWeapon", target: c.id, weapon: res.weapon }] : [] });
+            },
+        },
+
         // ----- medical -----
         revive: {
             help: "<playerId> (EMS, uses a medkit)",
@@ -325,6 +363,26 @@ function createGame() {
         },
     };
 
+    function setAmmoAction(c, type) {
+        return { type: "setAmmo", target: c.id, ammoType: ammo.AMMO_TYPES[type].gta, rounds: c.ammo[type] || 0 };
+    }
+
+    // If a command left you without the gun in your hands (dropped it,
+    // put it in a trunk, a shop... anything), take it out of your hands too.
+    function checkEquipped(c, result) {
+        if (c && c.equipped && !c.inventory[c.equipped]) {
+            const res = ammo.holster(c);
+            result.actions.push({ type: "removeWeapon", target: c.id, weapon: res.weapon });
+        }
+        return result;
+    }
+
+    // The client reports what's left in each GTA ammo pool after shooting.
+    function syncAmmo(id, reports) {
+        const c = characters.get(id);
+        if (c) ammo.syncAmmo(c, reports);
+    }
+
     // ctx = { id, isConsole, pos, vehiclePlate, now }
     function command(ctx, name, args = []) {
         const cmd = commands[name];
@@ -333,14 +391,17 @@ function createGame() {
 
         if (ctx.isConsole) {
             if (!cmd.consoleOnly) return reply("That's a player command.");
-            return cmd.run({ c: null, args, ctx });
+            const result = cmd.run({ c: null, args, ctx });
+            // e.g. a console command took someone's gun away
+            for (const other of characters.values()) checkEquipped(other, result);
+            return result;
         }
 
         const c = characters.get(ctx.id);
         if (!c) return reply("Your character isn't loaded yet.");
         if (ctx.pos) c.pos = { ...ctx.pos };
         if (c.downed && !ALLOWED_WHILE_DOWN.includes(name)) return reply("You're down. Wait for EMS, /911, or /respawn when it unlocks.");
-        return cmd.run({ c, args, ctx: { now: Date.now(), pos: { x: 0, y: 0, z: 0 }, ...ctx } });
+        return checkEquipped(c, cmd.run({ c, args, ctx: { now: Date.now(), pos: { x: 0, y: 0, z: 0 }, ...ctx } }));
     }
 
     // ---------------- time ----------------
@@ -384,7 +445,7 @@ function createGame() {
     }
 
     return {
-        join, leave, get, syncHealth, updatePosition,
+        join, leave, get, syncHealth, syncAmmo, updatePosition,
         command, commandNames: Object.keys(commands),
         tick, saveAll, loadTrunks,
     };

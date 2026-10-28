@@ -1,7 +1,8 @@
 // ============================================================
 // fivem-client.js — the little bit that has to run on each player's PC
 // The client never decides anything. It only draws what the server
-// says: health changes, revives, and dropped-item props (visual only).
+// says: health changes, revives, weapons/ammo, and dropped-item props.
+// It REPORTS ammo left after shooting; the server only accepts lower numbers.
 // NOT YET TESTED IN-GAME.
 // ============================================================
 
@@ -23,6 +24,50 @@ onNet("fourtune:revive", ({ pedHealth, pos }) => {
     ClearPedTasksImmediately(PlayerPedId());
     SetEntityHealth(PlayerPedId(), pedHealth);
 });
+
+// ---------------- weapons & ammo ----------------
+const AMMO_POOLS = ["AMMO_PISTOL", "AMMO_SMG", "AMMO_RIFLE", "AMMO_SHOTGUN", "AMMO_SNIPER"];
+let ammoSynced = false; // don't report until the server has set our pools
+
+function ammoReport() {
+    const ped = PlayerPedId();
+    const report = {};
+    for (const pool of AMMO_POOLS) report[pool] = GetPedAmmoByType(ped, GetHashKey(pool));
+    return report;
+}
+
+on("onClientResourceStart", (name) => {
+    if (name === GetCurrentResourceName()) emitNet("fourtune:ready");
+});
+
+onNet("fourtune:setAllAmmo", (pools) => {
+    const ped = PlayerPedId();
+    for (const [pool, rounds] of Object.entries(pools)) SetPedAmmoByType(ped, GetHashKey(pool), rounds);
+    ammoSynced = true;
+});
+
+onNet("fourtune:setAmmo", ({ ammoType, rounds }) => {
+    SetPedAmmoByType(PlayerPedId(), GetHashKey(ammoType), rounds);
+});
+
+onNet("fourtune:giveWeapon", ({ weapon, ammoType, rounds }) => {
+    const ped = PlayerPedId();
+    GiveWeaponToPed(ped, GetHashKey(weapon), 0, false, true);
+    SetPedAmmoByType(ped, GetHashKey(ammoType), rounds);
+});
+
+onNet("fourtune:removeWeapon", ({ weapon }) => {
+    RemoveWeaponFromPed(PlayerPedId(), GetHashKey(weapon));
+});
+
+onNet("fourtune:requestAmmoReport", () => {
+    if (ammoSynced) emitNet("fourtune:ammoReport", ammoReport());
+});
+
+// Regular reports so the server's count follows your shooting
+setInterval(() => {
+    if (ammoSynced) emitNet("fourtune:ammoReport", ammoReport());
+}, 10 * 1000);
 
 // Tell the server the moment we die, so on-duty EMS get the call right away.
 // The server re-reads the real health itself — this is only a nudge.

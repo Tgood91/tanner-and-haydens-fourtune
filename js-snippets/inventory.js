@@ -34,8 +34,21 @@ const ITEMS = {
 
     // From your smoke-test list
     halfhalf:    { label: "Guccilucci", weight: 0.5, usable: true, thirst: 30 },
-    glock19:     { label: "Glock 19",   weight: 1.0, usable: false }, // carried gear, not usable
-    blackdraco:  { label: "Black Draco", weight: 3.5, usable: false },
+    // Weapons: not "usable" — you /equip them. Which ammo each takes lives in ammo.js.
+    // Never sold in shops; console giveitem only, for now.
+    glock19:      { label: "Glock 19",       weight: 1.0, usable: false },
+    blackdraco:   { label: "Black Draco",    weight: 3.5, usable: false },
+    uzi:          { label: "Micro SMG",      weight: 2.5, usable: false },
+    pumpshotgun:  { label: "Pump Shotgun",   weight: 3.5, usable: false },
+    huntingrifle: { label: "Hunting Rifle",  weight: 5.0, usable: false },
+
+    // Ammo boxes: weight is for the whole box (close to real-world boxes).
+    // Rounds per box live in ammo.js; prices live in shops.js.
+    ammo_9mm:   { label: "9mm box (50)",          weight: 0.6,  usable: false },
+    ammo_45acp: { label: ".45 ACP box (50)",      weight: 1.1,  usable: false },
+    ammo_762:   { label: "7.62x39 box (30)",      weight: 0.55, usable: false },
+    ammo_12ga:  { label: "12 gauge shells (25)",  weight: 1.1,  usable: false },
+    ammo_308:   { label: ".308 box (20)",         weight: 0.55, usable: false },
 };
 
 const STARTER_ITEMS = { water: 2, sandwich: 1, phone: 1 };

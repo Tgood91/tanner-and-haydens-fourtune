@@ -16,6 +16,8 @@ const SHOP_RANGE = 3.0; // metres from the counter
 
 const STOCK_247 = { water: 5, sandwich: 8, coffee: 4, donut: 3, halfhalf: 6, bandage: 25 };
 const STOCK_HARDWARE = { repairkit: 350, toolbox: 200, lockpick: 75, fuelcan: 60, radio: 150, phone: 300 };
+// Price per box. Ammo only — guns aren't sold anywhere yet.
+const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12ga: 90, ammo_308: 250 };
 
 const SHOPS = {
     atl_247:      { label: "24/7 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },
@@ -23,6 +25,10 @@ const SHOPS = {
     gp_247:       { label: "24/7 GeePee",        city: "geepee",  pos: { x: 1698.0, y: 4924.0,  z: 42.1 }, items: STOCK_247 },
     chi_247:      { label: "24/7 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
     chi_hardware: { label: "Chicago Hardware",   city: "chicago", pos: { x: -420.0, y: 6025.0,  z: 31.5 }, items: STOCK_HARDWARE },
+    // Near the stock Ammu-Nation counters (Pillbox Hill, Sandy Shores, Paleto Bay) — walk and tune
+    atl_ammu:     { label: "Ammu-Nation Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION },
+    gp_ammu:      { label: "Ammu-Nation GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION },
+    chi_ammu:     { label: "Ammu-Nation Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION },
 };
 
 function findShopNear(pos) {

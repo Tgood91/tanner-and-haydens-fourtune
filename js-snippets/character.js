@@ -27,6 +27,8 @@ function createCharacter(id, name, saved = null) {
         downed: s.downed ?? false,
         downedAt: s.downed ? Date.now() : null,
         pos: null, // last known position, kept fresh by game.updatePosition
+        ammo: { ...(s.ammo || {}) }, // loaded rounds per ammo type (see ammo.js)
+        equipped: null, // always log in with your gun put away
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
         garage: (s.garage || []).map((car) => ({ ...car })),
@@ -47,6 +49,7 @@ function serialize(c) {
         hunger: c.hunger,
         thirst: c.thirst,
         downed: c.downed,
+        ammo: { ...c.ammo },
         inventory: { ...c.inventory },
         garage: c.garage.map((car) => ({ ...car })),
     };

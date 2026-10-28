@@ -294,3 +294,100 @@ test("logging out while down keeps you down; console can force-revive", () => {
     assert.equal(back.downed, false);
     assert.equal(back.health, 100);
 });
+
+// ---------------- weapons & ammo ----------------
+const { AMMO_TYPES } = require("./ammo");
+const { ITEMS, getWeight } = require("./inventory");
+
+function armedSetup() {
+    const env = setup();
+    env.game.command(CONSOLE, "giveitem", ["1", "glock19"]);
+    env.atAmmu = env.as(1, { pos: SHOPS.chi_ammu.pos });
+    return env;
+}
+
+test("Ammu-Nation sells ammo boxes (not guns) at the box price, and boxes weigh what they say", () => {
+    const { game, a, atAmmu } = armedSetup();
+    game.command(atAmmu, "buy", ["ammo_9mm", "2"]);
+    assert.equal(a.cash, 500 - 150);
+    assert.equal(a.inventory.ammo_9mm, 2);
+    assert.match(game.command(atAmmu, "buy", ["glock19"]).msg, /doesn't sell/);
+    assert.equal(getWeight({ ammo_9mm: 2 }), 1.2);
+    assert.equal(getWeight({ ammo_12ga: 10 }), 11);
+});
+
+test("loading: needs a gun for that ammo, the boxes, and room under the cap", () => {
+    const { game, a, as } = armedSetup();
+    a.inventory.ammo_762 = 1;
+    assert.match(game.command(as(1), "loadammo", ["rifle"]).msg, /don't have a gun/);
+    assert.match(game.command(as(1), "loadammo", ["pistol"]).msg, /don't have 1x/);
+
+    a.inventory.ammo_9mm = 6;
+    const res = game.command(as(1), "loadammo", ["9mm", "2"]);
+    assert.equal(a.ammo.pistol, 100);
+    assert.equal(a.inventory.ammo_9mm, 4);
+    assert.deepEqual(res.actions[0], { type: "setAmmo", target: 1, ammoType: "AMMO_PISTOL", rounds: 100 });
+
+    // cap is 250: 100 + 3 boxes = 250 ok, one more is refused and nothing changes
+    game.command(as(1), "loadammo", ["pistol", "3"]);
+    assert.equal(a.ammo.pistol, 250);
+    assert.match(game.command(as(1), "loadammo", ["pistol"]).msg, /cap.*load 0 more/);
+    assert.equal(a.inventory.ammo_9mm, 1);
+    assert.match(game.command(as(1), "loadammo", ["lasers"]).msg, /No ammo type/);
+});
+
+test("unloading gives back full boxes only; leftovers stay loaded", () => {
+    const { game, a, as } = armedSetup();
+    a.ammo.pistol = 120;
+    game.command(as(1), "unloadammo", ["pistol"]);
+    assert.equal(a.inventory.ammo_9mm, 2);
+    assert.equal(a.ammo.pistol, 20);
+    assert.match(game.command(as(1), "unloadammo", ["pistol"]).msg, /Not enough/);
+});
+
+test("client ammo reports can lower the count but never raise it", () => {
+    const { game, a } = armedSetup();
+    a.ammo.pistol = 100;
+    game.syncAmmo(1, { AMMO_PISTOL: 63 });
+    assert.equal(a.ammo.pistol, 63);
+    game.syncAmmo(1, { AMMO_PISTOL: 9999 });
+    assert.equal(a.ammo.pistol, 63);
+    game.syncAmmo(1, { AMMO_PISTOL: -5, AMMO_RIFLE: 1.5 });
+    assert.equal(a.ammo.pistol, 63);
+    assert.equal(a.ammo.rifle, undefined);
+});
+
+test("equip and holster; losing the gun takes it out of your hands", () => {
+    const { game, a, as } = armedSetup();
+    a.ammo.pistol = 50;
+    assert.match(game.command(as(1), "equip", ["water"]).msg, /isn't a weapon/);
+    assert.match(game.command(as(1), "equip", ["uzi"]).msg, /don't have/);
+
+    const out = game.command(as(1), "equip", ["glock19"]);
+    assert.deepEqual(out.actions[0], { type: "giveWeapon", target: 1, weapon: "WEAPON_COMBATPISTOL", ammoType: "AMMO_PISTOL", rounds: 50 });
+    assert.equal(a.equipped, "glock19");
+    assert.equal(game.command(as(1), "holster").actions[0].type, "removeWeapon");
+
+    game.command(as(1), "equip", ["glock19"]);
+    const dropped = game.command(as(1, { pos: { x: 5, y: 5, z: 30 } }), "dropitem", ["glock19"]);
+    assert.ok(dropped.actions.some((x) => x.type === "removeWeapon" && x.weapon === "WEAPON_COMBATPISTOL"));
+    assert.equal(a.equipped, null);
+});
+
+test("loaded ammo saves; you always log back in holstered", () => {
+    const { game, a, as } = armedSetup();
+    a.ammo.pistol = 80;
+    game.command(as(1), "equip", ["glock19"]);
+    const { saved } = game.leave(1);
+    const back = game.join(1, "Tanner", saved);
+    assert.equal(back.ammo.pistol, 80);
+    assert.equal(back.equipped, null);
+});
+
+test("every ammo type has a box item, and every box fits in a bag", () => {
+    for (const t of Object.values(AMMO_TYPES)) {
+        assert.ok(ITEMS[t.box]);
+        assert.ok(ITEMS[t.box].weight < 30);
+        assert.equal(t.max % t.perBox, 0); // caps are whole boxes, so a full load is reachable
+    }
+});
