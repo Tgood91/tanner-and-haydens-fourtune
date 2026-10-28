@@ -1,4 +1,21 @@
+-- In Vendor:new(), add:
+self.vipOnly = false  -- if true, requires VIP flag to access this vendor
 
+-- New function on Marketplace:
+function Marketplace:canAccessVendor(playerName, vendorName, playerFlags)
+    local vendor = self:findVendor(vendorName)
+    if not vendor then return false end
+    if vendor.vipOnly and not playerFlags.vip then
+        return false, "VIP membership required"
+    end
+    return true
+end
+
+#
+##
+###
+##
+#
 -- ============================================================
 -- marketplace.lua — GTA5/6 style dynamic marketplace system
 -- Full vendor system, pricing algorithms, transaction history
