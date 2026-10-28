@@ -1,0 +1,128 @@
+// ============================================================
+// inventory.js — server-authoritative inventory, in JavaScript
+// Same rules as the Lua inventory resource in your notes:
+//   - 12 starter items, each with a weight, 30 kg carry limit
+//   - add / remove / use / drop are all validated HERE (the server)
+//   - clients only send requests; a modded client can't conjure items
+//   - using consumes exactly 1, and only after validation
+//   - new characters get water x2, sandwich x1, phone x1 — only if
+//     they've NEVER had an inventory saved (emptied stays empty)
+//
+// Plain JS, no game functions — runs in Node and in a FiveM JS resource.
+// Weights below are placeholders: tune them to match your Lua items.
+// ============================================================
+
+const MAX_WEIGHT = 30.0; // kg
+
+// usable: can /useitem it. onUse: returns an error string to refuse, or nothing.
+const ITEMS = {
+    water:     { label: "Water",      weight: 0.5, usable: true },
+    sandwich:  { label: "Sandwich",   weight: 0.3, usable: true },
+    coffee:    { label: "Coffee",     weight: 0.3, usable: true },
+    donut:     { label: "Donut",      weight: 0.2, usable: true },
+    bandage:   { label: "Bandage",    weight: 0.1, usable: true,
+                 onUse: (player) => (player.health >= player.maxHealth ? "You're already at full health" : null) },
+    medkit:    { label: "Medkit",     weight: 1.0, usable: true,
+                 onUse: (player) => (player.health >= player.maxHealth ? "You're already at full health" : null) },
+    phone:     { label: "Phone",      weight: 0.2, usable: false },
+    radio:     { label: "Radio",      weight: 0.4, usable: false },
+    repairkit: { label: "Repair Kit", weight: 2.5, usable: true },
+    toolbox:   { label: "Toolbox",    weight: 4.0, usable: false },
+    lockpick:  { label: "Lockpick",   weight: 0.1, usable: true },
+    fuelcan:   { label: "Fuel Can",   weight: 5.0, usable: true },
+
+    // From your smoke-test list
+    halfhalf:    { label: "Guccilucci", weight: 0.5, usable: true },
+    glock19:     { label: "Glock 19",   weight: 1.0, usable: false }, // carried gear, not usable
+    blackdraco:  { label: "Black Draco", weight: 3.5, usable: false },
+};
+
+const STARTER_ITEMS = { water: 2, sandwich: 1, phone: 1 };
+
+// ------------------------------------------------------------
+// Reading — never changes anything
+// ------------------------------------------------------------
+function getWeight(inv) {
+    let total = 0;
+    for (const [item, count] of Object.entries(inv)) {
+        total += (ITEMS[item]?.weight || 0) * count;
+    }
+    return Math.round(total * 100) / 100; // avoid 29.999999 float noise
+}
+
+function listInventory(inv) {
+    const lines = [];
+    for (const [item, count] of Object.entries(inv)) {
+        if (count > 0) lines.push(`${ITEMS[item]?.label || item} x${count}`);
+    }
+    lines.push(`Weight: ${getWeight(inv)} / ${MAX_WEIGHT} kg`);
+    return lines.join("\n");
+}
+
+// ------------------------------------------------------------
+// Acting — every function checks first, then changes, then reports.
+// Each returns { ok, msg } so the caller can tell the player.
+// ------------------------------------------------------------
+function isValidCount(count) {
+    return Number.isInteger(count) && count > 0;
+}
+
+function addItem(inv, item, count = 1) {
+    if (!ITEMS[item]) return { ok: false, msg: `Unknown item: ${item}` };
+    if (!isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };
+
+    const newWeight = getWeight(inv) + ITEMS[item].weight * count;
+    // exactly 30.0 is allowed, anything over is refused
+    if (Math.round(newWeight * 100) / 100 > MAX_WEIGHT) {
+        return { ok: false, msg: `Too heavy — that would be ${newWeight.toFixed(2)} / ${MAX_WEIGHT} kg` };
+    }
+
+    inv[item] = (inv[item] || 0) + count;
+    return { ok: true, msg: `Received ${count}x ${ITEMS[item].label}` };
+}
+
+function removeItem(inv, item, count = 1) {
+    if (!ITEMS[item]) return { ok: false, msg: `Unknown item: ${item}` };
+    if (!isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };
+    if ((inv[item] || 0) < count) return { ok: false, msg: `You don't have ${count}x ${ITEMS[item].label}` };
+
+    inv[item] -= count;
+    if (inv[item] === 0) delete inv[item];
+    return { ok: true, msg: `Removed ${count}x ${ITEMS[item].label}` };
+}
+
+function useItem(inv, item, player) {
+    const def = ITEMS[item];
+    if (!def) return { ok: false, msg: `Unknown item: ${item}` };
+    if (!inv[item]) return { ok: false, msg: `You don't have a ${def.label}` };
+    if (!def.usable) return { ok: false, msg: `${def.label} can't be used` };
+
+    // Item-specific check BEFORE consuming (bandage at full health = refused, kept)
+    const refusal = def.onUse ? def.onUse(player) : null;
+    if (refusal) return { ok: false, msg: refusal };
+
+    removeItem(inv, item, 1); // exactly 1
+    return { ok: true, msg: `Used a ${def.label}` };
+}
+
+function dropItem(inv, item, count = 1) {
+    // Removed server-side first; any prop on the ground is visual only
+    const result = removeItem(inv, item, count);
+    if (!result.ok) return result;
+    return { ok: true, msg: `Dropped ${count}x ${ITEMS[item].label}` };
+}
+
+// ------------------------------------------------------------
+// Starter kit: `saved` is what came back from the API.
+// null/undefined = never saved -> starters. {} = emptied -> stays empty.
+// ------------------------------------------------------------
+function loadInventory(saved) {
+    if (saved === null || saved === undefined) return { ...STARTER_ITEMS };
+    return { ...saved };
+}
+
+module.exports = {
+    MAX_WEIGHT, ITEMS, STARTER_ITEMS,
+    getWeight, listInventory,
+    addItem, removeItem, useItem, dropItem, loadInventory,
+};
