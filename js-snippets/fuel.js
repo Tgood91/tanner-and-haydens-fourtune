@@ -40,10 +40,10 @@ const STATION_RANGE = 8.0;
 const OWNER_RANGE = 10.0;      // owner must be this close to agree to (and pay for) a repair
 
 const GAS_STATIONS = [
-    { label: "LTD Grove Street", city: "atlanta", pos: { x: -70.2,  y: -1761.8, z: 29.5 } },
-    { label: "Little Seoul Gas", city: "atlanta", pos: { x: -526.0, y: -1211.0, z: 18.2 } },
-    { label: "Sandy Shores Gas", city: "geepee",  pos: { x: 2005.0, y: 3774.0,  z: 32.4 } },
-    { label: "Grapeseed Gas",    city: "geepee",  pos: { x: 1687.0, y: 4929.0,  z: 42.1 } },
+    { label: "Gasco Groveland", city: "atlanta", pos: { x: -70.2,  y: -1761.8, z: 29.5 } },
+    { label: "Koreatown Gas", city: "atlanta", pos: { x: -526.0, y: -1211.0, z: 18.2 } },
+    { label: "Dust Road Gas", city: "geepee",  pos: { x: 2005.0, y: 3774.0,  z: 32.4 } },
+    { label: "Harvest Gas",    city: "geepee",  pos: { x: 1687.0, y: 4929.0,  z: 42.1 } },
     { label: "Chicago Gas",      city: "chicago", pos: { x: -94.0,  y: 6419.0,  z: 31.5 } },
 ];
 

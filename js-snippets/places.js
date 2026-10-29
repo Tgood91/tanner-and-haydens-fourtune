@@ -4,7 +4,7 @@
 // The world is GTA V's stock map, so none of this builds geometry.
 // What it does is give the server a vocabulary for WHERE something
 // happened. Before this, every alert said "Chicago". Now dispatch
-// reads "24/7 Chicago — Lakeshore Drive, The Knot, Chicago".
+// reads "Open 24 Chicago — Lakeshore Drive, The Knot, Chicago".
 //
 // Three kinds, most specific wins:
 //   road      a polyline with a width — you're ON it
@@ -32,22 +32,22 @@ const ZONES = [
     // ---- GeePee (770), the middle ----
     { name: "Harvest Flats",   kind: "district", city: "geepee", center: { x: 1850, y: 3720 }, radius: 260 },
     { name: "The Backroads",   kind: "district", city: "geepee", center: { x: 1760, y: 4400 }, radius: 420 },
-    { name: "Grapeseed Common", kind: "park",    city: "geepee", center: { x: 1700, y: 4870 }, radius: 120 },
+    { name: "Harvest Common", kind: "park",    city: "geepee", center: { x: 1700, y: 4870 }, radius: 120 },
 
     // ---- Atlanta (7101), the southern plate ----
     { name: "Red Clay",        kind: "district", city: "atlanta", center: { x: 230,   y: -700 },  radius: 260 },
-    { name: "Alta Heights",    kind: "district", city: "atlanta", center: { x: -260,  y: -950 },  radius: 220 },
+    { name: "Alder Heights",    kind: "district", city: "atlanta", center: { x: -260,  y: -950 },  radius: 220 },
     { name: "Southline",       kind: "district", city: "atlanta", center: { x: 10,    y: -1550 }, radius: 300 },
     { name: "The Westside",    kind: "district", city: "atlanta", center: { x: -1100, y: -1100 }, radius: 480 },
     { name: "Peach Ridge Park", kind: "park",    city: "atlanta", center: { x: -860,  y: -890 },  radius: 130 },
-    { name: "Grove Park",      kind: "park",     city: "atlanta", center: { x: -120,  y: -1690 }, radius: 110 },
+    { name: "Groveland Park",      kind: "park",     city: "atlanta", center: { x: -120,  y: -1690 }, radius: 110 },
 ];
 
 // Polylines. width is how far off the centre line still counts as the road.
 const ROADS = [
     // ---- Chicago ----
     { name: "Lakeshore Drive",   city: "chicago", width: 28, points: [{ x: -60, y: 5990 }, { x: -75, y: 6180 }, { x: -95, y: 6410 }] },
-    { name: "Paleto Boulevard",  city: "chicago", width: 26, points: [{ x: -452, y: 6372 }, { x: -230, y: 6378 }, { x: -70, y: 6396 }] },
+    { name: "Palisade Boulevard",  city: "chicago", width: 26, points: [{ x: -452, y: 6372 }, { x: -230, y: 6378 }, { x: -70, y: 6396 }] },
     { name: "Sheriff's Row",     city: "chicago", width: 22, points: [{ x: -452, y: 6008 }, { x: -330, y: 6060 }, { x: -248, y: 6180 }] },
     { name: "The Causeway",      city: "chicago", width: 30, points: [{ x: -245, y: 6330 }, { x: -150, y: 6395 }, { x: -70, y: 6404 }] },
 
@@ -58,7 +58,7 @@ const ROADS = [
     // ---- Atlanta ----
     { name: "The Connector",     city: "atlanta", width: 36, points: [{ x: 290, y: -600 }, { x: 60, y: -1100 }, { x: 20, y: -1560 }, { x: -70, y: -1755 }] },
     { name: "Peachline Road",    city: "atlanta", width: 26, points: [{ x: 195, y: -935 }, { x: -270, y: -955 }, { x: -530, y: -1205 }] },
-    { name: "Grove Street",      city: "atlanta", width: 22, points: [{ x: -70, y: -1760 }, { x: 45, y: -1748 }, { x: 180, y: -1700 }] },
+    { name: "Groveland Street",      city: "atlanta", width: 22, points: [{ x: -70, y: -1760 }, { x: 45, y: -1748 }, { x: 180, y: -1700 }] },
     { name: "Westside Run",      city: "atlanta", width: 30, points: [{ x: -530, y: -1210 }, { x: -1000, y: -1060 }, { x: -1600, y: -1030 }] },
 ];
 

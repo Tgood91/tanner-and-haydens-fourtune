@@ -47,9 +47,14 @@ names have now been changed; the table is kept as a record of what moved and why
 | ~~Black Draco~~ → **Chopper** | "Draco" is a real firearm model from Century Arms. **Renamed 29 Oct 2026.** "Chopper" is street slang, not a brand, and sits beside Glizzy. The item id changed to `chopper` too |
 | **Glizzy** (pistol) | Slang, not a trademark. No concern |
 
-Rockstar's own names — Ammu-Nation, Del Perro Pier, Legion Square, Paleto, Sandy Shores, Grapeseed, Little Seoul,
-LTD, 24/7, Micro SMG — are base-game references, which is normal for every FiveM server. Reporting on the January
-agreement says its wording about Rockstar-created items is contested and unclear. Low risk, worth watching.
+Rockstar's own names have now been moved off too, **29 Oct 2026**: 24/7 is Open 24, Ammu-Nation is Gunworks,
+LTD Grove Street is Gasco Groveland, and Del Perro Pier, Legion Square, Alta Street, Paleto, Sandy Shores,
+Grapeseed, Little Seoul, Grove Street and Beeker's all became near-neighbours of themselves. Weapon labels
+followed: Micro SMG, Pump Shotgun and Hunting Rifle are now Compact SMG, Pump 12 and Bolt Rifle.
+
+**Vehicle names were left alone on purpose.** GTA draws its own name on screen when you get in, so renaming
+Karin Sultan in the catalog would make the chat and the game disagree. Weapons have the same mismatch, which
+you already accepted when the Glock became the Glizzy.
 
 Real city names (Atlanta, Chicago) are place names, not IP.
 
@@ -73,3 +78,4 @@ Third-party summaries, not the agreement itself:
 - [Clarification of new FiveM Terms of Service regarding selling of "virtual items" — Cfx forum](https://forum.cfx.re/t/clarification-of-new-fivem-terms-of-service-regarding-selling-of-virtual-items/5377401)
 - [GTA RP players advised to remove content relating to real-world third-party IPs](https://hitmarker.net/news/gta-rp-players-advised-to-remove-any-content-relating-to-real-world-third-party-ips-516282)
 - The agreement itself: `https://static.cfx.re/platform-license-agreement-12-jan-2026.pdf` (could not be read from this session)
+

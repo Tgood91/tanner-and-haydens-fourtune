@@ -19,8 +19,8 @@
 --
 -- Other resources use this through exports, never by copying the
 -- tables:
---   exports.world:Describe(coords)      "Grove Street, Southline, Atlanta"
---   exports.world:Label(coords)         "Grove Street"
+--   exports.world:Describe(coords)      "Groveland Street, Southline, Atlanta"
+--   exports.world:Label(coords)         "Groveland Street"
 --   exports.world:CityAt(coords)        "atlanta"
 --   exports.world:PlaceAt(coords)       { name, kind, city } or nil
 --   exports.world:PickSpawn(city)       { label, pos, heading, city }

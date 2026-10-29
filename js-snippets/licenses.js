@@ -1,8 +1,8 @@
 // ============================================================
 // licenses.js — weapon license: buy it, show it, lose it
 //
-// - Bought with DOLLARS at any Ammu-Nation (/buylicense weapon)
-// - Ammu-Nation won't sell a gun for gold without one (shops.js)
+// - Bought with DOLLARS at any Gunworks (/buylicense weapon)
+// - Gunworks won't sell a gun for gold without one (shops.js)
 // - On-duty police can check it on a stop (/checklicense) from a few
 //   metres away, no cuffs needed. They also see if a gun is OUT —
 //   a gun in your hands is visible; one in your bag needs a /search
@@ -49,7 +49,7 @@ function buyLicense(c, shop, typeText, payWith, now) {
     const type = findLicense(typeText);
     if (!type) return { ok: false, msg: `No license called "${typeText}". Licenses: ${Object.keys(LICENSES).join(", ")}` };
     const lic = LICENSES[type];
-    if (!shop || !shop.sellsLicenses?.includes(type)) return { ok: false, msg: `Buy a ${lic.label.toLowerCase()} at Ammu-Nation` };
+    if (!shop || !shop.sellsLicenses?.includes(type)) return { ok: false, msg: `Buy a ${lic.label.toLowerCase()} at Gunworks` };
     if (c.licenses[type]) return { ok: false, msg: `You already have a ${lic.label.toLowerCase()}` };
     const banned = hoursLeft(c, type, now);
     if (banned) return { ok: false, msg: `Your ${lic.label.toLowerCase()} was revoked — ${banned}h until you can apply again` };

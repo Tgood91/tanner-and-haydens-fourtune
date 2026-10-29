@@ -24,15 +24,15 @@ const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12
 const GUNS_AMMUNATION = { glizzy: 444, pumpshotgun: 750, uzi: 900, huntingrifle: 1200, chopper: 1500 };
 
 const SHOPS = {
-    atl_247:      { label: "24/7 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },
+    atl_247:      { label: "Open 24 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },
     atl_hardware: { label: "Atlanta Hardware",   city: "atlanta", pos: { x: 45.0,   y: -1748.0, z: 29.6 }, items: STOCK_HARDWARE },
-    gp_247:       { label: "24/7 GeePee",        city: "geepee",  pos: { x: 1698.0, y: 4924.0,  z: 42.1 }, items: STOCK_247 },
-    chi_247:      { label: "24/7 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
+    gp_247:       { label: "Open 24 GeePee",        city: "geepee",  pos: { x: 1698.0, y: 4924.0,  z: 42.1 }, items: STOCK_247 },
+    chi_247:      { label: "Open 24 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
     chi_hardware: { label: "Chicago Hardware",   city: "chicago", pos: { x: -420.0, y: 6025.0,  z: 31.5 }, items: STOCK_HARDWARE },
-    // Near the stock Ammu-Nation counters (Pillbox Hill, Sandy Shores, Paleto Bay) — walk and tune
-    atl_ammu:     { label: "Ammu-Nation Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
-    gp_ammu:      { label: "Ammu-Nation GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
-    chi_ammu:     { label: "Ammu-Nation Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    // Sat near the stock gun-shop counters in the base game — walk them and tune
+    atl_ammu:     { label: "Gunworks Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    gp_ammu:      { label: "Gunworks GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    chi_ammu:     { label: "Gunworks Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
 };
 
 function findShopNear(pos) {

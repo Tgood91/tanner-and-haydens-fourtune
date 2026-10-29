@@ -312,7 +312,7 @@ function armedSetup() {
     return env;
 }
 
-test("Ammu-Nation sells ammo boxes at the box price, and boxes weigh what they say", () => {
+test("Gunworks sells ammo boxes at the box price, and boxes weigh what they say", () => {
     const { game, a, atAmmu } = armedSetup();
     game.command(atAmmu, "buy", ["ammo_9mm", "2"]);
     assert.equal(a.cash, 500 - 150);
@@ -398,7 +398,7 @@ test("every ammo type has a box item, and every box fits in a bag", () => {
 });
 
 // ---------------- gold ----------------
-test("guns cost gold at Ammu-Nation: Glizzy is 444 gold and weighs 1.0", () => {
+test("guns cost gold at Gunworks: Glizzy is 444 gold and weighs 1.0", () => {
     const { game, a, as } = setup();
     const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
     a.licenses.weapon = { issuedAt: 0 }; // licenses have their own tests below
@@ -792,7 +792,7 @@ test("right after a repair, stale damage readings don't undo it; after the grace
 // ---------------- licenses ----------------
 const HOUR = 3600000;
 
-test("no license, no gun: Ammu-Nation refuses before touching your gold", () => {
+test("no license, no gun: Gunworks refuses before touching your gold", () => {
     const { game, a, as } = setup();
     a.gold = 1000;
     const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
@@ -803,9 +803,9 @@ test("no license, no gun: Ammu-Nation refuses before touching your gold", () => 
     assert.match(game.command(atAmmu, "buy", ["ammo_9mm"]).msg, /Bought/);
 });
 
-test("buying the license: dollars, only at Ammu-Nation, only once", () => {
+test("buying the license: dollars, only at Gunworks, only once", () => {
     const { game, a, as } = setup();
-    assert.match(game.command(as(1), "buylicense", ["weapon"]).msg, /at Ammu-Nation/);
+    assert.match(game.command(as(1), "buylicense", ["weapon"]).msg, /at Gunworks/);
     const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
     assert.match(game.command(atAmmu, "buylicense", ["weapon"]).msg, /Not enough cash/); // $500 cash, $2,500 license
     game.command(atAmmu, "buylicense", ["weapon", "bank"]);
@@ -1050,12 +1050,12 @@ test("a hold-up: cops get called, you stand there, the till pays out in cash", (
     const { game, robber, till, at } = robSetup();
 
     const res = game.command(at(2), "rob");
-    assert.match(res.msg, /Holding up 24\/7 Chicago/);
+    assert.match(res.msg, /Holding up Open 24 Chicago/);
     assert.ok(res.notify.some((n) => n.id === 1 && n.msg.includes("ROBBERY IN PROGRESS") && n.msg.includes("Hayden")));
 
     assert.equal(game.updatePosition(2, till, 60000).notify.length, 0); // 60s in: nothing yet
     const done = game.updatePosition(2, till, 90000);
-    assert.match(done.notify[0].msg, /Cleaned out 24\/7 Chicago/);
+    assert.match(done.notify[0].msg, /Cleaned out Open 24 Chicago/);
 
     assert.equal(robber.cash, 500 + heistRules.PAYOUT_MIN); // dirty money, in cash
     assert.equal(robber.bank, 5000);
@@ -1098,7 +1098,7 @@ test("getting cuffed mid-robbery ends it, and the officer is told what they caug
     game.updatePosition(1, till, 0); // officer arrives
 
     const cuff = game.command(at(1), "cuff", ["2"]);
-    assert.match(cuff.msg, /caught them robbing 24\/7 Chicago/);
+    assert.match(cuff.msg, /caught them robbing Open 24 Chicago/);
     assert.ok(robber.cuffed);
     assert.equal(robber.cash, 500);
     assert.equal(game.updatePosition(2, till, 95000).notify.length, 0);
@@ -1463,6 +1463,6 @@ test("dispatch says where, not just which city", () => {
 test("a robbery call names the block it's happening on", () => {
     const { game, robber, at } = robSetup();
     const call = game.command(at(2), "rob");
-    assert.match(call.notify[0].msg, /ROBBERY IN PROGRESS — 24\/7 Chicago, .*Chicago\. Suspect: Hayden/);
+    assert.match(call.notify[0].msg, /ROBBERY IN PROGRESS — Open 24 Chicago, .*Chicago\. Suspect: Hayden/);
     void robber;
 });

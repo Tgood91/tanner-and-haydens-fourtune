@@ -36,7 +36,7 @@ const JOBS = {
         stations: { chicago: { x: -245, y: 6325, z: 33 } },
     },
     mechanic: {
-        label: "Beeker's Mechanic",
+        label: "Beck's Mechanic",
         goldPerPaycheck: 40,
         grades: [
             { label: "Apprentice", pay: 250 },

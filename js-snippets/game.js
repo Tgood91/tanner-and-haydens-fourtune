@@ -680,7 +680,7 @@ function createGame(opts = {}) {
         // ----- licenses -----
         licenses: { help: "your licenses", run: ({ c, ctx }) => reply(licenses.listLicenses(c, ctx.now)) },
         buylicense: {
-            help: "weapon [cash|bank] — at Ammu-Nation",
+            help: "weapon [cash|bank] — at Gunworks",
             run: ({ c, args, ctx }) => {
                 const found = shops.findShopNear(ctx.pos);
                 return reply(licenses.buyLicense(c, found?.shop, args[0], lower(args[1]) || "cash", ctx.now).msg);

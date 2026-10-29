@@ -38,9 +38,9 @@ const ITEMS = {
     // Never sold in shops; console giveitem only, for now.
     glizzy:       { label: "Glizzy",         weight: 1.0, usable: false },
     chopper:      { label: "Chopper",        weight: 3.5, usable: false },
-    uzi:          { label: "Micro SMG",      weight: 2.5, usable: false },
-    pumpshotgun:  { label: "Pump Shotgun",   weight: 3.5, usable: false },
-    huntingrifle: { label: "Hunting Rifle",  weight: 5.0, usable: false },
+    uzi:          { label: "Compact SMG",      weight: 2.5, usable: false },
+    pumpshotgun:  { label: "Pump 12",   weight: 3.5, usable: false },
+    huntingrifle: { label: "Bolt Rifle",  weight: 5.0, usable: false },
 
     // Ammo boxes: weight is for the whole box (close to real-world boxes).
     // Rounds per box live in ammo.js; prices live in shops.js.

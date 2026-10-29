@@ -21,17 +21,17 @@ const DEFAULT_CITY = "atlanta";
 
 const SPAWNS = {
     atlanta: [
-        { label: "Alta Street",      pos: { x: -269.4, y: -955.3,  z: 31.2 }, heading: 205.0 },
-        { label: "Legion Square",    pos: { x: 195.2,  y: -933.8,  z: 30.7 }, heading: 144.0 },
-        { label: "Del Perro Pier",   pos: { x: -1606.9, y: -1029.6, z: 13.0 }, heading: 50.0 },
+        { label: "Alder Street",      pos: { x: -269.4, y: -955.3,  z: 31.2 }, heading: 205.0 },
+        { label: "Lantern Square",    pos: { x: 195.2,  y: -933.8,  z: 30.7 }, heading: 144.0 },
+        { label: "Delmar Pier",   pos: { x: -1606.9, y: -1029.6, z: 13.0 }, heading: 50.0 },
     ],
     geepee: [
-        { label: "Grapeseed",        pos: { x: 1693.0, y: 4823.0, z: 42.0 }, heading: 95.0 },
-        { label: "Sandy Shores",     pos: { x: 1961.0, y: 3740.0, z: 32.3 }, heading: 300.0 },
+        { label: "Harvestside",        pos: { x: 1693.0, y: 4823.0, z: 42.0 }, heading: 95.0 },
+        { label: "Dust Road",     pos: { x: 1961.0, y: 3740.0, z: 32.3 }, heading: 300.0 },
     ],
     chicago: [
         { label: "Chicago Main",     pos: { x: -450.0, y: 6015.0, z: 33.0 }, heading: 315.0 },
-        { label: "Paleto Boulevard", pos: { x: -125.0, y: 6380.0, z: 31.5 }, heading: 45.0 },
+        { label: "Palisade Boulevard", pos: { x: -125.0, y: 6380.0, z: 31.5 }, heading: 45.0 },
     ],
 };
 

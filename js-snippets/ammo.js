@@ -3,7 +3,7 @@
 //
 // Ammo lives in two places:
 //   1. BOXES in your inventory: real items with weight, bought at
-//      Ammu-Nation, droppable, storable in trunks, saved with you
+//      Gunworks, droppable, storable in trunks, saved with you
 //   2. LOADED rounds: /loadammo opens boxes into your gun's ammo
 //      pool. Loaded rounds don't weigh anything, but each type has
 //      a cap (MAX loaded), so you can't dodge the weight limit
