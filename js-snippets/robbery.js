@@ -23,6 +23,7 @@ const economy = require("./economy");
 const ammo = require("./ammo");
 const { distance } = require("./cities");
 
+const NIGHT_BONUS = 1.25;   // takings are better in the dark
 const MIN_POLICE_ON_DUTY = 1;
 const ROB_DURATION_MS = 90000;   // 90 seconds at the counter
 const ROB_RANGE = 6.0;           // how far you can drift from the till
@@ -68,8 +69,8 @@ function createHeists(rng = Math.random) {
         return { ok: true, msg: `Holding up ${found.shop.label}. Stay at the counter for ${Math.round(ROB_DURATION_MS / 1000)}s.`, label: found.shop.label };
     }
 
-    // Called from the position sweep. Returns what happened, or null.
-    function progress(c, pos, now) {
+    // atNight is passed in so this file never has to know what time it is.
+    function progress(c, pos, now, atNight = false) {
         const job = active.get(c.id);
         if (!job) return null;
 
@@ -83,7 +84,8 @@ function createHeists(rng = Math.random) {
         shopCooling.set(job.shopId, now + SHOP_COOLDOWN_MIN * 60000);
         robberCooling.set(c.id, now + ROBBER_COOLDOWN_MIN * 60000);
 
-        const take = PAYOUT_MIN + Math.floor(rng() * (PAYOUT_MAX - PAYOUT_MIN + 1));
+        let take = PAYOUT_MIN + Math.floor(rng() * (PAYOUT_MAX - PAYOUT_MIN + 1));
+        if (atNight) take = Math.round(take * NIGHT_BONUS);
         c.cash += take;
         return { event: "done", take, label: job.label, msg: `Cleaned out ${job.label}: ${economy.money(take)} in cash. Get out of there.` };
     }
@@ -101,6 +103,6 @@ function createHeists(rng = Math.random) {
 
 module.exports = {
     MIN_POLICE_ON_DUTY, ROB_DURATION_MS, ROB_RANGE,
-    SHOP_COOLDOWN_MIN, ROBBER_COOLDOWN_MIN, PAYOUT_MIN, PAYOUT_MAX,
+    SHOP_COOLDOWN_MIN, ROBBER_COOLDOWN_MIN, PAYOUT_MIN, PAYOUT_MAX, NIGHT_BONUS,
     createHeists,
 };

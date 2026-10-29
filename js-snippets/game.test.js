@@ -1595,3 +1595,117 @@ test("turf survives a save and reload", () => {
     fresh.updatePosition(1, knot);
     assert.match(fresh.command(at(1), "turf").msg, /The Knot: \[KAOS\] Kaos Crew/);
 });
+
+// ---------------- the clock and the sky ----------------
+const envRules = require("./environment");
+
+test("the clock runs on the tick and wraps at midnight", () => {
+    const game = createGame({ rng: () => 0 });
+    game.join(1, "Tanner");
+
+    // opens at 08:00, and one tick is half an hour
+    assert.equal(game.worldState().text, "08:00");
+    game.tick(1, 0);
+    assert.equal(game.worldState().text, "08:30");
+    game.tick(2, 0);
+    assert.equal(game.worldState().text, "09:30");
+
+    game.command(CONSOLE, "settime", ["23", "45"]);
+    game.tick(1, 0);
+    assert.equal(game.worldState().text, "00:15"); // wrapped, not 24:15
+});
+
+test("every client is told the time and the sky, so nobody sees their own", () => {
+    const game = createGame({ rng: () => 0 });
+    game.join(1, "Tanner");
+    const out = game.tick(1, 0);
+    const clock = out.actions.find((a) => a.type === "setClock");
+    assert.equal(clock.text, "08:30");
+    assert.deepEqual(game.command(CONSOLE, "setweather", ["thunder"]).actions[0], { type: "setWeather", weather: "THUNDER" });
+});
+
+test("weather walks through a transition rather than jumping", () => {
+    const game = createGame({ rng: () => 0.999 }); // always the last option
+    game.join(1, "Tanner");
+    game.command(CONSOLE, "setweather", ["clear"]);
+
+    // CLEAR can only become CLEAR, EXTRASUNNY, CLOUDS or FOGGY — never THUNDER
+    const reachable = Object.keys(envRules.TRANSITIONS.CLEAR);
+    game.tick(envRules.WEATHER_EVERY / envRules.MINUTES_PER_TICK, 0);
+    assert.ok(reachable.includes(game.worldState().weather), game.worldState().weather);
+
+    // and every sky in the table can be reached from somewhere
+    for (const [from, options] of Object.entries(envRules.TRANSITIONS)) {
+        for (const to of Object.keys(options)) {
+            assert.ok(envRules.TRANSITIONS[to], `${from} can become ${to}, which isn't a sky`);
+        }
+    }
+});
+
+test("night is a thing other systems can ask about", () => {
+    const game = createGame({ rng: () => 0 });
+    game.join(1, "Tanner");
+    game.command(CONSOLE, "settime", ["13"]);
+    assert.equal(game.worldState().night, false);
+    game.command(CONSOLE, "settime", ["23"]);
+    assert.equal(game.worldState().night, true);
+    game.command(CONSOLE, "settime", ["3"]);
+    assert.equal(game.worldState().night, true, "3am is still night");
+    game.command(CONSOLE, "settime", ["6"]);
+    assert.equal(game.worldState().night, false, "6am is not");
+});
+
+test("sunset and sunrise are announced once", () => {
+    const game = createGame({ rng: () => 0 });
+    game.join(1, "Tanner");
+    game.command(CONSOLE, "settime", ["20", "45"]);
+    assert.ok(game.tick(1, 0).notify.some((n) => n.msg.includes("sun's going down")));
+    assert.ok(!game.tick(1, 0).notify.some((n) => n.msg.includes("sun's going down")));
+
+    game.command(CONSOLE, "settime", ["5", "45"]);
+    assert.ok(game.tick(1, 0).notify.some((n) => n.msg.includes("getting light")));
+});
+
+test("the console can hold the clock and the sky still", () => {
+    const game = createGame({ rng: () => 0 });
+    game.join(1, "Tanner");
+    game.command(CONSOLE, "settime", ["12"]);
+    game.command(CONSOLE, "freeze", ["time", "on"]);
+    game.tick(4, 0);
+    assert.equal(game.worldState().text, "12:00", "the clock is held");
+    assert.match(game.command({ id: 1, pos: NOWHERE, now: 0 }, "time").msg, /clock held/);
+
+    game.command(CONSOLE, "freeze", ["time", "off"]);
+    game.tick(1, 0);
+    assert.equal(game.worldState().text, "12:30");
+    assert.match(game.command(CONSOLE, "settime", ["99"]).msg, /Hour is 0 to 23/);
+    assert.match(game.command(CONSOLE, "setweather", ["lasers"]).msg, /Unknown sky/);
+});
+
+test("robbing in the dark pays better", () => {
+    function haul(hour) {
+        const env = robSetup();
+        env.game.command(CONSOLE, "settime", [String(hour)]);
+        env.game.command(env.at(2), "rob");
+        env.game.updatePosition(2, env.till, 90000);
+        return env.robber.cash - 500;
+    }
+    const day = haul(13);
+    const night = haul(23);
+    assert.equal(day, heistRules.PAYOUT_MIN);
+    assert.equal(night, Math.round(heistRules.PAYOUT_MIN * heistRules.NIGHT_BONUS));
+    assert.ok(night > day);
+});
+
+test("the clock and the sky survive a restart", () => {
+    const game = createGame({ rng: () => 0 });
+    game.join(1, "Tanner");
+    game.command(CONSOLE, "settime", ["17", "20"]);
+    game.command(CONSOLE, "setweather", ["foggy"]);
+
+    const snapshot = game.saveAll();
+    const fresh = createGame();
+    fresh.loadEnvironment(snapshot.environment);
+    assert.equal(fresh.worldState().text, "17:20");
+    assert.equal(fresh.worldState().weather, "FOGGY");
+});

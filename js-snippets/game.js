@@ -17,6 +17,8 @@
 //   setCuffed { target, cuffed }           hands-behind-back animation, no shooting/driving
 //   teleport { target, pos, heading }      jail cell / release spawn
 //   setVehicleState { plate, fuel, tank, engine, body }  fuel gauge / empty tank / repaired
+//   setClock { hour, minute }              every client shows the server's time
+//   setWeather { weather }                 and the server's sky
 //   spawnVehicle { target, model, plate, pos }
 //   despawnVehicle { plate }
 //   setVehicleLocked { plate, locked }
@@ -43,6 +45,7 @@ const phone = require("./phone");
 const gangs = require("./gangs");
 const places = require("./places");
 const { createTurf, CLAIM_MS } = require("./turf");
+const { createEnvironment } = require("./environment");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -75,6 +78,7 @@ function createGame(opts = {}) {
     const heists = createHeists(rng);
     const crews = gangs.createGangs();
     const turf = createTurf();
+    const env = createEnvironment(rng);
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -199,7 +203,7 @@ function createGame(opts = {}) {
         const entered = places.updateZone(c, pos);
         if (entered) out.notify.push({ id, msg: entered });
 
-        const heist = heists.progress(c, pos, now); // no-op unless they're robbing somewhere
+        const heist = heists.progress(c, pos, now, env.isNight()); // no-op unless they're robbing somewhere
         if (heist) out.notify.push({ id, msg: heist.msg });
 
         for (const e of turf.progress(now, crewPresentIn)) {
@@ -525,6 +529,31 @@ function createGame(opts = {}) {
                 if (!found) return reply("You're not at a shop");
                 return reply(shops.buy(c, found.shop, lower(args[0]), toCount(args[1]), lower(args[2]) || "cash").msg);
             },
+        },
+
+        // ----- the world outside -----
+        time: { help: "the time and the sky", run: () => reply(env.describe()) },
+        weather: { help: "the time and the sky", run: () => reply(env.describe()) },
+        settime: {
+            help: "<hour> [minute]",
+            consoleOnly: true,
+            run: ({ args }) => {
+                const res = env.setTime(toCount(args[0], NaN), toCount(args[1], 0));
+                return reply(res.msg, { actions: res.ok ? [{ type: "setClock", ...env.state() }] : [] });
+            },
+        },
+        setweather: {
+            help: "<clear|clouds|overcast|rain|thunder|clearing|foggy|extrasunny>",
+            consoleOnly: true,
+            run: ({ args }) => {
+                const res = env.setWeather(args[0]);
+                return reply(res.msg, { actions: res.ok ? [{ type: "setWeather", weather: env.state().weather }] : [] });
+            },
+        },
+        freeze: {
+            help: "<time|weather> <on|off>",
+            consoleOnly: true,
+            run: ({ args }) => reply(env.freeze(lower(args[0]), lower(args[1]) !== "off").msg),
         },
 
         // ----- turf -----
@@ -988,6 +1017,14 @@ function createGame(opts = {}) {
             }
         }
 
+        const sky = env.advance(minutes);
+        if (sky.time) out.actions.push({ type: "setClock", ...env.state() });
+        if (sky.weather) out.actions.push({ type: "setWeather", weather: env.state().weather });
+        if (sky.nightfall || sky.daybreak) {
+            const line = sky.nightfall ? "The sun's going down." : "It's getting light.";
+            for (const c of characters.values()) out.notify.push({ id: c.id, msg: line });
+        }
+
         for (const { c, gold } of turf.payout(minutes, onlineInCrew)) {
             c.gold += gold;
             out.notify.push({ id: c.id, msg: `Turf pays +${gold} gold.` });
@@ -1009,7 +1046,10 @@ function createGame(opts = {}) {
     function saveAll() {
         const players = {};
         for (const [id, c] of characters) players[id] = serialize(c);
-        return { players, trunks: trunks.exportAll(), gangs: crews.exportAll(), turf: turf.exportAll() };
+        return {
+            players, trunks: trunks.exportAll(), gangs: crews.exportAll(),
+            turf: turf.exportAll(), environment: env.exportAll(),
+        };
     }
 
     function loadTrunks(saved) {
@@ -1024,11 +1064,21 @@ function createGame(opts = {}) {
         turf.importAll(saved);
     }
 
+    function loadEnvironment(saved) {
+        env.importAll(saved);
+    }
+
+    // What a client needs the moment it connects, so it doesn't show
+    // its own clock and sky for a few seconds first.
+    function worldState() {
+        return env.state();
+    }
+
     return {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks, loadGangs, loadTurf,
+        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, worldState,
     };
 }
 

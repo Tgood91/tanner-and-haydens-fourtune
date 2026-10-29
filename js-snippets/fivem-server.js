@@ -56,11 +56,18 @@ function perform(result) {
             case "revive":
                 emitNet("fourtune:revive", a.target, { pedHealth: a.health + 100, pos: a.pos });
                 break;
+            case "setClock": {
+                const payload = { ...a, perSecond: WORLD_MINUTES_PER_TICK / (TICK_MS / 1000) };
+                if (a.target) emitNet("fourtune:setClock", a.target, payload);
+                else emitNet("fourtune:setClock", -1, payload);
+                break;
+            }
             case "setAmmo":
             case "giveWeapon":
             case "removeWeapon":
             case "setCuffed":
             case "teleport":
+            case "setWeather":
                 emitNet(`fourtune:${a.type}`, a.target, a);
                 break;
             case "spawnVehicle": {
@@ -121,6 +128,11 @@ on("playerDropped", () => {
 });
 
 // ---------------- commands ----------------
+// One world tick a real minute. The client is told how fast that is so it
+// can run the clock smoothly instead of jumping half an hour at a time.
+const TICK_MS = 60 * 1000;
+const WORLD_MINUTES_PER_TICK = require(`${resourcePath}/environment.js`).MINUTES_PER_TICK;
+
 // ---------------- ammo ----------------
 // These commands act on loaded rounds, so the server needs the count
 // AFTER the latest shots, not the one from up to 10 seconds ago.
@@ -169,6 +181,13 @@ onNet("fourtune:spawned", () => {
     const pools = {};
     for (const [type, t] of Object.entries(AMMO_TYPES)) pools[t.gta] = c.ammo[type] || 0;
     emitNet("fourtune:setAllAmmo", id, pools);
+
+    // the sky, before they see their own version of it
+    const world = game.worldState();
+    perform({ actions: [
+        { type: "setClock", target: id, hour: world.hour, minute: world.minute },
+        { type: "setWeather", target: id, weather: world.weather },
+    ] });
 });
 
 for (const name of game.commandNames) {
@@ -203,7 +222,7 @@ onNet("fourtune:checkHealth", () => {
 setInterval(() => {
     for (const id of getPlayers()) perform(game.syncHealth(Number(id), readHealth(Number(id))));
     perform(game.tick(1, Date.now()));
-}, 60 * 1000);
+}, TICK_MS);
 
 // Every 5 seconds: city announcements for players, fuel and damage for cars.
 setInterval(() => {

@@ -2,7 +2,7 @@
 // fivem-client.js — the little bit that has to run on each player's PC
 // The client never decides anything. It only draws what the server
 // says: health changes, revives, weapons/ammo, cuffs, teleports, car
-// fuel/repairs, and dropped-item props.
+// fuel/repairs, dropped-item props, and the clock and sky.
 // It REPORTS ammo left after shooting; the server only accepts lower numbers.
 // NOT YET TESTED IN-GAME.
 // ============================================================
@@ -69,6 +69,37 @@ onNet("fourtune:requestAmmoReport", () => {
 setInterval(() => {
     if (ammoSynced) emitNet("fourtune:ammoReport", ammoReport());
 }, 10 * 1000);
+
+// ---------------- the clock and the sky ----------------
+// GTA runs its own clock and weather per client, so without this every
+// player is in a different world. The server owns both; this only draws
+// what it is told, and runs the clock smoothly between updates so it
+// does not jump half an hour at a time.
+let worldMinutes = null;     // minutes past midnight, server's version
+let worldPerSecond = 0.5;    // game minutes per real second
+
+onNet("fourtune:setClock", ({ hour, minute, perSecond }) => {
+    worldMinutes = hour * 60 + minute;
+    if (perSecond) worldPerSecond = perSecond;
+});
+
+onNet("fourtune:setWeather", ({ weather }) => {
+    ClearOverrideWeather();
+    SetWeatherTypeOverTime(weather, 20.0);
+    setTimeout(() => {
+        SetWeatherTypePersist(weather);
+        SetWeatherTypeNow(weather);
+        SetWeatherTypeNowPersist(weather);
+    }, 20000);
+});
+
+setInterval(() => {
+    if (worldMinutes === null) return; // nothing from the server yet
+    worldMinutes = (worldMinutes + worldPerSecond / 4) % 1440;
+    const h = Math.floor(worldMinutes / 60) % 24;
+    const m = Math.floor(worldMinutes % 60);
+    NetworkOverrideClockTime(h, m, Math.floor((worldMinutes % 1) * 60));
+}, 250);
 
 // ---------------- police ----------------
 let cuffed = false;
