@@ -888,3 +888,132 @@ test("every city has two hospitals, and you wake at the closer one", () => {
     assert.match(wake({ x: 290, y: -600, z: 43 }), /Red Clay General/);
     assert.match(wake({ x: -900, y: -900, z: 36 }), /Peach Ridge Medical/);
 });
+
+// ---------------- taxi ----------------
+const { fareFor, FARE_BASE } = require("./taxi");
+
+function cabSetup() {
+    const env = setup();
+    const { game } = env;
+    game.command(CONSOLE, "setjob", ["1", "taxi", "0"]);   // Tanner drives
+    env.corner = { x: 0, y: 6100, z: 30 };                 // both start together in Chicago
+    game.updatePosition(1, env.corner);
+    game.updatePosition(2, env.corner);
+    env.at = (id, pos = env.corner, extra = {}) => env.as(id, { pos, now: 0, ...extra });
+    game.command(env.at(1), "duty");
+    return env;
+}
+
+// drives the cab in steps the teleport guard will accept
+function drive(game, units, from = { x: 0, y: 6100, z: 30 }) {
+    const step = 250;
+    for (let moved = step; moved <= units; moved += step) {
+        game.updatePosition(1, { x: from.x + moved, y: from.y, z: from.z });
+    }
+}
+
+test("a full fare: call, accept, meter, drop-off — money moves once and only once", () => {
+    const { game, a, b, at } = cabSetup();
+
+    const called = game.command(at(2), "taxi");
+    assert.match(called.msg, /Cab called/);
+    assert.ok(called.notify.some((n) => n.id === 1 && n.msg.includes("/accept 2")));
+
+    game.command(at(1), "accept", ["2"]);
+    game.command(at(1), "startfare", ["2"]);
+    assert.match(game.command(at(2), "fare").msg, /0 units/); // passenger can read the meter too
+
+    drive(game, 1000);
+    assert.equal(fareFor(1000), 110); // $30 flag drop + $8 per 100 units
+    assert.match(game.command(at(1), "fare").msg, /1000 units/);
+
+    const res = game.command(at(1), "endfare");
+    assert.equal(b.bank, 5000 - 110);
+    assert.equal(a.bank, 5000 + 110);
+    assert.equal(a.gold, 5);
+    assert.ok(res.notify.some((n) => n.id === 2 && n.msg.includes("$110")));
+    assert.match(game.command(at(1), "endfare").msg, /No fare running/);
+});
+
+test("the meter counts driving, not teleporting", () => {
+    const { game, b, at } = cabSetup();
+    game.command(at(2), "taxi");
+    game.command(at(1), "accept", ["2"]);
+    game.command(at(1), "startfare", ["2"]);
+
+    game.updatePosition(1, { x: 200, y: 6100, z: 30 });    // 200 units driven
+    game.updatePosition(1, { x: 9000, y: 6100, z: 30 });   // a jump: ignored
+    assert.match(game.command(at(1), "fare").msg, /200 units/);
+    game.command(at(1), "endfare");
+    assert.equal(b.bank, 5000 - fareFor(200));
+});
+
+test("only an on-duty driver can take a call, and only one driver per call", () => {
+    const { game, at } = cabSetup();
+    game.command(at(2), "taxi");
+    assert.match(game.command(at(2), "accept", ["2"]).msg, /Only taxi drivers/);
+
+    game.command(at(1), "duty"); // clock out
+    assert.match(game.command(at(1), "accept", ["2"]).msg, /Clock in first/);
+    game.command(at(1), "duty");
+
+    game.command(at(1), "accept", ["2"]);
+    game.join(3, "Kaos");
+    game.command(CONSOLE, "setjob", ["3", "taxi", "0"]);
+    game.updatePosition(3, { x: 0, y: 6100, z: 30 });
+    game.command(at(3), "duty");
+    assert.match(game.command(at(3), "accept", ["2"]).msg, /Another driver took/);
+    assert.match(game.command(at(3), "startfare", ["2"]).msg, /haven't taken/);
+});
+
+test("the meter only starts next to the passenger", () => {
+    const { game, at } = cabSetup();
+    game.command(at(2), "taxi");
+    game.command(at(1), "accept", ["2"]);
+    // commands carry the position the player is actually standing at
+    const away = { x: 120, y: 6100, z: 30 };
+    game.updatePosition(1, away);
+    assert.match(game.command(at(1, away), "startfare", ["2"]).msg, /Get closer/);
+    const beside = { x: 4, y: 6100, z: 30 };
+    game.updatePosition(1, beside);
+    assert.match(game.command(at(1, beside), "startfare", ["2"]).msg, /Meter running/);
+});
+
+test("a passenger who can't cover it pays what they have", () => {
+    const { game, a, b, at } = cabSetup();
+    b.bank = 40;
+    game.command(at(2), "taxi");
+    game.command(at(1), "accept", ["2"]);
+    game.command(at(1), "startfare", ["2"]);
+    drive(game, 1000);
+    const res = game.command(at(1), "endfare");
+    assert.equal(b.bank, 0);
+    assert.equal(a.bank, 5040);
+    assert.equal(a.gold, 5);               // the driver still did the work
+    assert.match(res.msg, /\$70 short/);
+});
+
+test("one cab at a time, and an unclaimed call goes stale", () => {
+    const { game, at } = cabSetup();
+    game.command(at(2), "taxi");
+    assert.match(game.command(at(2), "taxi").msg, /already have a cab/);
+    assert.match(game.command(at(2), "cancelcab").msg, /cancelled/);
+    assert.match(game.command(at(2), "cancelcab").msg, /haven't called/);
+
+    game.command(at(2), "taxi");
+    const out = game.tick(5, 5 * 60 * 1000);
+    assert.ok(out.notify.some((n) => n.id === 2 && n.msg.includes("No driver picked up")));
+    assert.match(game.command(at(1), "calls").msg, /No cabs wanted/);
+});
+
+test("logging off mid-fare cancels it and tells the other side", () => {
+    const { game, at } = cabSetup();
+    game.command(at(2), "taxi");
+    game.command(at(1), "accept", ["2"]);
+    game.command(at(1), "startfare", ["2"]);
+    drive(game, 500);
+
+    const { notify } = game.leave(2); // passenger quits
+    assert.ok(notify.some((n) => n.id === 1 && n.msg.includes("passenger logged off")));
+    assert.match(game.command(at(1), "fare").msg, /No fare running/);
+});

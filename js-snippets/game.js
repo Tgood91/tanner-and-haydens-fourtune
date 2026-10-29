@@ -37,6 +37,7 @@ const police = require("./police");
 const spawns = require("./spawns");
 const fuel = require("./fuel");
 const licenses = require("./licenses");
+const { createDispatch, FARE_BASE } = require("./taxi");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -65,6 +66,7 @@ function createGame(opts = {}) {
     const worldVehicles = new Map();  // plate -> { plate, model, owner, locked }
     const pickups = createPickups();
     const trunks = createTrunks();
+    const dispatch = createDispatch();
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -85,8 +87,9 @@ function createGame(opts = {}) {
                 actions.push({ type: "despawnVehicle", plate });
             }
         }
+        const notify = dispatch.dropPlayer(id);
         characters.delete(id);
-        return { saved: serialize(c), actions };
+        return { saved: serialize(c), actions, notify };
     }
 
     function get(id) {
@@ -125,6 +128,7 @@ function createGame(opts = {}) {
         const c = characters.get(id);
         if (!c) return null;
         c.pos = { ...pos };
+        dispatch.addDistance(id, pos); // no-op unless they're driving a fare
         return cities.updateCity(c, pos);
     }
 
@@ -423,6 +427,58 @@ function createGame(opts = {}) {
             },
         },
 
+        // ----- taxi -----
+        taxi: {
+            help: "call a cab",
+            run: ({ c, ctx }) => {
+                const res = dispatch.callCab(c, ctx.now);
+                if (!res.ok) return reply(res.msg);
+                const notify = [];
+                for (const other of characters.values()) {
+                    if (other.job.name === "taxi" && other.onDuty && other !== c) {
+                        notify.push({ id: other.id, msg: `Cab wanted: ${c.name} in ${cities.CITIES[cities.cityAt(c.pos)].label} — /accept ${c.id}` });
+                    }
+                }
+                const waiting = notify.length > 0 ? `${notify.length} driver(s) on duty.` : "No drivers on duty right now.";
+                return reply(`${res.msg} ${waiting}`, { notify });
+            },
+        },
+        cancelcab: {
+            help: "call off the cab you asked for",
+            run: ({ c }) => {
+                const res = dispatch.cancelCab(c);
+                const notify = res.ok && res.driverId ? [{ id: res.driverId, msg: `${c.name} cancelled.` }] : [];
+                return reply(res.msg, { notify });
+            },
+        },
+        calls: { help: "(taxi) calls waiting", run: () => reply(dispatch.listCalls()) },
+        accept: {
+            help: "<playerId> (taxi) take a call",
+            run: ({ c, args }) => {
+                const passenger = get(Number(args[0]));
+                const res = dispatch.accept(c, passenger);
+                return reply(res.msg, { notify: res.ok ? [{ id: passenger.id, msg: `${c.name} is on the way.` }] : [] });
+            },
+        },
+        startfare: {
+            help: "<playerId> (taxi) start the meter",
+            run: ({ c, args }) => {
+                const passenger = get(Number(args[0]));
+                const res = dispatch.startFare(c, passenger);
+                return reply(res.msg, { notify: res.ok ? [{ id: passenger.id, msg: `Meter running. Flag drop ${economy.money(FARE_BASE)}.` }] : [] });
+            },
+        },
+        endfare: {
+            help: "(taxi) end the meter and bill the passenger",
+            run: ({ c }) => {
+                const passenger = get(dispatch.passengerIdOf(c.id));
+                const res = dispatch.endFare(c, passenger);
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, { notify: res.passengerMsg ? [{ id: res.passengerId, msg: res.passengerMsg }] : [] });
+            },
+        },
+        fare: { help: "what the meter says", run: ({ c }) => reply(dispatch.meter(c).msg) },
+
         // ----- licenses -----
         licenses: { help: "your licenses", run: ({ c, ctx }) => reply(licenses.listLicenses(c, ctx.now)) },
         buylicense: {
@@ -669,6 +725,10 @@ function createGame(opts = {}) {
                 out.notify.push(freed.notify);
                 out.actions.push(freed.action);
             }
+        }
+
+        for (const id of dispatch.expire(now)) {
+            out.notify.push({ id, msg: "No driver picked up your call. Try again when someone's on duty." });
         }
 
         for (const id of pickups.expire(now)) out.actions.push({ type: "pickupRemoved", id });

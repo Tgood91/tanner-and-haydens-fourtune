@@ -114,8 +114,8 @@ on("onResourceStart", (name) => {
 
 on("playerDropped", () => {
     const id = Number(global.source);
-    const { saved, actions } = game.leave(id);
-    perform({ actions });
+    const { saved, actions, notify } = game.leave(id);
+    perform({ actions, notify });
     // TODO: POST `saved` to your API (same route your money uses)
     void saved;
 });
