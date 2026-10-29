@@ -5,9 +5,8 @@ Everything still open, pulled out of the code. There is a nicer version of this 
 
 ## Only you can decide
 
-1. **Lua or JavaScript, per system.** Inventory, jobs, vehicles and money exist in both your Lua
-   resources and `fourtune`. `world` and `fourtune` also both claim `/whereami`, `/places` and
-   `/cities` — run both and each registers twice, second one silently losing.
+1. ~~**Lua or JavaScript, per system.**~~ **Decided 29 Oct 2026: Lua.** New systems are written in
+   Lua; the JS is now the reference to port from. Don't ensure `fourtune` beside the Lua resources.
 2. **Your name in `LICENSE`.** Still `Copyright (c) [year] [fullname]`.
 3. **Whether the cars get renamed.** Guns, shops and streets moved off Rockstar's names; vehicles
    didn't, because GTA draws its own name on screen and chat would disagree with it.
@@ -47,6 +46,9 @@ bleedout 5 min, revive/respawn at 50 health, EMS gets $150 + 25 gold, hospital b
 **Crime and the law** — 90 s at the till, $400–1,200 payout, 1 officer minimum, 30/15 min
 cooldowns (`robbery.js`) · fines to $5,000, jail to 30 min (`police.js`) · ammo 20–50 a box, load
 caps 60–500 (`ammo.js`)
+
+**Turf** — 2 crew to claim, 120 s to hold it, 15 min settle after a flip, pays 15 gold per
+online member every 10 min (`crew/turf.lua`)
 
 **Getting around** — taxi $30 + $8 per 100 units (`taxi.js`) · fuel $3/L, 1.0–1.5 L per km,
 repairs $600 + 10 gold (`fuel.js`) · trunks 15–60 kg, crew stash 120 kg (`trunks.js`, `gangs.js`) ·

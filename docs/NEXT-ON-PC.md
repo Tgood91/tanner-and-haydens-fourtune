@@ -60,10 +60,17 @@ Checks: `lua world/test.lua`.
 `server.cfg` block. The short version: `js-snippets/` has to be installed as a folder named
 `fourtune`, and `chat` + `spawnmanager` must be ensured before either of ours.
 
-## 3. Pick Lua or JS per system
+## 3. DECIDED: Lua
 
-Inventory, jobs, vehicles and money exist in both your Lua resources and `js-snippets/`.
-Running both registers every command twice. Decide before enabling `fourtune`.
+Tanner chose Lua on 29 Oct 2026. New systems are written in Lua from here, and the JavaScript in
+`js-snippets/` becomes the reference to port from rather than the thing that ships.
+
+Ported so far: `world` (cities, places, spawns), `crew` (crews, ranks, turf).
+Still JavaScript only: inventory, money and gold, jobs, needs, shops, vehicles, fuel, ammo,
+licences, police, medical, taxi, robbery, phone, pickups, trunks, and the crew stash, base
+and radio.
+
+Do not ensure `fourtune` alongside the Lua resources: every command would register twice.
 
 ## Still yours to do
 

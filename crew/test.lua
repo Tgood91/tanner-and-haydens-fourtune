@@ -1,0 +1,192 @@
+-- ============================================================
+-- crew/test.lua — headless checks for crews and turf
+--
+-- Stubs the natives and fakes cross-resource exports, so `crew` really
+-- calls `world` the way it will in FXServer. No economy is registered,
+-- which is half the point: both resources have to work without one.
+--
+--   lua crew/test.lua        (from the repo root)
+-- ============================================================
+
+local passed, failed = 0, 0
+local function ok(cond, what)
+    if cond then passed = passed + 1 else failed = failed + 1; print('  NOT OK: ' .. what) end
+end
+local function same(got, want, what)
+    if got == want then passed = passed + 1
+    else failed = failed + 1; print(string.format('  NOT OK: %s\n    got:  %s\n    want: %s', what, tostring(got), tostring(want))) end
+end
+
+-- ---------- the fake server ----------
+local NOW = 0
+local players = {}
+local chat = {}
+
+local REG, current = { world = {}, crew = {} }, nil
+_G.exports = setmetatable({}, {
+    __call = function(_, name, fn) REG[current][name] = fn end,
+    __index = function(_, res)
+        if not REG[res] then return nil end -- no economy registered: that path must still work
+        return setmetatable({}, { __index = function(_, fname)
+            return function(_self, ...) return REG[res][fname](...) end
+        end })
+    end,
+})
+
+_G.CreateThread = function() end
+_G.Wait = function() end
+_G.AddEventHandler = function() end
+_G.RegisterCommand = function() end
+_G.GetGameTimer = function() return NOW end
+_G.GetPlayers = function()
+    local out = {}
+    for src in pairs(players) do out[#out + 1] = tostring(src) end
+    table.sort(out)
+    return out
+end
+_G.GetPlayerPed = function(src) return src end
+_G.GetEntityCoords = function(ped) return players[ped].pos end
+_G.GetPlayerName = function(src) return players[src] and players[src].name or nil end
+_G.GetNumPlayerIdentifiers = function() return 1 end
+_G.GetPlayerIdentifier = function(src) return players[src] and players[src].license or nil end
+_G.TriggerClientEvent = function(_, src, payload) chat[#chat + 1] = { src = src, msg = payload.args[2] } end
+
+local function heard(src, needle)
+    for i = #chat, 1, -1 do
+        if chat[i].src == src and chat[i].msg:find(needle, 1, true) then return true end
+    end
+    return false
+end
+
+current = 'world'; dofile('world/data.lua'); dofile('world/main.lua')
+current = 'crew';  dofile('crew/main.lua');  dofile('crew/turf.lua')
+local C, W = REG.crew, REG.world
+
+local KNOT = { x = -430.0, y = 6020.0, z = 30.0 }
+local MIDWAY = { x = -300.0, y = 6230.0, z = 30.0 }
+local NOWHERE = { x = 0.0, y = 4000.0, z = 30.0 }
+
+local function join(src, name, pos)
+    players[src] = { name = name, license = 'license:' .. name:lower(), pos = pos or KNOT }
+end
+local function moveTo(src, pos) players[src].pos = pos end
+
+join(1, 'Tanner'); join(2, 'Hayden'); join(3, 'Kaos')
+
+-- ---------- founding ----------
+same(C.TagOf(1), nil, 'nobody starts in a crew')
+local made, msg = C.Create(1, 'K', 'Too Short Tag')
+same(made, false, 'a one-character tag is refused')
+same(select(2, C.Create(1, 'KAOS', 'no')), 'Name it something 3-24 characters long', 'a two-character name is refused')
+
+made, msg = C.Create(1, 'kaos', 'Kaos Crew')
+same(made, true, 'founding works')
+ok(msg:find('No economy resource running', 1, true) ~= nil, 'and says so when it cannot charge a fee')
+same(C.TagOf(1), 'KAOS', 'the tag is upper-cased')
+same(C.RankOf(1), 2, 'the founder is Leader')
+same(select(2, C.Create(2, 'KAOS', 'Another Crew')), '[KAOS] is taken', 'the tag is reserved')
+
+-- ---------- joining is consent, not assignment ----------
+same(select(2, C.Accept(2)), "Nobody's invited you", 'you cannot join uninvited')
+same(select(2, C.Invite(2, 3)), "You're not in a crew", 'outsiders cannot invite')
+
+ok(C.Invite(1, 2), 'the leader invites Hayden')
+same(C.TagOf(2), nil, 'invited is not joined')
+ok(heard(2, '/crewaccept'), 'Hayden is told how to accept')
+ok(C.Accept(2), 'Hayden accepts')
+same(C.RankOf(2), 0, 'and starts as a Member')
+
+-- an invite left too long goes stale
+C.Invite(1, 3)
+NOW = NOW + 6 * 60 * 1000
+same(select(2, C.Accept(3)), 'That invite expired', 'a stale invite is refused')
+ok(C.Invite(1, 3) and C.Accept(3), 'a fresh invite works')
+
+-- ---------- rank decides who can act ----------
+same(select(2, C.Kick(2, 'Kaos')), 'Only Officers and above can kick', 'members cannot kick')
+same(select(2, C.SetRank(2, 'Kaos', true)), 'Only Leaders can change ranks', 'members cannot promote')
+ok(C.SetRank(1, 'Hayden', true), 'the leader promotes Hayden')
+same(C.RankOf(2), 1, 'Hayden is an Officer')
+same(select(2, C.Kick(2, 'Tanner')), 'Tanner outranks you, or matches you', 'an officer cannot kick the leader')
+same(select(2, C.Leave(1)), "A leader can't walk away — promote someone or /crewdisband", 'the leader cannot just leave')
+
+-- ---------- the licence fix: same name, separate ranks ----------
+join(4, 'Tanner', KNOT)
+players[4].license = 'license:tanner2'
+ok(C.Invite(1, 4) and C.Accept(4), 'a second player calling himself Tanner joins')
+same(C.RankOf(1), 2, 'the original Tanner is still Leader')
+same(C.RankOf(4), 0, 'the newcomer is only a Member')
+ok(C.Kick(1, 'Tanner') ~= nil, 'kicking by name resolves to one of them, not both')
+players[4] = nil
+
+-- ---------- turf ----------
+ok(W.DistrictAt(KNOT).name == 'The Knot', 'the square is in The Knot')
+same(W.DistrictAt(NOWHERE), nil, 'open country is not a district')
+ok(REG.crew.Board():find('The Knot', 1, true) ~= nil, 'the board lists districts')
+same(REG.crew.HolderOf('The Knot'), nil, 'nobody holds it yet')
+
+moveTo(1, NOWHERE)
+same(select(2, C.Claim(1)), "You're not standing in a district. /turf lists them", 'you must be standing in one')
+moveTo(1, KNOT)
+
+-- one body is not enough
+moveTo(2, MIDWAY); moveTo(3, MIDWAY)
+same(select(2, C.Claim(1)), 'You need 2 crew in The Knot to take it — 1 here', 'a claim needs numbers')
+
+-- two in the zone starts it
+moveTo(2, KNOT)
+ok(C.Claim(1), 'two crew in the zone start the claim')
+ok(heard(1, 'Taking The Knot'), 'the claimers are told to hold')
+same(REG.crew.HolderOf('The Knot'), nil, 'the claim has not landed yet')
+
+-- wander off and it dies
+moveTo(2, MIDWAY)
+NOW = NOW + 10000
+C.Progress(NOW)
+same(REG.crew.HolderOf('The Knot'), nil, 'walking away loses the hold')
+ok(heard(1, 'Lost the hold on The Knot'), 'and says so')
+
+-- do it properly
+moveTo(2, KNOT)
+ok(C.Claim(1), 'they start again')
+NOW = NOW + 130 * 1000
+C.Progress(NOW)
+same(REG.crew.HolderOf('The Knot'), 'KAOS', 'holding the ground takes the turf')
+ok(heard(1, '[KAOS] now holds The Knot'), 'the crew is told')
+
+-- ---------- a flip warns the crew losing it ----------
+ok(C.Create(3, 'RIV', 'River Crew') == false, 'you cannot found a crew while in one')
+C.Leave(3)
+ok(C.Create(3, 'RIV', 'River Crew'), 'Kaos leaves and founds his own')
+join(5, 'Dee', KNOT)
+ok(C.Invite(3, 5) and C.Accept(5), 'and brings someone')
+moveTo(3, KNOT)
+
+same(select(2, C.Claim(1)), 'Your crew already holds The Knot', 'you cannot take your own turf')
+NOW = NOW + 16 * 60 * 1000 -- past the settle cooldown
+ok(C.Claim(3), 'the rival starts taking it')
+ok(heard(1, 'WARNING: [RIV] is taking The Knot from you'), 'the holder is warned, by name')
+
+NOW = NOW + 130 * 1000
+C.Progress(NOW)
+same(REG.crew.HolderOf('The Knot'), 'RIV', 'the turf flips')
+ok(heard(1, 'You lost The Knot to [RIV]'), 'the loser is told')
+same(select(2, C.Claim(1)), 'The Knot just changed hands — it settles in 15 min', 'and cannot take it straight back')
+
+-- ---------- holding pays, even with no economy ----------
+C.Payout()
+ok(heard(3, 'no economy is running'), 'payout says why it paid nothing')
+ok(not heard(1, 'Turf pays'), 'and the crew that lost it earns nothing')
+
+-- ---------- giving it up ----------
+same(select(2, C.Abandon(5)), 'Only Leaders can give up turf', 'members cannot abandon turf')
+ok(C.Abandon(3), 'the leader gives it up')
+same(REG.crew.HolderOf('The Knot'), nil, 'and it is unclaimed again')
+
+-- ---------- disband clears everyone ----------
+ok(C.Disband(1), 'the leader disbands')
+same(C.TagOf(1), nil, 'the leader is out')
+same(C.TagOf(2), nil, 'and so is everyone else')
+
+print(string.format('# pass %d\n# fail %d', passed, failed))
+os.exit(failed == 0 and 0 or 1)

@@ -175,6 +175,29 @@ exports('ZoneAt', ZoneAt)
 exports('Describe', Describe)
 exports('Label', Label)
 exports('ListFor', ListFor)
+-- Turf claims districts, so they are offered specifically: ZoneAt alone
+-- would hand back a park when you are standing in one.
+local function Districts()
+    local out = {}
+    for _, z in ipairs(Data.zones) do
+        if z.kind == 'district' then out[#out + 1] = z end
+    end
+    return out
+end
+
+local function DistrictAt(pos)
+    local best
+    for _, z in ipairs(Data.zones) do
+        if z.kind == 'district' then
+            local d = math.sqrt(dist2(pos.x, pos.y, z.center.x, z.center.y))
+            if d <= z.radius and (not best or z.radius < best.radius) then best = z end
+        end
+    end
+    return best
+end
+
+exports('Districts', Districts)
+exports('DistrictAt', DistrictAt)
 exports('PickSpawn', PickSpawn)
 exports('ReleaseSpawn', ReleaseSpawn)
 
