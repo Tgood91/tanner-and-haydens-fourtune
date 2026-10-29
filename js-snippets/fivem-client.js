@@ -90,8 +90,19 @@ setTick(() => {
     for (const control of [24, 25, 37, 140, 141, 142, 257, 263, 264, 23, 75]) DisableControlAction(0, control, true);
 });
 
-onNet("fourtune:teleport", ({ pos }) => {
-    SetEntityCoords(PlayerPedId(), pos.x, pos.y, pos.z, false, false, false, false);
+onNet("fourtune:teleport", ({ pos, heading }) => {
+    const ped = PlayerPedId();
+    SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false);
+    if (heading !== undefined) SetEntityHeading(ped, heading);
+});
+
+// ---------------- spawning ----------------
+// Auto-spawn is off (see the top of this file), so the server says where we appear.
+onNet("fourtune:spawn", ({ pos, heading }) => {
+    exports.spawnmanager.spawnPlayer(
+        { x: pos.x, y: pos.y, z: pos.z, heading, model: "mp_m_freemode_01", skipFade: false },
+        () => emitNet("fourtune:spawned"),
+    );
 });
 
 // Tell the server the moment we die, so on-duty EMS get the call right away.

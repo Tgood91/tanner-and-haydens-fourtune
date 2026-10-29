@@ -8,13 +8,15 @@
 //   - seized items are destroyed as evidence, not given to the officer
 //   - fines go to the city, not the officer's pocket
 // Jail time is saved with the character, so logging out doesn't
-// get you out of it. Jail coords and all limits are placeholders.
+// get you out of it. The city you're arrested in is saved too: you're
+// released in a DIFFERENT city (spawns.js RELEASE_CITY).
+// Jail coords and all limits are placeholders.
 // ============================================================
 
 const inventory = require("./inventory");
 const economy = require("./economy");
 const ammo = require("./ammo");
-const { distance } = require("./cities");
+const { distance, cityAt } = require("./cities");
 
 const REACH = 2.5;          // metres: cuff, search, seize, jail
 const FINE_REACH = 5.0;     // metres: writing a ticket
@@ -22,8 +24,7 @@ const MAX_FINE = 5000;
 const MAX_JAIL_MIN = 30;
 
 const JAIL = {
-    cell:    { x: 1691.0, y: 2565.0, z: 45.6 }, // placeholder — Bolingbroke yard
-    release: { x: 1846.0, y: 2586.0, z: 45.7 }, // placeholder — front gate
+    cell: { x: 1691.0, y: 2565.0, z: 45.6 }, // placeholder — Bolingbroke yard
 };
 
 function checkOfficer(officer, suspect, reach = REACH) {
@@ -100,6 +101,7 @@ function jail(officer, suspect, minutes) {
 
     suspect.cuffed = false; // the cell holds them now
     suspect.jailMinutes = minutes;
+    suspect.jailedFrom = cityAt(suspect.pos);
     return { ok: true, msg: `${suspect.name} is going to jail for ${minutes} min`, pos: { ...JAIL.cell } };
 }
 

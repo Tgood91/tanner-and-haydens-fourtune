@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 35 checks across every system
+node --test js-snippets/game.test.js  # 41 checks across every system
 ```
 
 ## What's in here
@@ -26,6 +26,7 @@ node --test js-snippets/game.test.js  # 35 checks across every system
 | `police.js` | Sheriff's Office tools: `/cuff`, `/search`, `/seize`, `/fine`, `/jail`. Seized items are destroyed and fines go to the city, so cops can't farm them. Jail time is saved, so logging out doesn't skip it |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
 | `cities.js` | Atlanta → GeePee → Chicago by how far north you are, with "Welcome to…" announcements |
+| `spawns.js` | 2–3 spawn points per city. New players start in Atlanta, returning players where they logged out, jailed players in the cell. **Released in a different city from the arrest**: Atlanta → Chicago, GeePee → Atlanta, Chicago → GeePee (`RELEASE_CITY`) |
 | `shops.js` | 24/7s and hardware stores. Every check runs before money is taken, so you can't pay and get nothing |
 | `pickups.js` | Dropped items anyone nearby can grab. They disappear after 10 min |
 | `trunks.js` | Trunk storage per plate, with its own weight limit. Owner or unlocked only |
@@ -42,12 +43,12 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
-- Police: $5,000 max fine, 30-min max jail, jail cell and release coords (`police.js`)
+- Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
 - Gold: per-paycheck gold by job (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
 - Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, Atlanta and GeePee hospital coords (`medical.js`)
 - Starting money (`character.js`), job pay (`jobs.js`), hunger/thirst rates (`needs.js`)
-- Atlanta and GeePee spawns and **both city borders** (`cities.js`); all shop locations and prices (`shops.js`)
+- All spawn points except Chicago Main, the default city, and the release route (`spawns.js`); **both city borders** (`cities.js`); all shop locations and prices (`shops.js`)
 - The Chicago job spots are the approximate coords from your smoke test. Walk them
 
 ## Not done yet

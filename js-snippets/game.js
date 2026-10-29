@@ -15,7 +15,7 @@
 //   giveWeapon { target, weapon, ammoType, rounds }
 //   removeWeapon { target, weapon }
 //   setCuffed { target, cuffed }           hands-behind-back animation, no shooting/driving
-//   teleport { target, pos }               jail cell / release gate
+//   teleport { target, pos, heading }      jail cell / release spawn
 //   spawnVehicle { target, model, plate, pos }
 //   despawnVehicle { plate }
 //   setVehicleLocked { plate, locked }
@@ -33,6 +33,7 @@ const shops = require("./shops");
 const medical = require("./medical");
 const ammo = require("./ammo");
 const police = require("./police");
+const spawns = require("./spawns");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -54,7 +55,9 @@ function lower(text) {
     return (text || "").toLowerCase();
 }
 
-function createGame() {
+// opts.rng: only tests pass this, to make spawn picks predictable
+function createGame(opts = {}) {
+    const rng = opts.rng || Math.random;
     const characters = new Map();     // player id -> character
     const worldVehicles = new Map();  // plate -> { plate, model, owner, locked }
     const pickups = createPickups();
@@ -320,12 +323,8 @@ function createGame() {
                 const target = get(Number(args[0]));
                 if (!target) return reply(`No player with id ${args[0]}`);
                 if (!(target.jailMinutes > 0)) return reply(`${target.name} isn't in jail`);
-                target.jailMinutes = 0;
-                target.pos = { ...police.JAIL.release };
-                return reply(`Released ${target.name}`, {
-                    notify: [{ id: target.id, msg: "An admin released you." }],
-                    actions: [{ type: "teleport", target: target.id, pos: { ...police.JAIL.release } }],
-                });
+                const out = release(target, "An admin let you out.");
+                return reply(`Released ${target.name}`, { notify: [out.notify], actions: [out.action] });
             },
         },
 
@@ -463,6 +462,29 @@ function createGame() {
         return result;
     }
 
+    // Walk out of jail: in a different city from the arrest (spawns.js).
+    function release(c, msg) {
+        const spot = spawns.releaseSpawn(c.jailedFrom, rng);
+        c.jailMinutes = 0;
+        c.jailedFrom = null;
+        c.pos = { ...spot.pos };
+        c.city = spot.city; // no "Welcome to" spam for the teleport itself
+        return {
+            notify: { id: c.id, msg: `${msg} You've been released in ${cities.CITIES[spot.city].label} (${spot.label}).` },
+            action: { type: "teleport", target: c.id, pos: spot.pos, heading: spot.heading },
+        };
+    }
+
+    // Where this player should appear when they load in.
+    function loginSpawn(id) {
+        const c = characters.get(id);
+        if (!c) return null;
+        const spot = spawns.loginSpawn(c, police.JAIL.cell, rng);
+        c.pos = { ...spot.pos };
+        if (spot.city) c.city = spot.city;
+        return spot;
+    }
+
     // The client reports what's left in each GTA ammo pool after shooting.
     function syncAmmo(id, reports) {
         const c = characters.get(id);
@@ -522,9 +544,9 @@ function createGame() {
 
         for (const c of characters.values()) {
             if (police.serveMinute(c, minutes)) {
-                c.pos = { ...police.JAIL.release };
-                out.notify.push({ id: c.id, msg: "You've served your time. You're free to go." });
-                out.actions.push({ type: "teleport", target: c.id, pos: { ...police.JAIL.release } });
+                const freed = release(c, "You've served your time.");
+                out.notify.push(freed.notify);
+                out.actions.push(freed.action);
             }
         }
 
@@ -544,7 +566,7 @@ function createGame() {
     }
 
     return {
-        join, leave, get, syncHealth, syncAmmo, updatePosition,
+        join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition,
         command, commandNames: Object.keys(commands),
         tick, saveAll, loadTrunks,
     };

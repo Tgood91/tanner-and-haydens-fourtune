@@ -7,7 +7,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { createGame, PAY_INTERVAL_MIN } = require("./game");
 const { SHOPS } = require("./shops");
-const { CITIES } = require("./cities");
+const { SPAWNS } = require("./spawns");
 
 const CONSOLE = { isConsole: true };
 const AT_247 = SHOPS.chi_247.pos;
@@ -161,10 +161,10 @@ test("cars get plates, spawn once, and trunks respect locks and weight", () => {
 
 test("crossing into a city announces it once", () => {
     const { game } = setup();
-    assert.equal(game.updatePosition(1, CITIES.atlanta.spawn), null); // first position: no announcement
-    assert.equal(game.updatePosition(1, CITIES.geepee.spawn), "Welcome to GeePee");
-    assert.equal(game.updatePosition(1, CITIES.geepee.spawn), null);
-    assert.equal(game.updatePosition(1, CITIES.chicago.spawn), "Welcome to Chicago");
+    assert.equal(game.updatePosition(1, SPAWNS.atlanta[0].pos), null); // first position: no announcement
+    assert.equal(game.updatePosition(1, SPAWNS.geepee[0].pos), "Welcome to GeePee");
+    assert.equal(game.updatePosition(1, SPAWNS.geepee[0].pos), null);
+    assert.equal(game.updatePosition(1, SPAWNS.chicago[0].pos), "Welcome to Chicago");
 });
 
 test("save and reload round-trips the character", () => {
@@ -554,4 +554,75 @@ test("console can unjail; players can't", () => {
     assert.match(game.command(as(1), "unjail", ["2"]).msg, /Console only/);
     game.command(CONSOLE, "unjail", ["2"]);
     assert.equal(b.jailMinutes, 0);
+});
+
+// ---------------- spawns ----------------
+const { RELEASE_CITY, DEFAULT_CITY } = require("./spawns");
+const { cityAt } = require("./cities");
+
+test("every city releases into a different city, and every spawn point is in its own city", () => {
+    for (const [from, to] of Object.entries(RELEASE_CITY)) assert.notEqual(from, to);
+    for (const [city, list] of Object.entries(SPAWNS)) {
+        assert.ok(list.length >= 2, `${city} needs at least 2 spawn points`);
+        for (const spot of list) assert.equal(cityAt(spot.pos), city, `${spot.label} isn't inside ${city}`);
+    }
+});
+
+function arrestIn(city) {
+    const game = createGame({ rng: () => 0 });
+    const cop = game.join(1, "Tanner");
+    const suspect = game.join(2, "Hayden");
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    const spot = SPAWNS[city][0].pos;
+    const at = (id) => ({ id, pos: spot, now: 0 });
+    game.updatePosition(2, spot); // in-game, positions report every 5 seconds
+    game.command(at(1), "duty");
+    game.command(at(1), "cuff", ["2"]);
+    game.command(at(1), "jail", ["2", "5"]);
+    return { game, cop, suspect };
+}
+
+for (const [from, to] of Object.entries(RELEASE_CITY)) {
+    test(`arrested in ${from} -> released in ${to}`, () => {
+        const { game, suspect } = arrestIn(from);
+        assert.equal(suspect.jailedFrom, from);
+        const out = game.tick(5, 0);
+        const tp = out.actions.find((x) => x.type === "teleport" && x.target === 2);
+        assert.deepEqual(tp.pos, SPAWNS[to][0].pos);
+        assert.equal(cityAt(tp.pos), to);
+        assert.ok(out.notify.some((n) => n.id === 2 && n.msg.includes(`released in ${CITY_LABEL[to]}`)));
+        assert.equal(suspect.jailedFrom, null);
+        // the teleport itself doesn't trigger a "Welcome to" announcement
+        assert.equal(game.updatePosition(2, tp.pos), null);
+    });
+}
+const CITY_LABEL = { atlanta: "Atlanta", geepee: "GeePee", chicago: "Chicago" };
+
+test("arrest city survives logging out, and console unjail follows the same rule", () => {
+    const { game } = arrestIn("atlanta");
+    const { saved } = game.leave(2);
+    assert.equal(saved.jailedFrom, "atlanta");
+    game.join(2, "Hayden", saved);
+    const res = game.command(CONSOLE, "unjail", ["2"]);
+    assert.equal(cityAt(res.actions[0].pos), "chicago");
+});
+
+test("login spawn: new players in the default city, returning players where they left, jailed players in the cell", () => {
+    const game = createGame({ rng: () => 0.99 });
+    game.join(1, "New");
+    const fresh = game.loginSpawn(1);
+    assert.equal(fresh.reason, "new");
+    assert.equal(fresh.city, DEFAULT_CITY);
+    assert.deepEqual(fresh.pos, SPAWNS[DEFAULT_CITY][SPAWNS[DEFAULT_CITY].length - 1].pos); // rng 0.99 = last spot
+
+    game.updatePosition(1, SPAWNS.chicago[1].pos);
+    const { saved } = game.leave(1);
+    game.join(1, "New", saved);
+    const back = game.loginSpawn(1);
+    assert.equal(back.reason, "return");
+    assert.deepEqual(back.pos, SPAWNS.chicago[1].pos);
+
+    game.leave(1);
+    game.join(1, "New", { ...saved, jailMinutes: 3, jailedFrom: "chicago" });
+    assert.equal(game.loginSpawn(1).reason, "jail");
 });

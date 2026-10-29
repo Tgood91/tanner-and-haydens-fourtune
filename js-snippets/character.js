@@ -28,11 +28,12 @@ function createCharacter(id, name, saved = null) {
         // Logging out while down doesn't get you up: the bleedout clock restarts on login
         downed: s.downed ?? false,
         downedAt: s.downed ? Date.now() : null,
-        pos: null, // last known position, kept fresh by game.updatePosition
+        pos: s.pos ? { ...s.pos } : null, // last known position; null = never spawned (spawns.js)
         ammo: { ...(s.ammo || {}) }, // loaded rounds per ammo type (see ammo.js)
         equipped: null, // always log in with your gun put away
         cuffed: false,  // logging out drops cuffs, but NOT jail time
         jailMinutes: s.jailMinutes ?? 0,
+        jailedFrom: s.jailedFrom ?? null, // city of the arrest — decides where you're released
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
         garage: (s.garage || []).map((car) => ({ ...car })),
@@ -56,6 +57,8 @@ function serialize(c) {
         downed: c.downed,
         ammo: { ...c.ammo },
         jailMinutes: c.jailMinutes,
+        jailedFrom: c.jailedFrom,
+        pos: c.pos ? { ...c.pos } : null,
         inventory: { ...c.inventory },
         garage: c.garage.map((car) => ({ ...car })),
     };

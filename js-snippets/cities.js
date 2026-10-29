@@ -3,15 +3,14 @@
 // Your world is a config layer on the stock map: each city is a
 // band of the map by how far north (y) you are.
 //
-// Chicago's spawn is the coord from your smoke test. The Atlanta and
-// GeePee spawns and BOTH borders are placeholders — drive the route
-// and move the lines to where the announcements should fire.
+// Spawn points live in spawns.js. BOTH borders are placeholders —
+// drive the route and move the lines to where the announcements fire.
 // ============================================================
 
 const CITIES = {
-    atlanta: { label: "Atlanta", spawn: { x: -269.4, y: -955.3, z: 31.2 } }, // placeholder
-    geepee:  { label: "GeePee",  spawn: { x: 1693.0, y: 4823.0, z: 42.0 } }, // placeholder
-    chicago: { label: "Chicago", spawn: { x: -450.0, y: 6015.0, z: 33.0 } },
+    atlanta: { label: "Atlanta" },
+    geepee:  { label: "GeePee" },
+    chicago: { label: "Chicago" },
 };
 
 const CHICAGO_STARTS_AT_Y = 5500; // placeholder border

@@ -133,9 +133,26 @@ onNet("fourtune:ammoReport", (reports) => {
     if (waiter) { ammoWaiters.delete(id); waiter(); }
 });
 
-// The client is up: give it the loaded ammo the server has on record.
-// Until this arrives, the client doesn't send reports (it would report 0s).
+// ---------------- spawning ----------------
+// 1. client loads -> "ready"      2. server picks the spot (spawns.js) -> "spawn"
+// 3. client spawns the ped -> "spawned"   4. server hands over loaded ammo
+// Ammo waits for step 4 because a freshly spawned ped starts with none.
 onNet("fourtune:ready", () => {
+    const id = Number(global.source);
+    const spot = game.loginSpawn(id);
+    if (!spot) return;
+    emitNet("fourtune:spawn", id, { pos: spot.pos, heading: spot.heading });
+
+    const c = game.get(id);
+    if (spot.reason === "jail") tell(id, `You still have ${c.jailMinutes} min left on your sentence.`);
+    else if (spot.reason === "new") {
+        const { CITIES } = require(`${resourcePath}/cities.js`);
+        tell(id, `Welcome to ${CITIES[spot.city].label} — you're at ${spot.label}. Try /help`);
+    }
+});
+
+// Until this arrives, the client doesn't send ammo reports (it would report 0s).
+onNet("fourtune:spawned", () => {
     const id = Number(global.source);
     const c = game.get(id);
     if (!c) return;
@@ -143,13 +160,6 @@ onNet("fourtune:ready", () => {
     const pools = {};
     for (const [type, t] of Object.entries(AMMO_TYPES)) pools[t.gta] = c.ammo[type] || 0;
     emitNet("fourtune:setAllAmmo", id, pools);
-
-    // Logged out mid-sentence? Straight back to the cell.
-    if (c.jailMinutes > 0) {
-        const { JAIL } = require(`${resourcePath}/police.js`);
-        emitNet("fourtune:teleport", id, { pos: JAIL.cell });
-        tell(id, `You still have ${c.jailMinutes} min left on your sentence.`);
-    }
 });
 
 for (const name of game.commandNames) {
