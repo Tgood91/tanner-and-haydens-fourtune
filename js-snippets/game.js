@@ -46,6 +46,7 @@ const gangs = require("./gangs");
 const places = require("./places");
 const { createTurf, CLAIM_MS } = require("./turf");
 const { createEnvironment } = require("./environment");
+const hud = require("./hud");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -1074,11 +1075,23 @@ function createGame(opts = {}) {
         return env.state();
     }
 
+    // Everything the overlay shows, built from the character the server
+    // owns. plate = the car they're sitting in, if any.
+    function hudFor(id, plate) {
+        const c = characters.get(id);
+        if (!c) return null;
+        return hud.build(c, {
+            world: env.state(),
+            crew: c.gang ? { tag: c.gang.tag, turf: turf.heldBy(c.gang.tag).length } : null,
+            car: plate ? worldVehicles.get(plate) || null : null,
+        });
+    }
+
     return {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, worldState,
+        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, worldState, hudFor,
     };
 }
 

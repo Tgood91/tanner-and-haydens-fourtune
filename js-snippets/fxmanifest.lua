@@ -20,8 +20,14 @@ dependencies {
 server_script 'fivem-server.js'
 client_script 'fivem-client.js'
 
+-- the overlay
+ui_page 'hud.html'
+
 -- Required by fivem-server.js at runtime
+-- one files block: a second one would replace this, not add to it
 files {
+    'hud.html',
+
     'game.js', 'inventory.js', 'vehicles.js', 'economy.js', 'jobs.js',
-    'needs.js', 'cities.js', 'shops.js', 'pickups.js', 'trunks.js', 'character.js', 'medical.js', 'ammo.js', 'police.js', 'spawns.js', 'fuel.js', 'licenses.js', 'taxi.js', 'robbery.js', 'phone.js', 'gangs.js', 'places.js', 'turf.js', 'environment.js',
+    'needs.js', 'cities.js', 'shops.js', 'pickups.js', 'trunks.js', 'character.js', 'medical.js', 'ammo.js', 'police.js', 'spawns.js', 'fuel.js', 'licenses.js', 'taxi.js', 'robbery.js', 'phone.js', 'gangs.js', 'places.js', 'turf.js', 'environment.js', 'hud.js',
 }

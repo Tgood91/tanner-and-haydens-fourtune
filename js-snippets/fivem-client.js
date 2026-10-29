@@ -70,6 +70,22 @@ setInterval(() => {
     if (ammoSynced) emitNet("fourtune:ammoReport", ammoReport());
 }, 10 * 1000);
 
+// ---------------- the overlay ----------------
+// The server decides what it says; this only hands it to the NUI page.
+onNet("fourtune:hud", (payload) => {
+    SendNuiMessage(JSON.stringify({ type: "hud", payload }));
+});
+
+// Hide it while the pause menu is up, so it doesn't sit over the map.
+let hudHidden = false;
+setInterval(() => {
+    const hide = IsPauseMenuActive();
+    if (hide !== hudHidden) {
+        hudHidden = hide;
+        SendNuiMessage(JSON.stringify({ type: "visible", visible: !hide }));
+    }
+}, 500);
+
 // ---------------- the clock and the sky ----------------
 // GTA runs its own clock and weather per client, so without this every
 // player is in a different world. The server owns both; this only draws

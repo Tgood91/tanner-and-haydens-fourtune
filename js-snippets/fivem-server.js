@@ -217,6 +217,23 @@ onNet("fourtune:checkHealth", () => {
     perform(game.syncHealth(id, readHealth(id)));
 });
 
+// ---------------- the overlay ----------------
+// Pushed on its own clock: needs and money barely move, but fuel drops
+// while you drive, and a 5-second HUD feels broken.
+const { HUD_EVERY_MS } = require(`${resourcePath}/hud.js`);
+
+setInterval(() => {
+    for (const id of getPlayers()) {
+        const src = Number(id);
+        const ped = GetPlayerPed(src);
+        const veh = GetVehiclePedIsIn(ped, false);
+        const plate = veh && veh !== 0 ? GetVehicleNumberPlateText(veh).trim() : null;
+
+        const payload = game.hudFor(src, plate);
+        if (payload) emitNet("fourtune:hud", src, payload);
+    }
+}, HUD_EVERY_MS);
+
 // ---------------- time ----------------
 // One in-game "minute" of needs/pay every real 60 seconds.
 setInterval(() => {

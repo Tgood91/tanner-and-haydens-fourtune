@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 104 checks across every system
+node --test js-snippets/game.test.js  # 109 checks across every system
 ```
 
 ## What's in here
@@ -32,6 +32,7 @@ node --test js-snippets/game.test.js  # 104 checks across every system
 | `licenses.js` | Weapon license: $2,500 at Ammu-Nation, required before Ammu-Nation sells a gun for gold. Police `/checklicense` on a stop (no cuffs; also shows a gun that's out) and `/revokelicense` (24h before a new one can be bought) |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
 | `places.js` | Named ground: 10 districts, 5 parks and 10 roads as real coordinates. The most specific name wins (road, then park, then district, then city), so dispatch reads "Lakeshore Drive, The Shoreline, Chicago". Walking into a park announces it; teleports stay quiet |
+| `hud.js` + `hud.html` | The overlay: health, food and water bars, cash/bank/gold, job, where you are, the time and sky, your crew and its turf, and a fuel panel when you're driving. `hud.js` builds the payload server-side so nothing is trusted from the client; `hud.html` only draws it |
 | `environment.js` | The server owns the clock and the weather, so every player sees the same sky. A day takes about 48 real minutes, weather walks a transition table instead of jumping, and `isNight()` / `isWet()` are what other systems ask |
 | `cities.js` | Atlanta → GeePee → Chicago by how far north you are, with "Welcome to…" announcements |
 | `spawns.js` | 2–3 spawn points per city. New players start in Atlanta, returning players where they logged out, jailed players in the cell. **Released in a different city from the arrest**: Atlanta → Chicago, GeePee → Atlanta, Chicago → GeePee (`RELEASE_CITY`) |
@@ -56,6 +57,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Turf: 2 to claim, 120s to hold, 15-min settle after a flip, 15 gold per member every 10 min (`turf.js`)
 - Crew cost ($25,000), 12-member cap, 120 kg stash, 10-unit base range, 24h base move cooldown (`gangs.js`)
 - GeePee's area code (770 is a guess) and the 20-text history (`phone.js`)
+- HUD: pushed every 2s, bars read low under 25 and critical under 10 (`hud.js`)
 - World clock: 30 world-minutes a tick (a day in ~48 real min), weather rolls every 2 world-hours, night is 21:00-06:00 (`environment.js`)
 - Robbery: 90s at the till, $400-$1,200 payout, 1 officer minimum, 30-min shop and 15-min robber cooldowns (`robbery.js`)
 - Taxi flag drop ($30), $8 per 100 units, $5 driver gold, 5-min call timeout (`taxi.js`)

@@ -1709,3 +1709,76 @@ test("the clock and the sky survive a restart", () => {
     assert.equal(fresh.worldState().text, "17:20");
     assert.equal(fresh.worldState().weather, "FOGGY");
 });
+
+// ---------------- the overlay ----------------
+const hudRules = require("./hud");
+
+test("the overlay shows what the server knows, not what a client claims", () => {
+    const { game, a, as } = setup();
+    game.updatePosition(1, { x: -75, y: 6180, z: 30 });
+    const h = game.hudFor(1);
+
+    assert.equal(h.health.value, 100);
+    assert.equal(h.health.level, "ok");
+    assert.equal(h.cash, "$500");
+    assert.equal(h.gold, 0);
+    assert.equal(h.job, "Civilian");
+    assert.equal(h.place, "Lakeshore Drive, The Shoreline, Chicago");
+    assert.equal(h.time, "08:00");
+    assert.equal(h.weather, "clear");
+    assert.equal(h.crew, null);
+    assert.equal(h.vehicle, null);
+    assert.deepEqual(h.status, []);
+    void a; void as;
+});
+
+test("bars turn low and then critical", () => {
+    assert.equal(hudRules.level(100), "ok");
+    assert.equal(hudRules.level(hudRules.LOW), "low");
+    assert.equal(hudRules.level(hudRules.CRITICAL), "critical");
+
+    const { game, a } = setup();
+    a.hunger = 20;
+    a.thirst = 5;
+    const h = game.hudFor(1);
+    assert.equal(h.hunger.level, "low");
+    assert.equal(h.thirst.level, "critical");
+});
+
+test("the flags say why you can't do anything", () => {
+    const { game, a } = setup();
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    game.command({ id: 1, pos: NOWHERE, now: 0 }, "duty");
+    assert.deepEqual(game.hudFor(1).status, [{ text: "ON DUTY", tone: "ok" }]);
+
+    a.cuffed = true;
+    assert.ok(game.hudFor(1).status.some((f) => f.text === "CUFFED"));
+    a.jailMinutes = 7;
+    assert.ok(game.hudFor(1).status.some((f) => f.text === "JAIL 7m"));
+    // being held means you are not also "on duty" on the overlay
+    assert.ok(!game.hudFor(1).status.some((f) => f.text === "ON DUTY"));
+});
+
+test("the car panel only appears when you're in one of yours", () => {
+    const { game, a, at, plate } = carSetup();
+    assert.equal(game.hudFor(1).vehicle, null, "no panel on foot");
+
+    a.garage[0].fuel = 30;
+    const h = game.hudFor(1, plate);
+    assert.equal(h.vehicle.plate, plate);
+    assert.equal(h.vehicle.fuel.value, 30);
+    assert.equal(h.vehicle.fuel.tank, 60);
+    assert.equal(h.vehicle.fuel.percent, 50);
+    assert.equal(h.vehicle.engine, 100);
+    void at;
+});
+
+test("the overlay carries the crew and how much turf it holds", () => {
+    const { game, at, knot } = turfSetup();
+    assert.equal(game.hudFor(1).crew.tag, "KAOS");
+    assert.equal(game.hudFor(1).crew.turf, 0);
+
+    game.command(at(1), "claim");
+    game.updatePosition(1, knot, 130000);
+    assert.equal(game.hudFor(1).crew.turf, 1);
+});

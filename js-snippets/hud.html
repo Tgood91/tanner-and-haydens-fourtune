@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fourtune HUD</title>
+<style>
+  /* Bottom-left stack. Nothing here decides anything — the server sends
+     the values and the levels, this only draws them. */
+  :root{
+    --ink:#f2f5f6; --dim:#aab4b9; --panel:rgba(12,17,21,.72);
+    --ok:#5fd39b; --low:#e0a93c; --critical:#e4607f;
+    --gold:#e3b23c; --accent:#5fb6dc;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);
+    -webkit-font-smoothing:antialiased}
+  #hud{position:fixed;left:22px;bottom:22px;width:276px;display:none;
+    flex-direction:column;gap:7px;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  #hud.on{display:flex}
+  .card{background:var(--panel);border-radius:5px;padding:9px 11px;
+    backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.07)}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:5px}
+  .bar i{display:block;height:100%;border-radius:3px;transition:width .4s ease,background .4s ease}
+  .ok i{background:var(--ok)} .low i{background:var(--low)} .critical i{background:var(--critical)}
+  .label{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+  .val{font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:600}
+  .money{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13px}
+  .money b{font-weight:600}
+  .money .g{color:var(--gold)}
+  .where{font-size:12px;color:var(--dim);line-height:1.35}
+  .where b{color:var(--ink);font-weight:600;display:block;font-size:12.5px}
+  .flags{display:flex;flex-wrap:wrap;gap:5px}
+  .flag{font-size:10px;letter-spacing:.09em;padding:2px 6px;border-radius:3px;font-weight:700}
+  .flag.ok{background:rgba(95,211,155,.18);color:var(--ok)}
+  .flag.critical{background:rgba(228,96,127,.18);color:var(--critical)}
+  .crew{font-size:11.5px;color:var(--accent);letter-spacing:.04em}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div class="card" id="flagCard"><div class="flags" id="flags"></div></div>
+
+  <div class="card">
+    <div class="row"><span class="label">Health</span><span class="val" id="healthV">100</span></div>
+    <div class="bar" id="healthB"><i></i></div>
+    <div class="row" style="margin-top:7px"><span class="label">Food</span><span class="val" id="hungerV">100</span></div>
+    <div class="bar" id="hungerB"><i></i></div>
+    <div class="row" style="margin-top:7px"><span class="label">Water</span><span class="val" id="thirstV">100</span></div>
+    <div class="bar" id="thirstB"><i></i></div>
+  </div>
+
+  <div class="card" id="carCard">
+    <div class="row"><span class="label" id="plate">—</span><span class="val" id="fuelV">—</span></div>
+    <div class="bar" id="fuelB"><i></i></div>
+    <div class="row" style="margin-top:6px"><span class="label">Engine</span><span class="val" id="engineV">—</span></div>
+  </div>
+
+  <div class="card">
+    <div class="money"><span class="label">Cash</span><b id="cash">$0</b></div>
+    <div class="money" style="margin-top:3px"><span class="label">Bank</span><b id="bank">$0</b></div>
+    <div class="money g" style="margin-top:3px"><span class="label">Gold</span><b id="gold">0</b></div>
+  </div>
+
+  <div class="card">
+    <div class="where"><b id="place">—</b><span id="job">—</span></div>
+    <div class="row" style="margin-top:6px">
+      <span class="where" id="clock">—</span>
+      <span class="crew" id="crew"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const hud = $('hud');
+
+  function bar(el, valueEl, data, text) {
+    el.className = 'bar ' + data.level;
+    el.firstElementChild.style.width = Math.max(0, Math.min(100, data.value)) + '%';
+    valueEl.textContent = text !== undefined ? text : data.value;
+  }
+
+  function draw(p) {
+    hud.classList.add('on');
+
+    bar($('healthB'), $('healthV'), p.health);
+    bar($('hungerB'), $('hungerV'), p.hunger);
+    bar($('thirstB'), $('thirstV'), p.thirst);
+
+    $('cash').textContent = p.cash;
+    $('bank').textContent = p.bank;
+    $('gold').textContent = p.gold;
+
+    $('place').textContent = p.place;
+    $('job').textContent = p.job;
+    $('clock').textContent = p.time ? (p.time + ' · ' + p.weather) : '';
+    $('crew').textContent = p.crew ? ('[' + p.crew.tag + ']' + (p.crew.turf ? ' · ' + p.crew.turf + ' turf' : '')) : '';
+
+    const flags = $('flags');
+    flags.innerHTML = '';
+    for (const f of p.status) {
+      const el = document.createElement('span');
+      el.className = 'flag ' + f.tone;
+      el.textContent = f.text;
+      flags.appendChild(el);
+    }
+    $('flagCard').classList.toggle('hidden', p.status.length === 0);
+
+    const car = $('carCard');
+    car.classList.toggle('hidden', !p.vehicle);
+    if (p.vehicle) {
+      $('plate').textContent = p.vehicle.plate;
+      bar($('fuelB'), $('fuelV'), p.vehicle.fuel, p.vehicle.fuel.value + ' / ' + p.vehicle.fuel.tank + ' L');
+      $('engineV').textContent = p.vehicle.engine + '%';
+    }
+  }
+
+  window.addEventListener('message', (e) => {
+    const d = e.data;
+    if (d.type === 'hud') draw(d.payload);
+    else if (d.type === 'visible') hud.classList.toggle('on', d.visible);
+  });
+</script>
+</body>
+</html>
