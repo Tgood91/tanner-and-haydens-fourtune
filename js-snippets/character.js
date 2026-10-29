@@ -8,6 +8,7 @@ const inventory = require("./inventory");
 const vehicles = require("./vehicles");
 const fuel = require("./fuel");
 const phone = require("./phone");
+const appearance = require("./appearance");
 
 const START_CASH = 500;
 const START_BANK = 5000;
@@ -48,6 +49,8 @@ function createCharacter(id, name, saved = null) {
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
         garage: (s.garage || []).map((car) => fuel.ensureState({ ...car })), // fuel/engine/body per car
+        look: appearance.cleanLook(s.look),          // six clothing slot numbers
+        outfits: appearance.cleanOutfits(s.outfits), // saved looks, by name
         city: null,
         // zone is left undefined on purpose: places.updateZone treats that as "not placed yet"
     };
@@ -77,6 +80,8 @@ function serialize(c) {
         pos: c.pos ? { ...c.pos } : null,
         inventory: { ...c.inventory },
         garage: c.garage.map((car) => ({ ...car })),
+        look: { ...appearance.wearing(c) },
+        outfits: Object.fromEntries(Object.entries(c.outfits || {}).map(([n, l]) => [n, { ...l }])),
     };
 }
 

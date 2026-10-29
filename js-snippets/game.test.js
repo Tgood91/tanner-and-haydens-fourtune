@@ -2011,3 +2011,237 @@ test("deeds, keys and what's inside survive a restart", () => {
     assert.match(fresh.command(at(1), "home").msg, /Keys out: Hayden/);
     assert.match(fresh.command(at(2), "wardrobe").msg, /Radio x1/);
 });
+
+// ---------------- shifts, the impound, and clothes ----------------
+
+const shiftRules = require("./shifts");
+const impoundRules = require("./impound");
+const clothes = require("./appearance");
+
+test("sheriff and EMS get a callsign on duty and hand it back off duty", () => {
+    const { game, as } = setup();
+    game.command(CONSOLE, "setjob", ["1", "police"]);
+    game.command(CONSOLE, "setjob", ["2", "ems"]);
+
+    assert.match(game.command(as(1), "duty").msg, /Clocked in.*S-1 on shift/);
+    assert.match(game.command(as(2), "duty").msg, /M-1 on shift/, "each department numbers its own");
+    assert.match(game.command(as(1), "callsign").msg, /^S-1 — 0 min/);
+
+    assert.match(game.command(as(1), "roster", ["police"]).msg, /S-1 — Tanner/);
+    assert.doesNotMatch(game.command(as(1), "roster", ["police"]).msg, /Hayden/, "EMS isn't on the sheriff's roster");
+
+    assert.match(game.command(as(1, { now: 20 * 60000 }), "duty").msg, /S-1 off shift after 20 min/);
+    assert.equal(game.get(1).onDuty, false);
+    assert.match(game.command(as(1), "callsign").msg, /not on shift/);
+
+    // the number went back in the pool, so the next clock-in reuses it
+    assert.match(game.command(as(1), "duty").msg, /S-1 on shift/);
+});
+
+test("a civilian job has no shift, and a full department turns one away", () => {
+    const { game, as } = setup();
+    game.command(CONSOLE, "setjob", ["1", "taxi"]);
+    const res = game.command(as(1), "duty");
+    assert.equal(res.msg, "Clocked in.", "no callsign for a cab driver");
+
+    // fill every sheriff callsign, then try one more
+    const fresh = createGame();
+    for (let i = 1; i <= shiftRules.DEPARTMENTS.police.units; i++) {
+        fresh.join(i, `Deputy${i}`);
+        fresh.command(CONSOLE, "setjob", [String(i), "police"]);
+        fresh.command({ id: i, pos: NOWHERE, now: 0 }, "duty");
+    }
+    const spare = shiftRules.DEPARTMENTS.police.units + 1;
+    fresh.join(spare, "Kaos");
+    fresh.command(CONSOLE, "setjob", [String(spare), "police"]);
+    const full = fresh.command({ id: spare, pos: NOWHERE, now: 0 }, "duty");
+    assert.match(full.msg, /callsign is out/);
+    assert.equal(fresh.get(spare).onDuty, false, "a refused shift doesn't leave you clocked in");
+});
+
+test("the radio uses callsigns, and a mask keeps your name off it", () => {
+    const { game, a, b, as } = setup();
+    game.command(CONSOLE, "setjob", ["2", "ems"]);
+    game.command(as(2), "duty");
+
+    // someone goes down: the EMS line is a radio line
+    const emsCall = game.syncHealth(1, 0);
+    assert.match(emsCall.notify[0].msg, /^M-1, EMS call: Tanner is down/);
+
+    const robber = createGame();
+    robber.join(1, "Tanner");
+    robber.join(2, "Hayden");
+    robber.command(CONSOLE, "setjob", ["2", "police"]);
+    robber.command({ id: 2, pos: NOWHERE, now: 0 }, "duty");
+    robber.command(CONSOLE, "giveitem", ["1", "glizzy"]);
+    robber.command(CONSOLE, "giveitem", ["1", "ammo_9mm", "2"]);
+    robber.command({ id: 1, pos: AT_247, now: 0 }, "loadammo", ["9mm", "2"]);
+    robber.command({ id: 1, pos: AT_247, now: 0 }, "equip", ["glizzy"]);
+    robber.get(1).look.mask = 4;
+
+    const call = robber.command({ id: 1, pos: AT_247, now: 0 }, "rob");
+    assert.match(call.notify[0].msg, /^S-1, ROBBERY IN PROGRESS/);
+    assert.match(call.notify[0].msg, /Suspect: masked suspect/);
+    assert.doesNotMatch(call.notify[0].msg, /Tanner/, "a mask is worth something");
+    assert.ok(a && b);
+});
+
+test("a long shift gets a nudge, once", () => {
+    const { game, as } = setup();
+    game.command(CONSOLE, "setjob", ["1", "police"]);
+    game.command(as(1), "duty");
+
+    const at = (min) => game.tick(1, min * 60000).notify.filter((n) => /on shift/.test(n.msg));
+    assert.equal(at(30).length, 0);
+    assert.match(at(shiftRules.LONG_SHIFT_MIN)[0].msg, /S-1, you've been on shift 60 min/);
+    assert.equal(at(shiftRules.LONG_SHIFT_MIN + 1).length, 0, "not every tick after that");
+});
+
+function towSetup() {
+    const game = createGame();
+    const a = game.join(1, "Tanner");
+    const b = game.join(2, "Hayden");
+    const as = (id, extra = {}) => ({ id, pos: NOWHERE, now: 0, ...extra });
+    a.bank = 400000;
+    game.command(as(1), "buyveh", ["sultan"]);
+    const plate = a.garage[0].plate;
+    game.command(as(1), "spawnveh", [plate]);
+
+    game.command(CONSOLE, "setjob", ["2", "police"]);
+    game.command(as(2), "duty");
+    const lot = impoundRules.LOTS[0].pos;
+    return { game, a, b, as, plate, lot, nearCar: (id, extra = {}) => as(id, { vehiclePlate: plate, ...extra }) };
+}
+
+test("police tow a car to the lot, and it costs its owner to get it out", () => {
+    const { game, a, as, plate, lot, nearCar } = towSetup();
+
+    assert.match(game.command(nearCar(1), "towveh").msg, /on duty only/, "a civilian can't tow");
+
+    const res = game.command(nearCar(2), "towveh");
+    assert.match(res.msg, /taken by the Sheriff's Office/);
+    assert.deepEqual(res.actions[0], { type: "despawnVehicle", plate });
+    assert.equal(res.notify[0].id, 1);
+    assert.match(game.command(as(1), "impound").msg, new RegExp(`${plate} — taken by the Sheriff's Office`));
+    assert.match(game.command(as(1), "spawnveh", [plate]).msg, /is impounded/);
+
+    assert.match(game.command(as(1), "releaseveh", [plate]).msg, /not at an impound lot/);
+    assert.match(game.command(as(2, { pos: lot }), "releaseveh", [plate]).msg, /not yours/);
+
+    a.garage[0].engine = 100;
+    a.garage[0].fuel = 9;
+    const before = a.bank;
+    const out = game.command(as(1, { pos: lot }), "releaseveh", [plate]);
+    assert.match(out.msg, /repaired, not refuelled/);
+    assert.equal(a.bank, before - impoundRules.FEES.police);
+    assert.equal(a.garage[0].engine, 1000, "it comes back whole");
+    assert.equal(a.garage[0].fuel, 9, "towing is not a free tank");
+    assert.equal(game.command(as(1), "spawnveh", [plate]).actions[0].type, "spawnVehicle");
+});
+
+test("logging out on the street is a tow, and the lot survives a restart", () => {
+    const { game, plate, lot } = towSetup();
+
+    const gone = game.leave(1);
+    assert.deepEqual(gone.actions[0], { type: "despawnVehicle", plate });
+
+    const snapshot = game.saveAll();
+    assert.equal(snapshot.impound[plate].reason, "abandoned");
+    assert.equal(snapshot.impound[plate].fee, impoundRules.FEES.abandoned);
+
+    const fresh = createGame();
+    fresh.loadImpound(snapshot.impound);
+    const back = fresh.join(1, "Tanner", gone.saved);
+    assert.match(fresh.command({ id: 1, pos: NOWHERE, now: 0 }, "impound").msg, new RegExp(`${plate} — left on the street`));
+    assert.match(fresh.command({ id: 1, pos: NOWHERE, now: 0 }, "spawnveh", [plate]).msg, /is impounded/);
+    assert.equal(back.bank, game.get(2).bank === undefined ? back.bank : back.bank);
+});
+
+test("a wrecked car is towed cheaper than a seized one", () => {
+    const { game, a, nearCar } = towSetup();
+    a.garage[0].engine = 0;
+    const res = game.command(nearCar(2), "towveh");
+    assert.match(res.msg, /towed in wrecked/);
+    assert.equal(game.saveAll().impound[a.garage[0].plate].fee, impoundRules.FEES.wrecked);
+});
+
+function dressSetup() {
+    const game = createGame();
+    const a = game.join(1, "Tanner");
+    game.join(2, "Hayden");
+    const shop = clothes.SHOPS[0].pos;
+    const as = (id, extra = {}) => ({ id, pos: NOWHERE, now: 0, ...extra });
+    return { game, a, as, shop, atShop: (id, extra = {}) => as(id, { pos: shop, ...extra }) };
+}
+
+test("clothes change at a shop and nowhere else, and cost what the slot costs", () => {
+    const { game, a, as, atShop } = dressSetup();
+    assert.deepEqual(a.look, clothes.DEFAULT_LOOK);
+
+    assert.match(game.command(as(1), "dress", ["top", "4"]).msg, /not at a clothing shop/);
+    assert.equal(a.look.top, 1, "the street doesn't dress you");
+
+    const cash = a.cash;
+    const res = game.command(atShop(1), "dress", ["top", "4"]);
+    assert.match(res.msg, /Top #4 on. Northline Threads/);
+    assert.deepEqual(res.actions[0], { type: "setAppearance", target: 1, look: { ...clothes.DEFAULT_LOOK, top: 4 } });
+    assert.equal(a.cash, cash - clothes.SLOTS.top.price);
+
+    assert.match(game.command(atShop(1), "dress", ["top", "4"]).msg, /already wearing/);
+    assert.match(game.command(atShop(1), "dress", ["legs", "0"]).msg, /Legs goes 1-18/, "you keep your trousers");
+    assert.match(game.command(atShop(1), "dress", ["cape", "2"]).msg, /No slot called "cape"/);
+    assert.match(game.command(atShop(1), "look").msg, /Top: #4/);
+
+    // a mask on, then off again for free
+    game.command(atShop(1), "dress", ["mask", "3"]);
+    assert.equal(clothes.isMasked(a), true);
+    const broke = a.cash;
+    assert.match(game.command(atShop(1), "dress", ["mask", "0"]).msg, /Took your mask off/);
+    assert.equal(a.cash, broke, "taking something off is free");
+    assert.equal(clothes.isMasked(a), false);
+});
+
+test("outfits save at a shop, go back on at your own door, and survive a restart", () => {
+    const { game, a, as, atShop } = dressSetup();
+    a.bank = 400000;
+    game.command(atShop(1), "dress", ["top", "9"]);
+    game.command(atShop(1), "dress", ["hat", "2"]);
+
+    assert.match(game.command(as(1), "saveoutfit", ["work"]).msg, /not at a clothing shop/);
+    assert.match(game.command(atShop(1), "saveoutfit", ["work"]).msg, /Saved "work"/);
+    assert.match(game.command(as(1), "outfits").msg, /work/);
+
+    game.command(atShop(1), "dress", ["top", "2"]);
+    assert.match(game.command(as(1), "outfit", ["work"]).msg, /clothing shop or at your own door/);
+
+    // buy the Knot walk-up and change in front of it
+    const door = require("./houses").HOUSES.knot_walkup.pos;
+    game.command(as(1, { pos: door }), "buyhouse");
+    const back = game.command(as(1, { pos: door }), "outfit", ["WORK"]);
+    assert.match(back.msg, /Changed into "work"/);
+    assert.equal(a.look.top, 9);
+    assert.equal(back.actions[0].type, "setAppearance");
+
+    assert.match(game.command(atShop(1), "outfit", ["beach"]).msg, /No outfit called "beach"/);
+
+    const saved = game.saveAll().players[1];
+    assert.deepEqual(saved.outfits.work, { ...clothes.DEFAULT_LOOK, top: 9, hat: 2 });
+    const fresh = createGame();
+    const again = fresh.join(1, "Tanner", saved);
+    assert.equal(again.look.top, 9);
+    assert.match(fresh.command({ id: 1, pos: NOWHERE, now: 0 }, "outfits").msg, /work/);
+});
+
+test("only five outfits, and a junk save doesn't dress you in nothing", () => {
+    const { game, atShop } = dressSetup();
+    for (let i = 1; i <= clothes.MAX_OUTFITS; i++) {
+        assert.match(game.command(atShop(1), "saveoutfit", [`fit${i}`]).msg, /Saved/);
+    }
+    assert.match(game.command(atShop(1), "saveoutfit", ["onemore"]).msg, /You keep 5 outfits/);
+    assert.match(game.command(atShop(1), "saveoutfit", ["fit1"]).msg, /Replaced "fit1"/, "overwriting is fine");
+    assert.match(game.command(atShop(1), "dropoutfit", ["fit1"]).msg, /Dropped "fit1"/);
+    assert.match(game.command(atShop(1), "saveoutfit", ["onemore"]).msg, /Saved/);
+
+    const junk = game.join(9, "Junk", { look: { top: 999, legs: -4, mask: "x" } });
+    assert.deepEqual(junk.look, clothes.DEFAULT_LOOK, "nonsense falls back to the default fit");
+});

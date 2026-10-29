@@ -49,6 +49,9 @@ const { createEnvironment } = require("./environment");
 const hud = require("./hud");
 const { createDrugs } = require("./drugs");
 const houses = require("./houses");
+const shifts = require("./shifts");
+const impound = require("./impound");
+const appearance = require("./appearance");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -84,6 +87,8 @@ function createGame(opts = {}) {
     const env = createEnvironment(rng);
     const trade = createDrugs(rng);
     const homes = houses.createHouses();
+    const crewShifts = shifts.createShifts();
+    const lot = impound.createImpound();
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -142,6 +147,8 @@ function createGame(opts = {}) {
         const actions = [];
         for (const [plate, v] of worldVehicles) {
             if (v.owner === id) {
+                // logging out on the street used to be free; now it's a tow
+                lot.take(plate, v, c.name, "abandoned", Date.now());
                 worldVehicles.delete(plate);
                 actions.push({ type: "despawnVehicle", plate });
             }
@@ -149,6 +156,7 @@ function createGame(opts = {}) {
         const notify = dispatch.dropPlayer(id);
         heists.cancel(id, "they logged off");
         crews.dropPlayer(id);
+        crewShifts.dropPlayer(id);
         characters.delete(id);
         return { saved: serialize(c), actions, notify };
     }
@@ -167,7 +175,8 @@ function createGame(opts = {}) {
         const notify = [];
         for (const other of characters.values()) {
             if (other.job.name === "ems" && other.onDuty && other !== c) {
-                notify.push({ id: other.id, msg: `EMS call: ${c.name} is down at ${where} — /revive ${c.id}` });
+                const sign = crewShifts.callsignOf(other);
+                notify.push({ id: other.id, msg: `${sign ? `${sign}, ` : ""}EMS call: ${c.name} is down at ${where} — /revive ${c.id}` });
             }
         }
         notify.push({
@@ -336,7 +345,40 @@ function createGame(opts = {}) {
 
         // ----- jobs -----
         job: { help: "your job and pay", run: ({ c }) => reply(jobs.jobInfo(c)) },
-        duty: { help: "clock in / out", run: ({ c }) => reply(jobs.toggleDuty(c).msg) },
+        duty: {
+            help: "clock in / out — sheriff and EMS get a callsign with it",
+            run: ({ c, ctx }) => {
+                const res = jobs.toggleDuty(c);
+                if (!res.ok || !shifts.isDepartment(c.job.name)) return reply(res.msg);
+
+                if (c.onDuty) {
+                    const on = crewShifts.start(c, ctx.now);
+                    // no free callsign means no shift, so don't leave them clocked in
+                    if (!on.ok) {
+                        c.onDuty = false;
+                        return reply(on.msg);
+                    }
+                    return reply(`${res.msg} ${on.msg}`);
+                }
+                const off = crewShifts.end(c, ctx.now);
+                return reply(off.ok ? `${res.msg} ${off.msg}` : res.msg);
+            },
+        },
+        roster: {
+            help: "[police|ems] — who's on shift",
+            run: ({ c, args, ctx }) => {
+                const dept = lower(args[0]) || (shifts.isDepartment(c.job.name) ? c.job.name : "police");
+                return reply(crewShifts.roster(dept, ctx.now, (id) => get(id)?.name));
+            },
+        },
+        callsign: {
+            help: "your callsign and how long you've been out",
+            run: ({ c, ctx }) => {
+                const shift = crewShifts.shiftOf(c);
+                if (!shift) return reply("You're not on shift. /duty clocks you in");
+                return reply(`${shift.callsign} — ${Math.round((ctx.now - shift.since) / 60000)} min on shift.`);
+            },
+        },
         setjob: {
             help: "<playerId> <job> [grade]",
             consoleOnly: true,
@@ -580,6 +622,59 @@ function createGame(opts = {}) {
             run: ({ c, args, ctx }) => reply(homes.take(c, houses.findDoor(ctx.pos), lower(args[0]), toCount(args[1])).msg),
         },
 
+        // ----- the impound -----
+        impound: { help: "what of yours is in the lot", run: ({ c }) => reply(lot.listFor(c.name)) },
+        releaseveh: {
+            help: "<plate> — pay a car out, at the lot",
+            run: ({ c, args }) => reply(lot.release(c, args[0], vehicles.findOwned).msg),
+        },
+        towveh: {
+            help: "tow the nearest player car to the lot (police, on duty)",
+            run: ({ c, ctx }) => {
+                if (c.job.name !== "police" || !c.onDuty) return reply("Sheriff's Office, on duty only");
+                const v = worldVehicles.get(ctx.vehiclePlate);
+                if (!v) return reply("No player car nearby");
+
+                const owner = get(v.owner);
+                const reason = v.car && v.car.engine <= 0 ? "wrecked" : "police";
+                if (!lot.take(v.plate, v, owner ? owner.name : v.ownerName, reason, ctx.now)) {
+                    return reply(`${v.plate} is already in the lot`);
+                }
+                worldVehicles.delete(v.plate);
+                return reply(`Towed ${v.plate} — ${impound.REASON_TEXT[reason]}.`, {
+                    notify: owner ? [{ id: owner.id, msg: `Your ${v.plate} was ${impound.REASON_TEXT[reason]}. /impound` }] : [],
+                    actions: [{ type: "despawnVehicle", plate: v.plate }],
+                });
+            },
+        },
+
+        // ----- clothes -----
+        clothes: { help: "where the shops are and what a change costs", run: () => reply(appearance.listShops()) },
+        look: { help: "what you're wearing", run: ({ c }) => reply(appearance.describe(c)) },
+        dress: {
+            help: "<slot> <number> — change one slot, at a shop",
+            run: ({ c, args, ctx }) => {
+                const res = appearance.change(c, appearance.shopNear(ctx.pos), lower(args[0]), args[1]);
+                return reply(res.msg, { actions: res.ok ? [lookAction(c)] : [] });
+            },
+        },
+        outfits: { help: "your saved outfits", run: ({ c }) => reply(appearance.listOutfits(c)) },
+        saveoutfit: {
+            help: "<name> — keep what you're wearing, at a shop",
+            run: ({ c, args, ctx }) => reply(appearance.saveOutfit(c, appearance.shopNear(ctx.pos), args.join(" ")).msg),
+        },
+        outfit: {
+            help: "<name> — put a saved outfit back on, at a shop or your own door",
+            run: ({ c, args, ctx }) => {
+                const res = appearance.wearOutfit(c, canChangeAt(c, ctx.pos), args.join(" "));
+                return reply(res.msg, { actions: res.ok ? [lookAction(c)] : [] });
+            },
+        },
+        dropoutfit: {
+            help: "<name> — forget a saved outfit",
+            run: ({ c, args }) => reply(appearance.dropOutfit(c, args.join(" ")).msg),
+        },
+
         // ----- the trade -----
         harvest: {
             help: "pick what's growing where you're standing",
@@ -785,7 +880,11 @@ function createGame(opts = {}) {
                 const res = heists.start(c, found, ctx.now, cops.length);
                 if (!res.ok) return reply(res.msg);
 
-                const notify = cops.map((o) => ({ id: o.id, msg: `ROBBERY IN PROGRESS — ${res.label}, ${places.describe(c.pos)}. Suspect: ${c.name} (id ${c.id})` }));
+                const seen = appearance.isMasked(c) ? "masked suspect" : `${c.name} (id ${c.id})`;
+                const notify = cops.map((o) => {
+                    const sign = crewShifts.callsignOf(o);
+                    return { id: o.id, msg: `${sign ? `${sign}, ` : ""}ROBBERY IN PROGRESS — ${res.label}, ${places.describe(c.pos)}. Suspect: ${seen}` };
+                });
                 return reply(res.msg, { notify });
             },
         },
@@ -894,6 +993,7 @@ function createGame(opts = {}) {
                 const car = vehicles.findOwned(c, args[0]);
                 if (!car) return reply(`You don't own a ${args[0] || "car"}`);
                 if (worldVehicles.has(car.plate)) return reply(`${car.plate} is already out`);
+                if (lot.isHeld(car.plate)) return reply(`${car.plate} is impounded. /impound to see what it costs`);
                 fuel.ensureState(car);
                 // `car` is the garage entry itself, so fuel and damage write straight back to the save
                 const v = { plate: car.plate, model: car.model, owner: c.id, locked: true, car, lastPos: null };
@@ -972,6 +1072,18 @@ function createGame(opts = {}) {
 
     function vehicleStateAction(v) {
         return { type: "setVehicleState", plate: v.plate, fuel: v.car.fuel, tank: fuel.tankFor(v.model), engine: v.car.engine, body: v.car.body };
+    }
+
+    // What the platform needs to redraw the ped after a change of clothes
+    function lookAction(c) {
+        return { type: "setAppearance", target: c.id, look: { ...appearance.wearing(c) } };
+    }
+
+    // Somewhere you're allowed to change: a shop, or a door you can open
+    function canChangeAt(c, pos) {
+        if (appearance.shopNear(pos)) return true;
+        const door = houses.findDoor(pos);
+        return !!(door && homes.mayEnter(c, door.id));
     }
 
     // The platform reports each car that's out every few seconds: { pos, engine, body }.
@@ -1114,6 +1226,10 @@ function createGame(opts = {}) {
             out.notify.push({ id, msg: "That crew invite expired." });
         }
 
+        for (const unit of crewShifts.longShifts(now)) {
+            out.notify.push({ id: unit.id, msg: `${unit.callsign}, you've been on shift ${unit.minutes} min. Take a break when you can.` });
+        }
+
         for (const id of dispatch.expire(now)) {
             out.notify.push({ id, msg: "No driver picked up your call. Try again when someone's on duty." });
         }
@@ -1129,6 +1245,7 @@ function createGame(opts = {}) {
         return {
             players, trunks: trunks.exportAll(), gangs: crews.exportAll(),
             turf: turf.exportAll(), environment: env.exportAll(), houses: homes.exportAll(),
+            impound: lot.exportAll(),
         };
     }
 
@@ -1150,6 +1267,10 @@ function createGame(opts = {}) {
 
     function loadHouses(saved) {
         homes.importAll(saved);
+    }
+
+    function loadImpound(saved) {
+        lot.importAll(saved);
     }
 
     // What a client needs the moment it connects, so it doesn't show
@@ -1174,7 +1295,7 @@ function createGame(opts = {}) {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, loadHouses, worldState, hudFor,
+        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, loadHouses, loadImpound, worldState, hudFor,
     };
 }
 

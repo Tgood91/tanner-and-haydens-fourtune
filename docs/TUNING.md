@@ -64,6 +64,15 @@ online member every 10 min (`crew/turf.lua`)
 repairs $600 + 10 gold (`fuel.js`) · trunks 15–60 kg, crew stash 120 kg (`trunks.js`, `gangs.js`) ·
 dropped items vanish after 10 min (`pickups.js`)
 
+**On shift** — 12 callsigns each for the Sheriff's Office (`S-1`…) and EMS (`M-1`…), a break
+nudge every 60 min on shift (`shifts.js`)
+
+**The impound** — $2,500 when police tow it, $1,200 wrecked, $600 for logging out on the
+street; released repaired, never refuelled (`impound.js`)
+
+**Clothes** — $180 a top, $160 shoes, $140 legs, $120 a mask, $90 a hat, $70 glasses; taking
+something off is free; five saved outfits (`appearance.js`)
+
 ## Check on the first boot
 
 - **`files{}` ships server logic to players.** `fourtune` lists its server modules there so
@@ -74,4 +83,4 @@ dropped items vanish after 10 min (`pickups.js`)
 
 ---
 
-89 JavaScript checks and 84 Lua checks pass headlessly. None of it has run inside FXServer.
+130 JavaScript checks and 84 Lua checks pass headlessly. None of it has run inside FXServer.

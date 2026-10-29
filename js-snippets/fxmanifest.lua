@@ -29,5 +29,5 @@ files {
     'hud.html',
 
     'game.js', 'inventory.js', 'vehicles.js', 'economy.js', 'jobs.js',
-    'needs.js', 'cities.js', 'shops.js', 'pickups.js', 'trunks.js', 'character.js', 'medical.js', 'ammo.js', 'police.js', 'spawns.js', 'fuel.js', 'licenses.js', 'taxi.js', 'robbery.js', 'phone.js', 'gangs.js', 'places.js', 'turf.js', 'environment.js', 'hud.js', 'drugs.js', 'houses.js',
+    'needs.js', 'cities.js', 'shops.js', 'pickups.js', 'trunks.js', 'character.js', 'medical.js', 'ammo.js', 'police.js', 'spawns.js', 'fuel.js', 'licenses.js', 'taxi.js', 'robbery.js', 'phone.js', 'gangs.js', 'places.js', 'turf.js', 'environment.js', 'hud.js', 'drugs.js', 'houses.js', 'shifts.js', 'impound.js', 'appearance.js',
 }
