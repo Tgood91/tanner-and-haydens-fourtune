@@ -48,6 +48,7 @@ const { createTurf, CLAIM_MS } = require("./turf");
 const { createEnvironment } = require("./environment");
 const hud = require("./hud");
 const { createDrugs } = require("./drugs");
+const houses = require("./houses");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -82,6 +83,7 @@ function createGame(opts = {}) {
     const turf = createTurf();
     const env = createEnvironment(rng);
     const trade = createDrugs(rng);
+    const homes = houses.createHouses();
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -532,6 +534,50 @@ function createGame(opts = {}) {
                 if (!found) return reply("You're not at a shop");
                 return reply(shops.buy(c, found.shop, lower(args[0]), toCount(args[1]), lower(args[2]) || "cash").msg);
             },
+        },
+
+        // ----- property -----
+        houses: { help: "what's on the market", run: () => reply(homes.forSale()) },
+        home: { help: "your place", run: ({ c }) => reply(homes.info(c)) },
+        buyhouse: {
+            help: "buy the place you're standing at",
+            run: ({ c, ctx }) => reply(homes.buy(c, houses.findDoor(ctx.pos)).msg),
+        },
+        sellhouse: { help: "sell your place back, empty", run: ({ c }) => reply(homes.sell(c).msg) },
+        lockhome: {
+            help: "lock or unlock your door",
+            run: ({ c, ctx }) => reply(homes.toggleLock(c, houses.findDoor(ctx.pos)).msg),
+        },
+        givekey: {
+            help: "<playerId> — a key to your place",
+            run: ({ c, args }) => {
+                const target = get(Number(args[0]));
+                const res = homes.giveKey(c, target);
+                return reply(res.msg, { notify: res.ok ? [{ id: target.id, msg: `${c.name} gave you a key to ${res.label}` }] : [] });
+            },
+        },
+        takekey: {
+            help: "<name> — take a key back",
+            run: ({ c, args }) => {
+                const res = homes.takeKey(c, args.join(" "));
+                const them = res.ok ? byName(res.name) : null;
+                return reply(res.msg, { notify: them ? [{ id: them.id, msg: `${c.name} took their key back` }] : [] });
+            },
+        },
+        wardrobe: {
+            help: "look inside the place you're at",
+            run: ({ c, ctx }) => reply(homes.look(c, houses.findDoor(ctx.pos)).msg),
+        },
+        storehome: {
+            help: "<item> [count]",
+            run: ({ c, args, ctx }) => {
+                const res = homes.put(c, houses.findDoor(ctx.pos), lower(args[0]), toCount(args[1]));
+                return res.ok ? checkEquipped(c, reply(res.msg)) : reply(res.msg);
+            },
+        },
+        takehome: {
+            help: "<item> [count]",
+            run: ({ c, args, ctx }) => reply(homes.take(c, houses.findDoor(ctx.pos), lower(args[0]), toCount(args[1])).msg),
         },
 
         // ----- the trade -----
@@ -1082,7 +1128,7 @@ function createGame(opts = {}) {
         for (const [id, c] of characters) players[id] = serialize(c);
         return {
             players, trunks: trunks.exportAll(), gangs: crews.exportAll(),
-            turf: turf.exportAll(), environment: env.exportAll(),
+            turf: turf.exportAll(), environment: env.exportAll(), houses: homes.exportAll(),
         };
     }
 
@@ -1100,6 +1146,10 @@ function createGame(opts = {}) {
 
     function loadEnvironment(saved) {
         env.importAll(saved);
+    }
+
+    function loadHouses(saved) {
+        homes.importAll(saved);
     }
 
     // What a client needs the moment it connects, so it doesn't show
@@ -1124,7 +1174,7 @@ function createGame(opts = {}) {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, worldState, hudFor,
+        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, loadHouses, worldState, hudFor,
     };
 }
 

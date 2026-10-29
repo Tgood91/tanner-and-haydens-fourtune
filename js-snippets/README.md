@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 114 checks across every system
+node --test js-snippets/game.test.js  # 120 checks across every system
 ```
 
 ## What's in here
@@ -20,6 +20,7 @@ node --test js-snippets/game.test.js  # 114 checks across every system
 | `character.js` | One character: money, job, health/hunger/thirst, inventory, garage. Starter-kit rule on first load |
 | `inventory.js` | Items, weights, 30 kg limit, use/drop. Food and drink values live here |
 | `economy.js` | Cash/bank, deposit, withdraw, pay another player. **Gold**: earned only by working (on-duty paychecks, EMS revives), never bought or traded |
+| `houses.js` | Seven places to buy, priced by district. A door you lock, keys you hand out by id and take back by name, and storage that isn't on your back. Selling gives 60% back, and only once it's empty |
 | `drugs.js` | Pick it at a supply spot, cook it at your crew base, move it in a district. Price follows demand, pays a bonus on your own turf, and the district goes cold after you work it. Every deal risks a tip-off — riskier in daylight — and the tip names the place, never the dealer |
 | `turf.js` | The ten districts are the board. Two crew standing in one for 120s takes it; anyone wandering off kills the claim. The crew losing it is warned the moment it starts. Holding pays gold per online member every 10 min |
 | `gangs.js` | Crews with Member/Officer/Leader ranks. Founding costs $25,000 and plants a base where you stand. Invite-and-accept only, `/g` radio chat that needs a **radio** in your bag, and a 120 kg shared stash that only opens at the base |
@@ -46,7 +47,7 @@ node --test js-snippets/game.test.js  # 114 checks across every system
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`, `settime <hour> [min]`, `setweather <kind>`, `freeze <time|weather> <on|off>`
 
@@ -55,6 +56,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
 - Tank sizes, litres per km, fuel price, repair bill, repair gold, gas station spots (`fuel.js`)
+- Houses: $65,000-$240,000 by district, 40-75 kg storage, 60% back on a sale, 6 keys (`houses.js`)
 - Drugs: prices and demand per district, 10-min spot cooldown, 20-min district cooldown, 1.4x on your turf, 1.6x heat in daylight (`drugs.js`)
 - Turf: 2 to claim, 120s to hold, 15-min settle after a flip, 15 gold per member every 10 min (`turf.js`)
 - Crew cost ($25,000), 12-member cap, 120 kg stash, 10-unit base range, 24h base move cooldown (`gangs.js`)

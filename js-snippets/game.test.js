@@ -1891,3 +1891,123 @@ test("product is carried, so police take it like anything else", () => {
     assert.equal(a.inventory.whitepack, undefined);
     assert.equal(b.inventory.whitepack, undefined, "seized goods are destroyed, not pocketed");
 });
+
+// ---------------- property ----------------
+const houseRules = require("./houses");
+
+function homeSetup() {
+    const env = setup();
+    const { game, a } = env;
+    a.bank = 500000;
+    env.door = houseRules.HOUSES.knot_walkup.pos;
+    env.away = { x: 0, y: 4000, z: 30 };
+    env.at = (id, pos = env.door, extra = {}) => env.as(id, { pos, now: 0, ...extra });
+    game.updatePosition(1, env.door);
+    game.updatePosition(2, env.door);
+    return env;
+}
+
+test("every house sits in the district it claims, and the market lists them", () => {
+    for (const [id, h] of Object.entries(houseRules.HOUSES)) {
+        const zone = placeRules.zoneAt(h.pos, "district");
+        assert.ok(zone, `${id} isn't in any district`);
+        assert.equal(zone.name, h.district, `${id} says ${h.district}`);
+    }
+    const { game, at } = homeSetup();
+    assert.match(game.command(at(1), "houses").msg, /Knot Walk-up \(knot_walkup\) — \$185,000/);
+});
+
+test("you buy it at the door, from the bank, and only one each", () => {
+    const { game, a, b, at, away } = homeSetup();
+    assert.match(game.command(at(1, away), "buyhouse").msg, /not at a door/);
+
+    b.bank = 1000;
+    assert.match(game.command(at(2), "buyhouse").msg, /costs \$185,000 — Not enough bank/);
+    assert.equal(b.bank, 1000, "a failed purchase takes nothing");
+
+    game.command(at(1), "buyhouse");
+    assert.equal(a.bank, 500000 - 185000);
+    assert.match(game.command(at(1), "home").msg, /Knot Walk-up — The Knot/);
+    assert.match(game.command(at(1), "home").msg, /Door: locked/);
+
+    b.bank = 500000;
+    assert.match(game.command(at(2), "buyhouse").msg, /already someone's/);
+    assert.match(game.command(at(1), "buyhouse").msg, /already own somewhere/);
+});
+
+test("a locked door keeps others out until they hold a key", () => {
+    const { game, b, at } = homeSetup();
+    game.command(at(1), "buyhouse");
+    assert.match(game.command(at(2), "wardrobe").msg, /is locked/);
+
+    const given = game.command(at(1), "givekey", ["2"]);
+    assert.ok(given.notify.some((n) => n.id === 2 && n.msg.includes("gave you a key")));
+    assert.match(game.command(at(2), "wardrobe").msg, /Knot Walk-up/);
+
+    const taken = game.command(at(1), "takekey", ["Hayden"]);
+    assert.ok(taken.notify.some((n) => n.id === 2 && n.msg.includes("took their key back")));
+    assert.match(game.command(at(2), "wardrobe").msg, /is locked/);
+
+    // unlocked, anyone can get in
+    game.command(at(1), "lockhome");
+    assert.match(game.command(at(2), "wardrobe").msg, /Knot Walk-up/);
+    assert.match(game.command(at(2), "lockhome").msg, /Not your door/);
+    void b;
+});
+
+test("storage is off your back, and has a ceiling", () => {
+    const { game, a, at } = homeSetup();
+    game.command(at(1), "buyhouse");
+    game.command(CONSOLE, "giveitem", ["1", "medkit", "3"]);
+
+    game.command(at(1), "storehome", ["medkit", "3"]);
+    assert.equal(a.inventory.medkit, undefined, "it left your pockets");
+    assert.match(game.command(at(1), "wardrobe").msg, /Medkit x3/);
+
+    game.command(at(1), "takehome", ["medkit", "2"]);
+    assert.equal(a.inventory.medkit, 2);
+
+    a.inventory.fuelcan = 5;              // 25 kg, the walk-up holds 60
+    game.command(at(1), "storehome", ["fuelcan", "5"]);
+    a.inventory.fuelcan = 5;
+    game.command(at(1), "storehome", ["fuelcan", "5"]);
+    a.inventory.fuelcan = 5;
+    assert.match(game.command(at(1), "storehome", ["fuelcan", "5"]).msg, /No room/);
+    assert.equal(a.inventory.fuelcan, 5, "a refused store leaves it with you");
+});
+
+test("selling gives part of it back, but not with your things still inside", () => {
+    const { game, a, at } = homeSetup();
+    game.command(at(1), "buyhouse");
+    game.command(CONSOLE, "giveitem", ["1", "lockpick"]);
+    game.command(at(1), "storehome", ["lockpick"]);
+
+    assert.match(game.command(at(1), "sellhouse").msg, /Clear the 1 thing\(s\) out/);
+    game.command(at(1), "takehome", ["lockpick"]);
+
+    const before = a.bank;
+    game.command(at(1), "sellhouse");
+    assert.equal(a.bank, before + Math.round(185000 * houseRules.SELL_RATIO));
+    assert.match(game.command(at(1), "home").msg, /don't own anywhere/);
+    assert.match(game.command(at(1), "houses").msg, /Knot Walk-up/, "it goes back on the market");
+});
+
+test("deeds, keys and what's inside survive a restart", () => {
+    const { game, at, door } = homeSetup();
+    game.command(at(1), "buyhouse");
+    game.command(at(1), "givekey", ["2"]);
+    game.command(CONSOLE, "giveitem", ["1", "radio"]);
+    game.command(at(1), "storehome", ["radio"]);
+
+    const snapshot = game.saveAll();
+    assert.equal(snapshot.houses.knot_walkup.owner, "Tanner");
+
+    const fresh = createGame();
+    fresh.loadHouses(snapshot.houses);
+    fresh.join(1, "Tanner", snapshot.players[1]);
+    fresh.join(2, "Hayden", snapshot.players[2]);
+    fresh.updatePosition(1, door);
+    fresh.updatePosition(2, door);
+    assert.match(fresh.command(at(1), "home").msg, /Keys out: Hayden/);
+    assert.match(fresh.command(at(2), "wardrobe").msg, /Radio x1/);
+});

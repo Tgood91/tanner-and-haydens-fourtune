@@ -51,6 +51,9 @@ caps 60–500 (`ammo.js`)
 **The world** — 30 world-minutes per tick so a day runs about 48 real minutes, weather rolls every
 2 world-hours, night is 21:00–06:00, robbing at night pays 1.25x (`environment.js`, `robbery.js`)
 
+**Property** — seven houses from $65,000 on the Backroads to $240,000 on the Shoreline, 40–75 kg
+of storage, 60% back when you sell, six keys per door (`houses.js`)
+
 **The trade** — Green Pack $140 and White Pack $320 before demand, 1.4x on your own turf,
 1.6x heat in daylight, spots go bare 10 min, districts cold 20 min (`drugs.js`)
 
