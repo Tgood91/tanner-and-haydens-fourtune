@@ -23,7 +23,7 @@ const inventory = {
     glizzy: 1,
     machete: 1,
     bearspray: 1,
-    "mythical black Draco": 1,
+    "mythical black Chopper": 1,
 };
 
 // ------------------------------------------------------------
@@ -32,7 +32,7 @@ const inventory = {
 // ------------------------------------------------------------
 console.log(inventory.water);                           // 2
 console.log("Water: " + inventory.water);               // Water: 2
-console.log(`Draco: ${inventory["mythical black Draco"]}`); // multi-word = brackets
+console.log(`Chopper: ${inventory["mythical black Chopper"]}`); // multi-word = brackets
 
 // ------------------------------------------------------------
 // Lesson 4 — useItem: check first, then act, then report.

@@ -9,8 +9,8 @@
 // ============================================================
 
 const CATALOG = {
-    sultan:   { name: "Karin Sultan",       price: 120000 },
-    zentorno: { name: "Pegassi Zentorno",   price: 725000 }, // placeholder price
+    sultan:   { name: "Kairn Soltan",       price: 120000 },
+    zentorno: { name: "Pegaso Zentaro",     price: 725000 }, // placeholder price
     // Emergency vehicles: job-locked, never sold
     police:   { name: "Police Cruiser",     price: null, job: "police" },
     ambulance:{ name: "Ambulance",          price: null, job: "ems" },

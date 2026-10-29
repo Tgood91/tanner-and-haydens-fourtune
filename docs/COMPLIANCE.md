@@ -52,9 +52,10 @@ LTD Grove Street is Gasco Groveland, and Del Perro Pier, Legion Square, Alta Str
 Grapeseed, Little Seoul, Grove Street and Beeker's all became near-neighbours of themselves. Weapon labels
 followed: Micro SMG, Pump Shotgun and Hunting Rifle are now Compact SMG, Pump 12 and Bolt Rifle.
 
-**Vehicle names were left alone on purpose.** GTA draws its own name on screen when you get in, so renaming
-Karin Sultan in the catalog would make the chat and the game disagree. Weapons have the same mismatch, which
-you already accepted when the Glock became the Glizzy.
+**Vehicles followed on 29 Oct 2026**: Karin Sultan is Kairn Soltan and Pegassi Zentorno is Pegaso Zentaro.
+Note the consequence you accepted — GTA draws its own name on screen when you get in, so chat and the game's
+nameplate now disagree, exactly as they already did once the Glock became the Glizzy. The model ids (`sultan`,
+`zentorno`) are untouched, because those are the game's own and spawning depends on them.
 
 Real city names (Atlanta, Chicago) are place names, not IP.
 
