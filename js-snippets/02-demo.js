@@ -23,7 +23,7 @@ console.log(inv.addItem(bag, "unicorn", 1).msg);       // unknown item refused
 console.log(inv.addItem(bag, "water", -5).msg);        // negative count refused
 
 console.log("\n== /useitem ==");
-console.log(inv.useItem(bag, "halfhalf", player).msg); // Guccilucci drinks, consumes 1
+console.log(inv.useItem(bag, "halfhalf", player).msg); // drinks it, consumes 1
 console.log(inv.useItem(bag, "glizzy", player).msg);  // don't have one
 inv.addItem(bag, "glizzy", 1);
 console.log(inv.useItem(bag, "glizzy", player).msg);  // carried gear, not usable

@@ -42,7 +42,7 @@ in order of risk. All are your creative call — say the word and I will rename 
 
 | Name | Why it stands out |
 |---|---|
-| **Guccilucci** (drink item) | Plays on Gucci, a live luxury trademark, and on Gucci Mane. The highest-risk name in the project |
+| ~~Guccilucci~~ → **Half & Half** | Played on Gucci, a live luxury trademark. **Renamed 29 Oct 2026.** The item id stayed `halfhalf`, so `giveitem <id> halfhalf 1` is unchanged |
 | **1017** (Atlanta area code) | Gucci Mane's record label. Fine as a nod, but it is someone's brand, not a real area code |
 | **Black Draco** (rifle) | "Draco" is a real firearm model sold by Century Arms. Lower risk, since firearm names get used widely |
 | **Glizzy** (pistol) | Slang, not a trademark. No concern |

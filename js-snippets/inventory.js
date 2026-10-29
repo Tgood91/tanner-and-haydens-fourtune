@@ -33,7 +33,7 @@ const ITEMS = {
     fuelcan:   { label: "Fuel Can",   weight: 5.0, usable: true },
 
     // From your smoke-test list
-    halfhalf:    { label: "Guccilucci", weight: 0.5, usable: true, thirst: 30 },
+    halfhalf:    { label: "Half & Half",     weight: 0.5, usable: true, thirst: 30 },
     // Weapons: not "usable" — you /equip them. Which ammo each takes lives in ammo.js.
     // Never sold in shops; console giveitem only, for now.
     glizzy:       { label: "Glizzy",         weight: 1.0, usable: false },
