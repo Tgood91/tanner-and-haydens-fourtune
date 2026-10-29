@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 84 checks across every system
+node --test js-snippets/game.test.js  # 89 checks across every system
 ```
 
 ## What's in here
@@ -30,6 +30,7 @@ node --test js-snippets/game.test.js  # 84 checks across every system
 | `police.js` | Sheriff's Office tools: `/cuff`, `/search`, `/seize`, `/fine`, `/jail`. Seized items are destroyed and fines go to the city, so cops can't farm them. Jail time is saved, so logging out doesn't skip it |
 | `licenses.js` | Weapon license: $2,500 at Ammu-Nation, required before Ammu-Nation sells a gun for gold. Police `/checklicense` on a stop (no cuffs; also shows a gun that's out) and `/revokelicense` (24h before a new one can be bought) |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
+| `places.js` | Named ground: 10 districts, 5 parks and 10 roads as real coordinates. The most specific name wins (road, then park, then district, then city), so dispatch reads "Lakeshore Drive, The Shoreline, Chicago". Walking into a park announces it; teleports stay quiet |
 | `cities.js` | Atlanta → GeePee → Chicago by how far north you are, with "Welcome to…" announcements |
 | `spawns.js` | 2–3 spawn points per city. New players start in Atlanta, returning players where they logged out, jailed players in the cell. **Released in a different city from the arrest**: Atlanta → Chicago, GeePee → Atlanta, Chicago → GeePee (`RELEASE_CITY`) |
 | `shops.js` | 24/7s and hardware stores. Every check runs before money is taken, so you can't pay and get nothing |
@@ -41,7 +42,7 @@ node --test js-snippets/game.test.js  # 84 checks across every system
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`
 
@@ -60,6 +61,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
 - Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, and every hospital coord except Lakeshore General (`medical.js`)
 - Starting money (`character.js`), job pay (`jobs.js`), hunger/thirst rates (`needs.js`)
+- **Every district, park and road coordinate** (`places.js`) — placed by number near existing pins, never stood on
 - All spawn points except Chicago Main, the default city, and the release route (`spawns.js`); **both city borders** (`cities.js`); all shop locations and prices (`shops.js`)
 - The Chicago job spots are the approximate coords from your smoke test. Walk them
 

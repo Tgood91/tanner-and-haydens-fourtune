@@ -41,6 +41,7 @@ const { createDispatch, FARE_BASE } = require("./taxi");
 const { createHeists } = require("./robbery");
 const phone = require("./phone");
 const gangs = require("./gangs");
+const places = require("./places");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -136,11 +137,11 @@ function createGame(opts = {}) {
 
     // Tell on-duty EMS someone just went down; tell the patient their options.
     function downedAlert(c) {
-        const city = cities.CITIES[cities.cityAt(c.pos || { x: 0, y: 0, z: 0 })].label;
+        const where = places.describe(c.pos);
         const notify = [];
         for (const other of characters.values()) {
             if (other.job.name === "ems" && other.onDuty && other !== c) {
-                notify.push({ id: other.id, msg: `EMS call: ${c.name} is down in ${city} — /revive ${c.id}` });
+                notify.push({ id: other.id, msg: `EMS call: ${c.name} is down at ${where} — /revive ${c.id}` });
             }
         }
         notify.push({
@@ -177,6 +178,9 @@ function createGame(opts = {}) {
 
         const announcement = cities.updateCity(c, pos);
         if (announcement) out.notify.push({ id, msg: announcement });
+
+        const entered = places.updateZone(c, pos);
+        if (entered) out.notify.push({ id, msg: entered });
 
         const heist = heists.progress(c, pos, now); // no-op unless they're robbing somewhere
         if (heist) out.notify.push({ id, msg: heist.msg });
@@ -388,7 +392,7 @@ function createGame(opts = {}) {
                 const suspect = get(Number(args[0]));
                 const res = police.jail(c, suspect, toCount(args[1], NaN));
                 if (!res.ok) return reply(res.msg);
-                suspect.pos = res.pos;
+                settle(suspect, res.pos);
                 return reply(res.msg, {
                     notify: [{ id: suspect.id, msg: `You've been jailed for ${suspect.jailMinutes} min. /jailtime to check.` }],
                     actions: [{ type: "setCuffed", target: suspect.id, cuffed: false }, { type: "teleport", target: suspect.id, pos: res.pos }],
@@ -429,7 +433,7 @@ function createGame(opts = {}) {
             run: ({ c, ctx }) => {
                 const res = medical.respawn(c, ctx.now, cities.cityAt(c.pos));
                 if (!res.ok) return reply(res.msg);
-                c.pos = res.pos;
+                settle(c, res.pos);
                 return reply(res.msg, { actions: [{ type: "revive", target: c.id, health: c.health, pos: res.pos }] });
             },
         },
@@ -440,11 +444,11 @@ function createGame(opts = {}) {
                 if (c.downed) return reply("", { notify: downedAlert(c) });
 
                 const what = args.join(" ").trim() || "no details given";
-                const city = cities.CITIES[cities.cityAt(c.pos || { x: 0, y: 0, z: 0 })].label;
+                const where = places.describe(c.pos);
                 const notify = [];
                 for (const o of characters.values()) {
                     if ((o.job.name === "police" || o.job.name === "ems") && o.onDuty && o !== c) {
-                        notify.push({ id: o.id, msg: `911 — ${city}, from ${c.name} (${c.phone.number}): ${what}` });
+                        notify.push({ id: o.id, msg: `911 — ${where}. From ${c.name} (${c.phone.number}): ${what}` });
                     }
                 }
                 const answer = notify.length ? `Dispatch has it — ${notify.length} unit(s) notified.` : "Nobody is on duty to take it.";
@@ -469,9 +473,13 @@ function createGame(opts = {}) {
         // ----- needs / world -----
         status: { help: "health, hunger, thirst", run: ({ c }) => reply(needs.status(c)) },
         cities: { help: "the cities, south to north", run: () => reply(cities.listCities()) },
+        places: {
+            help: "every district, park and road in this city",
+            run: ({ ctx }) => reply(places.listFor(cities.cityAt(ctx.pos))),
+        },
         whereami: {
-            help: "which city you're in",
-            run: ({ ctx }) => reply(`You're in ${cities.CITIES[cities.cityAt(ctx.pos)].label}`),
+            help: "the road, area and city you're standing in",
+            run: ({ ctx }) => reply(places.describe(ctx.pos)),
         },
 
         // ----- shops -----
@@ -611,8 +619,7 @@ function createGame(opts = {}) {
                 const res = heists.start(c, found, ctx.now, cops.length);
                 if (!res.ok) return reply(res.msg);
 
-                const city = cities.CITIES[cities.cityAt(c.pos)].label;
-                const notify = cops.map((o) => ({ id: o.id, msg: `ROBBERY IN PROGRESS — ${res.label}, ${city}. Suspect: ${c.name} (id ${c.id})` }));
+                const notify = cops.map((o) => ({ id: o.id, msg: `ROBBERY IN PROGRESS — ${res.label}, ${places.describe(c.pos)}. Suspect: ${c.name} (id ${c.id})` }));
                 return reply(res.msg, { notify });
             },
         },
@@ -627,7 +634,7 @@ function createGame(opts = {}) {
                 const notify = [];
                 for (const other of characters.values()) {
                     if (other.job.name === "taxi" && other.onDuty && other !== c) {
-                        notify.push({ id: other.id, msg: `Cab wanted: ${c.name} in ${cities.CITIES[cities.cityAt(c.pos)].label} — /accept ${c.id}` });
+                        notify.push({ id: other.id, msg: `Cab wanted: ${c.name} at ${places.describe(c.pos)} — /accept ${c.id}` });
                     }
                 }
                 const waiting = notify.length > 0 ? `${notify.length} driver(s) on duty.` : "No drivers on duty right now.";
@@ -830,13 +837,20 @@ function createGame(opts = {}) {
         return result;
     }
 
+    // After any teleport the player can see where they landed, so put the
+    // city and zone on record without announcing either.
+    function settle(c, pos) {
+        c.pos = { ...pos };
+        c.city = cities.cityAt(pos);
+        c.zone = places.zoneAt(pos)?.name ?? null;
+    }
+
     // Walk out of jail: in a different city from the arrest (spawns.js).
     function release(c, msg) {
         const spot = spawns.releaseSpawn(c.jailedFrom, rng);
         c.jailMinutes = 0;
         c.jailedFrom = null;
-        c.pos = { ...spot.pos };
-        c.city = spot.city; // no "Welcome to" spam for the teleport itself
+        settle(c, spot.pos);
         return {
             notify: { id: c.id, msg: `${msg} You've been released in ${cities.CITIES[spot.city].label} (${spot.label}).` },
             action: { type: "teleport", target: c.id, pos: spot.pos, heading: spot.heading },
@@ -848,8 +862,7 @@ function createGame(opts = {}) {
         const c = characters.get(id);
         if (!c) return null;
         const spot = spawns.loginSpawn(c, police.JAIL.cell, rng);
-        c.pos = { ...spot.pos };
-        if (spot.city) c.city = spot.city;
+        settle(c, spot.pos);
         return spot;
     }
 

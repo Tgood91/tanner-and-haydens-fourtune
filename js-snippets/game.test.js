@@ -1392,3 +1392,77 @@ test("an officer can cut loose someone who isn't even online", () => {
     assert.match(game.command(at(1), "gangkick", ["Hayden"]).msg, /Kicked Hayden/);
     assert.ok(!game.command(at(1), "gang").msg.includes("Hayden"));
 });
+
+// ---------------- districts, parks and roads ----------------
+const placeRules = require("./places");
+
+test("every mapped place sits inside the city it claims", () => {
+    for (const z of placeRules.ZONES) {
+        assert.equal(cityAt(z.center), z.city, `${z.name} isn't inside ${z.city}`);
+    }
+    for (const r of placeRules.ROADS) {
+        assert.ok(r.points.length >= 2, `${r.name} needs at least two points`);
+        for (const p of r.points) assert.equal(cityAt(p), r.city, `${r.name} runs outside ${r.city}`);
+    }
+});
+
+test("the most specific name wins: road, then park, then district, then city", () => {
+    // a vertex of Lakeshore Drive, which runs through The Shoreline
+    assert.equal(placeRules.describe({ x: -75, y: 6180, z: 30 }), "Lakeshore Drive, The Shoreline, Chicago");
+
+    // Winterline Park sits inside Midway, and the smaller circle wins
+    assert.equal(placeRules.zoneAt({ x: -190, y: 6230 }).name, "Winterline Park");
+    assert.equal(placeRules.describe({ x: -190, y: 6230, z: 30 }), "Winterline Park, Chicago");
+
+    // off the park and off every road, but still in the district
+    assert.equal(placeRules.describe({ x: -300, y: 6230, z: 30 }), "Midway, Chicago");
+
+    // open country falls back to the city alone
+    assert.equal(placeRules.describe({ x: 0, y: 4000, z: 30 }), "GeePee");
+});
+
+test("walking into a park announces it once; being teleported never does", () => {
+    const { game } = setup();
+    assert.equal(announce(game, 1, { x: -430, y: 6020, z: 30 }), null); // first fix: quiet
+    assert.equal(announce(game, 1, { x: -190, y: 6230, z: 30 }), "Entering Winterline Park");
+    assert.equal(announce(game, 1, { x: -190, y: 6230, z: 30 }), null); // still there
+
+    // released from jail into a zone: the teleport speaks for itself
+    const cop = createGame({ rng: () => 0 });
+    cop.join(1, "Tanner");
+    const suspect = cop.join(2, "Hayden");
+    cop.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    const spot = SPAWNS.atlanta[0].pos;
+    const at = (id) => ({ id, pos: spot, now: 0 });
+    cop.updatePosition(2, spot, 0);
+    cop.command(at(1), "duty");
+    cop.command(at(1), "cuff", ["2"]);
+    cop.command(at(1), "jail", ["2", "5"]);
+    cop.tick(5, 0);
+    assert.equal(cop.updatePosition(2, suspect.pos, 0).notify.length, 0);
+});
+
+test("dispatch says where, not just which city", () => {
+    const { game, as } = setup();
+    game.join(3, "Kaos");
+    game.command(CONSOLE, "setjob", ["2", "police", "0"]);
+    game.command(CONSOLE, "setjob", ["3", "ems", "0"]);
+    game.command(as(2), "duty");
+    game.command(as(3), "duty");
+
+    const onTheRoad = { x: -75, y: 6180, z: 30 };
+    const call = game.command(as(1, { pos: onTheRoad }), "911", ["someone's", "hurt"]);
+    assert.match(call.notify[0].msg, /911 — Lakeshore Drive, The Shoreline, Chicago\./);
+
+    assert.equal(game.command(as(1, { pos: onTheRoad }), "whereami").msg, "Lakeshore Drive, The Shoreline, Chicago");
+    assert.match(game.command(as(1, { pos: onTheRoad }), "places").msg, /District: The Knot/);
+    assert.match(game.command(as(1, { pos: onTheRoad }), "places").msg, /Park: Winterline Park/);
+    assert.match(game.command(as(1, { pos: onTheRoad }), "places").msg, /Road: Lakeshore Drive/);
+});
+
+test("a robbery call names the block it's happening on", () => {
+    const { game, robber, at } = robSetup();
+    const call = game.command(at(2), "rob");
+    assert.match(call.notify[0].msg, /ROBBERY IN PROGRESS — 24\/7 Chicago, .*Chicago\. Suspect: Hayden/);
+    void robber;
+});

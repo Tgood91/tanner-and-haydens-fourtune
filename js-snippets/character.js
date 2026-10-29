@@ -49,6 +49,7 @@ function createCharacter(id, name, saved = null) {
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
         garage: (s.garage || []).map((car) => fuel.ensureState({ ...car })), // fuel/engine/body per car
         city: null,
+        // zone is left undefined on purpose: places.updateZone treats that as "not placed yet"
     };
     vehicles.reservePlates(c.garage);
     return c;
