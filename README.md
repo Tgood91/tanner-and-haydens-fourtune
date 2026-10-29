@@ -29,3 +29,8 @@ Verification, real numbers
 API round-trip live-tested: starter inventory, a mutated inventory, and an empty one all save and reload exactly; the 401 on unauthenticated writes is intact
 Write-up is in docs/INVENTORY.md, and the roadmap now marks inventory done. Left for later, documented but not built: world pickups other players can grab, hunger/thirst, shops, trunk inventories. The in-game smoke test happens whenever your FXServer runs — that's the Cfx key step, still untouched.
 And it loops back to your Lua lessons nicely: Lesson 2's function shape is exactly how this resource's AddItem/UseItem are written, if you want to read a real one next.
+####
+###
+##
+#
+so I have a server ID and key
