@@ -39,4 +39,4 @@ function distance(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
-module.exports = { CITIES, cityAt, updateCity, listCities, distance };
+module.exports = { CITIES, CHICAGO_STARTS_AT_Y, GEEPEE_STARTS_AT_Y, cityAt, updateCity, listCities, distance };

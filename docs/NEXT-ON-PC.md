@@ -46,6 +46,14 @@ giveitem <id> medkit 2
 In-game: `/duty`, have someone go down, walk over, `/revive <theirId>`.
 Then try `/rob` at a shop with a loaded gun, and `/taxi` from another character.
 
+## 2b. The Lua world layer
+
+`world/` is a standalone FiveM resource (`ensure world`) covering cities, districts, parks,
+roads and spawns in Lua. Its coordinates are GENERATED from the JS, so edit the JS and re-run
+`node tools/gen-world-data.js > world/data.lua` rather than editing `world/data.lua` by hand.
+Other resources should use its exports (`exports.world:Describe(coords)`), never copy the tables.
+Checks: `lua world/test.lua`.
+
 ## 3. Pick Lua or JS per system
 
 Inventory, jobs, vehicles and money exist in both your Lua resources and `js-snippets/`.
