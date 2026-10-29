@@ -42,6 +42,7 @@ function createCharacter(id, name, saved = null) {
             contacts: { ...(s.phone?.contacts || {}) },
             texts: (s.phone?.texts || []).slice(-phone.KEEP_TEXTS).map((t) => ({ ...t })),
         },
+        gang: s.gang ? { ...s.gang } : null,       // { tag, rank } — the crew record lives in gangs.js
         licenses: { ...(s.licenses || {}) },       // e.g. { weapon: { issuedAt } }
         licenseBans: { ...(s.licenseBans || {}) }, // e.g. { weapon: <time the ban ends> }
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
@@ -69,6 +70,7 @@ function serialize(c) {
         jailMinutes: c.jailMinutes,
         jailedFrom: c.jailedFrom,
         phone: { number: c.phone.number, contacts: { ...c.phone.contacts }, texts: c.phone.texts.map((t) => ({ ...t })) },
+        gang: c.gang ? { ...c.gang } : null,
         licenses: { ...c.licenses },
         licenseBans: { ...c.licenseBans },
         pos: c.pos ? { ...c.pos } : null,

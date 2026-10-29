@@ -1217,3 +1217,178 @@ test("911 reaches police and EMS on duty, with your number and city", () => {
     game.command(as(3), "duty");
     assert.match(game.command(as(1), "911", ["hello"]).msg, /Nobody is on duty/);
 });
+
+// ---------------- crews ----------------
+const crewRules = require("./gangs");
+
+function crewSetup() {
+    const env = setup();
+    const { game, a } = env;
+    a.bank = 100000;
+    env.hq = SPAWNS.chicago[0].pos;
+    env.at = (id, pos = env.hq, extra = {}) => env.as(id, { pos, now: 0, ...extra });
+    game.updatePosition(1, env.hq);
+    game.updatePosition(2, env.hq);
+    game.command(env.at(1), "gangcreate", ["KAOS", "Kaos", "Crew"]);
+    return env;
+}
+
+test("founding a crew costs money and plants the base where you stand", () => {
+    const { game, a, b, at } = crewSetup();
+    assert.equal(a.bank, 100000 - crewRules.CREATE_COST);
+    assert.deepEqual(a.gang, { tag: "KAOS", rank: crewRules.LEADER });
+    assert.match(game.command(at(1), "gang").msg, /\[KAOS\] Kaos Crew/);
+    assert.match(game.command(at(1), "gang").msg, /Leader: Tanner/);
+    assert.match(game.command(at(1), "gangs").msg, /\[KAOS\] Kaos Crew — 1 member/);
+
+    assert.match(game.command(at(2), "gangcreate", ["KAOS", "Other", "Crew"]).msg, /taken/);
+    assert.match(game.command(at(2), "gangcreate", ["TOOLONG", "Some", "Crew"]).msg, /2-5 letters/);
+    assert.match(game.command(at(2), "gangcreate", ["ZZ", "no"]).msg, /3-24 characters/);
+    assert.match(game.command(at(2), "gangcreate", ["ZZ", "Broke", "Crew"]).msg, /Not enough bank/);
+    assert.equal(b.gang, null);
+});
+
+test("nobody is put in a crew without agreeing, and invites time out", () => {
+    const { game, b, hq, at } = crewSetup();
+    assert.match(game.command(at(2), "gangaccept").msg, /Nobody's invited/);
+
+    const inv = game.command(at(1), "ganginvite", ["2"]);
+    assert.ok(inv.notify.some((n) => n.id === 2 && n.msg.includes("/gangaccept")));
+    assert.equal(b.gang, null); // invited is not joined
+
+    game.command(at(2), "gangaccept");
+    assert.deepEqual(b.gang, { tag: "KAOS", rank: crewRules.MEMBER });
+    assert.match(game.command(at(1), "gang").msg, /Member: Hayden/);
+    assert.match(game.command(at(1), "ganginvite", ["2"]).msg, /already in a crew/);
+
+    // an invite left to rot gets cleared by the clock
+    const rotting = crewSetup();
+    rotting.game.command(rotting.at(1), "ganginvite", ["2"]);
+    const out = rotting.game.tick(6, 6 * 60000);
+    assert.ok(out.notify.some((n) => n.id === 2 && n.msg.includes("invite expired")));
+    assert.match(rotting.game.command(rotting.at(2), "gangaccept").msg, /Nobody's invited/);
+
+    // and turning up late to one tells you why
+    const late = crewSetup();
+    late.game.command(late.at(1), "ganginvite", ["2"]);
+    assert.match(late.game.command(late.at(2, hq, { now: 6 * 60000 }), "gangaccept").msg, /expired/);
+});
+
+test("rank decides who can do what", () => {
+    const { game, b, at } = crewSetup();
+    game.command(at(1), "ganginvite", ["2"]);
+    game.command(at(2), "gangaccept");
+    const third = game.join(3, "Kaos");
+    game.updatePosition(3, SPAWNS.chicago[0].pos);
+
+    // a plain member can't run the place
+    assert.match(game.command(at(2), "ganginvite", ["3"]).msg, /Only Officers and above/);
+    assert.match(game.command(at(2), "gangkick", ["Tanner"]).msg, /Only Officers and above/);
+    assert.match(game.command(at(2), "gangpromote", ["Hayden"]).msg, /Only Leaders and above/);
+
+    game.command(at(1), "gangpromote", ["Hayden"]);
+    assert.equal(b.gang.rank, crewRules.OFFICER);
+    assert.match(game.command(at(1), "gangpromote", ["Hayden"]).msg, /Officer is as high/);
+
+    // now an officer, Hayden can bring someone in but can't touch the leader
+    game.command(at(2), "ganginvite", ["3"]);
+    game.command(at(3), "gangaccept");
+    assert.equal(third.gang.rank, crewRules.MEMBER);
+    assert.match(game.command(at(2), "gangkick", ["Tanner"]).msg, /outranks you/);
+
+    const kicked = game.command(at(2), "gangkick", ["Kaos"]);
+    assert.equal(third.gang, null);
+    assert.ok(kicked.notify.some((n) => n.id === 3 && n.msg.includes("kicked")));
+});
+
+test("a leader can't just walk away", () => {
+    const { game, a, at } = crewSetup();
+    game.command(at(1), "ganginvite", ["2"]);
+    game.command(at(2), "gangaccept");
+    assert.match(game.command(at(1), "gangleave").msg, /can't walk away/);
+
+    const gone = game.command(at(1), "gangdisband");
+    assert.ok(gone.notify.some((n) => n.id === 2));
+    assert.equal(a.gang, null);
+    assert.equal(game.get(2).gang, null);
+    assert.match(game.command(at(1), "gangs").msg, /No crews yet/);
+});
+
+test("crew radio needs a radio in the bag, on both ends", () => {
+    const { game, a, b, at } = crewSetup();
+    game.command(at(1), "ganginvite", ["2"]);
+    game.command(at(2), "gangaccept");
+
+    assert.match(game.command(at(1), "g", ["yo"]).msg, /No radio/);
+    a.inventory.radio = 1;
+    b.inventory.radio = 1;
+    const said = game.command(at(1), "g", ["meet", "at", "the", "base"]);
+    assert.match(said.msg, /\[KAOS\] Leader Tanner: meet at the base/);
+    assert.ok(said.notify.some((n) => n.id === 2));
+
+    delete b.inventory.radio; // Hayden's radio gets seized
+    assert.equal(game.command(at(1), "g", ["still", "there\?"]).notify.length, 0);
+});
+
+test("the stash only opens at the base, and only for the crew", () => {
+    const { game, a, b, hq, at } = crewSetup();
+    game.command(at(1), "ganginvite", ["2"]);
+    game.command(at(2), "gangaccept");
+
+    const away = { x: hq.x + 60, y: hq.y, z: hq.z };
+    assert.match(game.command(at(1, away), "stash").msg, /not at the \[KAOS\] base/);
+
+    game.command(CONSOLE, "giveitem", ["1", "lockpick", "3"]);
+    game.command(at(1), "stashput", ["lockpick", "3"]);
+    assert.equal(a.inventory.lockpick, undefined);
+    assert.match(game.command(at(2), "stash").msg, /Lockpick x3/); // shared with the crew
+    game.command(at(2), "stashtake", ["lockpick", "2"]);
+    assert.equal(b.inventory.lockpick, 2);
+
+    const outsider = game.join(3, "Kaos");
+    game.updatePosition(3, hq);
+    assert.match(game.command(at(3), "stash").msg, /not in a crew/);
+    void outsider;
+
+    // and it has a ceiling
+    a.inventory.fuelcan = 30; // 150 kg, stash holds 120
+    assert.match(game.command(at(1), "stashput", ["fuelcan", "30"]).msg, /stash is full/);
+    assert.equal(a.inventory.fuelcan, 30);
+});
+
+test("crews, ranks and the stash all survive a restart", () => {
+    const { game, at } = crewSetup();
+    game.command(at(1), "ganginvite", ["2"]);
+    game.command(at(2), "gangaccept");
+    game.command(at(1), "gangpromote", ["Hayden"]);
+    game.command(CONSOLE, "giveitem", ["1", "medkit", "2"]);
+    game.command(at(1), "stashput", ["medkit", "2"]);
+
+    const snapshot = game.saveAll();
+    const savedLeader = snapshot.players[1];
+    const savedOfficer = snapshot.players[2];
+    assert.deepEqual(savedOfficer.gang, { tag: "KAOS", rank: crewRules.OFFICER });
+
+    const fresh = createGame();
+    fresh.loadGangs(snapshot.gangs);
+    const leader = fresh.join(1, "Tanner", savedLeader);
+    fresh.join(2, "Hayden", savedOfficer);
+    fresh.updatePosition(1, SPAWNS.chicago[0].pos);
+
+    assert.equal(leader.gang.rank, crewRules.LEADER);
+    const info = fresh.command(at(1), "gang").msg;
+    assert.match(info, /\[KAOS\] Kaos Crew/);
+    assert.match(info, /Officer: Hayden/);
+    assert.match(fresh.command(at(1), "stash").msg, /Medkit x2/);
+});
+
+test("an officer can cut loose someone who isn't even online", () => {
+    const { game, at } = crewSetup();
+    game.command(at(1), "ganginvite", ["2"]);
+    game.command(at(2), "gangaccept");
+    game.leave(2); // Hayden logs off
+
+    assert.match(game.command(at(1), "gang").msg, /Member: Hayden/);
+    assert.match(game.command(at(1), "gangkick", ["Hayden"]).msg, /Kicked Hayden/);
+    assert.ok(!game.command(at(1), "gang").msg.includes("Hayden"));
+});

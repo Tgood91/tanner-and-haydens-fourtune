@@ -40,6 +40,7 @@ const licenses = require("./licenses");
 const { createDispatch, FARE_BASE } = require("./taxi");
 const { createHeists } = require("./robbery");
 const phone = require("./phone");
+const gangs = require("./gangs");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -70,6 +71,7 @@ function createGame(opts = {}) {
     const trunks = createTrunks();
     const dispatch = createDispatch();
     const heists = createHeists(rng);
+    const crews = gangs.createGangs();
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -81,6 +83,17 @@ function createGame(opts = {}) {
         }
         characters.set(id, c);
         return c;
+    }
+
+    function byName(name) {
+        const wanted = String(name || "").trim().toLowerCase();
+        for (const o of characters.values()) if (o.name.toLowerCase() === wanted) return o;
+        return null;
+    }
+
+    function crewMates(c, except) {
+        if (!c.gang) return [];
+        return [...characters.values()].filter((o) => o.gang && o.gang.tag === c.gang.tag && o !== except);
     }
 
     // "2" is a player id; "312-4821" is a number
@@ -108,6 +121,7 @@ function createGame(opts = {}) {
         }
         const notify = dispatch.dropPlayer(id);
         heists.cancel(id, "they logged off");
+        crews.dropPlayer(id);
         characters.delete(id);
         return { saved: serialize(c), actions, notify };
     }
@@ -477,6 +491,100 @@ function createGame(opts = {}) {
             },
         },
 
+        // ----- crews -----
+        gangs: { help: "every crew", run: () => reply(crews.list()) },
+        gang: { help: "your crew", run: ({ c }) => reply(crews.info(c)) },
+        gangcreate: {
+            help: "<tag> <name> — costs money, sets the base where you stand",
+            run: ({ c, args, ctx }) => reply(crews.create(c, args[0], args.slice(1).join(" "), ctx.now).msg),
+        },
+        ganginvite: {
+            help: "<playerId> (officer+)",
+            run: ({ c, args, ctx }) => {
+                const target = get(Number(args[0]));
+                const res = crews.invite(c, target, ctx.now);
+                const notify = res.ok
+                    ? [{ id: target.id, msg: `${c.name} invited you to [${res.tag}] ${res.name} — /gangaccept (${gangs.INVITE_EXPIRY_MIN} min)` }]
+                    : [];
+                return reply(res.msg, { notify });
+            },
+        },
+        gangaccept: {
+            help: "take the invite you were sent",
+            run: ({ c, ctx }) => {
+                const res = crews.accept(c, ctx.now);
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, { notify: crewMates(c, c).map((o) => ({ id: o.id, msg: `${c.name} joined [${res.tag}]` })) });
+            },
+        },
+        gangleave: {
+            help: "walk away from your crew",
+            run: ({ c }) => {
+                const mates = crewMates(c, c);
+                const res = crews.leave(c);
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, { notify: mates.map((o) => ({ id: o.id, msg: `${c.name} left [${res.tag}]` })) });
+            },
+        },
+        gangkick: {
+            help: "<name> (officer+)",
+            run: ({ c, args }) => {
+                const name = args.join(" ");
+                const target = byName(name);
+                const mates = crewMates(c, c);
+                const res = crews.kick(c, name, target);
+                if (!res.ok) return reply(res.msg);
+                const notify = mates.filter((o) => o !== target).map((o) => ({ id: o.id, msg: res.msg }));
+                if (target) notify.push({ id: target.id, msg: `You were kicked out of [${res.tag}]` });
+                return reply(res.msg, { notify });
+            },
+        },
+        gangpromote: {
+            help: "<name> (leader)",
+            run: ({ c, args }) => {
+                const name = args.join(" ");
+                const res = crews.setRank(c, name, byName(name), true);
+                return reply(res.msg, { notify: res.ok && byName(name) ? [{ id: byName(name).id, msg: res.msg }] : [] });
+            },
+        },
+        gangdemote: {
+            help: "<name> (leader)",
+            run: ({ c, args }) => {
+                const name = args.join(" ");
+                const res = crews.setRank(c, name, byName(name), false);
+                return reply(res.msg, { notify: res.ok && byName(name) ? [{ id: byName(name).id, msg: res.msg }] : [] });
+            },
+        },
+        gangdisband: {
+            help: "(leader) shut the crew down",
+            run: ({ c }) => {
+                const mates = crewMates(c, c);
+                const res = crews.disband(c);
+                if (!res.ok) return reply(res.msg);
+                for (const o of characters.values()) if (o.gang && o.gang.tag === res.tag) o.gang = null;
+                return reply(res.msg, { notify: mates.map((o) => ({ id: o.id, msg: res.msg })) });
+            },
+        },
+        g: {
+            help: "<message> — crew radio, needs a radio",
+            run: ({ c, args }) => {
+                const res = crews.chat(c, args.join(" "));
+                if (!res.ok) return reply(res.msg);
+                const heard = crewMates(c, c).filter((o) => gangs.hasRadio(o));
+                return reply(res.msg, { notify: heard.map((o) => ({ id: o.id, msg: res.msg })) });
+            },
+        },
+        gangbase: { help: "(leader) move the base to where you stand", run: ({ c, ctx }) => reply(crews.setBase(c, ctx.now).msg) },
+        stash: { help: "look in the crew stash (at the base)", run: ({ c }) => reply(crews.viewStash(c).msg) },
+        stashput: {
+            help: "<item> [count]",
+            run: ({ c, args }) => {
+                const res = crews.putStash(c, lower(args[0]), toCount(args[1]));
+                return res.ok ? checkEquipped(c, reply(res.msg)) : reply(res.msg);
+            },
+        },
+        stashtake: { help: "<item> [count]", run: ({ c, args }) => reply(crews.takeStash(c, lower(args[0]), toCount(args[1])).msg) },
+
         // ----- phone -----
         phone: { help: "your number and what's waiting", run: ({ c }) => reply(phone.hasPhone(c) ? phone.describe(c) : "You don't have a phone") },
         texts: { help: "read your messages", run: ({ c }) => reply(phone.inbox(c)) },
@@ -810,6 +918,10 @@ function createGame(opts = {}) {
             }
         }
 
+        for (const id of crews.expireInvites(now)) {
+            out.notify.push({ id, msg: "That crew invite expired." });
+        }
+
         for (const id of dispatch.expire(now)) {
             out.notify.push({ id, msg: "No driver picked up your call. Try again when someone's on duty." });
         }
@@ -822,18 +934,22 @@ function createGame(opts = {}) {
     function saveAll() {
         const players = {};
         for (const [id, c] of characters) players[id] = serialize(c);
-        return { players, trunks: trunks.exportAll() };
+        return { players, trunks: trunks.exportAll(), gangs: crews.exportAll() };
     }
 
     function loadTrunks(saved) {
         trunks.importAll(saved);
     }
 
+    function loadGangs(saved) {
+        crews.importAll(saved);
+    }
+
     return {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks,
+        tick, saveAll, loadTrunks, loadGangs,
     };
 }
 

@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 76 checks across every system
+node --test js-snippets/game.test.js  # 84 checks across every system
 ```
 
 ## What's in here
@@ -20,6 +20,7 @@ node --test js-snippets/game.test.js  # 76 checks across every system
 | `character.js` | One character: money, job, health/hunger/thirst, inventory, garage. Starter-kit rule on first load |
 | `inventory.js` | Items, weights, 30 kg limit, use/drop. Food and drink values live here |
 | `economy.js` | Cash/bank, deposit, withdraw, pay another player. **Gold**: earned only by working (on-duty paychecks, EMS revives), never bought or traded |
+| `gangs.js` | Crews with Member/Officer/Leader ranks. Founding costs $25,000 and plants a base where you stand. Invite-and-accept only, `/g` radio chat that needs a **radio** in your bag, and a 120 kg shared stash that only opens at the base |
 | `phone.js` | A number per character, area code from the city you started in (1017 / 770 / 312). `/text` by number or player id, `/texts`, `/contacts`, `/save`. The phone **item** is required: no phone means no texts, no `/911` and no cab |
 | `taxi.js` | `/taxi` calls a cab, on-duty drivers get the ping, `/accept` claims it, `/startfare` starts the meter next to the passenger, `/endfare` bills them. The fare is $30 plus $8 per 100 units **actually driven**, teleports not counted |
 | `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi. Grades, duty, paychecks every 30 min |
@@ -40,7 +41,7 @@ node --test js-snippets/game.test.js  # 76 checks across every system
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`
 
@@ -49,6 +50,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
 - Tank sizes, litres per km, fuel price, repair bill, repair gold, gas station spots (`fuel.js`)
+- Crew cost ($25,000), 12-member cap, 120 kg stash, 10-unit base range, 24h base move cooldown (`gangs.js`)
 - GeePee's area code (770 is a guess) and the 20-text history (`phone.js`)
 - Robbery: 90s at the till, $400-$1,200 payout, 1 officer minimum, 30-min shop and 15-min robber cooldowns (`robbery.js`)
 - Taxi flag drop ($30), $8 per 100 units, $5 driver gold, 5-min call timeout (`taxi.js`)
@@ -66,7 +68,9 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 1. **Saving to your API.** `fivem-server.js` has `TODO`s where it should load from and save to your Node API on :4000.
    Your API's routes and format aren't in this repo, so it's not wired up.
 2. **Not tested in-game.** The FiveM files pass a syntax check, but they've never run inside FXServer. They need OneSync.
-3. **This doesn't replace your Lua resources.** Your real server is Lua. These JS files are a parallel version, and running
+3. **Crew rosters are keyed by character name.** That is the only stable handle this code has until the API gives
+   out character ids. Two players with the same name would share a rank, so swap it when saving is wired up.
+4. **This doesn't replace your Lua resources.** Your real server is Lua. These JS files are a parallel version, and running
    both at once would give you two of every command. Pick one per system before enabling it.
-4. **Gold is never for sale.** FiveM's license bans selling in-game currency for real money, so a Tebex package must
+5. **Gold is never for sale.** FiveM's license bans selling in-game currency for real money, so a Tebex package must
    never grant gold or guns. Keep Tebex for cosmetics only.
