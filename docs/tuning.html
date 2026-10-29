@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fourtune Punch List</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single column punch list — decisions first, then the long tail of numbers */
+:root{
+  --paper:#E4E7E4; --panel:#EFF1EE; --rule:#C3C9C5;
+  --ink:#1C2327; --ink-soft:#5B666A;
+  --stop:#A6442A; --wait:#9A6B0E; --go:#2A7857; --cool:#2C7FA6;
+  --font-code:'Archivo Black','Arial Black',system-ui,sans-serif;
+  --font-body:'Barlow',system-ui,-apple-system,sans-serif;
+  --font-label:'Barlow Condensed','Barlow',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0E1317; --panel:#161C21; --rule:#2A333A;
+  --ink:#DBE2E5; --ink-soft:#93A0A6;
+  --stop:#DA7B50; --wait:#E0A93C; --go:#56BD8E; --cool:#5FB6DC;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0E1317; --panel:#161C21; --rule:#2A333A;
+  --ink:#DBE2E5; --ink-soft:#93A0A6;
+  --stop:#DA7B50; --wait:#E0A93C; --go:#56BD8E; --cool:#5FB6DC;
+  color-scheme:dark;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);line-height:1.5;margin:0}
+.wrap{max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:34px 60px}
+.eyebrow{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.16em;font-size:13px;color:var(--ink-soft);margin:0}
+h1{font-family:var(--font-code);font-size:clamp(34px,8vw,52px);line-height:1;margin:6px 0 0;letter-spacing:-.01em;text-wrap:balance}
+.lede{max-width:62ch;margin:14px 0 0;color:var(--ink-soft);font-size:16px}
+.tally{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding:0;list-style:none}
+.tally li{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:10px 14px;min-width:0}
+.tally b{display:block;font-family:var(--font-code);font-size:22px;line-height:1.1}
+.tally span{font-family:var(--font-label);font-size:13px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em}
+section{margin-top:40px}
+h2{font-family:var(--font-code);font-size:20px;margin:0 0 4px;letter-spacing:-.01em}
+h2 .mark{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:9px;vertical-align:.04em}
+.sub{font-family:var(--font-label);font-size:15px;color:var(--ink-soft);margin:0 0 14px}
+.item{border-top:1px solid var(--rule);padding:13px 0}
+.item:last-child{border-bottom:1px solid var(--rule)}
+.item h3{font-size:16px;margin:0 0 3px;font-weight:600}
+.item p{margin:0;color:var(--ink-soft);font-size:15px}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--panel);padding:1px 5px;border-radius:2px;border:1px solid var(--rule)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;margin-top:10px}
+th,td{text-align:left;padding:7px 14px 7px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
+th{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.09em;font-size:12px;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+td.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.where{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);white-space:nowrap}
+.foot{margin-top:44px;border-top:2px solid var(--rule);padding-top:18px;color:var(--ink-soft);font-size:15px;max-width:66ch}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Fourtune &middot; what&rsquo;s left</p>
+    <h1>Punch List</h1>
+    <p class="lede">Everything still open, pulled straight out of the code. Three things only you can
+      decide, one thing blocking the rest, and a long tail of numbers that only playing will settle.</p>
+    <ul class="tally">
+      <li><b>3</b><span>your calls</span></li>
+      <li><b>1</b><span>blocker</span></li>
+      <li><b>56</b><span>coordinates</span></li>
+      <li><b>5</b><span>actually walked</span></li>
+      <li><b>49</b><span>numbers to feel out</span></li>
+    </ul>
+  </header>
+
+  <section>
+    <h2><span class="mark" style="background:var(--stop)"></span>Only you can decide</h2>
+    <p class="sub">Nothing moves past these without you.</p>
+
+    <div class="item">
+      <h3>Lua or JavaScript, per system</h3>
+      <p>Inventory, jobs, vehicles and money exist in both your Lua resources and <code>fourtune</code>.
+        <code>world</code> and <code>fourtune</code> also both claim <code>/whereami</code>, <code>/places</code>
+        and <code>/cities</code>. Run both and each command registers twice, with the second silently losing.</p>
+    </div>
+    <div class="item">
+      <h3>Your name in <code>LICENSE</code></h3>
+      <p>Still reads <code>Copyright (c) [year] [fullname]</code>. An MIT licence with the placeholders left
+        in names no copyright holder.</p>
+    </div>
+    <div class="item">
+      <h3>Whether the cars get renamed too</h3>
+      <p>Guns, shops and streets moved off Rockstar&rsquo;s names. Vehicles didn&rsquo;t, because GTA draws its
+        own name on screen when you get in &mdash; renaming <span style="white-space:nowrap">Karin Sultan</span>
+        would make chat and the game disagree.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="mark" style="background:var(--wait)"></span>The one blocker</h2>
+    <p class="sub">Everything in-game waits behind this.</p>
+    <div class="item">
+      <h3>The API isn&rsquo;t in the repo, so nothing saves</h3>
+      <p><code>fivem-server.js</code> has <code>TODO</code>s where loading and saving go. Run
+        <code>node tools/join-server.js &lt;path&gt;</code> on your PC and characters start persisting.
+        Until then every session starts fresh.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="mark" style="background:var(--cool)"></span>56 coordinates, 5 of them real</h2>
+    <p class="sub">Five came from your smoke test. The other 51 were placed by number, never stood on &mdash;
+      a road may well run through a hillside.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>What</th><th>How many</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>Districts, parks and roads</td><td class="num">25</td><td class="where">places.js</td></tr>
+          <tr><td>Shops and Gunworks counters</td><td class="num">8</td><td class="where">shops.js</td></tr>
+          <tr><td>Spawn points</td><td class="num">7</td><td class="where">spawns.js</td></tr>
+          <tr><td>Hospitals</td><td class="num">6</td><td class="where">medical.js</td></tr>
+          <tr><td>Gas stations</td><td class="num">5</td><td class="where">fuel.js</td></tr>
+          <tr><td>Job stations</td><td class="num">4</td><td class="where">jobs.js</td></tr>
+          <tr><td>The jail cell</td><td class="num">1</td><td class="where">police.js</td></tr>
+          <tr><td>Both city borders</td><td class="num">2</td><td class="where">cities.js</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub" style="margin-top:14px">Change them in the JS, then run
+      <code>node tools/gen-world-data.js &gt; world/data.lua</code> so the Lua follows.</p>
+  </section>
+
+  <section>
+    <h2><span class="mark" style="background:var(--go)"></span>Numbers that only playing will settle</h2>
+    <p class="sub">Current values. None of these are wrong yet &mdash; they&rsquo;re just untested guesses.</p>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Money</th><th>Now</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>Starting cash / bank / gold</td><td class="num">500 / 5,000 / 0</td><td class="where">character.js</td></tr>
+          <tr><td>Paycheck interval</td><td class="num">30 min</td><td class="where">game.js</td></tr>
+          <tr><td>Gold per on-duty paycheck</td><td class="num">35&ndash;45</td><td class="where">jobs.js</td></tr>
+          <tr><td>Gun prices in gold</td><td class="num">444&ndash;1,500</td><td class="where">shops.js</td></tr>
+          <tr><td>Weapon licence / revoke ban</td><td class="num">$2,500 / 24 h</td><td class="where">licenses.js</td></tr>
+          <tr><td>Founding a crew</td><td class="num">$25,000</td><td class="where">gangs.js</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Staying alive</th><th>Now</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>Hunger / thirst drain per min</td><td class="num">0.5 / 0.8</td><td class="where">needs.js</td></tr>
+          <tr><td>Damage per minute when empty</td><td class="num">2</td><td class="where">needs.js</td></tr>
+          <tr><td>Bleedout before you can respawn</td><td class="num">5 min</td><td class="where">medical.js</td></tr>
+          <tr><td>Revive / respawn health</td><td class="num">50 / 50</td><td class="where">medical.js</td></tr>
+          <tr><td>EMS revive reward</td><td class="num">$150 + 25 gold</td><td class="where">medical.js</td></tr>
+          <tr><td>Hospital bill</td><td class="num">$500</td><td class="where">medical.js</td></tr>
+          <tr><td>Carry weight</td><td class="num">30 kg</td><td class="where">inventory.js</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Crime and the law</th><th>Now</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>Robbery: time at the till</td><td class="num">90 s</td><td class="where">robbery.js</td></tr>
+          <tr><td>Robbery payout</td><td class="num">$400&ndash;1,200</td><td class="where">robbery.js</td></tr>
+          <tr><td>Officers needed on duty</td><td class="num">1</td><td class="where">robbery.js</td></tr>
+          <tr><td>Shop / robber cooldown</td><td class="num">30 / 15 min</td><td class="where">robbery.js</td></tr>
+          <tr><td>Max fine / max jail</td><td class="num">$5,000 / 30 min</td><td class="where">police.js</td></tr>
+          <tr><td>Ammo per box / load caps</td><td class="num">20&ndash;50 / 60&ndash;500</td><td class="where">ammo.js</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Getting around</th><th>Now</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>Taxi: flag drop + per 100 units</td><td class="num">$30 + $8</td><td class="where">taxi.js</td></tr>
+          <tr><td>Fuel price per litre</td><td class="num">$3</td><td class="where">fuel.js</td></tr>
+          <tr><td>Fuel burn per km</td><td class="num">1.0&ndash;1.5 L</td><td class="where">fuel.js</td></tr>
+          <tr><td>Mechanic repair</td><td class="num">$600 + 10 gold</td><td class="where">fuel.js</td></tr>
+          <tr><td>Trunk / crew stash capacity</td><td class="num">15&ndash;60 / 120 kg</td><td class="where">trunks.js, gangs.js</td></tr>
+          <tr><td>Dropped items vanish after</td><td class="num">10 min</td><td class="where">pickups.js</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="mark" style="background:var(--ink-soft)"></span>Check on the first boot</h2>
+    <p class="sub">Cheap to look at while you&rsquo;re in there.</p>
+    <div class="item">
+      <h3><code>files{}</code> ships server logic to players</h3>
+      <p><code>fourtune</code> lists its server modules there so <code>require()</code> can reach them, but that
+        also sends them to every connecting client. If <code>require()</code> still works without those
+        entries, drop them.</p>
+    </div>
+    <div class="item">
+      <h3>Does <code>world</code> load without <code>lua54</code>?</h3>
+      <p>It uses nothing version-specific, so it should run either way. If it throws on load, that&rsquo;s the
+        first thing to try.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    Everything above is on <code>main</code>. 89 JavaScript checks and 84 Lua checks pass headlessly &mdash;
+    and none of it has ever run inside FXServer, so the first boot is still the real test.
+  </div>
+</div>
+</body>
+</html>

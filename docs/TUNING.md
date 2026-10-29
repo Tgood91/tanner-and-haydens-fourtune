@@ -1,0 +1,65 @@
+# Punch list
+
+Everything still open, pulled out of the code. There is a nicer version of this page at
+`docs/tuning.html` — open it in a browser.
+
+## Only you can decide
+
+1. **Lua or JavaScript, per system.** Inventory, jobs, vehicles and money exist in both your Lua
+   resources and `fourtune`. `world` and `fourtune` also both claim `/whereami`, `/places` and
+   `/cities` — run both and each registers twice, second one silently losing.
+2. **Your name in `LICENSE`.** Still `Copyright (c) [year] [fullname]`.
+3. **Whether the cars get renamed.** Guns, shops and streets moved off Rockstar's names; vehicles
+   didn't, because GTA draws its own name on screen and chat would disagree with it.
+
+## The one blocker
+
+**The API isn't in the repo, so nothing saves.** `fivem-server.js` has `TODO`s where loading and
+saving go. `node tools/join-server.js <path>` on your PC unblocks it.
+
+## 56 coordinates, 5 of them real
+
+Five came from your smoke test. The other 51 were placed by number and never stood on.
+
+| What | How many | Where |
+|---|---|---|
+| Districts, parks, roads | 25 | `places.js` |
+| Shops and Gunworks counters | 8 | `shops.js` |
+| Spawn points | 7 | `spawns.js` |
+| Hospitals | 6 | `medical.js` |
+| Gas stations | 5 | `fuel.js` |
+| Job stations | 4 | `jobs.js` |
+| Jail cell | 1 | `police.js` |
+| City borders | 2 | `cities.js` |
+
+Change them in the JS, then `node tools/gen-world-data.js > world/data.lua` so the Lua follows.
+
+## Numbers that only playing will settle
+
+**Money** — start 500 cash / 5,000 bank / 0 gold (`character.js`) · paycheck every 30 min
+(`game.js`) · 35–45 gold per on-duty paycheck (`jobs.js`) · guns 444–1,500 gold (`shops.js`) ·
+licence $2,500, revoke ban 24 h (`licenses.js`) · crew $25,000 (`gangs.js`)
+
+**Staying alive** — hunger 0.5/min, thirst 0.8/min, 2 damage/min when empty (`needs.js`) ·
+bleedout 5 min, revive/respawn at 50 health, EMS gets $150 + 25 gold, hospital bill $500
+(`medical.js`) · carry 30 kg (`inventory.js`)
+
+**Crime and the law** — 90 s at the till, $400–1,200 payout, 1 officer minimum, 30/15 min
+cooldowns (`robbery.js`) · fines to $5,000, jail to 30 min (`police.js`) · ammo 20–50 a box, load
+caps 60–500 (`ammo.js`)
+
+**Getting around** — taxi $30 + $8 per 100 units (`taxi.js`) · fuel $3/L, 1.0–1.5 L per km,
+repairs $600 + 10 gold (`fuel.js`) · trunks 15–60 kg, crew stash 120 kg (`trunks.js`, `gangs.js`) ·
+dropped items vanish after 10 min (`pickups.js`)
+
+## Check on the first boot
+
+- **`files{}` ships server logic to players.** `fourtune` lists its server modules there so
+  `require()` can reach them, which also sends them to every client. If `require()` works without
+  those entries, drop them.
+- **Does `world` load without `lua54`?** It uses nothing version-specific, so it should run either
+  way. If it throws on load, try that first.
+
+---
+
+89 JavaScript checks and 84 Lua checks pass headlessly. None of it has run inside FXServer.
