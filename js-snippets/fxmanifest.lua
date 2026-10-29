@@ -5,6 +5,18 @@ game 'gta5'
 
 description 'Fourtune game core (JavaScript)'
 
+-- chat:         every command reply goes out through chat:addMessage
+-- spawnmanager: the client turns auto-spawn off and only spawns on the
+--               server's word, so revive and jail can decide where you land
+--
+-- NOT a dependency on `world`: that resource is the Lua twin of cities.js,
+-- places.js and spawns.js, and this one still uses its own. Pick one per
+-- system before enabling both, or every command registers twice.
+dependencies {
+    'chat',
+    'spawnmanager',
+}
+
 server_script 'fivem-server.js'
 client_script 'fivem-client.js'
 

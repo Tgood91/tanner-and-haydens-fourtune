@@ -54,6 +54,12 @@ roads and spawns in Lua. Its coordinates are GENERATED from the JS, so edit the 
 Other resources should use its exports (`exports.world:Describe(coords)`), never copy the tables.
 Checks: `lua world/test.lua`.
 
+## 2c. Install order
+
+`docs/RESOURCES.md` lists both resources, what they depend on, the copy steps and the
+`server.cfg` block. The short version: `js-snippets/` has to be installed as a folder named
+`fourtune`, and `chat` + `spawnmanager` must be ensured before either of ours.
+
 ## 3. Pick Lua or JS per system
 
 Inventory, jobs, vehicles and money exist in both your Lua resources and `js-snippets/`.
