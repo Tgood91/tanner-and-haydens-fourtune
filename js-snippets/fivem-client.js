@@ -24,6 +24,7 @@ onNet("fourtune:revive", ({ pedHealth, pos }) => {
     NetworkResurrectLocalPlayer(pos.x, pos.y, pos.z, GetEntityHeading(ped), true, false);
     ClearPedTasksImmediately(PlayerPedId());
     SetEntityHealth(PlayerPedId(), pedHealth);
+    applyLook(wornLook);
 });
 
 // ---------------- weapons & ammo ----------------
@@ -137,6 +138,63 @@ setTick(() => {
     for (const control of [24, 25, 37, 140, 141, 142, 257, 263, 264, 23, 75]) DisableControlAction(0, control, true);
 });
 
+// ---------------- clothes ----------------
+// appearance.js keeps six slot numbers and knows nothing about GTA. This
+// table is the whole translation: which ped component or prop each slot
+// is, and how its numbering lines up.
+//
+// offset -1 means our #1 is the game's drawable 0, so the numbers a
+// player types start at one. The mask is the exception: it sits on
+// component 1, whose drawable 0 IS the bare face, so 0 means "none"
+// there without any shifting.
+//
+// Hats and glasses are props, not components, and 0 clears the prop
+// rather than drawing a zeroth one.
+const SLOT_MAP = {
+    top:     { prop: false, id: 11, offset: -1 },
+    legs:    { prop: false, id: 4,  offset: -1 },
+    shoes:   { prop: false, id: 6,  offset: -1 },
+    mask:    { prop: false, id: 1,  offset: 0 },
+    hat:     { prop: true,  id: 0,  offset: -1 },
+    glasses: { prop: true,  id: 1,  offset: -1 },
+};
+
+let wornLook = null; // last look the server sent, re-applied after a respawn
+
+// The variant counts in appearance.js are placeholders, so a number can
+// point past what this ped model actually has. Drawing that gives an
+// invisible or broken ped, so an out-of-range slot is left alone.
+function applyLook(look) {
+    if (!look) return;
+    const ped = PlayerPedId();
+
+    for (const [slot, value] of Object.entries(look)) {
+        const map = SLOT_MAP[slot];
+        if (!map || typeof value !== "number") continue;
+
+        if (map.prop) {
+            if (value <= 0) {
+                ClearPedProp(ped, map.id);
+                continue;
+            }
+            const drawable = value + map.offset;
+            if (drawable >= GetNumberOfPedPropDrawableVariations(ped, map.id)) continue;
+            SetPedPropIndex(ped, map.id, drawable, 0, true);
+            continue;
+        }
+
+        const drawable = value + map.offset;
+        if (drawable < 0 || drawable >= GetNumberOfPedDrawableVariations(ped, map.id)) continue;
+        // texture 0 and palette 2: one colourway per drawable for now
+        SetPedComponentVariation(ped, map.id, drawable, 0, 2);
+    }
+}
+
+onNet("fourtune:setAppearance", ({ look }) => {
+    wornLook = look;
+    applyLook(wornLook);
+});
+
 onNet("fourtune:teleport", ({ pos, heading }) => {
     const ped = PlayerPedId();
     SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false);
@@ -178,7 +236,10 @@ setInterval(() => {
 onNet("fourtune:spawn", ({ pos, heading }) => {
     exports.spawnmanager.spawnPlayer(
         { x: pos.x, y: pos.y, z: pos.z, heading, model: "mp_m_freemode_01", skipFade: false },
-        () => emitNet("fourtune:spawned"),
+        () => {
+            applyLook(wornLook); // the freemode ped spawns in its default fit
+            emitNet("fourtune:spawned");
+        },
     );
 });
 

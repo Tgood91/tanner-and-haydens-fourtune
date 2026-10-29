@@ -68,6 +68,7 @@ function perform(result) {
             case "setCuffed":
             case "teleport":
             case "setWeather":
+            case "setAppearance":
                 emitNet(`fourtune:${a.type}`, a.target, a);
                 break;
             case "spawnVehicle": {
@@ -181,6 +182,10 @@ onNet("fourtune:spawned", () => {
     const pools = {};
     for (const [type, t] of Object.entries(AMMO_TYPES)) pools[t.gta] = c.ammo[type] || 0;
     emitNet("fourtune:setAllAmmo", id, pools);
+
+    // what they're wearing: the ped spawned in the freemode default
+    const { wearing } = require(`${resourcePath}/appearance.js`);
+    emitNet("fourtune:setAppearance", id, { look: wearing(c) });
 
     // the sky, before they see their own version of it
     const world = game.worldState();
