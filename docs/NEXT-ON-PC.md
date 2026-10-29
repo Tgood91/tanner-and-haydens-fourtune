@@ -1,42 +1,68 @@
 # Next time on the PC
 
-## 1. Join the server into this repo
+Everything below is built, tested headless and pushed to `ccr-5d4c3135-x60ejw`.
+**Nothing has ever run inside FXServer.** That is the whole of what's left.
 
-From inside this repo:
+## State of play
+
+89 tests pass: `node --test js-snippets/game.test.js`
+
+Built: inventory, money + gold, jobs, hunger/thirst, cities, spawns, shops, dropped items,
+trunks, vehicles with fuel + repairs, ammo, weapon licences, police + jail, revive, taxi fares,
+robbery, phone, crews, and named districts/parks/roads.
+
+Docs: `js-snippets/README.md` (how it fits together, every placeholder to tune),
+`docs/COMPLIANCE.md` (FiveM rules audit), `docs/city-map.html` (world map, opens in a browser),
+`docs/CAPACITY-PLAN.md` (gates by player count).
+
+## 1. Push the API — this is the blocker
+
+Saving is not wired up because your API isn't in the repo. From inside the repo:
 
 ```
 git pull
-node tools/join-server.js "<path to your gta-rp-server folder>" --dry-run
-node tools/join-server.js "<path to your gta-rp-server folder>"
+node tools/join-server.js "<path to gta-rp-server>" --dry-run
+node tools/join-server.js "<path to gta-rp-server>"
 git push
 ```
 
-The dry run shows what will be copied and what's left out, and changes nothing. The second run copies the folder into
-`server/` and commits it. It leaves out `.env`, `node_modules`, the FXServer cache, logs, and the Cfx key / rcon /
-MySQL values in `.cfg` files. If it finds anything else that looks like a password or key, it stops and tells you the
-file and line. Move that value into `.env` and run it again.
+The dry run changes nothing. The real run copies into `server/`, leaves out `.env`,
+`node_modules`, cache and logs, blanks the Cfx key / rcon / MySQL values in `.cfg`, and
+stops if anything else looks like a secret.
 
-Run it again any time the server changes. `server/` is replaced with a fresh copy each time.
+Once that's in, the `TODO`s in `js-snippets/fivem-server.js` can be filled in and characters
+will actually persist.
 
-This unblocks: **saving and loading through the API** (`TODO`s in `js-snippets/fivem-server.js`).
+## 2. First in-game test
 
-## 2. Test revive in-game
-
-From the server console, with your player id:
+Drop `js-snippets/` into `resources/` as `fourtune`, add `ensure fourtune` to `server.cfg`,
+make sure OneSync is on, then:
 
 ```
 setjob <id> ems 0
 giveitem <id> medkit 2
 ```
 
-Then in-game: `/duty`, have a friend go down, walk over, `/revive <theirId>`.
-Also check: with no EMS on duty, the downed player gets told, and `/respawn` works after 5 minutes.
+In-game: `/duty`, have someone go down, walk over, `/revive <theirId>`.
+Then try `/rob` at a shop with a loaded gun, and `/taxi` from another character.
 
-## 3. Pick Lua or JS for each system
+## 3. Pick Lua or JS per system
 
-Inventory, jobs, vehicles and money exist in both your Lua resources and `js-snippets/`. Running both registers every
-command twice. Pick one per system before enabling `fourtune`.
+Inventory, jobs, vehicles and money exist in both your Lua resources and `js-snippets/`.
+Running both registers every command twice. Decide before enabling `fourtune`.
 
-## Optional: let Claude work in the real server
+## Still yours to do
 
-Claude desktop app → Settings → Claude Code → Remote Control → add the `gta-rp-server` folder (it must be a git repo).
+- `LICENSE` has `[year]` and `[fullname]` placeholders.
+- `givegold` is console-only by design — keep it for events, never wire it to a payment.
+- Every coordinate in `places.js`, `shops.js`, `fuel.js`, `medical.js` and `spawns.js` is a
+  placeholder placed by number. Walk them.
+
+## Ideas not started
+
+Turf (claimable zones per crew), drugs, housing, a HUD, hunger/thirst UI.
+
+## Letting Claude into the real server
+
+Claude desktop app -> Settings -> Claude Code -> Remote Control -> add the `gta-rp-server`
+folder (it has to be a git repo). Then a session can work in it directly.
