@@ -173,6 +173,12 @@ onNet("fourtune:ready", () => {
     }
 });
 
+// The ped model refused a clothing slot: the server decides what to do
+// about it, same as everywhere else.
+onNet("fourtune:lookRejected", (slots) => {
+    perform(game.lookRejected(Number(global.source), slots));
+});
+
 // Until this arrives, the client doesn't send ammo reports (it would report 0s).
 onNet("fourtune:spawned", () => {
     const id = Number(global.source);

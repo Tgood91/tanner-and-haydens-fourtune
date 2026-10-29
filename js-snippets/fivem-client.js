@@ -159,34 +159,132 @@ const SLOT_MAP = {
     glasses: { prop: true,  id: 1,  offset: -1 },
 };
 
-let wornLook = null; // last look the server sent, re-applied after a respawn
+// Freemode peds use palette 2. The other palettes are for story peds
+// and give the wrong colours on these models.
+const PALETTE = 2;
+
+// Component 11 is the jacket; the SLEEVES live on component 3 (torso).
+// A jacket drawn over mismatched arms is the single most common clothing
+// glitch in FiveM: invisible forearms, or skin poking through a sleeve.
+// The game has no native that says which arms a jacket wants, so it is a
+// table, and this one is a PLACEHOLDER — walk the shop, and for any top
+// whose sleeves look wrong, write the arms number that fixes it here.
+// Anything not listed falls back to ARMS_DEFAULT.
+const ARMS_COMPONENT = 3;
+const ARMS_DEFAULT = 0;
+const TOP_ARMS = {
+    // 7: 1,   // e.g. "top #7 needs arms 1"
+};
+
+// Component 8 is the undershirt. Leaving it unset is the other half of
+// the same glitch: an open jacket with nothing under it shows a hole
+// where the chest should be.
+const UNDERSHIRT_COMPONENT = 8;
+const UNDERSHIRT_DEFAULT = 0;
+
+let wornLook = null;   // last look the server sent
+let lastPed = 0;       // the ped handle it was drawn on
+let applying = false;  // one apply at a time
+let pending = false;   // another one asked while that ran
+
+// Components can be set on a ped that exists; they are silently LOST if
+// the ped is mid-switch or still streaming in. So wait for one that can
+// actually take them.
+async function usablePed() {
+    for (let i = 0; i < 40; i++) {
+        const ped = PlayerPedId();
+        if (ped !== 0 && DoesEntityExist(ped) && !IsPlayerSwitchInProgress()) return ped;
+        await new Promise((r) => setTimeout(r, 100));
+    }
+    return 0;
+}
 
 // The variant counts in appearance.js are placeholders, so a number can
-// point past what this ped model actually has. Drawing that gives an
-// invisible or broken ped, so an out-of-range slot is left alone.
-function applyLook(look) {
+// point past what this model has. Drawing that gives an invisible or
+// broken ped, so an out-of-range slot is left as it was and the server
+// is told, rather than the player standing there with no legs wondering
+// why nothing happened.
+function drawComponent(ped, id, drawable) {
+    if (drawable < 0 || drawable >= GetNumberOfPedDrawableVariations(ped, id)) return false;
+
+    // Texture 0 is not guaranteed to exist for every drawable, and an
+    // absent texture is what renders as the stretched-polygon mess.
+    const textures = GetNumberOfPedTextureVariations(ped, id, drawable);
+    if (textures <= 0) return false;
+    const texture = 0;
+
+    // The engine's own validity check, which knows things the counts don't.
+    if (!IsPedComponentVariationValid(ped, id, drawable, texture)) return false;
+
+    SetPedComponentVariation(ped, id, drawable, texture, PALETTE);
+    return true;
+}
+
+function drawProp(ped, id, drawable) {
+    if (drawable < 0 || drawable >= GetNumberOfPedPropDrawableVariations(ped, id)) return false;
+    if (GetNumberOfPedPropTextureVariations(ped, id, drawable) <= 0) return false;
+    SetPedPropIndex(ped, id, drawable, 0, true);
+    return true;
+}
+
+async function applyLook(look) {
     if (!look) return;
-    const ped = PlayerPedId();
+    if (applying) { pending = true; return; }
+    applying = true;
 
-    for (const [slot, value] of Object.entries(look)) {
-        const map = SLOT_MAP[slot];
-        if (!map || typeof value !== "number") continue;
+    try {
+        const ped = await usablePed();
+        if (ped === 0) return;
 
-        if (map.prop) {
-            if (value <= 0) {
-                ClearPedProp(ped, map.id);
+        const rejected = [];
+        let topDrawn = false;
+
+        for (const [slot, value] of Object.entries(look)) {
+            const map = SLOT_MAP[slot];
+            if (!map || typeof value !== "number" || !Number.isFinite(value)) continue;
+
+            if (map.prop) {
+                // 0 means bare-headed: clear it, never draw a zeroth prop
+                if (value <= 0) { ClearPedProp(ped, map.id); continue; }
+                if (!drawProp(ped, map.id, value + map.offset)) rejected.push(slot);
                 continue;
             }
-            const drawable = value + map.offset;
-            if (drawable >= GetNumberOfPedPropDrawableVariations(ped, map.id)) continue;
-            SetPedPropIndex(ped, map.id, drawable, 0, true);
-            continue;
+
+            if (!drawComponent(ped, map.id, value + map.offset)) rejected.push(slot);
+            else if (slot === "top") topDrawn = true;
         }
 
-        const drawable = value + map.offset;
-        if (drawable < 0 || drawable >= GetNumberOfPedDrawableVariations(ped, map.id)) continue;
-        // texture 0 and palette 2: one colourway per drawable for now
-        SetPedComponentVariation(ped, map.id, drawable, 0, 2);
+        // Keep the jacket, its sleeves and the undershirt in step
+        if (topDrawn) {
+            const arms = TOP_ARMS[look.top] ?? ARMS_DEFAULT;
+            if (!drawComponent(ped, ARMS_COMPONENT, arms) && arms !== ARMS_DEFAULT) {
+                drawComponent(ped, ARMS_COMPONENT, ARMS_DEFAULT);
+            }
+            drawComponent(ped, UNDERSHIRT_COMPONENT, UNDERSHIRT_DEFAULT);
+        }
+
+        // A set that didn't take means the ped wasn't ready after all:
+        // read it back, and have one more go before giving up.
+        let missed = false;
+        for (const [slot, value] of Object.entries(look)) {
+            const map = SLOT_MAP[slot];
+            if (!map || map.prop || rejected.includes(slot)) continue;
+            if (GetPedDrawableVariation(ped, map.id) !== value + map.offset) missed = true;
+        }
+        if (missed) {
+            await new Promise((r) => setTimeout(r, 300));
+            for (const [slot, value] of Object.entries(look)) {
+                const map = SLOT_MAP[slot];
+                if (!map || map.prop || rejected.includes(slot)) continue;
+                drawComponent(ped, map.id, value + map.offset);
+            }
+        }
+
+        lastPed = ped;
+        if (rejected.length > 0) emitNet("fourtune:lookRejected", rejected);
+    } finally {
+        applying = false;
+        if (pending) { pending = false; applyLook(wornLook); }
     }
 }
 
@@ -194,6 +292,16 @@ onNet("fourtune:setAppearance", ({ look }) => {
     wornLook = look;
     applyLook(wornLook);
 });
+
+// A new ped handle means a new ped: death and respawn, a model change,
+// a player switch. Whatever drew it put it in the default fit, so draw
+// the clothes back on. Watching the handle instead of re-applying on a
+// timer keeps this from fighting any other resource that dresses peds.
+setInterval(() => {
+    if (!wornLook) return;
+    const ped = PlayerPedId();
+    if (ped !== 0 && ped !== lastPed && DoesEntityExist(ped)) applyLook(wornLook);
+}, 1000);
 
 onNet("fourtune:teleport", ({ pos, heading }) => {
     const ped = PlayerPedId();

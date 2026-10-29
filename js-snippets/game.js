@@ -1273,6 +1273,16 @@ function createGame(opts = {}) {
         lot.importAll(saved);
     }
 
+    // The client couldn't draw some of what they're wearing: put those
+    // slots back and redraw, so nobody is left with invisible legs.
+    function lookRejected(id, slots) {
+        const c = characters.get(id);
+        if (!c) return reply("");
+        const res = appearance.revert(c, Array.isArray(slots) ? slots : []);
+        if (!res.ok) return reply("");
+        return reply("", { notify: [{ id, msg: res.msg }], actions: [lookAction(c)] });
+    }
+
     // What a client needs the moment it connects, so it doesn't show
     // its own clock and sky for a few seconds first.
     function worldState() {
@@ -1295,7 +1305,7 @@ function createGame(opts = {}) {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, loadHouses, loadImpound, worldState, hudFor,
+        lookRejected, tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, loadHouses, loadImpound, worldState, hudFor,
     };
 }
 

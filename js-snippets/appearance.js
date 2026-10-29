@@ -122,10 +122,45 @@ function change(c, found, slot, variant) {
     }
 
     look[slot] = want;
+    // Only the change you just paid for can be refunded if the model
+    // refuses it (see revert below). Not saved: it dies with the session.
+    if (want !== 0) c.pendingBuy = { slot, price: meta.price };
     return {
         ok: true,
         look,
         msg: want === 0 ? `Took your ${meta.label.toLowerCase()} off.` : `${meta.label} #${want} on. ${found.label} thanks you.`,
+    };
+}
+
+// A ped model can refuse a slot — the number may point past what it
+// actually has (see fivem-client.js). Put the slot back to the default
+// so the player isn't left invisible, and hand the money back only for
+// the change they just paid for: the rejection arrives from the client,
+// and refunding anything it names would pay out on a free outfit change
+// over and over.
+function revert(c, slots) {
+    const look = wearing(c);
+    const put = [];
+    let refund = 0;
+
+    for (const slot of slots || []) {
+        const meta = SLOTS[slot];
+        if (!meta || look[slot] === DEFAULT_LOOK[slot]) continue;
+        look[slot] = DEFAULT_LOOK[slot];
+        put.push(meta.label.toLowerCase());
+        if (c.pendingBuy && c.pendingBuy.slot === slot) {
+            refund += c.pendingBuy.price;
+            c.pendingBuy = null;
+        }
+    }
+
+    if (put.length === 0) return { ok: false, msg: "", refund: 0 };
+    if (refund > 0) c.cash += refund;
+    return {
+        ok: true,
+        look,
+        refund,
+        msg: `Your ${put.join(", ")} didn't fit — put back${refund > 0 ? ` and ${economy.money(refund)} refunded` : ""}.`,
     };
 }
 
@@ -167,6 +202,7 @@ function wearOutfit(c, somewhere, name) {
     if (!found) return { ok: false, msg: `No outfit called "${label || ""}". /outfits lists yours` };
 
     c.look = { ...kept[found] };
+    c.pendingBuy = null; // the receipt was for the fit you just took off
     return { ok: true, msg: `Changed into "${found}".`, look: c.look };
 }
 
@@ -182,5 +218,5 @@ function dropOutfit(c, name) {
 module.exports = {
     SHOP_RANGE, MAX_OUTFITS, SLOTS, SHOPS, DEFAULT_LOOK,
     shopNear, listShops, cleanLook, cleanOutfits, wearing, isMasked, describe,
-    change, listOutfits, saveOutfit, wearOutfit, dropOutfit,
+    change, revert, listOutfits, saveOutfit, wearOutfit, dropOutfit,
 };

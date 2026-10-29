@@ -75,6 +75,11 @@ something off is free; five saved outfits (`appearance.js`)
 
 ## Check on the first boot
 
+- **Walk the clothing shops.** The variant counts in `appearance.js` are guesses. A number the
+  model doesn't have is refused by the client, put back and refunded, so nothing breaks — but
+  that slot is dead until the count comes down. `TOP_ARMS` in `fivem-client.js` is the other
+  one: empty until you find a jacket whose sleeves look wrong.
+
 - **`files{}` ships server logic to players.** `fourtune` lists its server modules there so
   `require()` can reach them, which also sends them to every client. If `require()` works without
   those entries, drop them.
@@ -83,4 +88,4 @@ something off is free; five saved outfits (`appearance.js`)
 
 ---
 
-130 JavaScript checks and 84 Lua checks pass headlessly. None of it has run inside FXServer.
+131 JavaScript checks and 84 Lua checks pass headlessly. None of it has run inside FXServer.

@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 130 checks across every system
+node --test js-snippets/game.test.js  # 131 checks across every system
 ```
 
 ## What's in here
@@ -23,7 +23,7 @@ node --test js-snippets/game.test.js  # 130 checks across every system
 | `houses.js` | Seven places to buy, priced by district. A door you lock, keys you hand out by id and take back by name, and storage that isn't on your back. Selling gives 60% back, and only once it's empty |
 | `shifts.js` | Sheriff and EMS go **on shift**, not just on duty: `/duty` hands out a callsign from the department's pool (`S-1`…`S-12`, `M-1`…`M-12`) and takes it back when you clock off. Radio traffic uses the callsign, `/roster` shows who's out, and an hour in you're told to take a break |
 | `impound.js` | Where cars go when they're taken off you: police `/towveh`, a wrecked engine, or logging out with it on the street. `/releaseveh` at the lot charges the fee and hands it back repaired — **not refuelled** |
-| `appearance.js` | Six clothing slots and five saved outfits. Change at one of the four shops, put a saved outfit back on there or at a door you hold a key to. A mask means the robbery call goes out as "masked suspect". The client adapter turns the six numbers into ped components and props, and re-draws them after a spawn or revive |
+| `appearance.js` | Six clothing slots and five saved outfits. Change at one of the four shops, put a saved outfit back on there or at a door you hold a key to. A mask means the robbery call goes out as "masked suspect". The client adapter turns the six numbers into ped components and props, checks each against the model before drawing it, and re-draws them whenever the ped changes. A slot the model refuses goes back to the default and the paid change is refunded |
 | `drugs.js` | Pick it at a supply spot, cook it at your crew base, move it in a district. Price follows demand, pays a bonus on your own turf, and the district goes cold after you work it. Every deal risks a tip-off — riskier in daylight — and the tip names the place, never the dealer |
 | `turf.js` | The ten districts are the board. Two crew standing in one for 120s takes it; anyone wandering off kills the claim. The crew losing it is warned the moment it starts. Holding pays gold per online member every 10 min |
 | `gangs.js` | Crews with Member/Officer/Leader ranks. Founding costs $25,000 and plants a base where you stand. Invite-and-accept only, `/g` radio chat that needs a **radio** in your bag, and a 120 kg shared stash that only opens at the base |
@@ -60,6 +60,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Shifts: 12 callsigns per department, the 60-min break nudge (`shifts.js`)
 - Impound: $2,500 police / $1,200 wrecked / $600 abandoned, and both lot coords (`impound.js`)
 - Clothes: slot prices ($70-$180), variant counts, 5 saved outfits, all four shop coords (`appearance.js`)
+- **Sleeves**: `TOP_ARMS` in `fivem-client.js` is empty. Any top whose arms look wrong needs its arms number written in there
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
 - Tank sizes, litres per km, fuel price, repair bill, repair gold, gas station spots (`fuel.js`)
 - Houses: $65,000-$240,000 by district, 40-75 kg storage, 60% back on a sale, 6 keys (`houses.js`)

@@ -2245,3 +2245,30 @@ test("only five outfits, and a junk save doesn't dress you in nothing", () => {
     const junk = game.join(9, "Junk", { look: { top: 999, legs: -4, mask: "x" } });
     assert.deepEqual(junk.look, clothes.DEFAULT_LOOK, "nonsense falls back to the default fit");
 });
+
+test("a slot the model can't draw goes back to the default, and only the paid change is refunded", () => {
+    const { game, a, atShop } = dressSetup();
+    const cash = a.cash;
+    game.command(atShop(1), "dress", ["top", "20"]);
+    assert.equal(a.cash, cash - clothes.SLOTS.top.price);
+
+    const res = game.lookRejected(1, ["top"]);
+    assert.match(res.notify[0].msg, /Your top didn't fit — put back and \$180 refunded/);
+    assert.equal(a.look.top, clothes.DEFAULT_LOOK.top, "you're not left invisible");
+    assert.equal(a.cash, cash, "you don't pay for clothes you never wore");
+    assert.deepEqual(res.actions[0], { type: "setAppearance", target: 1, look: clothes.DEFAULT_LOOK });
+
+    // claiming it twice pays nothing the second time
+    assert.equal(game.lookRejected(1, ["top"]).notify.length, 0, "nothing left to put back");
+
+    // a free outfit change can't be turned into a refund
+    game.command(atShop(1), "dress", ["legs", "6"]);
+    game.command(atShop(1), "saveoutfit", ["fit"]);
+    game.command(atShop(1), "dress", ["legs", "2"]);
+    const paidFor = a.cash;
+    game.command(atShop(1), "outfit", ["fit"]);
+    const claim = game.lookRejected(1, ["legs"]);
+    assert.match(claim.notify[0].msg, /didn't fit — put back\.$/, "put back, but no money");
+    assert.equal(a.cash, paidFor);
+    assert.equal(game.lookRejected(99, ["top"]).msg, "", "an unknown player is ignored");
+});
