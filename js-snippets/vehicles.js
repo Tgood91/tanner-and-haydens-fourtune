@@ -13,7 +13,7 @@ const CATALOG = {
     zentorno: { name: "Pegaso Zentaro",     price: 725000 }, // placeholder price
     // Emergency vehicles: job-locked, never sold
     police:   { name: "Police Cruiser",     price: null, job: "police" },
-    ambulance:{ name: "Ambulance",          price: null, job: "ems" },
+    ambulance:{ name: "Whambulance",        price: null, job: "ems" },
 };
 
 function listCars() {
