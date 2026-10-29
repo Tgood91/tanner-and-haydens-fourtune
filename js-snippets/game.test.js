@@ -1466,3 +1466,132 @@ test("a robbery call names the block it's happening on", () => {
     assert.match(call.notify[0].msg, /ROBBERY IN PROGRESS — Open 24 Chicago, .*Chicago\. Suspect: Hayden/);
     void robber;
 });
+
+// ---------------- turf ----------------
+const turfRules = require("./turf");
+
+function turfSetup() {
+    const env = setup();
+    const { game, a, b } = env;
+    a.bank = 200000;
+    env.knot = SPAWNS.chicago[0].pos; // inside The Knot
+    env.midway = { x: -300, y: 6230, z: 30 };
+    env.at = (id, pos = env.knot, extra = {}) => env.as(id, { pos, now: 0, ...extra });
+    game.updatePosition(1, env.knot);
+    game.updatePosition(2, env.knot);
+    game.command(env.at(1), "gangcreate", ["KAOS", "Kaos", "Crew"]);
+    game.command(env.at(1), "ganginvite", ["2"]);
+    game.command(env.at(2), "gangaccept");
+    void b;
+    return env;
+}
+
+test("the board starts empty and lists every district", () => {
+    const { game, at } = turfSetup();
+    const board = game.command(at(1), "turf").msg;
+    assert.match(board, /The Knot: unclaimed/);
+    assert.equal(board.split("\n").length, turfRules.districts().length + 1);
+});
+
+test("a claim needs a crew, a district, and bodies on the ground", () => {
+    const { game, at, knot, midway } = turfSetup();
+    game.join(3, "Rando");
+    game.updatePosition(3, knot);
+    assert.match(game.command(at(3), "claim").msg, /not in a crew/);
+
+    assert.match(game.command(at(1, { x: 0, y: 4000, z: 30 }), "claim").msg, /not standing in a district/);
+
+    // Hayden wanders off, so only one of the crew is here
+    game.updatePosition(2, midway);
+    assert.match(game.command(at(1), "claim").msg, /You need 2 crew in The Knot to take it — 1 here/);
+
+    game.updatePosition(2, knot);
+    assert.match(game.command(at(1), "claim").msg, /Taking The Knot/);
+    assert.match(game.command(at(1), "claim").msg, /already taking this/);
+});
+
+test("walking away loses the hold, and nothing is taken", () => {
+    const { game, at, knot, midway } = turfSetup();
+    game.command(at(1), "claim");
+
+    const out = game.updatePosition(2, midway, 10000); // this sweep is the one that notices
+    assert.ok(out.notify.some((n) => n.msg.includes("Lost the hold on The Knot")));
+    assert.equal(game.command(at(1), "turf").msg.includes("[KAOS]"), false);
+});
+
+test("holding the ground takes the turf, and the loser is warned and told", () => {
+    const { game, a, at, knot } = turfSetup();
+    game.command(at(1), "claim");
+    const taken = game.updatePosition(1, knot, 130000);
+    assert.ok(taken.notify.some((n) => n.msg.includes("[KAOS] now holds The Knot")));
+    assert.match(game.command(at(1), "turf").msg, /The Knot: \[KAOS\] Kaos Crew/);
+    assert.match(game.command(at(1), "claim").msg, /already holds The Knot/);
+
+    // a rival crew moves in
+    const rival = game.join(3, "Kaos");
+    const mate = game.join(4, "Dee");
+    rival.bank = 200000;
+    const atRival = (id, now = 140000) => ({ id, pos: knot, now }); // after the flip, not before it
+    game.updatePosition(3, knot);
+    game.updatePosition(4, knot);
+    game.command(atRival(3), "gangcreate", ["RIV", "River", "Crew"]);
+    game.command(atRival(3), "ganginvite", ["4"]);
+    game.command(atRival(4), "gangaccept");
+
+    // still settling from the first flip
+    assert.match(game.command(atRival(3), "claim").msg, /settles in 15 min/);
+
+    const later = 20 * 60000; // the settle runs from the flip at 130s, not from zero
+    const started = game.command(atRival(3, later), "claim");
+    assert.ok(started.notify.some((n) => n.id === 1 && n.msg.includes("WARNING: [RIV] is taking The Knot from you")));
+
+    const flipped = game.updatePosition(3, knot, later + 130000);
+    assert.ok(flipped.notify.some((n) => n.id === 3 && n.msg.includes("[RIV] now holds The Knot")));
+    assert.ok(flipped.notify.some((n) => n.id === 1 && n.msg.includes("You lost The Knot to [RIV]")));
+    void a; void mate;
+});
+
+test("holding pays every member gold on the payout tick", () => {
+    const { game, a, b, at, knot } = turfSetup();
+    game.command(at(1), "claim");
+    game.updatePosition(1, knot, 130000);
+
+    assert.equal(game.tick(9, 130000).notify.filter((n) => n.msg.includes("Turf pays")).length, 0);
+    const paid = game.tick(1, 130000);
+    assert.equal(a.gold, turfRules.PAYOUT_GOLD);
+    assert.equal(b.gold, turfRules.PAYOUT_GOLD);
+    assert.ok(paid.notify.some((n) => n.id === 2 && n.msg.includes("+15 gold")));
+});
+
+test("only a leader gives turf up, and disbanding drops it", () => {
+    const { game, at, knot } = turfSetup();
+    game.command(at(1), "claim");
+    game.updatePosition(1, knot, 130000);
+
+    assert.match(game.command(at(2), "abandon").msg, /Only Leaders/);
+    game.command(at(1), "abandon");
+    assert.match(game.command(at(1), "turf").msg, /The Knot: unclaimed/);
+
+    const after = 20 * 60000; // past the settle, which runs from the flip at 130s
+    game.command(at(1, knot, { now: after }), "claim");
+    game.updatePosition(1, knot, after + 130000);
+    assert.match(game.command(at(1), "turf").msg, /\[KAOS\]/);
+    game.command(at(1), "gangdisband");
+    assert.match(game.command(at(1), "turf").msg, /The Knot: unclaimed/);
+});
+
+test("turf survives a save and reload", () => {
+    const { game, at, knot } = turfSetup();
+    game.command(at(1), "claim");
+    game.updatePosition(1, knot, 130000);
+
+    const snapshot = game.saveAll();
+    assert.equal(snapshot.turf.held["The Knot"].tag, "KAOS");
+
+    const fresh = createGame();
+    fresh.loadGangs(snapshot.gangs);
+    fresh.loadTurf(snapshot.turf);
+    fresh.join(1, "Tanner", snapshot.players[1]);
+    fresh.updatePosition(1, knot);
+    assert.match(fresh.command(at(1), "turf").msg, /The Knot: \[KAOS\] Kaos Crew/);
+});

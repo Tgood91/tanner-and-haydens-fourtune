@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 89 checks across every system
+node --test js-snippets/game.test.js  # 96 checks across every system
 ```
 
 ## What's in here
@@ -20,6 +20,7 @@ node --test js-snippets/game.test.js  # 89 checks across every system
 | `character.js` | One character: money, job, health/hunger/thirst, inventory, garage. Starter-kit rule on first load |
 | `inventory.js` | Items, weights, 30 kg limit, use/drop. Food and drink values live here |
 | `economy.js` | Cash/bank, deposit, withdraw, pay another player. **Gold**: earned only by working (on-duty paychecks, EMS revives), never bought or traded |
+| `turf.js` | The ten districts are the board. Two crew standing in one for 120s takes it; anyone wandering off kills the claim. The crew losing it is warned the moment it starts. Holding pays gold per online member every 10 min |
 | `gangs.js` | Crews with Member/Officer/Leader ranks. Founding costs $25,000 and plants a base where you stand. Invite-and-accept only, `/g` radio chat that needs a **radio** in your bag, and a 120 kg shared stash that only opens at the base |
 | `phone.js` | A number per character, area code from the city you started in (7101 / 770 / 312). `/text` by number or player id, `/texts`, `/contacts`, `/save`. The phone **item** is required: no phone means no texts, no `/911` and no cab |
 | `taxi.js` | `/taxi` calls a cab, on-duty drivers get the ping, `/accept` claims it, `/startfare` starts the meter next to the passenger, `/endfare` bills them. The fare is $30 plus $8 per 100 units **actually driven**, teleports not counted |
@@ -42,7 +43,7 @@ node --test js-snippets/game.test.js  # 89 checks across every system
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`
 
@@ -51,6 +52,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
 - Tank sizes, litres per km, fuel price, repair bill, repair gold, gas station spots (`fuel.js`)
+- Turf: 2 to claim, 120s to hold, 15-min settle after a flip, 15 gold per member every 10 min (`turf.js`)
 - Crew cost ($25,000), 12-member cap, 120 kg stash, 10-unit base range, 24h base move cooldown (`gangs.js`)
 - GeePee's area code (770 is a guess) and the 20-text history (`phone.js`)
 - Robbery: 90s at the till, $400-$1,200 payout, 1 officer minimum, 30-min shop and 15-min robber cooldowns (`robbery.js`)

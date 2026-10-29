@@ -65,7 +65,11 @@ Checks: `lua world/test.lua`.
 Tanner chose Lua on 29 Oct 2026. New systems are written in Lua from here, and the JavaScript in
 `js-snippets/` becomes the reference to port from rather than the thing that ships.
 
-Ported so far: `world` (cities, places, spawns), `crew` (crews, ranks, turf).
+**Turf then went back to JavaScript on 29 Oct 2026**, so it now exists in BOTH: `crew/turf.lua`
+and `js-snippets/turf.js`. They are the same rules. Decide which one ships before you ensure
+anything, and delete the other — two live turf systems would fight over the same districts.
+
+Ported to Lua: `world` (cities, places, spawns), `crew` (crews, ranks, turf).
 Still JavaScript only: inventory, money and gold, jobs, needs, shops, vehicles, fuel, ammo,
 licences, police, medical, taxi, robbery, phone, pickups, trunks, and the crew stash, base
 and radio.

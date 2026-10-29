@@ -42,6 +42,7 @@ const { createHeists } = require("./robbery");
 const phone = require("./phone");
 const gangs = require("./gangs");
 const places = require("./places");
+const { createTurf, CLAIM_MS } = require("./turf");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -73,6 +74,7 @@ function createGame(opts = {}) {
     const dispatch = createDispatch();
     const heists = createHeists(rng);
     const crews = gangs.createGangs();
+    const turf = createTurf();
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -90,6 +92,21 @@ function createGame(opts = {}) {
         const wanted = String(name || "").trim().toLowerCase();
         for (const o of characters.values()) if (o.name.toLowerCase() === wanted) return o;
         return null;
+    }
+
+    // How many of this crew are standing in that district right now
+    function crewPresentIn(tag, districtName) {
+        let n = 0;
+        for (const o of characters.values()) {
+            if (!o.gang || o.gang.tag !== tag || !o.pos) continue;
+            const here = places.zoneAt(o.pos, "district");
+            if (here && here.name === districtName) n += 1;
+        }
+        return n;
+    }
+
+    function onlineInCrew(tag) {
+        return [...characters.values()].filter((o) => o.gang && o.gang.tag === tag);
     }
 
     function crewMates(c, except) {
@@ -184,6 +201,17 @@ function createGame(opts = {}) {
 
         const heist = heists.progress(c, pos, now); // no-op unless they're robbing somewhere
         if (heist) out.notify.push({ id, msg: heist.msg });
+
+        for (const e of turf.progress(now, crewPresentIn)) {
+            if (e.type === "lost") {
+                for (const o of onlineInCrew(e.tag)) out.notify.push({ id: o.id, msg: `Lost the hold on ${e.district}. Nothing taken.` });
+            } else {
+                for (const o of onlineInCrew(e.tag)) out.notify.push({ id: o.id, msg: `[${e.tag}] now holds ${e.district}.` });
+                if (e.loser) {
+                    for (const o of onlineInCrew(e.loser)) out.notify.push({ id: o.id, msg: `You lost ${e.district} to [${e.tag}].` });
+                }
+            }
+        }
         return out;
     }
 
@@ -499,6 +527,34 @@ function createGame(opts = {}) {
             },
         },
 
+        // ----- turf -----
+        turf: { help: "who holds what", run: ({ c }) => reply(turf.board((tag) => crews.get(tag)?.name)) },
+        claim: {
+            help: "take the district you're standing in — your crew has to be here",
+            run: ({ c, ctx }) => {
+                const district = places.zoneAt(ctx.pos, "district");
+                const present = c.gang && district ? crewPresentIn(c.gang.tag, district.name) : 0;
+                const res = turf.claim(c, district, present, ctx.now);
+                if (!res.ok) return reply(res.msg);
+
+                const notify = onlineInCrew(c.gang.tag).filter((o) => o !== c).map((o) => ({ id: o.id, msg: res.msg }));
+                if (res.warnTag) {
+                    for (const o of onlineInCrew(res.warnTag)) {
+                        notify.push({ id: o.id, msg: `WARNING: [${c.gang.tag}] is taking ${res.district} from you. ${Math.round(CLAIM_MS / 1000)}s.` });
+                    }
+                }
+                return reply(res.msg, { notify });
+            },
+        },
+        abandon: {
+            help: "(leader) give up the turf you're standing in",
+            run: ({ c, ctx }) => {
+                const res = turf.abandon(c, places.zoneAt(ctx.pos, "district"));
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, { notify: crewMates(c, c).map((o) => ({ id: o.id, msg: res.msg })) });
+            },
+        },
+
         // ----- crews -----
         gangs: { help: "every crew", run: () => reply(crews.list()) },
         gang: { help: "your crew", run: ({ c }) => reply(crews.info(c)) },
@@ -570,6 +626,7 @@ function createGame(opts = {}) {
                 const res = crews.disband(c);
                 if (!res.ok) return reply(res.msg);
                 for (const o of characters.values()) if (o.gang && o.gang.tag === res.tag) o.gang = null;
+                turf.dropCrew(res.tag);
                 return reply(res.msg, { notify: mates.map((o) => ({ id: o.id, msg: res.msg })) });
             },
         },
@@ -931,6 +988,11 @@ function createGame(opts = {}) {
             }
         }
 
+        for (const { c, gold } of turf.payout(minutes, onlineInCrew)) {
+            c.gold += gold;
+            out.notify.push({ id: c.id, msg: `Turf pays +${gold} gold.` });
+        }
+
         for (const id of crews.expireInvites(now)) {
             out.notify.push({ id, msg: "That crew invite expired." });
         }
@@ -947,7 +1009,7 @@ function createGame(opts = {}) {
     function saveAll() {
         const players = {};
         for (const [id, c] of characters) players[id] = serialize(c);
-        return { players, trunks: trunks.exportAll(), gangs: crews.exportAll() };
+        return { players, trunks: trunks.exportAll(), gangs: crews.exportAll(), turf: turf.exportAll() };
     }
 
     function loadTrunks(saved) {
@@ -958,11 +1020,15 @@ function createGame(opts = {}) {
         crews.importAll(saved);
     }
 
+    function loadTurf(saved) {
+        turf.importAll(saved);
+    }
+
     return {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
-        tick, saveAll, loadTrunks, loadGangs,
+        tick, saveAll, loadTrunks, loadGangs, loadTurf,
     };
 }
 
