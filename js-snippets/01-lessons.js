@@ -20,7 +20,7 @@ const inventory = {
     water: 2,
     sandwich: 1,
     phone: 1,
-    glock19: 1,
+    glizzy: 1,
     machete: 1,
     bearspray: 1,
     "mythical black Draco": 1,

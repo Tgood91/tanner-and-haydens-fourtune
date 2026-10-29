@@ -102,7 +102,7 @@ test("shops: must be at the counter, must afford it, must fit — or nothing cha
     assert.equal(a.cash, 485);
     assert.equal(a.inventory.water, 5);
 
-    assert.match(game.command(there, "buy", ["glock19"]).msg, /doesn't sell/);
+    assert.match(game.command(there, "buy", ["glizzy"]).msg, /doesn't sell/);
     assert.match(game.command(there, "buy", ["bandage", "100"]).msg, /Not enough cash/);
 
     // Too heavy: 70 waters = 35 kg. Pay by card so money isn't the blocker.
@@ -301,7 +301,7 @@ const { ITEMS, getWeight } = require("./inventory");
 
 function armedSetup() {
     const env = setup();
-    env.game.command(CONSOLE, "giveitem", ["1", "glock19"]);
+    env.game.command(CONSOLE, "giveitem", ["1", "glizzy"]);
     env.atAmmu = env.as(1, { pos: SHOPS.chi_ammu.pos });
     return env;
 }
@@ -362,13 +362,13 @@ test("equip and holster; losing the gun takes it out of your hands", () => {
     assert.match(game.command(as(1), "equip", ["water"]).msg, /isn't a weapon/);
     assert.match(game.command(as(1), "equip", ["uzi"]).msg, /don't have/);
 
-    const out = game.command(as(1), "equip", ["glock19"]);
+    const out = game.command(as(1), "equip", ["glizzy"]);
     assert.deepEqual(out.actions[0], { type: "giveWeapon", target: 1, weapon: "WEAPON_COMBATPISTOL", ammoType: "AMMO_PISTOL", rounds: 50 });
-    assert.equal(a.equipped, "glock19");
+    assert.equal(a.equipped, "glizzy");
     assert.equal(game.command(as(1), "holster").actions[0].type, "removeWeapon");
 
-    game.command(as(1), "equip", ["glock19"]);
-    const dropped = game.command(as(1, { pos: { x: 5, y: 5, z: 30 } }), "dropitem", ["glock19"]);
+    game.command(as(1), "equip", ["glizzy"]);
+    const dropped = game.command(as(1, { pos: { x: 5, y: 5, z: 30 } }), "dropitem", ["glizzy"]);
     assert.ok(dropped.actions.some((x) => x.type === "removeWeapon" && x.weapon === "WEAPON_COMBATPISTOL"));
     assert.equal(a.equipped, null);
 });
@@ -376,7 +376,7 @@ test("equip and holster; losing the gun takes it out of your hands", () => {
 test("loaded ammo saves; you always log back in holstered", () => {
     const { game, a, as } = armedSetup();
     a.ammo.pistol = 80;
-    game.command(as(1), "equip", ["glock19"]);
+    game.command(as(1), "equip", ["glizzy"]);
     const { saved } = game.leave(1);
     const back = game.join(1, "Tanner", saved);
     assert.equal(back.ammo.pistol, 80);
@@ -392,18 +392,18 @@ test("every ammo type has a box item, and every box fits in a bag", () => {
 });
 
 // ---------------- gold ----------------
-test("guns cost gold at Ammu-Nation: Glock 19 is 444 gold and weighs 1.0", () => {
+test("guns cost gold at Ammu-Nation: Glizzy is 444 gold and weighs 1.0", () => {
     const { game, a, as } = setup();
     const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
-    assert.equal(ITEMS.glock19.weight, 1.0);
-    assert.match(game.command(atAmmu, "shop").msg, /Glock 19 \(glock19\) — 444 gold, 1 kg/);
+    assert.equal(ITEMS.glizzy.weight, 1.0);
+    assert.match(game.command(atAmmu, "shop").msg, /Glizzy \(glizzy\) — 444 gold, 1 kg/);
 
-    assert.match(game.command(atAmmu, "buy", ["glock19"]).msg, /Not enough gold — 1x costs 444 gold, you have 0/);
+    assert.match(game.command(atAmmu, "buy", ["glizzy"]).msg, /Not enough gold — 1x costs 444 gold, you have 0/);
     a.gold = 500;
     const cashBefore = a.cash, bankBefore = a.bank;
-    game.command(atAmmu, "buy", ["glock19", "1", "bank"]); // "bank" is ignored: guns are gold only
+    game.command(atAmmu, "buy", ["glizzy", "1", "bank"]); // "bank" is ignored: guns are gold only
     assert.equal(a.gold, 56);
-    assert.equal(a.inventory.glock19, 1);
+    assert.equal(a.inventory.glizzy, 1);
     assert.equal(a.cash, cashBefore);
     assert.equal(a.bank, bankBefore);
 });

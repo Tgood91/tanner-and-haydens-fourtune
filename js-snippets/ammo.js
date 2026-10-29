@@ -32,7 +32,7 @@ const AMMO_TYPES = {
 
 // inventory item -> GTA weapon + ammo type
 const WEAPONS = {
-    glock19:      { gta: "WEAPON_COMBATPISTOL", ammo: "pistol" },
+    glizzy:       { gta: "WEAPON_COMBATPISTOL", ammo: "pistol" },
     uzi:          { gta: "WEAPON_MICROSMG",     ammo: "smg" },
     blackdraco:   { gta: "WEAPON_COMPACTRIFLE", ammo: "rifle" },
     pumpshotgun:  { gta: "WEAPON_PUMPSHOTGUN",  ammo: "shotgun" },

@@ -24,9 +24,9 @@ console.log(inv.addItem(bag, "water", -5).msg);        // negative count refused
 
 console.log("\n== /useitem ==");
 console.log(inv.useItem(bag, "halfhalf", player).msg); // Guccilucci drinks, consumes 1
-console.log(inv.useItem(bag, "glock19", player).msg);  // don't have one
-inv.addItem(bag, "glock19", 1);
-console.log(inv.useItem(bag, "glock19", player).msg);  // carried gear, not usable
+console.log(inv.useItem(bag, "glizzy", player).msg);  // don't have one
+inv.addItem(bag, "glizzy", 1);
+console.log(inv.useItem(bag, "glizzy", player).msg);  // carried gear, not usable
 inv.addItem(bag, "bandage", 1);
 console.log(inv.useItem(bag, "bandage", player).msg);  // full health -> refused, kept
 player.health = 60;
