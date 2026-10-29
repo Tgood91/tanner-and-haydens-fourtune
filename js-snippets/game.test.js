@@ -457,3 +457,101 @@ test("console givegold for events; players can't; gold saves", () => {
     assert.equal(game.join(1, "Tanner", saved).gold, 100);
     assert.equal(game.join(9, "New").gold, 0);
 });
+
+// ---------------- police ----------------
+const { JAIL } = require("./police");
+
+function policeSetup() {
+    const env = setup();
+    const { game, as } = env;
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    game.command(as(1), "duty");
+    const spot = { x: -300, y: 6100, z: 31 };
+    const standing = { 1: spot, 2: { x: -301, y: 6100, z: 31 } };
+    game.updatePosition(1, standing[1]);
+    game.updatePosition(2, standing[2]);
+    // Like in-game: every command comes from where that player is actually standing
+    env.as = (id, extra = {}) => as(id, { pos: standing[id] || NOWHERE, ...extra });
+    env.cop = env.as(1);
+    return env;
+}
+
+test("cuffing: police only, on duty, close by — and it takes the suspect's gun out of their hands", () => {
+    const { game, b, as, cop } = policeSetup();
+    assert.match(game.command(as(2), "cuff", ["1"]).msg, /Only the Sheriff/);
+    assert.match(game.command(as(1, { pos: { x: 0, y: 0, z: 0 } }), "cuff", ["2"]).msg, /Get closer/);
+    assert.match(game.command(cop, "cuff", ["1"]).msg, /Not on yourself/);
+
+    game.command(CONSOLE, "giveitem", ["2", "glizzy"]);
+    game.command(as(2), "equip", ["glizzy"]);
+    const res = game.command(cop, "cuff", ["2"]);
+    assert.ok(b.cuffed);
+    assert.equal(b.equipped, null);
+    assert.ok(res.actions.some((x) => x.type === "setCuffed" && x.cuffed));
+    assert.ok(res.actions.some((x) => x.type === "removeWeapon" && x.target === 2));
+
+    // cuffed players can look, not act
+    assert.match(game.command(as(2), "equip", ["glizzy"]).msg, /in cuffs/);
+    assert.match(game.command(as(2), "inventory").msg, /Glizzy/);
+
+    game.command(cop, "cuff", ["2"]);
+    assert.equal(b.cuffed, false);
+});
+
+test("search and seize need the suspect cuffed; seized items are destroyed, not pocketed", () => {
+    const { game, a, b, cop } = policeSetup();
+    game.command(CONSOLE, "giveitem", ["2", "lockpick", "2"]);
+    assert.match(game.command(cop, "search", ["2"]).msg, /cuffed or down/);
+
+    game.command(cop, "cuff", ["2"]);
+    assert.match(game.command(cop, "search", ["2"]).msg, /Lockpick x2/);
+    game.command(cop, "seize", ["2", "lockpick", "2"]);
+    assert.equal(b.inventory.lockpick, undefined);
+    assert.equal(a.inventory.lockpick, undefined);
+    assert.match(game.command(cop, "seize", ["2", "lockpick"]).msg, /doesn't have/);
+});
+
+test("fines: from the bank, capped, refused (nothing taken) if they can't pay", () => {
+    const { game, a, b, cop } = policeSetup();
+    game.command(cop, "fine", ["2", "750"]);
+    assert.equal(b.bank, 4250);
+    assert.equal(a.bank, 5000); // officer doesn't pocket it
+    assert.match(game.command(cop, "fine", ["2", "6000"]).msg, /max out/);
+    b.bank = 100;
+    assert.match(game.command(cop, "fine", ["2", "500"]).msg, /can't cover/);
+    assert.equal(b.bank, 100);
+});
+
+test("jail: must be cuffed, time counts down, release at the gate, and logging out doesn't skip it", () => {
+    const { game, b, as, cop } = policeSetup();
+    assert.match(game.command(cop, "jail", ["2", "10"]).msg, /Cuff/);
+    game.command(cop, "cuff", ["2"]);
+    assert.match(game.command(cop, "jail", ["2", "99"]).msg, /1 to 30/);
+
+    const res = game.command(cop, "jail", ["2", "10"]);
+    assert.deepEqual(res.actions.find((x) => x.type === "teleport").pos, JAIL.cell);
+    assert.equal(b.cuffed, false);
+    assert.match(game.command(as(2), "buyveh", ["sultan"]).msg, /in jail — 10 min/);
+
+    game.tick(4, 0);
+    assert.match(game.command(as(2), "jailtime").msg, /6 min left/);
+
+    // Log out mid-sentence, come back: still 6 minutes
+    const { saved } = game.leave(2);
+    const back = game.join(2, "Hayden", saved);
+    assert.equal(back.jailMinutes, 6);
+
+    const out = game.tick(6, 0);
+    assert.equal(back.jailMinutes, 0);
+    assert.ok(out.actions.some((x) => x.type === "teleport" && x.target === 2));
+    assert.match(game.command(as(2), "jailtime").msg, /not in jail/);
+});
+
+test("console can unjail; players can't", () => {
+    const { game, b, as, cop } = policeSetup();
+    game.command(cop, "cuff", ["2"]);
+    game.command(cop, "jail", ["2", "30"]);
+    assert.match(game.command(as(1), "unjail", ["2"]).msg, /Console only/);
+    game.command(CONSOLE, "unjail", ["2"]);
+    assert.equal(b.jailMinutes, 0);
+});

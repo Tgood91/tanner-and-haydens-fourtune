@@ -59,6 +59,8 @@ function perform(result) {
             case "setAmmo":
             case "giveWeapon":
             case "removeWeapon":
+            case "setCuffed":
+            case "teleport":
                 emitNet(`fourtune:${a.type}`, a.target, a);
                 break;
             case "spawnVehicle": {
@@ -141,6 +143,13 @@ onNet("fourtune:ready", () => {
     const pools = {};
     for (const [type, t] of Object.entries(AMMO_TYPES)) pools[t.gta] = c.ammo[type] || 0;
     emitNet("fourtune:setAllAmmo", id, pools);
+
+    // Logged out mid-sentence? Straight back to the cell.
+    if (c.jailMinutes > 0) {
+        const { JAIL } = require(`${resourcePath}/police.js`);
+        emitNet("fourtune:teleport", id, { pos: JAIL.cell });
+        tell(id, `You still have ${c.jailMinutes} min left on your sentence.`);
+    }
 });
 
 for (const name of game.commandNames) {

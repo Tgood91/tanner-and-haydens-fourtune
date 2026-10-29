@@ -1,7 +1,8 @@
 // ============================================================
 // fivem-client.js — the little bit that has to run on each player's PC
 // The client never decides anything. It only draws what the server
-// says: health changes, revives, weapons/ammo, and dropped-item props.
+// says: health changes, revives, weapons/ammo, cuffs, teleports, and
+// dropped-item props.
 // It REPORTS ammo left after shooting; the server only accepts lower numbers.
 // NOT YET TESTED IN-GAME.
 // ============================================================
@@ -68,6 +69,30 @@ onNet("fourtune:requestAmmoReport", () => {
 setInterval(() => {
     if (ammoSynced) emitNet("fourtune:ammoReport", ammoReport());
 }, 10 * 1000);
+
+// ---------------- police ----------------
+let cuffed = false;
+
+onNet("fourtune:setCuffed", async ({ cuffed: on }) => {
+    cuffed = on;
+    const ped = PlayerPedId();
+    if (!on) return ClearPedTasks(ped);
+    RequestAnimDict("mp_arresting");
+    while (!HasAnimDictLoaded("mp_arresting")) await new Promise((r) => setTimeout(r, 50));
+    TaskPlayAnim(ped, "mp_arresting", "idle", 8.0, -8.0, -1, 49, 0, false, false, false);
+    SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true);
+});
+
+// While cuffed: no shooting, aiming, punching, weapon wheel or driving.
+// (The server already refuses commands; this stops the game controls.)
+setTick(() => {
+    if (!cuffed) return;
+    for (const control of [24, 25, 37, 140, 141, 142, 257, 263, 264, 23, 75]) DisableControlAction(0, control, true);
+});
+
+onNet("fourtune:teleport", ({ pos }) => {
+    SetEntityCoords(PlayerPedId(), pos.x, pos.y, pos.z, false, false, false, false);
+});
 
 // Tell the server the moment we die, so on-duty EMS get the call right away.
 // The server re-reads the real health itself — this is only a nudge.

@@ -14,6 +14,8 @@
 //   setAmmo { target, ammoType, rounds }   GTA ammo pool, e.g. AMMO_PISTOL — set, not add
 //   giveWeapon { target, weapon, ammoType, rounds }
 //   removeWeapon { target, weapon }
+//   setCuffed { target, cuffed }           hands-behind-back animation, no shooting/driving
+//   teleport { target, pos }               jail cell / release gate
 //   spawnVehicle { target, model, plate, pos }
 //   despawnVehicle { plate }
 //   setVehicleLocked { plate, locked }
@@ -30,12 +32,14 @@ const cities = require("./cities");
 const shops = require("./shops");
 const medical = require("./medical");
 const ammo = require("./ammo");
+const police = require("./police");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
 
 const PAY_INTERVAL_MIN = 30;
 const ALLOWED_WHILE_DOWN = ["help", "status", "respawn", "911"];
+const ALLOWED_WHILE_HELD = ["help", "status", "inventory", "balance", "ammo", "job", "whereami", "cities", "jailtime"];
 
 function reply(msg, extra = {}) {
     return { msg, notify: [], actions: [], ...extra };
@@ -254,6 +258,77 @@ function createGame() {
             },
         },
 
+        // ----- police -----
+        cuff: {
+            help: "<playerId> (police) — cuff / uncuff",
+            run: ({ c, args }) => {
+                const suspect = get(Number(args[0]));
+                const res = police.cuff(c, suspect);
+                if (!res.ok) return reply(res.msg);
+                const actions = [{ type: "setCuffed", target: suspect.id, cuffed: res.cuffed }];
+                if (res.holstered) actions.push({ type: "removeWeapon", target: suspect.id, weapon: res.holstered });
+                return reply(res.msg, { notify: [{ id: suspect.id, msg: res.cuffed ? `${c.name} cuffed you` : `${c.name} took your cuffs off` }], actions });
+            },
+        },
+        search: {
+            help: "<playerId> (police) — they must be cuffed or down",
+            run: ({ c, args }) => {
+                const suspect = get(Number(args[0]));
+                const res = police.search(c, suspect);
+                return reply(res.msg, { notify: res.ok ? [{ id: suspect.id, msg: `${c.name} searched you` }] : [] });
+            },
+        },
+        seize: {
+            help: "<playerId> <item> [count] (police)",
+            run: ({ c, args }) => {
+                const suspect = get(Number(args[0]));
+                const res = police.seize(c, suspect, lower(args[1]), toCount(args[2]));
+                const result = reply(res.msg, { notify: res.ok ? [{ id: suspect.id, msg: `${c.name} took ${args[2] || 1}x ${args[1]}` }] : [] });
+                return res.ok ? checkEquipped(suspect, result) : result;
+            },
+        },
+        fine: {
+            help: "<playerId> <amount> (police) — from their bank",
+            run: ({ c, args }) => {
+                const suspect = get(Number(args[0]));
+                const amount = toCount(args[1], NaN);
+                const res = police.fine(c, suspect, amount);
+                return reply(res.msg, { notify: res.ok ? [{ id: suspect.id, msg: `${c.name} fined you ${economy.money(amount)}. Bank: ${economy.money(suspect.bank)}` }] : [] });
+            },
+        },
+        jail: {
+            help: "<playerId> <minutes> (police) — they must be cuffed",
+            run: ({ c, args }) => {
+                const suspect = get(Number(args[0]));
+                const res = police.jail(c, suspect, toCount(args[1], NaN));
+                if (!res.ok) return reply(res.msg);
+                suspect.pos = res.pos;
+                return reply(res.msg, {
+                    notify: [{ id: suspect.id, msg: `You've been jailed for ${suspect.jailMinutes} min. /jailtime to check.` }],
+                    actions: [{ type: "setCuffed", target: suspect.id, cuffed: false }, { type: "teleport", target: suspect.id, pos: res.pos }],
+                });
+            },
+        },
+        jailtime: {
+            help: "time left on your sentence",
+            run: ({ c }) => reply(c.jailMinutes > 0 ? `${c.jailMinutes} min left` : "You're not in jail"),
+        },
+        unjail: {
+            help: "<playerId>",
+            consoleOnly: true,
+            run: ({ args }) => {
+                const target = get(Number(args[0]));
+                if (!target) return reply(`No player with id ${args[0]}`);
+                if (!(target.jailMinutes > 0)) return reply(`${target.name} isn't in jail`);
+                target.jailMinutes = 0;
+                target.pos = { ...police.JAIL.release };
+                return reply(`Released ${target.name}`, {
+                    notify: [{ id: target.id, msg: "An admin released you." }],
+                    actions: [{ type: "teleport", target: target.id, pos: { ...police.JAIL.release } }],
+                });
+            },
+        },
+
         // ----- medical -----
         revive: {
             help: "<playerId> (EMS, uses a medkit)",
@@ -412,6 +487,8 @@ function createGame() {
         if (!c) return reply("Your character isn't loaded yet.");
         if (ctx.pos) c.pos = { ...ctx.pos };
         if (c.downed && !ALLOWED_WHILE_DOWN.includes(name)) return reply("You're down. Wait for EMS, /911, or /respawn when it unlocks.");
+        if (c.cuffed && !ALLOWED_WHILE_HELD.includes(name)) return reply("You're in cuffs.");
+        if (c.jailMinutes > 0 && !ALLOWED_WHILE_HELD.includes(name)) return reply(`You're in jail — ${c.jailMinutes} min left.`);
         return checkEquipped(c, cmd.run({ c, args, ctx: { now: Date.now(), pos: { x: 0, y: 0, z: 0 }, ...ctx } }));
     }
 
@@ -440,6 +517,14 @@ function createGame() {
                     const goldPart = gold > 0 ? ` + ${gold} gold` : "";
                     out.notify.push({ id: c.id, msg: `Paycheck: ${economy.money(amount)} to your bank${goldPart}` });
                 }
+            }
+        }
+
+        for (const c of characters.values()) {
+            if (police.serveMinute(c, minutes)) {
+                c.pos = { ...police.JAIL.release };
+                out.notify.push({ id: c.id, msg: "You've served your time. You're free to go." });
+                out.actions.push({ type: "teleport", target: c.id, pos: { ...police.JAIL.release } });
             }
         }
 
