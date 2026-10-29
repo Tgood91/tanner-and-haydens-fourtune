@@ -306,12 +306,11 @@ function armedSetup() {
     return env;
 }
 
-test("Ammu-Nation sells ammo boxes (not guns) at the box price, and boxes weigh what they say", () => {
+test("Ammu-Nation sells ammo boxes at the box price, and boxes weigh what they say", () => {
     const { game, a, atAmmu } = armedSetup();
     game.command(atAmmu, "buy", ["ammo_9mm", "2"]);
     assert.equal(a.cash, 500 - 150);
     assert.equal(a.inventory.ammo_9mm, 2);
-    assert.match(game.command(atAmmu, "buy", ["glock19"]).msg, /doesn't sell/);
     assert.equal(getWeight({ ammo_9mm: 2 }), 1.2);
     assert.equal(getWeight({ ammo_12ga: 10 }), 11);
 });
@@ -390,4 +389,71 @@ test("every ammo type has a box item, and every box fits in a bag", () => {
         assert.ok(ITEMS[t.box].weight < 30);
         assert.equal(t.max % t.perBox, 0); // caps are whole boxes, so a full load is reachable
     }
+});
+
+// ---------------- gold ----------------
+test("guns cost gold at Ammu-Nation: Glock 19 is 444 gold and weighs 1.0", () => {
+    const { game, a, as } = setup();
+    const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
+    assert.equal(ITEMS.glock19.weight, 1.0);
+    assert.match(game.command(atAmmu, "shop").msg, /Glock 19 \(glock19\) — 444 gold, 1 kg/);
+
+    assert.match(game.command(atAmmu, "buy", ["glock19"]).msg, /Not enough gold — 1x costs 444 gold, you have 0/);
+    a.gold = 500;
+    const cashBefore = a.cash, bankBefore = a.bank;
+    game.command(atAmmu, "buy", ["glock19", "1", "bank"]); // "bank" is ignored: guns are gold only
+    assert.equal(a.gold, 56);
+    assert.equal(a.inventory.glock19, 1);
+    assert.equal(a.cash, cashBefore);
+    assert.equal(a.bank, bankBefore);
+});
+
+test("gold buys only what fits in your bag; nothing is taken otherwise", () => {
+    const { game, a, as } = setup();
+    a.gold = 99999;
+    a.inventory.fuelcan = 5; // 25 kg + 1.5 kg starters
+    assert.match(game.command(as(1, { pos: SHOPS.chi_ammu.pos }), "buy", ["huntingrifle"]).msg, /Too heavy/);
+    assert.equal(a.gold, 99999);
+});
+
+test("gold is earned on duty and by reviving — never by civilians, never traded", () => {
+    const { game, a, b, as } = setup();
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 0); // off duty
+    assert.equal(b.gold, 0); // civilian
+    game.command(as(1), "duty");
+    const out = game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 45);
+    assert.ok(out.notify.some((n) => n.id === 1 && n.msg.includes("+ 45 gold")));
+
+    // Can't move gold with any money command
+    assert.match(game.command(CONSOLE, "givemoney", ["2", "gold", "100"]).msg, /No account called gold/);
+    assert.match(game.command(as(1), "pay", ["2", "45"]).msg, /Sent \$45/); // that's dollars, not gold
+    assert.equal(a.gold, 45);
+    assert.equal(b.gold, 0);
+    assert.match(game.command(as(1), "balance").msg, /Gold: 45/);
+});
+
+test("EMS earn gold for a revive", () => {
+    const { game, b, as } = setup();
+    game.command(CONSOLE, "setjob", ["2", "ems", "0"]);
+    game.command(as(2), "duty");
+    b.inventory.medkit = 1;
+    const spot = { x: -300, y: 6100, z: 31 };
+    game.updatePosition(1, spot);
+    game.updatePosition(2, spot);
+    game.syncHealth(1, 0, 0);
+    game.command(as(2, { pos: spot }), "revive", ["1"]);
+    assert.equal(b.gold, 25);
+});
+
+test("console givegold for events; players can't; gold saves", () => {
+    const { game, as } = setup();
+    assert.match(game.command(as(1), "givegold", ["1", "100"]).msg, /Console only/);
+    assert.match(game.command(CONSOLE, "givegold", ["1", "-5"]).msg, /whole number/);
+    game.command(CONSOLE, "givegold", ["1", "100"]);
+    const { saved } = game.leave(1);
+    assert.equal(game.join(1, "Tanner", saved).gold, 100);
+    assert.equal(game.join(9, "New").gold, 0);
 });

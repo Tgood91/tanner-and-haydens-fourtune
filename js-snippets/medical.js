@@ -21,6 +21,7 @@ const REVIVE_HEALTH = 50;   // out of 100
 const RESPAWN_HEALTH = 50;
 const MIN_NEEDS_AFTER = 30; // hunger/thirst topped up to at least this
 const EMS_REVIVE_BONUS = 150;
+const EMS_REVIVE_GOLD = 25;
 const HOSPITAL_BILL = 500;
 
 const HOSPITALS = {
@@ -65,7 +66,8 @@ function revive(medic, patient) {
     inventory.removeItem(medic.inventory, "medkit", 1);
     getUp(patient, REVIVE_HEALTH);
     medic.bank += EMS_REVIVE_BONUS;
-    return { ok: true, msg: `Revived ${patient.name}. +$${EMS_REVIVE_BONUS} bonus to your bank` };
+    medic.gold += EMS_REVIVE_GOLD;
+    return { ok: true, msg: `Revived ${patient.name}. +$${EMS_REVIVE_BONUS} to your bank, +${EMS_REVIVE_GOLD} gold` };
 }
 
 // city = where they went down. Bill is whatever they can cover, up to HOSPITAL_BILL.
@@ -83,6 +85,6 @@ function respawn(c, now, city) {
 
 module.exports = {
     REVIVE_RANGE, BLEEDOUT_MIN, REVIVE_HEALTH, RESPAWN_HEALTH, MIN_NEEDS_AFTER,
-    EMS_REVIVE_BONUS, HOSPITAL_BILL, HOSPITALS,
+    EMS_REVIVE_BONUS, EMS_REVIVE_GOLD, HOSPITAL_BILL, HOSPITALS,
     knockDown, getUp, minutesUntilRespawn, revive, respawn,
 };

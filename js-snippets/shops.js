@@ -16,8 +16,11 @@ const SHOP_RANGE = 3.0; // metres from the counter
 
 const STOCK_247 = { water: 5, sandwich: 8, coffee: 4, donut: 3, halfhalf: 6, bandage: 25 };
 const STOCK_HARDWARE = { repairkit: 350, toolbox: 200, lockpick: 75, fuelcan: 60, radio: 150, phone: 300 };
-// Price per box. Ammo only — guns aren't sold anywhere yet.
+// Ammo: dollars per box.
 const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12ga: 90, ammo_308: 250 };
+// Guns: GOLD each (earned by working — see economy.js). Weights are in inventory.js.
+// At ~45 gold per on-duty paycheck, a Glock is about 10 paychecks (5 hours) of work.
+const GUNS_AMMUNATION = { glock19: 444, pumpshotgun: 750, uzi: 900, huntingrifle: 1200, blackdraco: 1500 };
 
 const SHOPS = {
     atl_247:      { label: "24/7 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },
@@ -26,9 +29,9 @@ const SHOPS = {
     chi_247:      { label: "24/7 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
     chi_hardware: { label: "Chicago Hardware",   city: "chicago", pos: { x: -420.0, y: 6025.0,  z: 31.5 }, items: STOCK_HARDWARE },
     // Near the stock Ammu-Nation counters (Pillbox Hill, Sandy Shores, Paleto Bay) — walk and tune
-    atl_ammu:     { label: "Ammu-Nation Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION },
-    gp_ammu:      { label: "Ammu-Nation GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION },
-    chi_ammu:     { label: "Ammu-Nation Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION },
+    atl_ammu:     { label: "Ammu-Nation Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION },
+    gp_ammu:      { label: "Ammu-Nation GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION },
+    chi_ammu:     { label: "Ammu-Nation Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION },
 };
 
 function findShopNear(pos) {
@@ -43,10 +46,29 @@ function listShop(shop) {
     for (const [item, price] of Object.entries(shop.items)) {
         lines.push(`${inventory.ITEMS[item].label} (${item}) — ${economy.money(price)}`);
     }
+    for (const [item, gold] of Object.entries(shop.goldItems || {})) {
+        const def = inventory.ITEMS[item];
+        lines.push(`${def.label} (${item}) — ${gold} gold, ${def.weight} kg`);
+    }
     return lines.join("\n");
 }
 
+function buyWithGold(c, shop, item, count) {
+    if (!inventory.isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };
+    const total = shop.goldItems[item] * count;
+    if (c.gold < total) return { ok: false, msg: `Not enough gold — ${count}x costs ${total} gold, you have ${c.gold}` };
+    const fits = inventory.canAddItem(c.inventory, item, count);
+    if (!fits.ok) return fits;
+
+    economy.removeGold(c, total);
+    inventory.addItem(c.inventory, item, count);
+    return { ok: true, msg: `Bought ${count}x ${inventory.ITEMS[item].label} for ${total} gold. Gold left: ${c.gold}` };
+}
+
 function buy(c, shop, item, count = 1, payWith = "cash") {
+    // Gold-priced items always cost gold, whatever cash/bank choice was typed
+    if (shop.goldItems?.[item] !== undefined) return buyWithGold(c, shop, item, count);
+
     const price = shop.items[item];
     if (price === undefined) return { ok: false, msg: `${shop.label} doesn't sell ${item}` };
     if (!inventory.isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };

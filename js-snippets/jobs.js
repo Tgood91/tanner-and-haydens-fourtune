@@ -1,6 +1,8 @@
 // ============================================================
 // jobs.js — jobs, grades, duty and paychecks
 // Pay is per paycheck (every PAY_INTERVAL_MIN in game.js), into the bank.
+// Workers on duty also earn GOLD per paycheck (goldPerPaycheck) — the
+// only steady way to get gold. Civilians earn none: gold means working.
 // Workers only get paid while on duty; civilians always get the
 // small civilian check.
 //
@@ -15,6 +17,7 @@ const JOBS = {
     },
     police: {
         label: "Sheriff's Office",
+        goldPerPaycheck: 45,
         grades: [
             { label: "Deputy", pay: 400 },
             { label: "Sergeant", pay: 550 },
@@ -24,6 +27,7 @@ const JOBS = {
     },
     ems: {
         label: "EMS",
+        goldPerPaycheck: 45,
         grades: [
             { label: "EMT", pay: 380 },
             { label: "Paramedic", pay: 500 },
@@ -33,6 +37,7 @@ const JOBS = {
     },
     mechanic: {
         label: "Beeker's Mechanic",
+        goldPerPaycheck: 40,
         grades: [
             { label: "Apprentice", pay: 250 },
             { label: "Mechanic", pay: 350 },
@@ -42,6 +47,7 @@ const JOBS = {
     },
     taxi: {
         label: "Taxi",
+        goldPerPaycheck: 35,
         grades: [
             { label: "Driver", pay: 200 },
             { label: "Dispatcher", pay: 300 },
@@ -82,4 +88,10 @@ function paycheckAmount(c) {
     return JOBS[c.job.name].grades[c.job.grade].pay;
 }
 
-module.exports = { JOBS, jobInfo, setJob, toggleDuty, paycheckAmount };
+// Gold for this paycheck (0 for civilians or anyone off duty).
+function paycheckGold(c) {
+    if (!c.onDuty) return 0;
+    return JOBS[c.job.name].goldPerPaycheck || 0;
+}
+
+module.exports = { JOBS, jobInfo, setJob, toggleDuty, paycheckAmount, paycheckGold };

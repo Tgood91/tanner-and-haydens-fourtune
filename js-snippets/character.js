@@ -9,6 +9,7 @@ const vehicles = require("./vehicles");
 
 const START_CASH = 500;
 const START_BANK = 5000;
+const START_GOLD = 0; // gold is earned, never handed out at the start
 
 function createCharacter(id, name, saved = null) {
     const s = saved || {};
@@ -17,6 +18,7 @@ function createCharacter(id, name, saved = null) {
         name,
         cash: s.cash ?? START_CASH,
         bank: s.bank ?? START_BANK,
+        gold: s.gold ?? START_GOLD,
         job: s.job ? { ...s.job } : { name: "unemployed", grade: 0 },
         onDuty: false, // always log in off duty
         health: s.health ?? 100,
@@ -44,6 +46,7 @@ function serialize(c) {
         name: c.name,
         cash: c.cash,
         bank: c.bank,
+        gold: c.gold,
         job: { ...c.job },
         health: c.health,
         hunger: c.hunger,
@@ -55,4 +58,4 @@ function serialize(c) {
     };
 }
 
-module.exports = { START_CASH, START_BANK, createCharacter, serialize };
+module.exports = { START_CASH, START_BANK, START_GOLD, createCharacter, serialize };

@@ -195,6 +195,17 @@ function createGame() {
             },
         },
 
+        givegold: {
+            help: "<playerId> <amount> (events and prizes — gold is never sold)",
+            consoleOnly: true,
+            run: ({ args }) => {
+                const target = get(Number(args[0]));
+                if (!target) return reply(`No player with id ${args[0]}`);
+                const res = economy.addGold(target, toCount(args[1], NaN));
+                return reply(res.msg, { notify: res.ok ? [{ id: target.id, msg: `You received ${res.msg}` }] : [] });
+            },
+        },
+
         // ----- jobs -----
         job: { help: "your job and pay", run: ({ c }) => reply(jobs.jobInfo(c)) },
         duty: { help: "clock in / out", run: ({ c }) => reply(jobs.toggleDuty(c).msg) },
@@ -422,9 +433,12 @@ function createGame() {
             minutesSincePay -= PAY_INTERVAL_MIN;
             for (const c of characters.values()) {
                 const amount = jobs.paycheckAmount(c);
-                if (amount > 0) {
-                    c.bank += amount;
-                    out.notify.push({ id: c.id, msg: `Paycheck: ${economy.money(amount)} to your bank` });
+                const gold = jobs.paycheckGold(c);
+                if (amount > 0) c.bank += amount;
+                if (gold > 0) c.gold += gold;
+                if (amount > 0 || gold > 0) {
+                    const goldPart = gold > 0 ? ` + ${gold} gold` : "";
+                    out.notify.push({ id: c.id, msg: `Paycheck: ${economy.money(amount)} to your bank${goldPart}` });
                 }
             }
         }

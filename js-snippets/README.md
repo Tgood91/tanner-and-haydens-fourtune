@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 25 checks across every system
+node --test js-snippets/game.test.js  # 30 checks across every system
 ```
 
 ## What's in here
@@ -19,7 +19,7 @@ node --test js-snippets/game.test.js  # 25 checks across every system
 | `game.js` | Connects every system below and handles all commands, the per-minute tick, and save/load |
 | `character.js` | One character: money, job, health/hunger/thirst, inventory, garage. Starter-kit rule on first load |
 | `inventory.js` | Items, weights, 30 kg limit, use/drop. Food and drink values live here |
-| `economy.js` | Cash/bank, deposit, withdraw, pay another player |
+| `economy.js` | Cash/bank, deposit, withdraw, pay another player. **Gold**: earned only by working (on-duty paychecks, EMS revives), never bought or traded |
 | `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi. Grades, duty, paychecks every 30 min |
 | `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` at the hospital after 5 min for a bill |
 | `ammo.js` | Five ammo types, which gun takes which, `/loadammo` boxes into rounds (capped), `/unloadammo` full boxes back, `/equip` / `/holster`. Client ammo reports can only lower the count |
@@ -35,12 +35,13 @@ node --test js-snippets/game.test.js  # 25 checks across every system
 
 Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /trunk /trunkput /trunktake`
 
-Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`
+Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`
 
 ## Placeholders — tune these
 
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
+- Gold: per-paycheck gold by job (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
 - Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, Atlanta and GeePee hospital coords (`medical.js`)
 - Starting money (`character.js`), job pay (`jobs.js`), hunger/thirst rates (`needs.js`)
@@ -54,4 +55,5 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 2. **Not tested in-game.** The FiveM files pass a syntax check, but they've never run inside FXServer. They need OneSync.
 3. **This doesn't replace your Lua resources.** Your real server is Lua. These JS files are a parallel version, and running
    both at once would give you two of every command. Pick one per system before enabling it.
-4. **No guns in shops.** Ammu-Nation sells ammo only; guns come from `giveitem` for now. That's your call.
+4. **Gold is never for sale.** FiveM's license bans selling in-game currency for real money, so a Tebex package must
+   never grant gold or guns. Keep Tebex for cosmetics only.
