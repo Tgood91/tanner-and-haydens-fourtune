@@ -42,6 +42,13 @@ const ITEMS = {
     pumpshotgun:  { label: "Pump 12",   weight: 3.5, usable: false },
     huntingrifle: { label: "Bolt Rifle",  weight: 5.0, usable: false },
 
+    // Drugs. Raw is bulky, the packs are not — that's the point of cooking.
+    // Never sold in any shop: you pick it, cook it and move it (drugs.js).
+    plantleaf:  { label: "Raw Leaf",   weight: 0.8, usable: false },
+    rawpaste:   { label: "Raw Paste",  weight: 1.2, usable: false },
+    greenpack:  { label: "Green Pack", weight: 0.3, usable: false },
+    whitepack:  { label: "White Pack", weight: 0.25, usable: false },
+
     // Ammo boxes: weight is for the whole box (close to real-world boxes).
     // Rounds per box live in ammo.js; prices live in shops.js.
     ammo_9mm:   { label: "9mm box (50)",          weight: 0.6,  usable: false },

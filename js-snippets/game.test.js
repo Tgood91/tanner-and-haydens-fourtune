@@ -1782,3 +1782,112 @@ test("the overlay carries the crew and how much turf it holds", () => {
     game.updatePosition(1, knot, 130000);
     assert.equal(game.hudFor(1).crew.turf, 1);
 });
+
+// ---------------- the trade ----------------
+const drugRules = require("./drugs");
+
+function tradeSetup(rng = () => 0.5) {
+    const game = createGame({ rng });
+    const a = game.join(1, "Tanner");
+    const b = game.join(2, "Hayden");
+    a.bank = 200000;
+    const field = drugRules.SUPPLY_SPOTS[0].pos;          // Backroads Field
+    const knot = SPAWNS.chicago[0].pos;                   // inside The Knot
+    const at = (id, pos, extra = {}) => ({ id, pos, now: 0, ...extra });
+    game.updatePosition(1, knot);
+    game.updatePosition(2, knot);
+    game.command(at(1, knot), "gangcreate", ["KAOS", "Kaos", "Crew"]); // base is set at the knot
+    game.command(at(1, knot), "ganginvite", ["2"]);
+    game.command(at(2, knot), "gangaccept");
+    return { game, a, b, field, knot, at };
+}
+
+test("you pick it where it grows, and a spot goes bare after you do", () => {
+    const { game, a, field, knot, at } = tradeSetup();
+    assert.match(game.command(at(1, knot), "harvest").msg, /Nothing growing here/);
+
+    const got = game.command(at(1, field), "harvest");
+    assert.match(got.msg, /Picked \d+x Raw Leaf at Backroads Field/);
+    assert.ok(a.inventory.plantleaf >= 2);
+
+    assert.match(game.command(at(1, field), "harvest").msg, /picked clean/);
+    assert.match(game.command(at(1, field, { now: 11 * 60000 }), "harvest").msg, /Picked/);
+});
+
+test("cooking needs a crew base, and turns bulk into packs", () => {
+    const { game, a, field, knot, at } = tradeSetup();
+    a.inventory.plantleaf = 7;
+
+    assert.match(game.command(at(1, field), "process", ["greenpack"]).msg, /not at the \[KAOS\] base/);
+    assert.match(game.command(at(1, knot), "process", ["rocketfuel"]).msg, /Cook what\?/);
+
+    const cooked = game.command(at(1, knot), "process", ["greenpack"]);
+    assert.match(cooked.msg, /Cooked 2x Green Pack/);  // 7 leaf at 3 a batch
+    assert.equal(a.inventory.plantleaf, 1);            // the remainder stays
+    assert.equal(a.inventory.greenpack, 2);
+
+    assert.match(game.command(at(1, knot), "process", ["greenpack"]).msg, /Need 3x Raw Leaf, you have 1/);
+
+    // no crew, no kitchen
+    const outsider = game.join(3, "Rando");
+    outsider.inventory.plantleaf = 9;
+    game.updatePosition(3, knot);
+    assert.match(game.command(at(3, knot), "process", ["greenpack"]).msg, /need a crew base/);
+});
+
+test("where you sell changes what you get, and your own turf pays best", () => {
+    const { game, a, knot, at } = tradeSetup();
+    a.inventory.greenpack = 6;
+
+    assert.match(game.command(at(1, { x: 0, y: 4000, z: 30 }), "deal", ["greenpack"]).msg, /Nobody's buying out here/);
+
+    const before = a.cash;
+    const sold = game.command(at(1, knot), "deal", ["greenpack"]);
+    assert.match(sold.msg, /Sold a Green Pack in The Knot/);
+    assert.equal(a.inventory.greenpack, 5);
+    const plain = a.cash - before;
+    assert.ok(plain > 0);
+
+    // the same district goes cold on you
+    assert.match(game.command(at(1, knot), "deal", ["greenpack"]).msg, /cold on you/);
+
+    // take the turf, come back later, and it pays more
+    game.command(at(1, knot, { now: 21 * 60000 }), "claim");
+    game.updatePosition(1, knot, 21 * 60000 + 130000);
+    const owned = a.cash;
+    const onTurf = game.command(at(1, knot, { now: 25 * 60000 }), "deal", ["greenpack"]);
+    assert.match(onTurf.msg, /on your own turf/);
+    assert.ok(a.cash - owned > plain, "turf should beat the same sale without it");
+});
+
+test("daylight gets you seen, and the law hears where but not who", () => {
+    // white pack: 0.35 odds at night, 0.56 in daylight. 0.45 sits between them.
+    const { game, a, knot, at } = tradeSetup(() => 0.45);
+    game.command(CONSOLE, "setjob", ["2", "police", "0"]);
+    game.command(at(2, knot), "duty");
+    a.inventory.whitepack = 4;
+
+    game.command(CONSOLE, "settime", ["13"]);
+    const seen = game.command(at(1, knot), "deal", ["whitepack"]);
+    assert.match(seen.msg, /Someone was watching/);
+    const tip = seen.notify.find((n) => n.id === 2);
+    assert.match(tip.msg, /Dealing reported in The Knot\. No description\./);
+    assert.ok(!tip.msg.includes("Tanner"), "the tip never names the dealer");
+
+    game.command(CONSOLE, "settime", ["2"]);
+    const quiet = game.command(at(1, SPAWNS.chicago[1].pos, { now: 60000 }), "deal", ["whitepack"]);
+    assert.ok(!quiet.msg.includes("Someone was watching"), "the dark is safer");
+});
+
+test("product is carried, so police take it like anything else", () => {
+    const { game, a, b, knot, at } = tradeSetup();
+    a.inventory.whitepack = 3;
+    game.command(CONSOLE, "setjob", ["2", "police", "0"]);
+    game.command(at(2, knot), "duty");
+
+    game.command(at(2, knot), "cuff", ["1"]);
+    assert.match(game.command(at(2, knot), "search", ["1"]).msg, /White Pack x3/);
+    game.command(at(2, knot), "seize", ["1", "whitepack", "3"]);
+    assert.equal(a.inventory.whitepack, undefined);
+    assert.equal(b.inventory.whitepack, undefined, "seized goods are destroyed, not pocketed");
+});

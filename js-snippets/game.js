@@ -47,6 +47,7 @@ const places = require("./places");
 const { createTurf, CLAIM_MS } = require("./turf");
 const { createEnvironment } = require("./environment");
 const hud = require("./hud");
+const { createDrugs } = require("./drugs");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -80,6 +81,7 @@ function createGame(opts = {}) {
     const crews = gangs.createGangs();
     const turf = createTurf();
     const env = createEnvironment(rng);
+    const trade = createDrugs(rng);
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -529,6 +531,37 @@ function createGame(opts = {}) {
                 const found = shops.findShopNear(ctx.pos);
                 if (!found) return reply("You're not at a shop");
                 return reply(shops.buy(c, found.shop, lower(args[0]), toCount(args[1]), lower(args[2]) || "cash").msg);
+            },
+        },
+
+        // ----- the trade -----
+        harvest: {
+            help: "pick what's growing where you're standing",
+            run: ({ c, ctx }) => reply(trade.harvest(c, ctx.now).msg),
+        },
+        process: {
+            help: "<greenpack|whitepack> — cook raw into packs, at your crew base",
+            run: ({ c, args }) => {
+                const base = c.gang ? crews.get(c.gang.tag)?.base : null;
+                return reply(trade.process(c, base, args[0]).msg);
+            },
+        },
+        deal: {
+            help: "<greenpack|whitepack> — move one in the district you're in",
+            run: ({ c, args, ctx }) => {
+                const district = places.zoneAt(ctx.pos, "district");
+                const onTurf = !!(c.gang && district && turf.holderOf(district.name) === c.gang.tag);
+                const res = trade.deal(c, args[0], district && district.name, onTurf, env.isNight(), ctx.now);
+                if (!res.ok) return reply(res.msg);
+
+                // someone saw it, so the law hears where — never who
+                const notify = [];
+                if (res.seen) {
+                    for (const o of onDutyPolice(c)) {
+                        notify.push({ id: o.id, msg: `Dealing reported in ${res.district}. No description.` });
+                    }
+                }
+                return reply(res.msg, { notify });
             },
         },
 
