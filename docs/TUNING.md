@@ -5,8 +5,9 @@ Everything still open, pulled out of the code. There is a nicer version of this 
 
 ## Only you can decide
 
-1. ~~**Lua or JavaScript, per system.**~~ **Decided 29 Oct 2026: Lua.** New systems are written in
-   Lua; the JS is now the reference to port from. Don't ensure `fourtune` beside the Lua resources.
+1. ~~**Lua or JavaScript, per system.**~~ **Settled 29 Oct 2026: JavaScript.** `fourtune` is what
+   ships. `world/` and `crew/` are Lua leftovers — keep them as reference or delete them, but
+   don't ensure them beside `fourtune`.
 2. **Your name in `LICENSE`.** Still `Copyright (c) [year] [fullname]`.
 3. **Whether the cars get renamed.** Guns, shops and streets moved off Rockstar's names; vehicles
    didn't, because GTA draws its own name on screen and chat would disagree with it.

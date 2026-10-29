@@ -11,7 +11,7 @@ Source for both: **https://github.com/Tgood91/tanner-and-haydens-fourtune**
 | Resource | Folder in this repo | Depends on | What it does |
 |---|---|---|---|
 | `world` | `world/` | `chat` | Cities, districts, parks, roads and spawns, in Lua. Other resources ask it where things are through its exports |
-| `crew` | `crew/` | `chat`, `world` | Crews, ranks and turf, in Lua. Turf claims the districts `world` owns. The economy is optional: with none running it still plays, and says when it skips a charge |
+| `crew` | `crew/` | `chat` | Crews and ranks, in Lua. The economy is optional: with none running it still plays, and says when it skips a charge |
 | `fourtune` | `js-snippets/` | `chat`, `spawnmanager` | The game core in JavaScript: inventory, money, jobs, police, medical, vehicles, crews and the rest |
 | `chat` | ships with FXServer | — | Every reply both resources send goes through `chat:addMessage` |
 | `spawnmanager` | ships with FXServer | — | `fourtune` turns auto-spawn **off** so revive, jail and login decide where you land |

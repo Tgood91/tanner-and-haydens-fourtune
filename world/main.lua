@@ -175,8 +175,9 @@ exports('ZoneAt', ZoneAt)
 exports('Describe', Describe)
 exports('Label', Label)
 exports('ListFor', ListFor)
--- Turf claims districts, so they are offered specifically: ZoneAt alone
--- would hand back a park when you are standing in one.
+-- Districts offered specifically: ZoneAt alone would hand back a park
+-- when you are standing in one. Kept because it is the honest shape of
+-- the data, even though the turf that asked for it moved to JavaScript.
 local function Districts()
     local out = {}
     for _, z in ipairs(Data.zones) do

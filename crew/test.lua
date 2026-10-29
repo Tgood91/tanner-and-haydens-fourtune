@@ -1,9 +1,10 @@
 -- ============================================================
--- crew/test.lua — headless checks for crews and turf
+-- crew/test.lua — headless checks for crews
 --
--- Stubs the natives and fakes cross-resource exports, so `crew` really
--- calls `world` the way it will in FXServer. No economy is registered,
--- which is half the point: both resources have to work without one.
+-- Stubs the natives so the crew rules can be driven directly. No economy
+-- is registered, which is half the point: this has to work without one.
+--
+-- Turf used to live here too. It moved to JavaScript on 29 Oct 2026.
 --
 --   lua crew/test.lua        (from the repo root)
 -- ============================================================
@@ -22,7 +23,7 @@ local NOW = 0
 local players = {}
 local chat = {}
 
-local REG, current = { world = {}, crew = {} }, nil
+local REG, current = { crew = {} }, nil
 _G.exports = setmetatable({}, {
     __call = function(_, name, fn) REG[current][name] = fn end,
     __index = function(_, res)
@@ -58,18 +59,15 @@ local function heard(src, needle)
     return false
 end
 
-current = 'world'; dofile('world/data.lua'); dofile('world/main.lua')
-current = 'crew';  dofile('crew/main.lua');  dofile('crew/turf.lua')
-local C, W = REG.crew, REG.world
+current = 'crew';  dofile('crew/main.lua')
+local C = REG.crew
 
 local KNOT = { x = -430.0, y = 6020.0, z = 30.0 }
-local MIDWAY = { x = -300.0, y = 6230.0, z = 30.0 }
 local NOWHERE = { x = 0.0, y = 4000.0, z = 30.0 }
 
 local function join(src, name, pos)
     players[src] = { name = name, license = 'license:' .. name:lower(), pos = pos or KNOT }
 end
-local function moveTo(src, pos) players[src].pos = pos end
 
 join(1, 'Tanner'); join(2, 'Hayden'); join(3, 'Kaos')
 
@@ -118,70 +116,6 @@ same(C.RankOf(1), 2, 'the original Tanner is still Leader')
 same(C.RankOf(4), 0, 'the newcomer is only a Member')
 ok(C.Kick(1, 'Tanner') ~= nil, 'kicking by name resolves to one of them, not both')
 players[4] = nil
-
--- ---------- turf ----------
-ok(W.DistrictAt(KNOT).name == 'The Knot', 'the square is in The Knot')
-same(W.DistrictAt(NOWHERE), nil, 'open country is not a district')
-ok(REG.crew.Board():find('The Knot', 1, true) ~= nil, 'the board lists districts')
-same(REG.crew.HolderOf('The Knot'), nil, 'nobody holds it yet')
-
-moveTo(1, NOWHERE)
-same(select(2, C.Claim(1)), "You're not standing in a district. /turf lists them", 'you must be standing in one')
-moveTo(1, KNOT)
-
--- one body is not enough
-moveTo(2, MIDWAY); moveTo(3, MIDWAY)
-same(select(2, C.Claim(1)), 'You need 2 crew in The Knot to take it — 1 here', 'a claim needs numbers')
-
--- two in the zone starts it
-moveTo(2, KNOT)
-ok(C.Claim(1), 'two crew in the zone start the claim')
-ok(heard(1, 'Taking The Knot'), 'the claimers are told to hold')
-same(REG.crew.HolderOf('The Knot'), nil, 'the claim has not landed yet')
-
--- wander off and it dies
-moveTo(2, MIDWAY)
-NOW = NOW + 10000
-C.Progress(NOW)
-same(REG.crew.HolderOf('The Knot'), nil, 'walking away loses the hold')
-ok(heard(1, 'Lost the hold on The Knot'), 'and says so')
-
--- do it properly
-moveTo(2, KNOT)
-ok(C.Claim(1), 'they start again')
-NOW = NOW + 130 * 1000
-C.Progress(NOW)
-same(REG.crew.HolderOf('The Knot'), 'KAOS', 'holding the ground takes the turf')
-ok(heard(1, '[KAOS] now holds The Knot'), 'the crew is told')
-
--- ---------- a flip warns the crew losing it ----------
-ok(C.Create(3, 'RIV', 'River Crew') == false, 'you cannot found a crew while in one')
-C.Leave(3)
-ok(C.Create(3, 'RIV', 'River Crew'), 'Kaos leaves and founds his own')
-join(5, 'Dee', KNOT)
-ok(C.Invite(3, 5) and C.Accept(5), 'and brings someone')
-moveTo(3, KNOT)
-
-same(select(2, C.Claim(1)), 'Your crew already holds The Knot', 'you cannot take your own turf')
-NOW = NOW + 16 * 60 * 1000 -- past the settle cooldown
-ok(C.Claim(3), 'the rival starts taking it')
-ok(heard(1, 'WARNING: [RIV] is taking The Knot from you'), 'the holder is warned, by name')
-
-NOW = NOW + 130 * 1000
-C.Progress(NOW)
-same(REG.crew.HolderOf('The Knot'), 'RIV', 'the turf flips')
-ok(heard(1, 'You lost The Knot to [RIV]'), 'the loser is told')
-same(select(2, C.Claim(1)), 'The Knot just changed hands — it settles in 15 min', 'and cannot take it straight back')
-
--- ---------- holding pays, even with no economy ----------
-C.Payout()
-ok(heard(3, 'no economy is running'), 'payout says why it paid nothing')
-ok(not heard(1, 'Turf pays'), 'and the crew that lost it earns nothing')
-
--- ---------- giving it up ----------
-same(select(2, C.Abandon(5)), 'Only Leaders can give up turf', 'members cannot abandon turf')
-ok(C.Abandon(3), 'the leader gives it up')
-same(REG.crew.HolderOf('The Knot'), nil, 'and it is unclaimed again')
 
 -- ---------- disband clears everyone ----------
 ok(C.Disband(1), 'the leader disbands')
