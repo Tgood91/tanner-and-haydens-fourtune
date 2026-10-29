@@ -1,0 +1,48 @@
+// ============================================================
+// map.js — the world map, as data.
+// The render carries NO markings except the two area codes:
+//   312  -> the north city (lakeside grid + container port)
+//   1017 -> the south city (metro + the airport at its south edge)
+// Between them: countryside and the mountain, no marking at all.
+//
+// The zones below are the ones the servers already run:
+//   - gta-rp-server: Config.Cities (centre + radius per city)
+//   - fourtune:      cities.js borders (the north city starts at
+//                    y >= 5500, the country at y >= 3000)
+// North-city coords are approximate — tune in-game, same flag
+// they already carry in Config.Cities.
+// ============================================================
+
+const MAP = {
+    image: "map-312-1017.webp", // 1920 x 1280 render
+    markings: ["312", "1017"],  // the ONLY text on the map
+
+    zones: {
+        "1017": {
+            position: "south",
+            look: "sprawling metro, freeways, airport on the south edge",
+            center: { x: 200, y: -900, z: 30 },
+            radius: 2600,
+            spawn: { x: -1037.8, y: -2738.6, z: 20.1, heading: 330 }, // the airport
+        },
+        country: {
+            position: "middle",
+            marking: null, // no code, no name on the render
+            look: "farmland, hills and one big mountain; the long drive",
+            startsAtY: 3000, // fourtune border (placeholder, walk it)
+        },
+        "312": {
+            position: "north",
+            look: "lakeside grid city, industrial shore, container port",
+            center: { x: -320, y: 6150, z: 33 }, // approx, tune in-game
+            radius: 1100,
+            spawn: { x: -450, y: 6015, z: 33, heading: 90 }, // approx, tune in-game
+            startsAtY: 5500, // fourtune border (placeholder, walk it)
+        },
+    },
+
+    // Driving order, south to north — the whole map in one line.
+    route: ["1017", "country", "312"],
+};
+
+module.exports = { MAP };
