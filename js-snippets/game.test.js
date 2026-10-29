@@ -256,16 +256,16 @@ test("revive tops up empty needs so you don't drop straight back down", () => {
     assert.equal(a.thirst, 30);
 });
 
-test("respawn: waits for bleedout, bills the bank, sends you to the city's hospital", () => {
+test("respawn: waits for bleedout, bills the bank, sends you to the nearest hospital", () => {
     const { game, a, as, spot } = medicalSetup();
     game.syncHealth(1, 0, 0);
     assert.match(game.command(as(1, { pos: spot, now: 60 * 1000 }), "respawn").msg, /respawn in 4 min/);
 
     const res = game.command(as(1, { pos: spot, now: 5 * 60 * 1000 }), "respawn");
-    assert.match(res.msg, /Chicago EMS/);
+    assert.match(res.msg, /Winterline Memorial/); // 150 units away; Lakeshore is 232
     assert.equal(a.bank, 4500);
     assert.equal(a.downed, false);
-    assert.deepEqual(res.actions[0].pos, { x: -245, y: 6325, z: 33 });
+    assert.deepEqual(res.actions[0].pos, { x: -150, y: 6100, z: 32 });
 
     // Broke: bill is whatever's in the bank
     a.bank = 120;
@@ -865,4 +865,26 @@ test("console can issue a license (and it clears a ban); players can't", () => {
     game.command(CONSOLE, "givelicense", ["1", "weapon"]);
     assert.ok(a.licenses.weapon);
     assert.equal(a.licenseBans.weapon, undefined);
+});
+
+test("every city has two hospitals, and you wake at the closer one", () => {
+    const med = require("./medical");
+    for (const [city, list] of Object.entries(med.HOSPITALS)) {
+        assert.equal(list.length, 2, `${city} should have two hospitals`);
+        assert.notEqual(list[0].label, list[1].label);
+        for (const h of list) assert.equal(cityAt(h.pos), city, `${h.label} isn't inside ${city}`);
+    }
+
+    // Same city, two different corners -> two different hospitals
+    const { game, a, as } = setup();
+    const wake = (pos) => {
+        a.downed = false;
+        game.updatePosition(1, pos);
+        game.syncHealth(1, 0, 0);
+        return game.command(as(1, { pos, now: 9 * 60 * 1000 }), "respawn").msg;
+    };
+    assert.match(wake({ x: -245, y: 6400, z: 33 }), /Lakeshore General/);
+    assert.match(wake({ x: -150, y: 6020, z: 32 }), /Winterline Memorial/);
+    assert.match(wake({ x: 290, y: -600, z: 43 }), /Red Clay General/);
+    assert.match(wake({ x: -900, y: -900, z: 36 }), /Peach Ridge Medical/);
 });

@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 56 checks across every system
+node --test js-snippets/game.test.js  # 57 checks across every system
 ```
 
 ## What's in here
@@ -21,7 +21,7 @@ node --test js-snippets/game.test.js  # 56 checks across every system
 | `inventory.js` | Items, weights, 30 kg limit, use/drop. Food and drink values live here |
 | `economy.js` | Cash/bank, deposit, withdraw, pay another player. **Gold**: earned only by working (on-duty paychecks, EMS revives), never bought or traded |
 | `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi. Grades, duty, paychecks every 30 min |
-| `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` at the hospital after 5 min for a bill |
+| `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` after 5 min for a bill at whichever of the city's two hospitals is closer to where you dropped |
 | `ammo.js` | Five ammo types, which gun takes which, `/loadammo` boxes into rounds (capped), `/unloadammo` full boxes back, `/equip` / `/holster`. Client ammo reports can only lower the count |
 | `police.js` | Sheriff's Office tools: `/cuff`, `/search`, `/seize`, `/fine`, `/jail`. Seized items are destroyed and fines go to the city, so cops can't farm them. Jail time is saved, so logging out doesn't skip it |
 | `licenses.js` | Weapon license: $2,500 at Ammu-Nation, required before Ammu-Nation sells a gun for gold. Police `/checklicense` on a stop (no cuffs; also shows a gun that's out) and `/revokelicense` (24h before a new one can be bought) |
@@ -50,7 +50,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
 - Gold: per-paycheck gold by job (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
-- Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, Atlanta and GeePee hospital coords (`medical.js`)
+- Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, and every hospital coord except Lakeshore General (`medical.js`)
 - Starting money (`character.js`), job pay (`jobs.js`), hunger/thirst rates (`needs.js`)
 - All spawn points except Chicago Main, the default city, and the release route (`spawns.js`); **both city borders** (`cities.js`); all shop locations and prices (`shops.js`)
 - The Chicago job spots are the approximate coords from your smoke test. Walk them
