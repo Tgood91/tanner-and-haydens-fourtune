@@ -37,7 +37,7 @@ const ITEMS = {
     // Weapons: not "usable" — you /equip them. Which ammo each takes lives in ammo.js.
     // Never sold in shops; console giveitem only, for now.
     glizzy:       { label: "Glizzy",         weight: 1.0, usable: false },
-    blackdraco:   { label: "Black Draco",    weight: 3.5, usable: false },
+    chopper:      { label: "Chopper",        weight: 3.5, usable: false },
     uzi:          { label: "Micro SMG",      weight: 2.5, usable: false },
     pumpshotgun:  { label: "Pump Shotgun",   weight: 3.5, usable: false },
     huntingrifle: { label: "Hunting Rifle",  weight: 5.0, usable: false },

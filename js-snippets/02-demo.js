@@ -17,7 +17,7 @@ console.log("\n== Emptied inventory stays empty ==");
 console.log(inv.listInventory(inv.loadInventory({})));
 
 console.log("\n== giveitem from the console ==");
-console.log(inv.addItem(bag, "blackdraco", 1).msg);
+console.log(inv.addItem(bag, "chopper", 1).msg);
 console.log(inv.addItem(bag, "halfhalf", 1).msg);
 console.log(inv.addItem(bag, "unicorn", 1).msg);       // unknown item refused
 console.log(inv.addItem(bag, "water", -5).msg);        // negative count refused

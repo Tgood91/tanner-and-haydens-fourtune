@@ -37,14 +37,14 @@ is your name that goes in it.
 
 ## Names worth a second look
 
-Cfx.re has advised servers to remove content tied to real-world third-party intellectual property. These are ours,
-in order of risk. All are your creative call — say the word and I will rename any of them.
+Cfx.re has advised servers to remove content tied to real-world third-party intellectual property. All three flagged
+names have now been changed; the table is kept as a record of what moved and why.
 
 | Name | Why it stands out |
 |---|---|
 | ~~Guccilucci~~ → **Half & Half** | Played on Gucci, a live luxury trademark. **Renamed 29 Oct 2026.** The item id stayed `halfhalf`, so `giveitem <id> halfhalf 1` is unchanged |
-| **1017** (Atlanta area code) | Gucci Mane's record label. Fine as a nod, but it is someone's brand, not a real area code |
-| **Black Draco** (rifle) | "Draco" is a real firearm model sold by Century Arms. Lower risk, since firearm names get used widely |
+| ~~1017~~ → **404** | Was Gucci Mane's record label. **Renamed 29 Oct 2026** to Atlanta's own area code, which pairs with the 312 you picked for Chicago |
+| ~~Black Draco~~ → **Chopper** | "Draco" is a real firearm model from Century Arms. **Renamed 29 Oct 2026.** "Chopper" is street slang, not a brand, and sits beside Glizzy. The item id changed to `chopper` too |
 | **Glizzy** (pistol) | Slang, not a trademark. No concern |
 
 Rockstar's own names — Ammu-Nation, Del Perro Pier, Legion Square, Paleto, Sandy Shores, Grapeseed, Little Seoul,

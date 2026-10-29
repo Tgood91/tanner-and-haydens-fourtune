@@ -21,7 +21,7 @@ const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12
 // Guns: GOLD each (earned by working — see economy.js), and only with a
 // weapon license (licenses.js). Weights are in inventory.js.
 // At ~45 gold per on-duty paycheck, a Glizzy is about 10 paychecks (5 hours) of work.
-const GUNS_AMMUNATION = { glizzy: 444, pumpshotgun: 750, uzi: 900, huntingrifle: 1200, blackdraco: 1500 };
+const GUNS_AMMUNATION = { glizzy: 444, pumpshotgun: 750, uzi: 900, huntingrifle: 1200, chopper: 1500 };
 
 const SHOPS = {
     atl_247:      { label: "24/7 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },

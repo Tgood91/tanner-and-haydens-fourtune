@@ -8,7 +8,7 @@
 //
 // Your number's area code comes from the city you started in, so it
 // says where you're from for the rest of the character's life:
-//   1017 Atlanta   770 GeePee   312 Chicago
+//   404 Atlanta   770 GeePee   312 Chicago
 //
 // Numbers are checked against everyone ONLINE when handed out. That is
 // enough for one server; once the API is wired, the check belongs in
@@ -18,7 +18,7 @@
 // ============================================================
 
 const AREA_CODES = {
-    atlanta: "1017",
+    atlanta: "404",
     geepee: "770",   // placeholder — pick GeePee's real one
     chicago: "312",
 };

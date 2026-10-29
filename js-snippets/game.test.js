@@ -1145,7 +1145,7 @@ function phoneSetup() {
 
 test("everyone gets a number from the city they started in, and keeps it", () => {
     const { game, a, b } = phoneSetup();
-    assert.match(a.phone.number, /^1017-\d{4}$/); // started in Atlanta
+    assert.match(a.phone.number, /^404-\d{4}$/); // started in Atlanta
     assert.notEqual(a.phone.number, b.phone.number);
 
     const { saved } = game.leave(1);
@@ -1179,8 +1179,8 @@ test("the inbox counts what's unread, and reading clears it", () => {
 test("a saved contact puts a name on the number", () => {
     const { game, b, as } = phoneSetup();
     assert.match(game.command(as(1), "save", [b.phone.number, "Hayden"]).msg, /Saved/);
-    assert.match(game.command(as(1), "contacts").msg, /Hayden — 1017-/);
-    assert.match(game.command(as(1), "text", ["2", "yo"]).msg, /To Hayden \(1017-/);
+    assert.match(game.command(as(1), "contacts").msg, /Hayden — 404-/);
+    assert.match(game.command(as(1), "text", ["2", "yo"]).msg, /To Hayden \(404-/);
 });
 
 test("no phone means no texts, no 911 and no cab", () => {

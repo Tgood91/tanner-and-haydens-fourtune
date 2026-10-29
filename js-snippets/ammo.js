@@ -34,7 +34,7 @@ const AMMO_TYPES = {
 const WEAPONS = {
     glizzy:       { gta: "WEAPON_COMBATPISTOL", ammo: "pistol" },
     uzi:          { gta: "WEAPON_MICROSMG",     ammo: "smg" },
-    blackdraco:   { gta: "WEAPON_COMPACTRIFLE", ammo: "rifle" },
+    chopper:   { gta: "WEAPON_COMPACTRIFLE", ammo: "rifle" },
     pumpshotgun:  { gta: "WEAPON_PUMPSHOTGUN",  ammo: "shotgun" },
     huntingrifle: { gta: "WEAPON_SNIPERRIFLE",  ammo: "sniper" },
 };
