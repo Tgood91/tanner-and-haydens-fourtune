@@ -7,6 +7,7 @@
 const inventory = require("./inventory");
 const vehicles = require("./vehicles");
 const fuel = require("./fuel");
+const phone = require("./phone");
 
 const START_CASH = 500;
 const START_BANK = 5000;
@@ -35,6 +36,12 @@ function createCharacter(id, name, saved = null) {
         cuffed: false,  // logging out drops cuffs, but NOT jail time
         jailMinutes: s.jailMinutes ?? 0,
         jailedFrom: s.jailedFrom ?? null, // city of the arrest — decides where you're released
+        // number is filled in on join (see game.js) when this is a new character
+        phone: {
+            number: s.phone?.number ?? null,
+            contacts: { ...(s.phone?.contacts || {}) },
+            texts: (s.phone?.texts || []).slice(-phone.KEEP_TEXTS).map((t) => ({ ...t })),
+        },
         licenses: { ...(s.licenses || {}) },       // e.g. { weapon: { issuedAt } }
         licenseBans: { ...(s.licenseBans || {}) }, // e.g. { weapon: <time the ban ends> }
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
@@ -61,6 +68,7 @@ function serialize(c) {
         ammo: { ...c.ammo },
         jailMinutes: c.jailMinutes,
         jailedFrom: c.jailedFrom,
+        phone: { number: c.phone.number, contacts: { ...c.phone.contacts }, texts: c.phone.texts.map((t) => ({ ...t })) },
         licenses: { ...c.licenses },
         licenseBans: { ...c.licenseBans },
         pos: c.pos ? { ...c.pos } : null,

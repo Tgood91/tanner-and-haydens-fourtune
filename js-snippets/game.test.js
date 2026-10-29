@@ -1132,3 +1132,88 @@ test("the till stays empty for a while, and so does the robber's luck", () => {
     // and once the shop's 30 min (counted from when the first one finished) runs out, it's on again
     assert.match(game.command(at(3, till, { now: 35 * 60000 }), "rob").msg, /Holding up/);
 });
+
+// ---------------- phone ----------------
+function phoneSetup() {
+    let n = 0;
+    const game = createGame({ rng: () => n++ / 10000 }); // predictable, distinct numbers
+    const a = game.join(1, "Tanner");
+    const b = game.join(2, "Hayden");
+    const as = (id, extra = {}) => ({ id, pos: NOWHERE, now: 0, ...extra });
+    return { game, a, b, as };
+}
+
+test("everyone gets a number from the city they started in, and keeps it", () => {
+    const { game, a, b } = phoneSetup();
+    assert.match(a.phone.number, /^1017-\d{4}$/); // started in Atlanta
+    assert.notEqual(a.phone.number, b.phone.number);
+
+    const { saved } = game.leave(1);
+    assert.equal(saved.phone.number, a.phone.number);
+    assert.equal(game.join(1, "Tanner", saved).phone.number, a.phone.number);
+});
+
+test("texting by player id or by number", () => {
+    const { game, a, as } = phoneSetup();
+    const res = game.command(as(1), "text", ["2", "meet", "at", "the", "pier"]);
+    assert.match(res.msg, /meet at the pier/);
+    assert.ok(res.notify.some((n) => n.id === 2 && n.msg.includes("Text from") && n.msg.includes("meet at the pier")));
+
+    game.command(as(2), "text", [a.phone.number, "on", "my", "way"]);
+    assert.match(game.command(as(1), "texts").msg, /on my way/);
+
+    assert.match(game.command(as(1), "text", ["1", "hi"]).msg, /yourself/);
+    assert.match(game.command(as(1), "text", ["99", "hi"]).msg, /No one by that number/);
+    assert.match(game.command(as(1), "text", ["2"]).msg, /Say something/);
+    assert.match(game.command(as(1), "text", ["2", "x".repeat(201)]).msg, /Too long/);
+});
+
+test("the inbox counts what's unread, and reading clears it", () => {
+    const { game, as } = phoneSetup();
+    game.command(as(1), "text", ["2", "yo"]);
+    assert.match(game.command(as(2), "phone").msg, /1 unread/);
+    assert.match(game.command(as(2), "texts").msg, /^< .*yo$/m);
+    assert.match(game.command(as(2), "phone").msg, /No unread/);
+});
+
+test("a saved contact puts a name on the number", () => {
+    const { game, b, as } = phoneSetup();
+    assert.match(game.command(as(1), "save", [b.phone.number, "Hayden"]).msg, /Saved/);
+    assert.match(game.command(as(1), "contacts").msg, /Hayden — 1017-/);
+    assert.match(game.command(as(1), "text", ["2", "yo"]).msg, /To Hayden \(1017-/);
+});
+
+test("no phone means no texts, no 911 and no cab", () => {
+    const { game, a, as } = phoneSetup();
+    delete a.inventory.phone; // dropped in a fight, or an officer seized it
+
+    assert.match(game.command(as(1), "text", ["2", "yo"]).msg, /don't have a phone/);
+    assert.match(game.command(as(1), "911", ["help"]).msg, /don't have a phone/);
+    assert.match(game.command(as(1), "taxi").msg, /don't have a phone/);
+    assert.match(game.command(as(1), "phone").msg, /don't have a phone/);
+
+    // and you can't be reached either
+    assert.match(game.command(as(2), "text", ["1", "you", "there?"]).msg, /isn't reachable/);
+});
+
+test("911 reaches police and EMS on duty, with your number and city", () => {
+    const { game, a, as } = phoneSetup();
+    game.join(3, "Kaos");
+    game.command(CONSOLE, "setjob", ["2", "police", "0"]);
+    game.command(CONSOLE, "setjob", ["3", "ems", "0"]);
+    game.command(as(2), "duty");
+    game.command(as(3), "duty");
+
+    const res = game.command(as(1, { pos: SPAWNS.chicago[0].pos }), "911", ["shots", "fired"]);
+    assert.match(res.msg, /2 unit\(s\) notified/);
+    for (const id of [2, 3]) {
+        const line = res.notify.find((n) => n.id === id).msg;
+        assert.ok(line.includes("shots fired"), line);
+        assert.ok(line.includes(a.phone.number), line);
+        assert.ok(line.includes("Chicago"), line);
+    }
+
+    game.command(as(2), "duty"); // both clock off
+    game.command(as(3), "duty");
+    assert.match(game.command(as(1), "911", ["hello"]).msg, /Nobody is on duty/);
+});

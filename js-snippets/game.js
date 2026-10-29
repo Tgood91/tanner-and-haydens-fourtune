@@ -39,6 +39,7 @@ const fuel = require("./fuel");
 const licenses = require("./licenses");
 const { createDispatch, FARE_BASE } = require("./taxi");
 const { createHeists } = require("./robbery");
+const phone = require("./phone");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -74,8 +75,24 @@ function createGame(opts = {}) {
     // ---------------- players ----------------
     function join(id, name, saved = null) {
         const c = createCharacter(id, name, saved);
+        if (!c.phone.number) {
+            const taken = new Set([...characters.values()].map((o) => phone.normalize(o.phone.number)));
+            c.phone.number = phone.makeNumber(spawns.DEFAULT_CITY, taken, rng);
+        }
         characters.set(id, c);
         return c;
+    }
+
+    // "2" is a player id; "312-4821" is a number
+    function findPerson(token) {
+        const text = String(token || "");
+        if (/^\d{1,3}$/.test(text)) return get(Number(text));
+        const wanted = phone.normalize(text);
+        if (wanted.length < 4) return null;
+        for (const o of characters.values()) {
+            if (o.phone.number && phone.normalize(o.phone.number) === wanted) return o;
+        }
+        return null;
     }
 
     // Returns what to save, plus despawns for their cars still out.
@@ -403,11 +420,21 @@ function createGame(opts = {}) {
             },
         },
         911: {
-            help: "call EMS to where you are",
-            run: ({ c }) => {
-                if (!c.downed) return reply("Only for when you're down — use your phone for the rest");
-                const notify = downedAlert(c);
-                return reply("", { notify });
+            help: "[what's wrong] — call police and EMS to where you are",
+            run: ({ c, args }) => {
+                if (!phone.hasPhone(c)) return reply("You don't have a phone");
+                if (c.downed) return reply("", { notify: downedAlert(c) });
+
+                const what = args.join(" ").trim() || "no details given";
+                const city = cities.CITIES[cities.cityAt(c.pos || { x: 0, y: 0, z: 0 })].label;
+                const notify = [];
+                for (const o of characters.values()) {
+                    if ((o.job.name === "police" || o.job.name === "ems") && o.onDuty && o !== c) {
+                        notify.push({ id: o.id, msg: `911 — ${city}, from ${c.name} (${c.phone.number}): ${what}` });
+                    }
+                }
+                const answer = notify.length ? `Dispatch has it — ${notify.length} unit(s) notified.` : "Nobody is on duty to take it.";
+                return reply(`911 called: ${what}. ${answer}`, { notify });
             },
         },
         forcerevive: {
@@ -450,6 +477,23 @@ function createGame(opts = {}) {
             },
         },
 
+        // ----- phone -----
+        phone: { help: "your number and what's waiting", run: ({ c }) => reply(phone.hasPhone(c) ? phone.describe(c) : "You don't have a phone") },
+        texts: { help: "read your messages", run: ({ c }) => reply(phone.inbox(c)) },
+        text: {
+            help: "<number|playerId> <message>",
+            run: ({ c, args, ctx }) => {
+                const to = findPerson(args[0]);
+                const res = phone.sendText(c, to, args.slice(1).join(" "), ctx.now);
+                return reply(res.msg, { notify: res.ok ? [{ id: to.id, msg: res.theirMsg }] : [] });
+            },
+        },
+        contacts: { help: "your saved numbers", run: ({ c }) => reply(phone.contactList(c)) },
+        save: {
+            help: "<number> <name>",
+            run: ({ c, args }) => reply(phone.saveContact(c, args[0], args.slice(1).join(" ")).msg),
+        },
+
         // ----- robbery -----
         rob: {
             help: "hold up the shop you're standing at — gun out and loaded",
@@ -469,6 +513,7 @@ function createGame(opts = {}) {
         taxi: {
             help: "call a cab",
             run: ({ c, ctx }) => {
+                if (!phone.hasPhone(c)) return reply("You don't have a phone to call one with");
                 const res = dispatch.callCab(c, ctx.now);
                 if (!res.ok) return reply(res.msg);
                 const notify = [];
