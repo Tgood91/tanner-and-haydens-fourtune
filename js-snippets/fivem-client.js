@@ -1,8 +1,8 @@
 // ============================================================
 // fivem-client.js — the little bit that has to run on each player's PC
 // The client never decides anything. It only draws what the server
-// says: health changes, revives, weapons/ammo, cuffs, teleports, and
-// dropped-item props.
+// says: health changes, revives, weapons/ammo, cuffs, teleports, car
+// fuel/repairs, and dropped-item props.
 // It REPORTS ammo left after shooting; the server only accepts lower numbers.
 // NOT YET TESTED IN-GAME.
 // ============================================================
@@ -95,6 +95,36 @@ onNet("fourtune:teleport", ({ pos, heading }) => {
     SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false);
     if (heading !== undefined) SetEntityHeading(ped, heading);
 });
+
+// ---------------- fuel & repairs ----------------
+// The server puts { fuel, tank, engine, body } on each player car as a state bag.
+// Whoever controls the car applies repairs (health only goes UP from here:
+// damage is the game's job).
+AddStateBagChangeHandler("fourtune", null, async (bagName, _key, value) => {
+    if (!value) return;
+    let veh = 0;
+    for (let i = 0; i < 20 && veh === 0; i++) { // the car may not have streamed in yet
+        veh = GetEntityFromStateBagName(bagName);
+        if (veh === 0) await new Promise((r) => setTimeout(r, 250));
+    }
+    if (veh === 0 || !NetworkHasControlOfEntity(veh)) return;
+    if (value.engine > GetVehicleEngineHealth(veh)) SetVehicleEngineHealth(veh, value.engine + 0.0);
+    if (value.body > GetVehicleBodyHealth(veh)) {
+        SetVehicleBodyHealth(veh, value.body + 0.0);
+        if (value.body >= 1000) SetVehicleDeformationFixed(veh);
+    }
+});
+
+// While driving: keep the gauge honest and kill the engine on an empty tank.
+setInterval(() => {
+    const ped = PlayerPedId();
+    const veh = GetVehiclePedIsIn(ped, false);
+    if (veh === 0 || GetPedInVehicleSeat(veh, -1) !== ped) return;
+    const state = Entity(veh).state.fourtune;
+    if (!state) return; // not a player-owned car
+    SetVehicleFuelLevel(veh, (state.fuel / state.tank) * 100.0);
+    if (state.fuel <= 0 && GetIsVehicleEngineRunning(veh)) SetVehicleEngineOn(veh, false, true, true);
+}, 500);
 
 // ---------------- spawning ----------------
 // Auto-spawn is off (see the top of this file), so the server says where we appear.

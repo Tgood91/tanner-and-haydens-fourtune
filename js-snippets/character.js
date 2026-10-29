@@ -6,6 +6,7 @@
 
 const inventory = require("./inventory");
 const vehicles = require("./vehicles");
+const fuel = require("./fuel");
 
 const START_CASH = 500;
 const START_BANK = 5000;
@@ -36,7 +37,7 @@ function createCharacter(id, name, saved = null) {
         jailedFrom: s.jailedFrom ?? null, // city of the arrest — decides where you're released
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
-        garage: (s.garage || []).map((car) => ({ ...car })),
+        garage: (s.garage || []).map((car) => fuel.ensureState({ ...car })), // fuel/engine/body per car
         city: null,
     };
     vehicles.reservePlates(c.garage);

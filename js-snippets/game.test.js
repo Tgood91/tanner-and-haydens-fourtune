@@ -626,3 +626,157 @@ test("login spawn: new players in the default city, returning players where they
     game.join(1, "New", { ...saved, jailMinutes: 3, jailedFrom: "chicago" });
     assert.equal(game.loginSpawn(1).reason, "jail");
 });
+
+// ---------------- fuel & repairs ----------------
+const fuelRules = require("./fuel");
+
+function carSetup() {
+    const env = setup();
+    const { game, a } = env;
+    a.bank = 200000;
+    game.command(env.as(1), "buyveh", ["sultan"]);
+    env.plate = a.garage[0].plate;
+    env.station = fuelRules.GAS_STATIONS[0].pos;
+    env.spawnOut = game.command(env.as(1, { pos: env.station }), "spawnveh", [env.plate]);
+    env.car = a.garage[0];
+    env.near = (id, extra = {}) => env.as(id, { vehiclePlate: env.plate, ...extra });
+    return env;
+}
+
+test("a new car comes out with a full tank and no damage", () => {
+    const { car, spawnOut } = carSetup();
+    assert.equal(car.fuel, 60);
+    assert.equal(car.engine, 1000);
+    const state = spawnOut.actions.find((x) => x.type === "setVehicleState");
+    assert.deepEqual(state, { type: "setVehicleState", plate: car.plate, fuel: 60, tank: 60, engine: 1000, body: 1000 });
+});
+
+test("fuel burns by distance driven; teleports don't count; empty tank tells the owner", () => {
+    const { game, car, plate } = carSetup();
+    game.updateVehicle(plate, { pos: { x: 0, y: 0, z: 0 } });
+    game.updateVehicle(plate, { pos: { x: 200, y: 0, z: 0 } }); // 0.2 km at 1 L/km
+    assert.equal(car.fuel, 59.8);
+    game.updateVehicle(plate, { pos: { x: 5000, y: 0, z: 0 } }); // teleport
+    assert.equal(car.fuel, 59.8);
+
+    car.fuel = 0.1;
+    const out = game.updateVehicle(plate, { pos: { x: 5250, y: 0, z: 0 } });
+    assert.equal(car.fuel, 0);
+    assert.ok(out.notify.some((n) => n.id === 1 && n.msg.includes("ran out of fuel")));
+    assert.ok(out.actions.some((x) => x.type === "setVehicleState" && x.fuel === 0));
+});
+
+test("damage reports only lower health — a modded client can't fix its own car", () => {
+    const { game, car, plate } = carSetup();
+    game.updateVehicle(plate, { engine: 420, body: 700 });
+    assert.equal(car.engine, 420);
+    game.updateVehicle(plate, { engine: 1000, body: 1000 });
+    assert.equal(car.engine, 420);
+    assert.equal(car.body, 700);
+    game.updateVehicle(plate, { engine: NaN, body: "x" });
+    assert.equal(car.engine, 420);
+});
+
+test("refuel at a gas station: per litre, room-limited, cash or bank", () => {
+    const { game, a, car, near, station } = carSetup();
+    assert.match(game.command(near(1, { pos: station }), "refuel").msg, /already full/);
+    car.fuel = 20;
+    assert.match(game.command(near(1, { pos: { x: 0, y: 0, z: 0 } }), "refuel").msg, /not at a gas station/);
+    assert.match(game.command(near(1, { pos: station }), "refuel", ["50"]).msg, /Only 40 L of room/);
+
+    game.command(near(1, { pos: station }), "refuel", ["10"]);
+    assert.equal(car.fuel, 30);
+    assert.equal(a.cash, 470);
+    const bankBefore = a.bank;
+    game.command(near(1, { pos: station }), "refuel", ["bank"]); // fill up by card
+    assert.equal(car.fuel, 60);
+    assert.equal(a.bank, bankBefore - 90);
+});
+
+test("fuel can: +20 L, only used up if the car can take it", () => {
+    const { game, a, car, near, as } = carSetup();
+    game.command(CONSOLE, "giveitem", ["1", "fuelcan", "2"]);
+    assert.match(game.command(near(1), "useitem", ["fuelcan"]).msg, /already full/);
+    assert.equal(a.inventory.fuelcan, 2);
+    assert.match(game.command(as(1), "useitem", ["fuelcan"]).msg, /No car/);
+
+    car.fuel = 5;
+    game.command(near(1), "useitem", ["fuelcan"]);
+    assert.equal(car.fuel, 25);
+    assert.equal(a.inventory.fuelcan, 1);
+});
+
+test("repair kit: patches your own engine to 650, never anyone else's, never the body", () => {
+    const { game, a, car, near } = carSetup();
+    game.command(CONSOLE, "giveitem", ["1", "repairkit"]);
+    game.command(CONSOLE, "giveitem", ["2", "repairkit"]);
+    car.engine = 200; car.body = 300;
+    assert.match(game.command(near(2), "useitem", ["repairkit"]).msg, /only patches your own car/);
+    game.command(near(1), "useitem", ["repairkit"]);
+    assert.equal(car.engine, 650);
+    assert.equal(car.body, 300);
+    assert.equal(a.inventory.repairkit, undefined);
+    game.command(CONSOLE, "giveitem", ["1", "repairkit"]);
+    assert.match(game.command(near(1), "useitem", ["repairkit"]).msg, /good enough/);
+    assert.equal(a.inventory.repairkit, 1);
+});
+
+test("mechanic repair: full fix, owner nearby pays the mechanic, mechanic earns gold", () => {
+    const { game, a, b, car, near } = carSetup();
+    const shop = { x: -70, y: 6406, z: 31 };
+    game.command(CONSOLE, "setjob", ["2", "mechanic", "1"]);
+    car.engine = 300; car.body = 400;
+
+    assert.match(game.command(near(2, { pos: shop }), "repair").msg, /Clock in/);
+    game.command(near(2, { pos: shop }), "duty");
+    assert.match(game.command(near(2, { pos: shop }), "repair").msg, /need a repair kit/);
+    b.inventory.repairkit = 1;
+    assert.match(game.command(near(2, { pos: shop }), "repair").msg, /owner has to be here/);
+
+    game.updatePosition(1, shop);
+    const ownerBank = a.bank, mechBank = b.bank;
+    const res = game.command(near(2, { pos: shop }), "repair");
+    assert.equal(car.engine, 1000);
+    assert.equal(car.body, 1000);
+    assert.equal(a.bank, ownerBank - 600);
+    assert.equal(b.bank, mechBank + 600);
+    assert.equal(b.gold, 10);
+    assert.equal(b.inventory.repairkit, undefined);
+    assert.ok(res.notify.some((n) => n.id === 1));
+    b.inventory.repairkit = 1;
+    assert.match(game.command(near(2, { pos: shop }), "repair").msg, /doesn't need/);
+});
+
+test("mechanics fixing their own car pay nothing and earn nothing", () => {
+    const env = carSetup();
+    const { game, a, car, near } = env;
+    game.command(CONSOLE, "setjob", ["1", "mechanic", "0"]);
+    game.command(near(1), "duty");
+    a.inventory.repairkit = 1;
+    car.engine = 100;
+    const bank = a.bank;
+    game.command(near(1), "repair");
+    assert.equal(car.engine, 1000);
+    assert.equal(a.bank, bank);
+    assert.equal(a.gold, 0);
+});
+
+test("fuel and damage are saved with the car", () => {
+    const { game, car } = carSetup();
+    car.fuel = 12.5; car.engine = 480;
+    const { saved } = game.leave(1);
+    const back = game.join(1, "Tanner", saved);
+    assert.equal(back.garage[0].fuel, 12.5);
+    assert.equal(back.garage[0].engine, 480);
+});
+
+test("right after a repair, stale damage readings don't undo it; after the grace window they count again", () => {
+    const { game, car, plate, near } = carSetup();
+    game.command(CONSOLE, "giveitem", ["1", "repairkit"]);
+    car.engine = 100;
+    game.command(near(1, { now: 1000 }), "useitem", ["repairkit"]);
+    game.updateVehicle(plate, { engine: 100 }, 5000);   // game hasn't applied the fix yet
+    assert.equal(car.engine, 650);
+    game.updateVehicle(plate, { engine: 500 }, 12000);  // later: real new damage
+    assert.equal(car.engine, 500);
+});

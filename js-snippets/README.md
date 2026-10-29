@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 41 checks across every system
+node --test js-snippets/game.test.js  # 51 checks across every system
 ```
 
 ## What's in here
@@ -31,11 +31,12 @@ node --test js-snippets/game.test.js  # 41 checks across every system
 | `pickups.js` | Dropped items anyone nearby can grab. They disappear after 10 min |
 | `trunks.js` | Trunk storage per plate, with its own weight limit. Owner or unlocked only |
 | `vehicles.js` | Catalog, buying, garage with plates |
+| `fuel.js` | Fuel burns by distance driven, empty tank kills the engine. `/refuel` at gas stations ($3/L), fuel can +20 L, repair kit patches your own engine to 650, mechanics `/repair` fully for $600 from the owner (+10 gold). Damage reports from the game can only lower health |
 | `fivem-server.js` / `fivem-client.js` / `fxmanifest.lua` | The FiveM (GTA 5) adapter |
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`
 
@@ -43,6 +44,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
+- Tank sizes, litres per km, fuel price, repair bill, repair gold, gas station spots (`fuel.js`)
 - Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
 - Gold: per-paycheck gold by job (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)

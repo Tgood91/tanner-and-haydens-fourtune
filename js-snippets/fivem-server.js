@@ -81,6 +81,15 @@ function perform(result) {
                 if (veh) SetVehicleDoorsLocked(veh, a.locked ? 2 : 1);
                 break;
             }
+            case "setVehicleState": {
+                // A state bag rides along with the car to every client; the driver's
+                // client applies it (fuel gauge, engine off when empty, repairs).
+                const veh = spawned.get(a.plate);
+                if (veh && DoesEntityExist(veh)) {
+                    Entity(veh).state.set("fourtune", { fuel: a.fuel, tank: a.tank, engine: a.engine, body: a.body }, true);
+                }
+                break;
+            }
             case "pickupCreated":
             case "pickupRemoved":
                 emitNet(`fourtune:${a.type}`, -1, a); // every client draws/removes the prop
@@ -196,11 +205,21 @@ setInterval(() => {
     perform(game.tick(1, Date.now()));
 }, 60 * 1000);
 
-// City announcements: check where everyone is every 5 seconds.
+// Every 5 seconds: city announcements for players, fuel and damage for cars.
 setInterval(() => {
     for (const id of getPlayers()) {
         const msg = game.updatePosition(Number(id), posOf(Number(id)));
         if (msg) tell(Number(id), msg);
+    }
+    for (const plate of game.vehiclePlates()) {
+        const veh = spawned.get(plate);
+        if (!veh || !DoesEntityExist(veh)) continue;
+        const [x, y, z] = GetEntityCoords(veh);
+        perform(game.updateVehicle(plate, {
+            pos: { x, y, z },
+            engine: GetVehicleEngineHealth(veh),
+            body: GetVehicleBodyHealth(veh),
+        }));
     }
 }, 5 * 1000);
 

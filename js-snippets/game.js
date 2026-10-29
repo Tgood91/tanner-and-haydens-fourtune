@@ -16,6 +16,7 @@
 //   removeWeapon { target, weapon }
 //   setCuffed { target, cuffed }           hands-behind-back animation, no shooting/driving
 //   teleport { target, pos, heading }      jail cell / release spawn
+//   setVehicleState { plate, fuel, tank, engine, body }  fuel gauge / empty tank / repaired
 //   spawnVehicle { target, model, plate, pos }
 //   despawnVehicle { plate }
 //   setVehicleLocked { plate, locked }
@@ -34,6 +35,7 @@ const medical = require("./medical");
 const ammo = require("./ammo");
 const police = require("./police");
 const spawns = require("./spawns");
+const fuel = require("./fuel");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -139,10 +141,32 @@ function createGame(opts = {}) {
         inventory: { help: "show your items", run: ({ c }) => reply(inventory.listInventory(c.inventory)) },
         useitem: {
             help: "<item>",
-            run: ({ c, args }) => {
+            run: ({ c, args, ctx }) => {
                 const item = lower(args[0]);
+
+                // Car items: check the car BEFORE the item gets used up
+                const v = worldVehicles.get(ctx.vehiclePlate);
+                if (item === "fuelcan" && c.inventory.fuelcan) {
+                    const ok = fuel.checkFuelCan(c, v);
+                    if (!ok.ok) return reply(ok.msg);
+                }
+                if (item === "repairkit" && c.inventory.repairkit) {
+                    const ok = fuel.checkPatch(c, v);
+                    if (!ok.ok) return reply(ok.msg);
+                }
+
                 const res = inventory.useItem(c.inventory, item, c);
                 if (!res.ok) return reply(res.msg);
+
+                if (item === "fuelcan") {
+                    fuel.applyFuelCan(v);
+                    return reply(`Poured in the fuel can. ${fuel.describe(v.car)}`, { actions: [vehicleStateAction(v)] });
+                }
+                if (item === "repairkit") {
+                    fuel.applyPatch(v, ctx.now);
+                    return reply(`Patched the engine up enough to drive. ${fuel.describe(v.car)}`, { actions: [vehicleStateAction(v)] });
+                }
+
                 const def = inventory.ITEMS[item];
                 needs.applyItem(c, def);
                 const actions = def.heal ? [{ type: "setHealth", target: c.id, value: c.health }] : [];
@@ -408,9 +432,15 @@ function createGame(opts = {}) {
                 const car = vehicles.findOwned(c, args[0]);
                 if (!car) return reply(`You don't own a ${args[0] || "car"}`);
                 if (worldVehicles.has(car.plate)) return reply(`${car.plate} is already out`);
-                worldVehicles.set(car.plate, { plate: car.plate, model: car.model, owner: c.id, locked: true });
-                return reply(`Pulled out ${vehicles.CATALOG[car.model]?.name || car.model} (${car.plate})`, {
-                    actions: [{ type: "spawnVehicle", target: c.id, model: car.model, plate: car.plate, pos: { ...ctx.pos } }],
+                fuel.ensureState(car);
+                // `car` is the garage entry itself, so fuel and damage write straight back to the save
+                const v = { plate: car.plate, model: car.model, owner: c.id, locked: true, car, lastPos: null };
+                worldVehicles.set(car.plate, v);
+                return reply(`Pulled out ${vehicles.CATALOG[car.model]?.name || car.model}. ${fuel.describe(car)}`, {
+                    actions: [
+                        { type: "spawnVehicle", target: c.id, model: car.model, plate: car.plate, pos: { ...ctx.pos } },
+                        vehicleStateAction(v),
+                    ],
                 });
             },
         },
@@ -421,6 +451,36 @@ function createGame(opts = {}) {
                 if (!v || v.owner !== c.id) return reply("No car of yours nearby");
                 worldVehicles.delete(v.plate);
                 return reply(`Stored ${v.plate}`, { actions: [{ type: "despawnVehicle", plate: v.plate }] });
+            },
+        },
+        carstatus: {
+            help: "fuel, engine and body of the nearest car",
+            run: ({ ctx }) => {
+                // Just looking — anyone can read a gauge
+                const v = worldVehicles.get(ctx.vehiclePlate);
+                return reply(v ? fuel.describe(v.car) : "No player car nearby");
+            },
+        },
+        refuel: {
+            help: "[litres] [cash|bank] — at a gas station, fills up if no litres given",
+            run: ({ c, args, ctx }) => {
+                const v = worldVehicles.get(ctx.vehiclePlate);
+                const litres = args[0] === undefined || args[0] === "cash" || args[0] === "bank" ? undefined : Number(args[0]);
+                const payWith = lower(args.find((a) => a === "cash" || a === "bank")) || "cash";
+                const res = fuel.refuel(c, v, ctx.pos, litres, payWith);
+                return reply(res.msg, { actions: res.ok ? [vehicleStateAction(v)] : [] });
+            },
+        },
+        repair: {
+            help: "(mechanic) full repair of the nearest car — the owner pays",
+            run: ({ c, ctx }) => {
+                const v = worldVehicles.get(ctx.vehiclePlate);
+                const res = fuel.mechanicRepair(c, v, v ? get(v.owner) : null, ctx.now);
+                if (!res.ok) return reply(res.msg);
+                return reply(res.msg, {
+                    notify: res.ownerMsg ? [{ id: v.owner, msg: res.ownerMsg }] : [],
+                    actions: [vehicleStateAction(v)],
+                });
             },
         },
         lock: {
@@ -447,6 +507,25 @@ function createGame(opts = {}) {
             run: ({ c, args, ctx }) => reply(trunks.take(c, worldVehicles.get(ctx.vehiclePlate), lower(args[0]), toCount(args[1])).msg),
         },
     };
+
+    function vehicleStateAction(v) {
+        return { type: "setVehicleState", plate: v.plate, fuel: v.car.fuel, tank: fuel.tankFor(v.model), engine: v.car.engine, body: v.car.body };
+    }
+
+    // The platform reports each car that's out every few seconds: { pos, engine, body }.
+    function updateVehicle(plate, report, now = Date.now()) {
+        const v = worldVehicles.get(plate);
+        const out = { notify: [], actions: [] };
+        if (!v) return out;
+        const before = { engine: v.car.engine, body: v.car.body };
+        const event = fuel.update(v, report, now);
+        if (event === "empty") {
+            out.notify.push({ id: v.owner, msg: `${v.plate} ran out of fuel. Fuel can (/useitem fuelcan) or a gas station (/refuel).` });
+        }
+        // Send the gauge when it changes meaningfully, and always on empty
+        if (event || before.engine !== v.car.engine || before.body !== v.car.body) out.actions.push(vehicleStateAction(v));
+        return out;
+    }
 
     function setAmmoAction(c, type) {
         return { type: "setAmmo", target: c.id, ammoType: ammo.AMMO_TYPES[type].gta, rounds: c.ammo[type] || 0 };
@@ -566,7 +645,8 @@ function createGame(opts = {}) {
     }
 
     return {
-        join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition,
+        join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
+        vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
         tick, saveAll, loadTrunks,
     };
