@@ -43,7 +43,7 @@ names have now been changed; the table is kept as a record of what moved and why
 | Name | Why it stands out |
 |---|---|
 | ~~Guccilucci~~ → **Half & Half** | Played on Gucci, a live luxury trademark. **Renamed 29 Oct 2026.** The item id stayed `halfhalf`, so `giveitem <id> halfhalf 1` is unchanged |
-| ~~1017~~ → **404** | Was Gucci Mane's record label. **Renamed 29 Oct 2026** to Atlanta's own area code, which pairs with the 312 you picked for Chicago |
+| ~~1017~~ → **7101** | Was Gucci Mane's record label. **Renamed 29 Oct 2026.** The digits are scrambled, so it keeps the look without carrying the brand |
 | ~~Black Draco~~ → **Chopper** | "Draco" is a real firearm model from Century Arms. **Renamed 29 Oct 2026.** "Chopper" is street slang, not a brand, and sits beside Glizzy. The item id changed to `chopper` too |
 | **Glizzy** (pistol) | Slang, not a trademark. No concern |
 
