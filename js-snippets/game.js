@@ -36,6 +36,7 @@ const ammo = require("./ammo");
 const police = require("./police");
 const spawns = require("./spawns");
 const fuel = require("./fuel");
+const licenses = require("./licenses");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -419,6 +420,47 @@ function createGame(opts = {}) {
                 const found = shops.findShopNear(ctx.pos);
                 if (!found) return reply("You're not at a shop");
                 return reply(shops.buy(c, found.shop, lower(args[0]), toCount(args[1]), lower(args[2]) || "cash").msg);
+            },
+        },
+
+        // ----- licenses -----
+        licenses: { help: "your licenses", run: ({ c, ctx }) => reply(licenses.listLicenses(c, ctx.now)) },
+        buylicense: {
+            help: "weapon [cash|bank] — at Ammu-Nation",
+            run: ({ c, args, ctx }) => {
+                const found = shops.findShopNear(ctx.pos);
+                return reply(licenses.buyLicense(c, found?.shop, args[0], lower(args[1]) || "cash", ctx.now).msg);
+            },
+        },
+        checklicense: {
+            help: "<playerId> (police) — on a stop, no cuffs needed",
+            run: ({ c, args, ctx }) => {
+                const suspect = get(Number(args[0]));
+                const res = licenses.check(c, suspect, ctx.now);
+                return reply(res.msg, { notify: res.ok ? [{ id: suspect.id, msg: `${c.name} checked your licenses` }] : [] });
+            },
+        },
+        revokelicense: {
+            help: "<playerId> [weapon] (police)",
+            run: ({ c, args, ctx }) => {
+                const suspect = get(Number(args[0]));
+                const res = licenses.revoke(c, suspect, args[1] || "weapon", ctx.now);
+                const notify = res.ok ? [{ id: suspect.id, msg: `${c.name} revoked your ${res.label.toLowerCase()}. You can apply again in ${res.banHours}h.` }] : [];
+                return reply(res.msg, { notify });
+            },
+        },
+        givelicense: {
+            help: "<playerId> [weapon]",
+            consoleOnly: true,
+            run: ({ args }) => {
+                const target = get(Number(args[0]));
+                if (!target) return reply(`No player with id ${args[0]}`);
+                const type = licenses.findLicense(args[1]);
+                if (!type) return reply(`No license called "${args[1]}"`);
+                target.licenses[type] = { issuedAt: Date.now() };
+                delete target.licenseBans[type];
+                const label = licenses.LICENSES[type].label;
+                return reply(`Gave ${target.name} a ${label.toLowerCase()}`, { notify: [{ id: target.id, msg: `An admin issued you a ${label.toLowerCase()}.` }] });
             },
         },
 

@@ -35,6 +35,8 @@ function createCharacter(id, name, saved = null) {
         cuffed: false,  // logging out drops cuffs, but NOT jail time
         jailMinutes: s.jailMinutes ?? 0,
         jailedFrom: s.jailedFrom ?? null, // city of the arrest — decides where you're released
+        licenses: { ...(s.licenses || {}) },       // e.g. { weapon: { issuedAt } }
+        licenseBans: { ...(s.licenseBans || {}) }, // e.g. { weapon: <time the ban ends> }
         // starter rule lives in inventory.loadInventory: undefined -> starters, {} -> stays empty
         inventory: inventory.loadInventory(saved ? s.inventory ?? null : null),
         garage: (s.garage || []).map((car) => fuel.ensureState({ ...car })), // fuel/engine/body per car
@@ -59,6 +61,8 @@ function serialize(c) {
         ammo: { ...c.ammo },
         jailMinutes: c.jailMinutes,
         jailedFrom: c.jailedFrom,
+        licenses: { ...c.licenses },
+        licenseBans: { ...c.licenseBans },
         pos: c.pos ? { ...c.pos } : null,
         inventory: { ...c.inventory },
         garage: c.garage.map((car) => ({ ...car })),

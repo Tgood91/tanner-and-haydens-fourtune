@@ -112,4 +112,4 @@ function serveMinute(c, minutes = 1) {
     return c.jailMinutes === 0;
 }
 
-module.exports = { REACH, FINE_REACH, MAX_FINE, MAX_JAIL_MIN, JAIL, cuff, search, seize, fine, jail, serveMinute };
+module.exports = { REACH, FINE_REACH, MAX_FINE, MAX_JAIL_MIN, JAIL, checkOfficer, cuff, search, seize, fine, jail, serveMinute };

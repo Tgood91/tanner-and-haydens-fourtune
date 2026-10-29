@@ -395,6 +395,7 @@ test("every ammo type has a box item, and every box fits in a bag", () => {
 test("guns cost gold at Ammu-Nation: Glizzy is 444 gold and weighs 1.0", () => {
     const { game, a, as } = setup();
     const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
+    a.licenses.weapon = { issuedAt: 0 }; // licenses have their own tests below
     assert.equal(ITEMS.glizzy.weight, 1.0);
     assert.match(game.command(atAmmu, "shop").msg, /Glizzy \(glizzy\) — 444 gold, 1 kg/);
 
@@ -411,6 +412,7 @@ test("guns cost gold at Ammu-Nation: Glizzy is 444 gold and weighs 1.0", () => {
 test("gold buys only what fits in your bag; nothing is taken otherwise", () => {
     const { game, a, as } = setup();
     a.gold = 99999;
+    a.licenses.weapon = { issuedAt: 0 };
     a.inventory.fuelcan = 5; // 25 kg + 1.5 kg starters
     assert.match(game.command(as(1, { pos: SHOPS.chi_ammu.pos }), "buy", ["huntingrifle"]).msg, /Too heavy/);
     assert.equal(a.gold, 99999);
@@ -779,4 +781,88 @@ test("right after a repair, stale damage readings don't undo it; after the grace
     assert.equal(car.engine, 650);
     game.updateVehicle(plate, { engine: 500 }, 12000);  // later: real new damage
     assert.equal(car.engine, 500);
+});
+
+// ---------------- licenses ----------------
+const HOUR = 3600000;
+
+test("no license, no gun: Ammu-Nation refuses before touching your gold", () => {
+    const { game, a, as } = setup();
+    a.gold = 1000;
+    const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
+    assert.match(game.command(atAmmu, "buy", ["glizzy"]).msg, /need a weapon license first/);
+    assert.equal(a.gold, 1000);
+    assert.equal(a.inventory.glizzy, undefined);
+    // ammo doesn't need one
+    assert.match(game.command(atAmmu, "buy", ["ammo_9mm"]).msg, /Bought/);
+});
+
+test("buying the license: dollars, only at Ammu-Nation, only once", () => {
+    const { game, a, as } = setup();
+    assert.match(game.command(as(1), "buylicense", ["weapon"]).msg, /at Ammu-Nation/);
+    const atAmmu = as(1, { pos: SHOPS.chi_ammu.pos });
+    assert.match(game.command(atAmmu, "buylicense", ["weapon"]).msg, /Not enough cash/); // $500 cash, $2,500 license
+    game.command(atAmmu, "buylicense", ["weapon", "bank"]);
+    assert.ok(a.licenses.weapon);
+    assert.equal(a.bank, 2500);
+    assert.match(game.command(atAmmu, "buylicense", ["weapon", "bank"]).msg, /already have/);
+    assert.match(game.command(as(1), "licenses").msg, /Weapon license: VALID/);
+
+    a.gold = 444;
+    game.command(atAmmu, "buy", ["glizzy"]);
+    assert.equal(a.inventory.glizzy, 1);
+});
+
+test("police check licenses on a stop: no cuffs, close by, and they see a gun that's out", () => {
+    const { game, b, as } = setup();
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    game.command(as(1), "duty");
+    const spot = { x: -300, y: 6100, z: 31 };
+    const cop = as(1, { pos: spot });
+    game.updatePosition(2, { x: -303, y: 6100, z: 31 }); // 3 m: a traffic-stop distance
+
+    assert.match(game.command(as(2, { pos: { x: -303, y: 6100, z: 31 } }), "checklicense", ["1"]).msg, /Only the Sheriff/);
+    let res = game.command(cop, "checklicense", ["2"]);
+    assert.match(res.msg, /Weapon license: none/);
+    assert.ok(res.notify.some((n) => n.id === 2));
+    assert.equal(b.cuffed, false);
+
+    b.licenses.weapon = { issuedAt: 0 };
+    game.command(CONSOLE, "giveitem", ["2", "glizzy"]);
+    game.command(as(2, { pos: { x: -303, y: 6100, z: 31 } }), "equip", ["glizzy"]);
+    res = game.command(cop, "checklicense", ["2"]);
+    assert.match(res.msg, /VALID/);
+    assert.match(res.msg, /Holding: Glizzy/);
+});
+
+test("revoked: license gone, can't re-buy until the ban ends — logging out doesn't shorten it", () => {
+    const { game, b, as } = setup();
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    game.command(as(1), "duty");
+    const spot = { x: -300, y: 6100, z: 31 };
+    game.updatePosition(2, { x: -302, y: 6100, z: 31 });
+    b.licenses.weapon = { issuedAt: 0 };
+
+    const res = game.command(as(1, { pos: spot, now: 0 }), "revokelicense", ["2"]);
+    assert.ok(res.notify.some((n) => n.id === 2 && n.msg.includes("24h")));
+    assert.equal(b.licenses.weapon, undefined);
+    assert.match(game.command(as(1, { pos: spot }), "revokelicense", ["2"]).msg, /doesn't have/);
+
+    const { saved } = game.leave(2);
+    const back = game.join(2, "Hayden", saved);
+    back.bank = 10000;
+    const atAmmu = (now) => as(2, { pos: SHOPS.chi_ammu.pos, now });
+    assert.match(game.command(atAmmu(5 * HOUR), "buylicense", ["weapon", "bank"]).msg, /revoked — 19h/);
+    assert.match(game.command(atAmmu(5 * HOUR), "licenses").msg, /REVOKED/);
+    game.command(atAmmu(25 * HOUR), "buylicense", ["weapon", "bank"]);
+    assert.ok(back.licenses.weapon);
+});
+
+test("console can issue a license (and it clears a ban); players can't", () => {
+    const { game, a, as } = setup();
+    a.licenseBans.weapon = Date.now() + 10 * HOUR;
+    assert.match(game.command(as(1), "givelicense", ["1"]).msg, /Console only/);
+    game.command(CONSOLE, "givelicense", ["1", "weapon"]);
+    assert.ok(a.licenses.weapon);
+    assert.equal(a.licenseBans.weapon, undefined);
 });

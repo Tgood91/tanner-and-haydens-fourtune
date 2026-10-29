@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 51 checks across every system
+node --test js-snippets/game.test.js  # 56 checks across every system
 ```
 
 ## What's in here
@@ -24,6 +24,7 @@ node --test js-snippets/game.test.js  # 51 checks across every system
 | `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` at the hospital after 5 min for a bill |
 | `ammo.js` | Five ammo types, which gun takes which, `/loadammo` boxes into rounds (capped), `/unloadammo` full boxes back, `/equip` / `/holster`. Client ammo reports can only lower the count |
 | `police.js` | Sheriff's Office tools: `/cuff`, `/search`, `/seize`, `/fine`, `/jail`. Seized items are destroyed and fines go to the city, so cops can't farm them. Jail time is saved, so logging out doesn't skip it |
+| `licenses.js` | Weapon license: $2,500 at Ammu-Nation, required before Ammu-Nation sells a gun for gold. Police `/checklicense` on a stop (no cuffs; also shows a gun that's out) and `/revokelicense` (24h before a new one can be bought) |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
 | `cities.js` | Atlanta → GeePee → Chicago by how far north you are, with "Welcome to…" announcements |
 | `spawns.js` | 2–3 spawn points per city. New players start in Atlanta, returning players where they logged out, jailed players in the cell. **Released in a different city from the arrest**: Atlanta → Chicago, GeePee → Atlanta, Chicago → GeePee (`RELEASE_CITY`) |
@@ -36,15 +37,16 @@ node --test js-snippets/game.test.js  # 51 checks across every system
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake`
 
-Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`
+Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`
 
 ## Placeholders — tune these
 
 - Item weights, food/drink values (`inventory.js`)
 - Every car price except the Sultan's $120,000 (`vehicles.js`); trunk sizes (`trunks.js`)
 - Tank sizes, litres per km, fuel price, repair bill, repair gold, gas station spots (`fuel.js`)
+- Weapon license price ($2,500) and revoke ban (24h) (`licenses.js`)
 - Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
 - Gold: per-paycheck gold by job (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)

@@ -11,5 +11,5 @@ client_script 'fivem-client.js'
 -- Required by fivem-server.js at runtime
 files {
     'game.js', 'inventory.js', 'vehicles.js', 'economy.js', 'jobs.js',
-    'needs.js', 'cities.js', 'shops.js', 'pickups.js', 'trunks.js', 'character.js', 'medical.js', 'ammo.js', 'police.js', 'spawns.js', 'fuel.js',
+    'needs.js', 'cities.js', 'shops.js', 'pickups.js', 'trunks.js', 'character.js', 'medical.js', 'ammo.js', 'police.js', 'spawns.js', 'fuel.js', 'licenses.js',
 }

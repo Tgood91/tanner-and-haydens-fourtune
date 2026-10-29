@@ -18,7 +18,8 @@ const STOCK_247 = { water: 5, sandwich: 8, coffee: 4, donut: 3, halfhalf: 6, ban
 const STOCK_HARDWARE = { repairkit: 350, toolbox: 200, lockpick: 75, fuelcan: 60, radio: 150, phone: 300 };
 // Ammo: dollars per box.
 const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12ga: 90, ammo_308: 250 };
-// Guns: GOLD each (earned by working — see economy.js). Weights are in inventory.js.
+// Guns: GOLD each (earned by working — see economy.js), and only with a
+// weapon license (licenses.js). Weights are in inventory.js.
 // At ~45 gold per on-duty paycheck, a Glizzy is about 10 paychecks (5 hours) of work.
 const GUNS_AMMUNATION = { glizzy: 444, pumpshotgun: 750, uzi: 900, huntingrifle: 1200, blackdraco: 1500 };
 
@@ -29,9 +30,9 @@ const SHOPS = {
     chi_247:      { label: "24/7 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
     chi_hardware: { label: "Chicago Hardware",   city: "chicago", pos: { x: -420.0, y: 6025.0,  z: 31.5 }, items: STOCK_HARDWARE },
     // Near the stock Ammu-Nation counters (Pillbox Hill, Sandy Shores, Paleto Bay) — walk and tune
-    atl_ammu:     { label: "Ammu-Nation Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION },
-    gp_ammu:      { label: "Ammu-Nation GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION },
-    chi_ammu:     { label: "Ammu-Nation Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION },
+    atl_ammu:     { label: "Ammu-Nation Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    gp_ammu:      { label: "Ammu-Nation GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    chi_ammu:     { label: "Ammu-Nation Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
 };
 
 function findShopNear(pos) {
@@ -54,6 +55,9 @@ function listShop(shop) {
 }
 
 function buyWithGold(c, shop, item, count) {
+    if (shop.goldNeedsLicense && !c.licenses[shop.goldNeedsLicense]) {
+        return { ok: false, msg: `You need a ${shop.goldNeedsLicense} license first — /buylicense ${shop.goldNeedsLicense}` };
+    }
     if (!inventory.isValidCount(count)) return { ok: false, msg: "Count must be a whole number above 0" };
     const total = shop.goldItems[item] * count;
     if (c.gold < total) return { ok: false, msg: `Not enough gold — ${count}x costs ${total} gold, you have ${c.gold}` };
