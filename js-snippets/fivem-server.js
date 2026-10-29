@@ -207,10 +207,7 @@ setInterval(() => {
 
 // Every 5 seconds: city announcements for players, fuel and damage for cars.
 setInterval(() => {
-    for (const id of getPlayers()) {
-        const msg = game.updatePosition(Number(id), posOf(Number(id)));
-        if (msg) tell(Number(id), msg);
-    }
+    for (const id of getPlayers()) perform(game.updatePosition(Number(id), posOf(Number(id))));
     for (const plate of game.vehiclePlates()) {
         const veh = spawned.get(plate);
         if (!veh || !DoesEntityExist(veh)) continue;

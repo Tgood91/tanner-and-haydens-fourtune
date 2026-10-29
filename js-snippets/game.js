@@ -38,6 +38,7 @@ const spawns = require("./spawns");
 const fuel = require("./fuel");
 const licenses = require("./licenses");
 const { createDispatch, FARE_BASE } = require("./taxi");
+const { createHeists } = require("./robbery");
 const { createPickups } = require("./pickups");
 const { createTrunks } = require("./trunks");
 const { createCharacter, serialize } = require("./character");
@@ -67,6 +68,7 @@ function createGame(opts = {}) {
     const pickups = createPickups();
     const trunks = createTrunks();
     const dispatch = createDispatch();
+    const heists = createHeists(rng);
     let minutesSincePay = 0;
 
     // ---------------- players ----------------
@@ -88,12 +90,17 @@ function createGame(opts = {}) {
             }
         }
         const notify = dispatch.dropPlayer(id);
+        heists.cancel(id, "they logged off");
         characters.delete(id);
         return { saved: serialize(c), actions, notify };
     }
 
     function get(id) {
         return characters.get(id) || null;
+    }
+
+    function onDutyPolice(except) {
+        return [...characters.values()].filter((o) => o.job.name === "police" && o.onDuty && o !== except);
     }
 
     // Tell on-duty EMS someone just went down; tell the patient their options.
@@ -120,16 +127,29 @@ function createGame(opts = {}) {
         const c = characters.get(id);
         if (!c || c.downed) return reply("");
         c.health = Math.max(0, Math.min(c.maxHealth, Math.round(value)));
-        if (c.health === 0 && medical.knockDown(c, now)) return reply("", { notify: downedAlert(c) });
+        if (c.health === 0 && medical.knockDown(c, now)) {
+            const notify = downedAlert(c);
+            const stopped = heists.cancel(id, "you went down");
+            if (stopped) notify.push({ id, msg: stopped.msg });
+            return reply("", { notify });
+        }
         return reply("");
     }
 
-    function updatePosition(id, pos) {
+    // The platform calls this for every player every few seconds.
+    function updatePosition(id, pos, now = Date.now()) {
+        const out = { notify: [], actions: [] };
         const c = characters.get(id);
-        if (!c) return null;
+        if (!c) return out;
         c.pos = { ...pos };
         dispatch.addDistance(id, pos); // no-op unless they're driving a fare
-        return cities.updateCity(c, pos);
+
+        const announcement = cities.updateCity(c, pos);
+        if (announcement) out.notify.push({ id, msg: announcement });
+
+        const heist = heists.progress(c, pos, now); // no-op unless they're robbing somewhere
+        if (heist) out.notify.push({ id, msg: heist.msg });
+        return out;
     }
 
     // ---------------- commands ----------------
@@ -299,7 +319,10 @@ function createGame(opts = {}) {
                 if (!res.ok) return reply(res.msg);
                 const actions = [{ type: "setCuffed", target: suspect.id, cuffed: res.cuffed }];
                 if (res.holstered) actions.push({ type: "removeWeapon", target: suspect.id, weapon: res.holstered });
-                return reply(res.msg, { notify: [{ id: suspect.id, msg: res.cuffed ? `${c.name} cuffed you` : `${c.name} took your cuffs off` }], actions });
+                const notify = [{ id: suspect.id, msg: res.cuffed ? `${c.name} cuffed you` : `${c.name} took your cuffs off` }];
+                const stopped = res.cuffed ? heists.cancel(suspect.id, `${c.name} got you`) : null;
+                if (stopped) notify.push({ id: suspect.id, msg: stopped.msg });
+                return reply(stopped ? `${res.msg} — caught them robbing ${stopped.label}` : res.msg, { notify, actions });
             },
         },
         search: {
@@ -424,6 +447,21 @@ function createGame(opts = {}) {
                 const found = shops.findShopNear(ctx.pos);
                 if (!found) return reply("You're not at a shop");
                 return reply(shops.buy(c, found.shop, lower(args[0]), toCount(args[1]), lower(args[2]) || "cash").msg);
+            },
+        },
+
+        // ----- robbery -----
+        rob: {
+            help: "hold up the shop you're standing at — gun out and loaded",
+            run: ({ c, ctx }) => {
+                const found = shops.findShopNear(ctx.pos);
+                const cops = onDutyPolice(c);
+                const res = heists.start(c, found, ctx.now, cops.length);
+                if (!res.ok) return reply(res.msg);
+
+                const city = cities.CITIES[cities.cityAt(c.pos)].label;
+                const notify = cops.map((o) => ({ id: o.id, msg: `ROBBERY IN PROGRESS — ${res.label}, ${city}. Suspect: ${c.name} (id ${c.id})` }));
+                return reply(res.msg, { notify });
             },
         },
 

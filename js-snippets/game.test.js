@@ -13,6 +13,12 @@ const CONSOLE = { isConsole: true };
 const AT_247 = SHOPS.chi_247.pos;
 const NOWHERE = { x: 0, y: 0, z: 0 };
 
+// what the position sweep told that player, if anything
+function announce(game, id, pos) {
+    const out = game.updatePosition(id, pos);
+    return out.notify.length ? out.notify[0].msg : null;
+}
+
 function setup() {
     const game = createGame();
     const a = game.join(1, "Tanner");
@@ -161,10 +167,10 @@ test("cars get plates, spawn once, and trunks respect locks and weight", () => {
 
 test("crossing into a city announces it once", () => {
     const { game } = setup();
-    assert.equal(game.updatePosition(1, SPAWNS.atlanta[0].pos), null); // first position: no announcement
-    assert.equal(game.updatePosition(1, SPAWNS.geepee[0].pos), "Welcome to GeePee");
-    assert.equal(game.updatePosition(1, SPAWNS.geepee[0].pos), null);
-    assert.equal(game.updatePosition(1, SPAWNS.chicago[0].pos), "Welcome to Chicago");
+    assert.equal(announce(game, 1, SPAWNS.atlanta[0].pos), null); // first position: no announcement
+    assert.equal(announce(game, 1, SPAWNS.geepee[0].pos), "Welcome to GeePee");
+    assert.equal(announce(game, 1, SPAWNS.geepee[0].pos), null);
+    assert.equal(announce(game, 1, SPAWNS.chicago[0].pos), "Welcome to Chicago");
 });
 
 test("save and reload round-trips the character", () => {
@@ -595,7 +601,7 @@ for (const [from, to] of Object.entries(RELEASE_CITY)) {
         assert.ok(out.notify.some((n) => n.id === 2 && n.msg.includes(`released in ${CITY_LABEL[to]}`)));
         assert.equal(suspect.jailedFrom, null);
         // the teleport itself doesn't trigger a "Welcome to" announcement
-        assert.equal(game.updatePosition(2, tp.pos), null);
+        assert.equal(announce(game, 2, tp.pos), null);
     });
 }
 const CITY_LABEL = { atlanta: "Atlanta", geepee: "GeePee", chicago: "Chicago" };
@@ -1016,4 +1022,113 @@ test("logging off mid-fare cancels it and tells the other side", () => {
     const { notify } = game.leave(2); // passenger quits
     assert.ok(notify.some((n) => n.id === 1 && n.msg.includes("passenger logged off")));
     assert.match(game.command(at(1), "fare").msg, /No fare running/);
+});
+
+// ---------------- robbery ----------------
+const heistRules = require("./robbery");
+
+function robSetup() {
+    const game = createGame({ rng: () => 0 }); // lowest payout, so the numbers are predictable
+    const cop = game.join(1, "Tanner");
+    const robber = game.join(2, "Hayden");
+    const till = SHOPS.chi_247.pos;
+    const beat = { x: till.x - 100, y: till.y, z: till.z };
+    const at = (id, pos = till, extra = {}) => ({ id, pos, now: 0, ...extra });
+
+    game.command(CONSOLE, "setjob", ["1", "police", "0"]);
+    game.updatePosition(1, beat, 0);
+    game.updatePosition(2, till, 0);
+    game.command(at(1, beat), "duty");
+
+    game.command(CONSOLE, "giveitem", ["2", "glizzy"]);
+    robber.ammo.pistol = 12;
+    game.command(at(2), "equip", ["glizzy"]);
+    return { game, cop, robber, till, beat, at };
+}
+
+test("a hold-up: cops get called, you stand there, the till pays out in cash", () => {
+    const { game, robber, till, at } = robSetup();
+
+    const res = game.command(at(2), "rob");
+    assert.match(res.msg, /Holding up 24\/7 Chicago/);
+    assert.ok(res.notify.some((n) => n.id === 1 && n.msg.includes("ROBBERY IN PROGRESS") && n.msg.includes("Hayden")));
+
+    assert.equal(game.updatePosition(2, till, 60000).notify.length, 0); // 60s in: nothing yet
+    const done = game.updatePosition(2, till, 90000);
+    assert.match(done.notify[0].msg, /Cleaned out 24\/7 Chicago/);
+
+    assert.equal(robber.cash, 500 + heistRules.PAYOUT_MIN); // dirty money, in cash
+    assert.equal(robber.bank, 5000);
+    assert.equal(game.updatePosition(2, till, 200000).notify.length, 0); // pays once, not every sweep
+});
+
+test("what stops you starting one", () => {
+    const { game, robber, till, beat, at } = robSetup();
+
+    assert.match(game.command(at(2, beat), "rob").msg, /not at a shop counter/);
+
+    game.command(at(2), "holster");
+    assert.match(game.command(at(2), "rob").msg, /Get a gun out first/);
+    game.command(at(2), "equip", ["glizzy"]);
+
+    robber.ammo.pistol = 0;
+    assert.match(game.command(at(2), "rob").msg, /empty gun/);
+    robber.ammo.pistol = 12;
+
+    game.command(at(1, beat), "duty"); // the only officer clocks off
+    assert.match(game.command(at(2), "rob").msg, /Too quiet/);
+    game.command(at(1, beat), "duty");
+
+    assert.match(game.command(at(2), "rob").msg, /Holding up/);
+    assert.match(game.command(at(2), "rob").msg, /already holding this place up/);
+});
+
+test("walking away from the counter ends it with nothing", () => {
+    const { game, robber, till, at } = robSetup();
+    game.command(at(2), "rob");
+    const out = game.updatePosition(2, { x: till.x + 40, y: till.y, z: till.z }, 30000);
+    assert.match(out.notify[0].msg, /walked away/);
+    assert.equal(robber.cash, 500);
+    assert.equal(game.updatePosition(2, till, 95000).notify.length, 0); // no late payout
+});
+
+test("getting cuffed mid-robbery ends it, and the officer is told what they caught", () => {
+    const { game, robber, till, at } = robSetup();
+    game.command(at(2), "rob");
+    game.updatePosition(1, till, 0); // officer arrives
+
+    const cuff = game.command(at(1), "cuff", ["2"]);
+    assert.match(cuff.msg, /caught them robbing 24\/7 Chicago/);
+    assert.ok(robber.cuffed);
+    assert.equal(robber.cash, 500);
+    assert.equal(game.updatePosition(2, till, 95000).notify.length, 0);
+});
+
+test("going down mid-robbery ends it too", () => {
+    const { game, robber, till, at } = robSetup();
+    game.command(at(2), "rob");
+    const out = game.syncHealth(2, 0, 0);
+    assert.ok(out.notify.some((n) => n.id === 2 && n.msg.includes("went down")));
+    assert.equal(game.updatePosition(2, till, 95000).notify.length, 0);
+    assert.equal(robber.cash, 500);
+});
+
+test("the till stays empty for a while, and so does the robber's luck", () => {
+    const { game, till, at } = robSetup();
+    game.command(at(2), "rob");
+    game.updatePosition(2, till, 90000);
+
+    // same robber, somewhere else
+    assert.match(game.command(at(2, SHOPS.chi_hardware.pos, { now: 95000 }), "rob").msg, /lay low for 15 min/);
+
+    // a different robber, same shop
+    const second = game.join(3, "Kaos");
+    game.command(CONSOLE, "giveitem", ["3", "glizzy"]);
+    second.ammo.pistol = 5;
+    game.updatePosition(3, till, 95000);
+    game.command(at(3, till, { now: 95000 }), "equip", ["glizzy"]);
+    assert.match(game.command(at(3, till, { now: 95000 }), "rob").msg, /was just hit/);
+
+    // and once the shop's 30 min (counted from when the first one finished) runs out, it's on again
+    assert.match(game.command(at(3, till, { now: 35 * 60000 }), "rob").msg, /Holding up/);
 });
