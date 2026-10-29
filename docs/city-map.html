@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Fourtune world map: the 312 and 1017 plates. Open this file in any browser.
+     Pins are generated from js-snippets (spawns, shops, fuel, medical, jobs, police);
+     the street layout is hand-drawn. Regenerate pin coords with the dump in js-snippets. -->
+<title>312 &amp; 1017</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-width chart plate (two landmasses stacked north-south, bridged), then key, then coordinate tables */
+:root{
+  --paper:#E4E7E4; --panel:#EFF1EE;
+  --water:#A9C2CE; --water-deep:#92AFBE; --river:#9FBCCA;
+  --land-312:#D3DAD6; --land-1017:#D6D9C0; --canopy:#B7C39E;
+  --road:#FAFBF8; --road-minor:#C0C8C3; --road-1017:#C4C7B0;
+  --ink:#1C2327; --ink-soft:#5B666A; --rule:#C3C9C5;
+  --a312:#2C7FA6; --a1017:#A6442A;
+  --m-spawn:#2B363B; --m-shop:#9A6B0E; --m-med:#AC2748; --m-law:#2C5BA2; --m-svc:#2A7857;
+  --font-code:'Archivo Black','Arial Black',system-ui,sans-serif;
+  --font-body:'Barlow',system-ui,-apple-system,sans-serif;
+  --font-label:'Barlow Condensed','Barlow',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0E1317; --panel:#161C21;
+  --water:#15222B; --water-deep:#0E1820; --river:#1C3140;
+  --land-312:#1F282D; --land-1017:#242718; --canopy:#2F3B23;
+  --road:#6E7B84; --road-minor:#333F46; --road-1017:#3B3E2C;
+  --ink:#DBE2E5; --ink-soft:#93A0A6; --rule:#2A333A;
+  --a312:#5FB6DC; --a1017:#DA7B50;
+  --m-spawn:#C8D3D8; --m-shop:#E0A93C; --m-med:#E4607F; --m-law:#6E9BE0; --m-svc:#56BD8E;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0E1317; --panel:#161C21;
+  --water:#15222B; --water-deep:#0E1820; --river:#1C3140;
+  --land-312:#1F282D; --land-1017:#242718; --canopy:#2F3B23;
+  --road:#6E7B84; --road-minor:#333F46; --road-1017:#3B3E2C;
+  --ink:#DBE2E5; --ink-soft:#93A0A6; --rule:#2A333A;
+  --a312:#5FB6DC; --a1017:#DA7B50;
+  --m-spawn:#C8D3D8; --m-shop:#E0A93C; --m-med:#E4607F; --m-law:#6E9BE0; --m-svc:#56BD8E;
+  color-scheme:dark;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);line-height:1.5;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:34px 56px}
+.eyebrow{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.16em;font-size:13px;color:var(--ink-soft);margin:0}
+h1{font-family:var(--font-code);font-size:clamp(40px,10vw,66px);line-height:.95;margin:6px 0 0;letter-spacing:-.01em;text-wrap:balance}
+h1 .amp{color:var(--ink-soft);font-size:.56em;vertical-align:.12em;margin:0 .06em}
+.lede{max-width:62ch;margin:14px 0 0;color:var(--ink-soft);font-size:16px}
+h2{font-family:var(--font-code);font-size:26px;margin:0;letter-spacing:-.01em}
+h2 .code312{color:var(--a312)}
+h2 .code1017{color:var(--a1017)}
+figure{margin:30px 0 0}
+.mapwrap{overflow-x:auto;background:var(--panel);border:1px solid var(--rule);border-radius:3px}
+svg.map{display:block;min-width:720px;width:100%;height:auto}
+figcaption{font-family:var(--font-label);font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:70ch}
+section{margin-top:44px}
+.key{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:14px;padding:0;list-style:none}
+.key li{display:flex;align-items:center;gap:8px;font-family:var(--font-label);font-size:15px}
+.dot{width:13px;height:13px;border-radius:50%;flex:none;border:1.5px solid var(--panel)}
+.sq{border-radius:2px}
+.tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:34px;margin-top:8px}
+.city{min-width:0}
+.cityhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--rule);padding-bottom:8px}
+.cityhead .note{font-family:var(--font-label);font-size:14px;color:var(--ink-soft)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;margin-top:4px}
+th,td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
+th{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.09em;font-size:12px;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+td.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-size:13px}
+.chip{font-family:var(--font-label);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:2px;white-space:nowrap;border:1px solid var(--rule);color:var(--ink-soft)}
+.chip.walked{border-color:var(--m-svc);color:var(--m-svc)}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:.04em}
+.notes{margin-top:44px;border-top:2px solid var(--rule);padding-top:20px}
+.notes h3{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.14em;font-size:13px;color:var(--ink-soft);margin:0 0 12px;font-weight:600}
+.notes ul{margin:0;padding-left:20px;max-width:68ch}
+.notes li{margin-bottom:9px;color:var(--ink-soft);font-size:15px}
+.notes b{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Fourtune &middot; world plates</p>
+    <h1><span style="color:var(--a312)">312</span><span class="amp">&amp;</span><span style="color:var(--a1017)">1017</span></h1>
+    <p class="lede">Two cities on one map, split by a channel and joined by a bridge. The street layout is drawn by hand — a grid on a lakefront up north, ring road and tree canopy down south. Every pin, though, sits where the code actually puts it.</p>
+  </header>
+
+  <figure>
+    <div class="mapwrap">
+      <svg class="map" viewBox="0 0 1000 1300" role="img" aria-labelledby="maptitle mapdesc">
+        <title id="maptitle">Map of the 312 and 1017 city plates</title>
+        <desc id="mapdesc">The 312 plate sits north with a street grid and a lakefront; the 1017 plate sits south with a ring road and tree canopy. A bridge crosses the channel between them.</desc>
+
+        <defs>
+          <clipPath id="clip312"><path d="M40 68 L700 68 L714 112 L728 172 L718 242 L732 302 L716 362 L726 420 L700 470 L658 504 L600 520 L520 529 L430 531 L340 524 L240 529 L150 520 L80 511 L40 496 Z"/></clipPath>
+          <clipPath id="clip1017"><path d="M40 742 L120 716 L230 705 L352 700 L470 705 L590 697 L700 709 L820 701 L940 713 L958 1258 L40 1258 Z"/></clipPath>
+          <pattern id="grid312" width="33" height="33" patternUnits="userSpaceOnUse">
+            <path d="M0 0 H33 M0 0 V33" stroke="var(--road-minor)" stroke-width="1.1" fill="none"/>
+          </pattern>
+          <pattern id="canopy1017" width="27" height="27" patternUnits="userSpaceOnUse">
+            <circle cx="6" cy="8" r="3.4" fill="var(--canopy)"/>
+            <circle cx="19" cy="19" r="2.7" fill="var(--canopy)"/>
+            <circle cx="24" cy="5" r="1.9" fill="var(--canopy)"/>
+          </pattern>
+        </defs>
+
+        <!-- water ground -->
+        <rect x="0" y="0" width="1000" height="1300" fill="var(--water)"/>
+        <rect x="0" y="534" width="1000" height="166" fill="var(--water-deep)"/>
+
+        <!-- ================= 312 plate ================= -->
+        <g>
+          <path d="M40 68 L700 68 L714 112 L728 172 L718 242 L732 302 L716 362 L726 420 L700 470 L658 504 L600 520 L520 529 L430 531 L340 524 L240 529 L150 520 L80 511 L40 496 Z" fill="var(--land-312)"/>
+          <g clip-path="url(#clip312)">
+            <rect x="40" y="60" width="700" height="480" fill="url(#grid312)"/>
+            <!-- arterials -->
+            <path d="M60 428 C 200 423, 360 418, 502 429" stroke="var(--road)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M300 70 L300 516" stroke="var(--road)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M60 232 L726 243" stroke="var(--road)" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <!-- lake shore drive -->
+            <path d="M698 74 C 716 200, 708 360, 652 498" stroke="var(--road)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- bridge approach -->
+            <path d="M502 429 C 514 468, 492 498, 486 524" stroke="var(--road)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- river: in from the lake, forking north and southwest -->
+            <path d="M730 300 C 660 304, 600 302, 556 306 C 520 310, 480 330, 430 372 C 350 436, 280 466, 206 478" stroke="var(--river)" stroke-width="13" fill="none" stroke-linecap="round"/>
+            <path d="M556 306 C 580 240, 596 150, 604 72" stroke="var(--river)" stroke-width="11" fill="none" stroke-linecap="round"/>
+            <!-- the elevated loop, around the downtown knot -->
+            <rect x="108" y="416" width="118" height="72" rx="4" fill="none" stroke="var(--a312)" stroke-width="2.4" stroke-dasharray="7 5" opacity=".85"/>
+          </g>
+
+          <!-- area code stamp -->
+          <text x="766" y="400" font-family="var(--font-code)" font-size="88" fill="var(--a312)" opacity=".3">312</text>
+          <text x="769" y="340" font-family="var(--font-label)" font-size="15" letter-spacing="4.4" fill="var(--a312)" opacity=".8">AREA CODE</text>
+
+          <!-- lake label + scale -->
+          <text x="824" y="206" text-anchor="middle" font-family="var(--font-label)" font-size="17" letter-spacing="3" fill="var(--ink-soft)" opacity=".8">THE LAKE</text>
+          <g transform="translate(560,486)">
+            <path d="M0 0 H129" stroke="var(--ink-soft)" stroke-width="2" fill="none"/>
+            <path d="M0 -4 V4 M129 -4 V4" stroke="var(--ink-soft)" stroke-width="2" fill="none"/>
+            <text x="64" y="-8" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--ink-soft)">100 units</text>
+          </g>
+
+          <!-- ---- inset: the downtown knot ---- -->
+          <g>
+            <rect x="70" y="100" width="320" height="190" rx="3" fill="var(--panel)" stroke="var(--a312)" stroke-width="1.4"/>
+            <text x="82" y="122" font-family="var(--font-label)" font-size="14" letter-spacing="1.6" fill="var(--a312)">DOWNTOWN KNOT &mdash; 50 UNITS ACROSS</text>
+            <path d="M82 130 H378" stroke="var(--rule)" stroke-width="1" fill="none"/>
+            <g transform="translate(292,268)">
+              <path d="M0 0 H52" stroke="var(--ink-soft)" stroke-width="1.6" fill="none"/>
+              <path d="M0 -3 V3 M52 -3 V3" stroke="var(--ink-soft)" stroke-width="1.6" fill="none"/>
+              <text x="26" y="-7" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--ink-soft)">10 units</text>
+            </g>
+            <!-- inset pins -->
+            <g>
+              <title>Chicago Main spawn (-450, 6015) and Sheriff's Office (-448, 6011) — 4 units apart</title>
+              <circle cx="115" cy="220" r="6.5" fill="var(--m-spawn)" stroke="var(--panel)" stroke-width="1.6"/>
+              <circle cx="124" cy="229" r="6.5" fill="var(--m-law)" stroke="var(--panel)" stroke-width="1.6"/>
+              <path d="M133 226 H150" stroke="var(--ink-soft)" stroke-width="1" fill="none"/>
+              <text x="154" y="222" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Main spawn</text>
+              <text x="154" y="236" font-family="var(--font-label)" font-size="13" fill="var(--ink)">+ Sheriff&rsquo;s Office</text>
+            </g>
+            <g>
+              <title>24/7 Chicago (-440, 6005)</title>
+              <circle cx="158" cy="258" r="6.5" fill="var(--m-shop)" stroke="var(--panel)" stroke-width="1.6"/>
+              <text x="170" y="262" font-family="var(--font-label)" font-size="13" fill="var(--ink)">24/7</text>
+            </g>
+            <g>
+              <title>Chicago Hardware (-420, 6025)</title>
+              <circle cx="254" cy="170" r="6.5" fill="var(--m-shop)" stroke="var(--panel)" stroke-width="1.6"/>
+              <text x="266" y="174" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Hardware</text>
+            </g>
+            <g>
+              <title>Taxi depot (-400, 6030)</title>
+              <circle cx="344" cy="152" r="6.5" fill="var(--m-svc)" stroke="var(--panel)" stroke-width="1.6"/>
+              <text x="338" y="172" text-anchor="end" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Taxi</text>
+            </g>
+          </g>
+
+          <!-- ---- 312 pins on the plate ---- -->
+          <g>
+            <title>Downtown knot: 5 locations within 50 units — see inset</title>
+            <circle cx="154" cy="451" r="11" fill="none" stroke="var(--a312)" stroke-width="2.4"/>
+            <circle cx="154" cy="451" r="4" fill="var(--a312)"/>
+            <path d="M154 440 V294" stroke="var(--a312)" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+            <text x="170" y="466" font-family="var(--font-label)" font-size="13" fill="var(--ink)">5 locations</text>
+          </g>
+          <g>
+            <title>Ammu-Nation Chicago (-330.2, 6083.9)</title>
+            <circle cx="284" cy="399" r="7" fill="var(--m-shop)" stroke="var(--land-312)" stroke-width="1.6"/>
+            <text x="296" y="403" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Ammu-Nation</text>
+          </g>
+          <g>
+            <title>Lakeshore General and the EMS station (-245, 6325) — same coordinates</title>
+            <circle cx="394" cy="213" r="7" fill="var(--m-med)" stroke="var(--land-312)" stroke-width="1.6"/>
+            <text x="406" y="210" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Lakeshore General</text>
+            <text x="406" y="224" font-family="var(--font-label)" font-size="13" fill="var(--ink-soft)">+ EMS station</text>
+          </g>
+          <g>
+            <title>Winterline Memorial (-150, 6100)</title>
+            <circle cx="517" cy="387" r="7" fill="var(--m-med)" stroke="var(--land-312)" stroke-width="1.6"/>
+            <text x="531" y="391" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Winterline Memorial</text>
+          </g>
+          <g>
+            <title>Paleto Boulevard spawn (-125, 6380)</title>
+            <circle cx="549" cy="170" r="7" fill="var(--m-spawn)" stroke="var(--land-312)" stroke-width="1.6"/>
+            <path d="M544 177 L522 230" stroke="var(--ink-soft)" stroke-width="1" fill="none"/>
+            <text x="518" y="241" text-anchor="end" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Paleto Blvd spawn</text>
+          </g>
+          <g>
+            <title>Chicago Gas (-94, 6419)</title>
+            <circle cx="589" cy="140" r="7" fill="var(--m-shop)" stroke="var(--land-312)" stroke-width="1.6"/>
+            <path d="M589 133 V112" stroke="var(--ink-soft)" stroke-width="1" fill="none"/>
+            <text x="589" y="104" text-anchor="middle" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Chicago Gas</text>
+          </g>
+          <g>
+            <title>Beeker's Mechanic (-70, 6406)</title>
+            <circle cx="620" cy="150" r="7" fill="var(--m-svc)" stroke="var(--land-312)" stroke-width="1.6"/>
+            <path d="M627 153 L646 162" stroke="var(--ink-soft)" stroke-width="1" fill="none"/>
+            <text x="650" y="166" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Beeker&rsquo;s</text>
+          </g>
+        </g>
+
+        <!-- ================= the bridge ================= -->
+        <g>
+          <rect x="440" y="520" width="92" height="184" fill="var(--road)"/>
+          <path d="M440 520 V704 M532 520 V704" stroke="var(--rule)" stroke-width="1.2" fill="none"/>
+          <path d="M486 522 V702" stroke="var(--road-minor)" stroke-width="1.6" stroke-dasharray="11 9" fill="none"/>
+          <path d="M432 566 H540 M432 658 H540" stroke="var(--a312)" stroke-width="3.4" opacity=".55" fill="none"/>
+          <path d="M440 566 C 466 596, 506 596, 532 566" stroke="var(--ink-soft)" stroke-width="1.4" fill="none" opacity=".7"/>
+          <path d="M440 658 C 466 628, 506 628, 532 658" stroke="var(--ink-soft)" stroke-width="1.4" fill="none" opacity=".7"/>
+          <text x="556" y="616" font-family="var(--font-label)" font-size="15" letter-spacing="2.2" fill="var(--ink-soft)">THE BRIDGE</text>
+        </g>
+
+        <!-- off-plate: the jail -->
+        <g>
+          <title>County jail cell (1691, 2565) — outside both mapped plates, inside the 1017 band</title>
+          <rect x="792" y="590" width="154" height="54" rx="3" fill="var(--panel)" stroke="var(--rule)" stroke-width="1.2" stroke-dasharray="6 4"/>
+          <circle cx="812" cy="612" r="6.5" fill="var(--m-law)"/>
+          <text x="826" y="610" font-family="var(--font-label)" font-size="13" fill="var(--ink)">County jail</text>
+          <text x="826" y="625" font-family="var(--font-mono)" font-size="10" fill="var(--ink-soft)">off-plate &middot; 1017 band</text>
+          <path d="M869 646 V700" stroke="var(--rule)" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+        </g>
+
+        <!-- north arrow -->
+        <g transform="translate(944,742)">
+          <path d="M0 26 L0 -14 M0 -14 L-7 -2 M0 -14 L7 -2" stroke="var(--ink-soft)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <text x="0" y="-22" text-anchor="middle" font-family="var(--font-label)" font-size="14" fill="var(--ink-soft)">N</text>
+        </g>
+
+        <!-- ================= 1017 plate ================= -->
+        <g>
+          <path d="M40 742 L120 716 L230 705 L352 700 L470 705 L590 697 L700 709 L820 701 L940 713 L958 1258 L40 1258 Z" fill="var(--land-1017)"/>
+          <g clip-path="url(#clip1017)">
+            <rect x="40" y="690" width="920" height="580" fill="url(#canopy1017)" opacity=".75"/>
+            <!-- the perimeter ring -->
+            <ellipse cx="688" cy="992" rx="228" ry="190" fill="none" stroke="var(--road)" stroke-width="7"/>
+            <!-- the connector, splitting north of downtown -->
+            <path d="M690 1248 C 684 1150, 678 1060, 676 906" stroke="var(--road)" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M676 906 C 640 838, 560 760, 486 706" stroke="var(--road)" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M676 906 C 730 846, 800 772, 842 710" stroke="var(--road)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- spokes out to the edges -->
+            <path d="M462 962 C 340 944, 220 936, 118 930" stroke="var(--road)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M862 1042 C 900 1080, 930 1140, 946 1206" stroke="var(--road)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M560 1158 C 490 1200, 400 1230, 300 1250" stroke="var(--road)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <!-- local roads, irregular on purpose -->
+            <path d="M520 800 C 600 826, 690 812, 790 840" stroke="var(--road-1017)" stroke-width="3.4" fill="none"/>
+            <path d="M600 1092 C 680 1120, 770 1104, 860 1128" stroke="var(--road-1017)" stroke-width="3.4" fill="none"/>
+            <path d="M742 740 C 752 820, 744 900, 756 1000 C 766 1082, 790 1140, 804 1196" stroke="var(--road-1017)" stroke-width="3.4" fill="none"/>
+            <path d="M160 1042 C 260 1066, 360 1058, 452 1086" stroke="var(--road-1017)" stroke-width="3.4" fill="none"/>
+            <path d="M250 760 C 300 820, 316 900, 310 980" stroke="var(--road-1017)" stroke-width="3.4" fill="none"/>
+          </g>
+
+          <!-- area code stamp -->
+          <text x="150" y="1166" font-family="var(--font-code)" font-size="92" fill="var(--a1017)" opacity=".22">1017</text>
+          <text x="153" y="1106" font-family="var(--font-label)" font-size="15" letter-spacing="4.4" fill="var(--a1017)" opacity=".75">AREA CODE</text>
+          <text x="153" y="1196" font-family="var(--font-label)" font-size="14" fill="var(--ink-soft)">No job stations in this city yet</text>
+
+          <!-- scale -->
+          <g transform="translate(153,1236)">
+            <path d="M0 0 H194" stroke="var(--ink-soft)" stroke-width="2" fill="none"/>
+            <path d="M0 -4 V4 M194 -4 V4" stroke="var(--ink-soft)" stroke-width="2" fill="none"/>
+            <text x="97" y="-8" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--ink-soft)">500 units</text>
+          </g>
+
+          <!-- ---- 1017 pins ---- -->
+          <g>
+            <title>Red Clay General (298, -584)</title>
+            <circle cx="870" cy="790" r="7" fill="var(--m-med)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="856" y="794" text-anchor="end" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Red Clay General</text>
+          </g>
+          <g>
+            <title>Peach Ridge Medical (-912, -870)</title>
+            <circle cx="400" cy="880" r="7" fill="var(--m-med)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="414" y="884" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Peach Ridge Medical</text>
+          </g>
+          <g>
+            <title>Legion Square spawn (195.2, -933.8)</title>
+            <circle cx="830" cy="900" r="7" fill="var(--m-spawn)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="830" y="884" text-anchor="middle" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Legion Square spawn</text>
+          </g>
+          <g>
+            <title>Alta Street spawn (-269.4, -955.3)</title>
+            <circle cx="650" cy="907" r="7" fill="var(--m-spawn)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="636" y="911" text-anchor="end" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Alta Street spawn</text>
+          </g>
+          <g>
+            <title>Ammu-Nation Atlanta (22, -1107)</title>
+            <circle cx="763" cy="954" r="7" fill="var(--m-shop)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="777" y="958" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Ammu-Nation</text>
+          </g>
+          <g>
+            <title>Little Seoul Gas (-526, -1211)</title>
+            <circle cx="550" cy="987" r="7" fill="var(--m-shop)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="536" y="991" text-anchor="end" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Little Seoul Gas</text>
+          </g>
+          <g>
+            <title>24/7 Atlanta (25.7, -1347.3)</title>
+            <circle cx="764" cy="1030" r="7" fill="var(--m-shop)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="778" y="1034" font-family="var(--font-label)" font-size="13" fill="var(--ink)">24/7 Atlanta</text>
+          </g>
+          <g>
+            <title>LTD Grove Street gas (-70.2, -1761.8)</title>
+            <circle cx="727" cy="1160" r="7" fill="var(--m-shop)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="713" y="1164" text-anchor="end" font-family="var(--font-label)" font-size="13" fill="var(--ink)">LTD Grove St</text>
+          </g>
+          <g>
+            <title>Atlanta Hardware (45, -1748)</title>
+            <circle cx="772" cy="1156" r="7" fill="var(--m-shop)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="786" y="1160" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Hardware</text>
+          </g>
+          <g>
+            <title>Del Perro Pier spawn (-1606.9, -1029.6) — 1,340 units west of the next nearest pin</title>
+            <circle cx="130" cy="930" r="7" fill="var(--m-spawn)" stroke="var(--land-1017)" stroke-width="1.6"/>
+            <text x="144" y="926" font-family="var(--font-label)" font-size="13" fill="var(--ink)">Del Perro Pier spawn</text>
+            <text x="144" y="940" font-family="var(--font-label)" font-size="12" fill="var(--ink-soft)">1,340 units out west</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Each plate is scaled to fit its own frame, so the two are not to the same scale &mdash; compare the scale bars: 100 units on 312 is about as wide as 500 units on 1017. North is up on both, matching the game&rsquo;s own axis, where driving north takes you from 1017 to 312.</figcaption>
+  </figure>
+
+  <section>
+    <h2>What the pins mean</h2>
+    <ul class="key">
+      <li><span class="dot" style="background:var(--m-spawn)"></span>Spawn point</li>
+      <li><span class="dot" style="background:var(--m-shop)"></span>Shop, gas or Ammu-Nation</li>
+      <li><span class="dot" style="background:var(--m-med)"></span>Hospital or EMS</li>
+      <li><span class="dot" style="background:var(--m-law)"></span>Sheriff or jail</li>
+      <li><span class="dot" style="background:var(--m-svc)"></span>Mechanic or taxi</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Every pin, with its real coordinates</h2>
+    <div class="tables">
+      <div class="city">
+        <div class="cityhead">
+          <h2><span class="code312">312</span></h2>
+          <span class="note">11 locations, north to south</span>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Location</th><th>X</th><th>Y</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>Chicago Gas</td><td class="num">-94.0</td><td class="num">6419.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-svc)"></span>Beeker&rsquo;s Mechanic</td><td class="num">-70.0</td><td class="num">6406.0</td><td><span class="chip walked">smoke test</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-spawn)"></span>Paleto Boulevard spawn</td><td class="num">-125.0</td><td class="num">6380.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-med)"></span>Lakeshore General + EMS</td><td class="num">-245.0</td><td class="num">6325.0</td><td><span class="chip walked">smoke test</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-med)"></span>Winterline Memorial</td><td class="num">-150.0</td><td class="num">6100.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>Ammu-Nation Chicago</td><td class="num">-330.2</td><td class="num">6083.9</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-svc)"></span>Taxi depot</td><td class="num">-400.0</td><td class="num">6030.0</td><td><span class="chip walked">smoke test</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>Chicago Hardware</td><td class="num">-420.0</td><td class="num">6025.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-spawn)"></span>Chicago Main spawn</td><td class="num">-450.0</td><td class="num">6015.0</td><td><span class="chip walked">smoke test</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-law)"></span>Sheriff&rsquo;s Office</td><td class="num">-448.0</td><td class="num">6011.0</td><td><span class="chip walked">smoke test</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>24/7 Chicago</td><td class="num">-440.0</td><td class="num">6005.0</td><td><span class="chip">placeholder</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="city">
+        <div class="cityhead">
+          <h2><span class="code1017">1017</span></h2>
+          <span class="note">10 locations, north to south</span>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Location</th><th>X</th><th>Y</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td><span class="swatch" style="background:var(--m-med)"></span>Red Clay General</td><td class="num">298.0</td><td class="num">-584.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-med)"></span>Peach Ridge Medical</td><td class="num">-912.0</td><td class="num">-870.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-spawn)"></span>Legion Square spawn</td><td class="num">195.2</td><td class="num">-933.8</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-spawn)"></span>Alta Street spawn</td><td class="num">-269.4</td><td class="num">-955.3</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-spawn)"></span>Del Perro Pier spawn</td><td class="num">-1606.9</td><td class="num">-1029.6</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>Ammu-Nation Atlanta</td><td class="num">22.0</td><td class="num">-1107.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>Little Seoul Gas</td><td class="num">-526.0</td><td class="num">-1211.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>24/7 Atlanta</td><td class="num">25.7</td><td class="num">-1347.3</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>Atlanta Hardware</td><td class="num">45.0</td><td class="num">-1748.0</td><td><span class="chip">placeholder</span></td></tr>
+              <tr><td><span class="swatch" style="background:var(--m-shop)"></span>LTD Grove Street gas</td><td class="num">-70.2</td><td class="num">-1761.8</td><td><span class="chip">placeholder</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="notes">
+    <h3>Read before you walk them</h3>
+    <ul>
+      <li><b>312 is two knots, not a city.</b> Five locations sit within 50 units of each other, and three more sit 400 units northeast. The spawn point and the Sheriff&rsquo;s Office are 4 units apart, so a new player lands practically inside the station.</li>
+      <li><b>1017 sprawls.</b> Its pins span 1,900 units east to west, and the Del Perro Pier spawn alone is 1,340 units from its nearest neighbour. Anyone spawning there needs a car before anything else.</li>
+      <li><b>1017 has no jobs.</b> Every job station in the code &mdash; sheriff, EMS, mechanic, taxi &mdash; is in 312 only. Work in 1017 means driving north.</li>
+      <li><b>Each city now has two hospitals.</b> Going down sends you to whichever one is closer to where you dropped, so the corner of the city you fall in decides where you wake up.</li>
+      <li><b>The jail is off both plates.</b> Its cell sits at 1691, 2565, east and north of everything mapped here, inside the 1017 band. Arrests send you across the channel: an arrest in 1017 releases you in 312.</li>
+      <li><b>The middle band is still unclaimed.</b> The channel on this map covers the stretch the code hands to a third city, so the bridge is a proposal, not a fact yet.</li>
+      <li><b>Only six pins have been walked.</b> Everything marked <span class="chip">placeholder</span> was picked near a stock landmark and has never been stood on in-game.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
