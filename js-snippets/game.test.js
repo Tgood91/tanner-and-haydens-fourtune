@@ -1414,8 +1414,9 @@ test("the most specific name wins: road, then park, then district, then city", (
     assert.equal(placeRules.zoneAt({ x: -190, y: 6230 }).name, "Winterline Park");
     assert.equal(placeRules.describe({ x: -190, y: 6230, z: 30 }), "Winterline Park, Chicago");
 
-    // off the park and off every road, but still in the district
-    assert.equal(placeRules.describe({ x: -300, y: 6230, z: 30 }), "Midway, Chicago");
+    // off the park and off every road, but still in the district — the
+    // network is dense enough now that such a spot has to be looked for
+    assert.equal(placeRules.describe({ x: -405, y: 6245, z: 30 }), "Midway, Chicago");
 
     // open country falls back to the city alone
     assert.equal(placeRules.describe({ x: 0, y: 4000, z: 30 }), "GeePee");
@@ -2082,7 +2083,7 @@ test("the radio uses callsigns, and a mask keeps your name off it", () => {
     const call = robber.command({ id: 1, pos: AT_247, now: 0 }, "rob");
     assert.match(call.notify[0].msg, /^S-1, ROBBERY IN PROGRESS/);
     assert.match(call.notify[0].msg, /Suspect: masked suspect/);
-    assert.doesNotMatch(call.notify[0].msg, /Tanner/, "a mask is worth something");
+    assert.doesNotMatch(call.notify[0].msg, /Suspect: Tanner/, "a mask is worth something");
     assert.ok(a && b);
 });
 

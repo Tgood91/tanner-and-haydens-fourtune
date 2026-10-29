@@ -67,7 +67,7 @@ end
 same(W.Describe({ x = -75, y = 6180, z = 30 }), 'Lakeshore Drive, The Shoreline, Chicago', 'a road beats the district around it')
 same(W.ZoneAt({ x = -190, y = 6230 }).name, 'Winterline Park', 'the smaller circle wins')
 same(W.Describe({ x = -190, y = 6230, z = 30 }), 'Winterline Park, Chicago', 'a park beats its district')
-same(W.Describe({ x = -300, y = 6230, z = 30 }), 'Midway, Chicago', 'off the park and off every road, still in the district')
+same(W.Describe({ x = -405, y = 6245, z = 30 }), 'Midway, Chicago', 'off the park and off every road, still in the district')
 same(W.Describe({ x = 0, y = 4000, z = 30 }), 'GeePee', 'open country falls back to the city alone')
 same(W.Label({ x = -75, y = 6180, z = 30 }), 'Lakeshore Drive', 'the short label is the best name')
 

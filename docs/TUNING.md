@@ -88,4 +88,4 @@ something off is free; five saved outfits (`appearance.js`)
 
 ---
 
-131 JavaScript checks and 84 Lua checks pass headlessly. None of it has run inside FXServer.
+131 JavaScript checks and 301 Lua checks pass headlessly. None of it has run inside FXServer.

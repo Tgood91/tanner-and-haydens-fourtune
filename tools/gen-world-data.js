@@ -36,7 +36,7 @@ L.push('    },');
 L.push('');
 L.push('    roads = {');
 for (const r of places.ROADS) {
-  L.push(`        { name = ${q(r.name)}, city = ${q(r.city)}, width = ${r.width}, points = {`);
+  L.push(`        { name = ${q(r.name)}, city = ${q(r.city)}, kind = ${q(r.kind)}, width = ${r.width}, points = {`);
   for (const p of r.points) L.push(`            ${v(p)},`);
   L.push('        } },');
 }
