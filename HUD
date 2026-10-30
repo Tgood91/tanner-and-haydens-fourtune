@@ -1,0 +1,14 @@
+┌─────────────────────────────────────────────────┐
+│  [ATL 1017]   Cash: $2,340   Bank: $8,500        │  ← top left
+│  Job: Mechanic  ●  On Duty                       │
+│                                                  │
+│                                                  │
+│                                          ♥ ♥ ♥ ♥ │  ← health/armor bottom right
+│                                    [minimap]     │
+└─────────────────────────────────────────────────┘
+
+[crossing into 312 zone]
+→ screen fades briefly (like entering a tunnel)
+→ HUD city badge changes: "ATL 1017" → "CHI 312"
+→ radio station changes automatically (different ambient music)
+→ chat notification: "You're in Chicago territory. Watch your back."
