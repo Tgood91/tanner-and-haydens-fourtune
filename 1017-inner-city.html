@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1017 — Inner City</title>
+<style>
+  /* ============================================================
+     1017 INNER CITY — Atlanta's road net, a zoomed-in plate in
+     pure CSS. Same kit as the big map: one class per thing.
+       The Connector  — the spine, straight down the middle from
+                        the north towers, past the airport, out
+                        over the water on the bridge.
+       The Perimeter  — the big outer loop.
+       The Inner Loop — the small loop round the south towers;
+                        it shares the Perimeter's south run.
+       The Flyover    — curves off the hill and drops into the
+                        central interchange.
+       Grid streets   — the apartment blocks east; switchback
+                        streets on the hill west.
+
+     TAMPER GUIDE
+       left / top     move it (% of the map, from the top-left)
+       width / height resize it
+       rotate()       tilt it
+       Delete the <div> in the body and the feature is gone.
+     ============================================================ */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0b1526; font-family: Arial, Helvetica, sans-serif;
+         display: flex; flex-direction: column; align-items: center; padding: 24px 12px; }
+  h1 { color: #e8eef7; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }
+  p.note { color: #8fa5c0; font-size: 13px; margin-bottom: 16px; }
+
+  /* ---- the plate: open water ---- */
+  .map { position: relative; width: min(92vw, 640px); aspect-ratio: 6 / 5;
+         background: linear-gradient(180deg, #1c4f78, #12395c);
+         border-radius: 18px; overflow: hidden;
+         box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+
+  /* ---- the land: coast bites at the corners, harbor west, bay south ---- */
+  .land { position: absolute; inset: 0;
+          background: linear-gradient(180deg, #a3a37a, #b0a679 60%, #a49c74);
+          clip-path: polygon(10% 0, 84% 0, 90% 8%, 100% 14%, 100% 60%, 94% 66%, 90% 74%,
+                             84% 76%, 82% 92%, 18% 92%, 4% 76%, 13% 70%, 9% 58%, 0 46%,
+                             0 16%, 6% 10%); }
+
+  /* ---- the hill: west, scrubby, streets wind over it ---- */
+  .hill { position: absolute; left: -4%; top: 12%; width: 32%; height: 44%;
+          background: radial-gradient(ellipse at 45% 45%, #7f8a4c, #6c7843 55%, rgba(108,120,67,0) 75%);
+          border-radius: 50%; }
+
+  /* ---- districts: towers, blocks, houses ---- */
+  .core { position: absolute; border-radius: 6px; opacity: .9;
+          background: repeating-linear-gradient(0deg, #5f646b 0 5px, #7a8087 5px 10px); }
+  .core-north { left: 37%; top: 3%;  width: 24%; height: 22%; }    /* the north towers */
+  .core-south { left: 35%; top: 50%; width: 26%; height: 22%; }    /* the south towers */
+  .blocks { position: absolute; left: 62%; top: 22%; width: 30%; height: 34%; opacity: .55;
+            background: repeating-linear-gradient(-28deg, #8a7f72 0 10px, transparent 10px 18px);
+            border-radius: 40% 34% 38% 30%; }                       /* apartment rows east */
+  .houses { position: absolute; left: 60%; top: 48%; width: 28%; height: 18%; opacity: .45;
+            background: radial-gradient(circle, #9a6a50 30%, transparent 32%) 0 0 / 14px 14px;
+            border-radius: 40%; }                                    /* little houses south-east */
+
+  /* ---- roads: one base, then each road ---- */
+  .road { position: absolute; background: #d9d9d4; border-radius: 6px;
+          box-shadow: 0 0 0 1px rgba(60,60,60,.35); z-index: 2; }
+  .ring { position: absolute; border: solid #d9d9d4; border-radius: 50%; z-index: 2;
+          box-shadow: 0 0 0 1px rgba(60,60,60,.35), inset 0 0 0 1px rgba(60,60,60,.35); }
+  .street { position: absolute; background: #cfccc2; border-radius: 3px; height: .8%; z-index: 1; }
+
+  /* the spine — straight top to bottom, onto the bridge */
+  .connector { left: 48.6%; top: 0; width: 2.8%; height: 100%; z-index: 3;
+               background: linear-gradient(90deg, #d9d9d4 45%, #f2d16b 45% 55%, #d9d9d4 55%); }  /* yellow median */
+  .bridge    { left: 47.6%; top: 91%; width: 4.8%; height: 9%; z-index: 2; background: #7d7f80; border-radius: 0; }  /* deck rails */
+
+  /* the loops */
+  .perimeter  { left: 9%;  top: 9%;  width: 82%; height: 70%; border-width: 8px; }   /* The Perimeter */
+  .inner-loop { left: 14%; top: 40%; width: 68%; height: 39%; border-width: 6px; }   /* The Inner Loop — shares the south run */
+
+  /* the flyover: off the hill, curls down into the interchange */
+  .flyover { position: absolute; left: 32%; top: 11.5%; width: 17.5%; height: 30.5%; z-index: 3;
+             border: 7px solid #d9d9d4; border-top: none; border-right: none;
+             border-bottom-left-radius: 100% 100%;
+             filter: drop-shadow(0 0 1px rgba(60,60,60,.6)); }
+  .interchange { position: absolute; left: 46%; top: 36%; width: 8%; aspect-ratio: 1; z-index: 4;
+                 border: 4px solid #d9d9d4; border-radius: 50%;
+                 box-shadow: 0 0 0 1px rgba(60,60,60,.45), inset 0 0 0 1px rgba(60,60,60,.45); }  /* the central stack */
+  .south-stack { position: absolute; left: 46.5%; top: 74.5%; width: 7%; aspect-ratio: 1; z-index: 4;
+                 border: 4px solid #d9d9d4; border-radius: 50%;
+                 box-shadow: 0 0 0 1px rgba(60,60,60,.45); }        /* spine × the loops' south run */
+
+  /* the east grid — apartment streets, tilted with the blocks */
+  .grid-1 { left: 62%; top: 30%; width: 24%; transform: rotate(-28deg); }
+  .grid-2 { left: 63%; top: 38%; width: 26%; transform: rotate(-28deg); }
+  .grid-3 { left: 64%; top: 46%; width: 24%; transform: rotate(-28deg); }
+  .grid-4 { left: 69%; top: 25%; width: .6%; height: 28%; transform: rotate(-28deg); }
+  .grid-5 { left: 77%; top: 25%; width: .6%; height: 28%; transform: rotate(-28deg); }
+  /* south-east houses: a short grid off the Inner Loop */
+  .grid-6 { left: 62%; top: 58%; width: 22%; transform: rotate(12deg); }
+  .grid-7 { left: 72%; top: 52%; width: .6%; height: 16%; transform: rotate(12deg); }
+  /* the hill — switchback streets */
+  .hill-1 { position: absolute; left: 6%;  top: 22%; width: 18%; height: 10%; z-index: 1;
+            border: 3px solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
+  .hill-2 { position: absolute; left: 10%; top: 31%; width: 16%; height: 9%;  z-index: 1;
+            border: 3px solid #cfccc2; border-top: none; border-radius: 0 0 50% 50%; }
+  /* downtown cross streets */
+  .dt-1 { left: 38%; top: 12%; width: 22%; }
+  .dt-2 { left: 36%; top: 60%; width: 24%; }
+  .dt-3 { left: 42%; top: 51%; width: .6%; height: 20%; }
+  .dt-4 { left: 56%; top: 51%; width: .6%; height: 20%; }
+
+  /* ---- the airport: apron, runway, terminals ---- */
+  .apron { position: absolute; left: 6%; top: 80%; width: 76%; height: 12%;
+           background: #b9b6ad; border-radius: 3px; }
+  .runway { position: absolute; left: 10%; top: 86.5%; width: 66%; height: 3.2%; background: #4f5357; z-index: 1; }
+  .runway::after { content: ""; position: absolute; left: 3%; right: 3%; top: 45%; height: 10%;
+                   background: repeating-linear-gradient(90deg, #f2f2f2 0 14px, transparent 14px 28px); }
+  .terminal { position: absolute; top: 81.5%; height: 3.4%; background: #e8e6df; border-radius: 2px;
+              border: 1px solid rgba(60,60,60,.35); }
+  .terminal-w { left: 18%; width: 12%; }
+  .terminal-e { left: 60%; width: 12%; }
+  .tower { position: absolute; left: 33%; top: 80.8%; width: 2.2%; aspect-ratio: 1;
+           border-radius: 50%; background: #e8e6df; border: 2px solid #5b6066; }
+
+  /* ---- piers ---- */
+  .pier { position: absolute; background: repeating-linear-gradient(90deg, #7c7f82 0 10px, #5f6265 10px 20px);
+          border-radius: 3px; }
+  .pier-nw { left: 0;   top: 2%;  width: 12%; height: 4%; }
+  .pier-ne { left: 86%; top: 3%;  width: 14%; height: 4%; }
+  .pier-w  { left: 0;   top: 60%; width: 9%;  height: 9%; }      /* the west harbor */
+  .pier-se { left: 84%; top: 70%; width: 12%; height: 10%; transform: rotate(-20deg); }
+
+  /* ---- the marking: area code ---- */
+  .code { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5;
+          font-weight: 900; color: #fff; letter-spacing: 1px; font-size: clamp(34px, 9vw, 64px);
+          -webkit-text-stroke: 2px #111; text-shadow: 0 3px 0 #111, 0 6px 14px rgba(0,0,0,.5); }
+</style>
+</head>
+<body>
+  <h1>1017 — INNER CITY</h1>
+  <p class="note">The spine, two loops, the flyover, and the streets between. Pure CSS, same kit as the big map.</p>
+
+  <div class="map">
+    <div class="land"></div>
+    <div class="hill"></div>
+
+    <div class="core core-north"></div>
+    <div class="core core-south"></div>
+    <div class="blocks"></div>
+    <div class="houses"></div>
+
+    <div class="apron"></div>
+    <div class="runway"></div>
+    <div class="terminal terminal-w"></div>
+    <div class="terminal terminal-e"></div>
+    <div class="tower"></div>
+    <div class="pier pier-nw"></div>
+    <div class="pier pier-ne"></div>
+    <div class="pier pier-w"></div>
+    <div class="pier pier-se"></div>
+
+    <!-- streets -->
+    <div class="street grid-1"></div>
+    <div class="street grid-2"></div>
+    <div class="street grid-3"></div>
+    <div class="street grid-4"></div>
+    <div class="street grid-5"></div>
+    <div class="street grid-6"></div>
+    <div class="street grid-7"></div>
+    <div class="hill-1"></div>
+    <div class="hill-2"></div>
+    <div class="street dt-1"></div>
+    <div class="street dt-2"></div>
+    <div class="street dt-3"></div>
+    <div class="street dt-4"></div>
+
+    <!-- main roads -->
+    <div class="ring perimeter"></div>
+    <div class="ring inner-loop"></div>
+    <div class="road bridge"></div>
+    <div class="road connector"></div>
+    <div class="flyover"></div>
+    <div class="interchange"></div>
+    <div class="south-stack"></div>
+
+    <div class="code">1017</div>
+  </div>
+</body>
+</html>
