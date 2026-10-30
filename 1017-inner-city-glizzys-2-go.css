@@ -1,4 +1,6 @@
 /* 1017-inner-city — Glizzys-2-Go hot dog carts parked on the roads.
+   The spots below are the fallback: 1017-inner-city-glizzys-2-go.js moves every cart to a
+   random road spot on each load.
    Linked from the map with <link rel="stylesheet">. Remove the link and it all disappears;
    the <div>s it styles stay in the map but render as nothing. */
   /* ---- Glizzys-2-Go: hot dog carts parked on the roads (hover for the name) ---- */

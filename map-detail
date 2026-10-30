@@ -260,5 +260,6 @@
     <div class="code code-north">312</div>
     <div class="code code-south">1017</div>
   </div>
+  <script src="map-detail-glizzys-2-go.js"></script>
 </body>
 </html>
