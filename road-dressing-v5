@@ -1,0 +1,24 @@
+  /* ---- v5: cratered stretch, second hairpin, construction ---- */
+  .pothole.big   { width: 3.4%; }
+  .pothole.small { width: 1.6%; }
+  .patch { position: absolute; background: #3a3a3c; border-radius: 3px; z-index: 2; }  /* tar repair */
+  .dig   { position: absolute; background: #6b5636; border-radius: 4px; z-index: 2; }  /* dug-up dirt */
+  .barrier { position: absolute; z-index: 3; border: 1px solid rgba(60,60,60,.4); border-radius: 2px;
+          background: repeating-linear-gradient(45deg, #ff7a1a 0 8px, #f5f2e8 8px 16px); }
+  .hairpin-2 { position: absolute; left: 65%; top: 41.6%; width: 8%; height: 6%;
+          border: 5px solid #d9d9d4; border-top: none; border-radius: 0 0 50% 50%;
+          box-shadow: 0 1px 0 rgba(60,60,60,.35); }                                     /* down the first hairpin's east leg, loops, climbs back to County Line */
+  /* the cratered stretch — County Line Road (y 40–41.6%), west half, before the Connector at 46.4% */
+  .crack-3   { left: 21%;   top: 40.7%; width: 6%; transform: rotate(-2deg); }
+  .pothole-6 { left: 24.5%; top: 39.9%; }
+  .pothole-7 { left: 29%;   top: 40.3%; }
+  .patch-1   { left: 32.5%; top: 40%;   width: 5%; height: 1.6%; }   /* the one they fixed — full road width, between craters */
+  .pothole-8 { left: 38.5%; top: 40%;   }
+  .pothole-9 { left: 42.5%; top: 40.3%; }
+  /* construction zone — the Perimeter's east arc, south of the Highfield Park Drive crossing.
+     ring centerline ≈ center (50%, 81%), radii 25.2% × 12.35%; rotations follow the curve */
+  .cone-3    { left: 74%;   top: 79.8%; }                                                    /* zone starts, due east */
+  .barrier-1 { left: 71.8%; top: 82%;   width: 6%; height: 2.2%; transform: rotate(-74deg); } /* closes the lane */
+  .cone-4    { left: 72.2%; top: 84.4%; }
+  .dig-1     { left: 67.1%; top: 86.1%; width: 7%; height: 4%; transform: rotate(-41deg); }   /* the hole itself */
+  .cone-5    { left: 65.7%; top: 89%;   }                                                    /* zone ends */
