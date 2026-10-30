@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mt. Fuugee — Summit Trail</title>
+<style>
+  /* ============================================================
+     MT. FUUGEE — SUMMIT TRAIL, a small map in pure CSS.
+     A dirt road spirals up the mountain in switchbacks: six
+     trail segments (t1–t6), each thinner than the last, joined
+     by discs (j1–j5) at the sharp turns. Caution signs at the
+     nasty corners, rocks where they fell, pines where they fit.
+     Same rules as the big map: one class per thing, tamper by
+     changing left / top / width / rotate.
+     ============================================================ */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0b1526; font-family: Arial, Helvetica, sans-serif;
+         display: flex; flex-direction: column; align-items: center; padding: 24px 12px; }
+  h1 { color: #e8eef7; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }
+  p.note { color: #8fa5c0; font-size: 13px; margin-bottom: 16px; }
+
+  /* ---- the plate: hillside country ---- */
+  .map { position: relative; width: min(92vw, 520px); aspect-ratio: 1 / 1;
+         background: linear-gradient(180deg, #7d8152, #5c6039 75%, #4c502f);
+         border-radius: 18px; overflow: hidden;
+         box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+  .scrub { position: absolute; background: rgba(52,74,40,.35); border-radius: 50%; }
+
+  /* ---- the mountain ---- */
+  .mountain { position: absolute; inset: 3% 2%;
+              background: linear-gradient(115deg, #97907f 20%, #7e7666 55%, #665e50);
+              clip-path: polygon(50% 1%, 99% 99%, 1% 99%); }
+  .shade { position: absolute; inset: 3% 2%; background: rgba(0,0,0,.16);
+              clip-path: polygon(50% 1%, 99% 99%, 50% 99%); }
+  .snowcap { position: absolute; left: 41.5%; top: 3.5%; width: 17%; height: 11%;
+              background: #efefea; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .contour { position: absolute; left: 50%; transform: translateX(-50%);
+              border: 1.5px solid rgba(60,50,30,.28); border-radius: 50%; }
+  .contour-1 { top: 15%; width: 26%; height: 9%; }
+  .contour-2 { top: 24%; width: 46%; height: 14%; }
+
+  /* ---- the dirt trail: segments + turn discs ---- */
+  .trail { position: absolute; background: #dcc79e; border-radius: 6px;
+           box-shadow: 0 0 0 2px #a68a5b; }
+  .t1 { left: 13%; top: 86%;   width: 37%; height: 3.2%; transform: rotate(-14deg); transform-origin: left center; }
+  .t2 { left: 22%; top: 77%;   width: 29%; height: 3%;   transform: rotate(14deg);  transform-origin: right center; }
+  .t3 { left: 24%; top: 69%;   width: 31%; height: 2.8%; transform: rotate(-16deg); transform-origin: left center; }
+  .t4 { left: 33%; top: 59%;   width: 22%; height: 2.5%; transform: rotate(15deg);  transform-origin: right center; }
+  .t5 { left: 35%; top: 52%;   width: 20%; height: 2.2%; transform: rotate(-55deg); transform-origin: left center; }
+  .t6 { left: 45%; top: 34%;   width: 14%; height: 2%;   transform: rotate(-68deg); transform-origin: left center; }
+  .joint { position: absolute; width: 5%; aspect-ratio: 1; border-radius: 50%;
+           background: #dcc79e; box-shadow: 0 0 0 2px #a68a5b; }
+  .j1 { left: 46.5%; top: 74.5%; }
+  .j2 { left: 20.5%; top: 67.5%; }
+  .j3 { left: 51%;   top: 57.5%; }
+  .j4 { left: 31%;   top: 50.5%; }
+  .j5 { left: 43.5%; top: 32.5%; }
+
+  /* ---- trailhead + summit ---- */
+  .trailhead { position: absolute; left: 9%; top: 86%; width: 9%; aspect-ratio: 1.2;
+               background: #b8a888; border: 2px solid rgba(70,58,38,.6); border-radius: 6px; }
+  .summit { position: absolute; left: 44%; top: 11%; width: 12%; aspect-ratio: 1;
+            border: 3px solid #fff; background: rgba(255,255,255,.25); border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(60,50,30,.35); }
+
+  /* ---- caution signs, rocks, pines ---- */
+  .sign { position: absolute; width: 4.4%; aspect-ratio: 1; background: #f7c948;
+          border: 2px solid #8a6d1a; transform: rotate(45deg); border-radius: 3px; }
+  .sign::after { content: "!"; position: absolute; inset: 0; display: grid; place-items: center;
+          transform: rotate(-45deg); font-weight: 900; color: #5c4708;
+          font-size: clamp(10px, 2.6vw, 16px); }
+  .sign-1 { left: 54%; top: 69%; }   /* first hairpin */
+  .sign-2 { left: 58%; top: 52%; }   /* the kink at j3 */
+  .sign-3 { left: 35%; top: 37%; }   /* the steep scramble */
+  .rock { position: absolute; background: #6f6a61; border-radius: 50%;
+          box-shadow: inset 0 -2px 3px rgba(0,0,0,.4); }
+  .rock-1 { left: 36%; top: 66%; width: 2.6%; aspect-ratio: 1; }  /* sitting on t2 */
+  .rock-2 { left: 44%; top: 60%; width: 2%;   aspect-ratio: 1; }  /* sitting on t3 */
+  .rock-3 { left: 64%; top: 44%; width: 3%;   aspect-ratio: 1; }
+  .rock-4 { left: 28%; top: 30%; width: 2.4%; aspect-ratio: 1; }
+  .pine { position: absolute; background: linear-gradient(180deg, #3d6b35, #2c5227);
+          clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .pine-1 { left: 16%; top: 56%; width: 5%; aspect-ratio: .9; }
+  .pine-2 { left: 71%; top: 63%; width: 4.4%; aspect-ratio: .9; }
+  .pine-3 { left: 22%; top: 20%; width: 4%; aspect-ratio: .9; }
+  .pine-4 { left: 68%; top: 25%; width: 4.6%; aspect-ratio: .9; }
+  .pine-5 { left: 60%; top: 84%; width: 5%; aspect-ratio: .9; }
+</style>
+</head>
+<body>
+  <h1>MT. FUUGEE</h1>
+  <p class="note">Summit trail — dirt switchbacks to the top. Pure CSS, same kit as the big map.</p>
+
+  <div class="map">
+    <div class="scrub" style="left:6%;  top:64%; width:22%; height:10%;"></div>
+    <div class="scrub" style="left:70%; top:8%;  width:20%; height:9%;"></div>
+    <div class="scrub" style="left:76%; top:70%; width:18%; height:10%;"></div>
+
+    <div class="mountain"></div>
+    <div class="shade"></div>
+    <div class="contour contour-1"></div>
+    <div class="contour contour-2"></div>
+    <div class="snowcap"></div>
+
+    <!-- the spiral up -->
+    <div class="trailhead"></div>
+    <div class="trail t1"></div>
+    <div class="joint j1"></div>
+    <div class="trail t2"></div>
+    <div class="joint j2"></div>
+    <div class="trail t3"></div>
+    <div class="joint j3"></div>
+    <div class="trail t4"></div>
+    <div class="joint j4"></div>
+    <div class="trail t5"></div>
+    <div class="joint j5"></div>
+    <div class="trail t6"></div>
+    <div class="summit"></div>
+
+    <!-- trail dressing -->
+    <div class="sign sign-1"></div>
+    <div class="sign sign-2"></div>
+    <div class="sign sign-3"></div>
+    <div class="rock rock-1"></div>
+    <div class="rock rock-2"></div>
+    <div class="rock rock-3"></div>
+    <div class="rock rock-4"></div>
+    <div class="pine pine-1"></div>
+    <div class="pine pine-2"></div>
+    <div class="pine pine-3"></div>
+    <div class="pine pine-4"></div>
+    <div class="pine pine-5"></div>
+  </div>
+</body>
+</html>
