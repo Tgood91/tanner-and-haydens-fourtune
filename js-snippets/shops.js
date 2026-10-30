@@ -29,8 +29,10 @@ const SHOPS = {
     gp_247:       { label: "Open 24 GeePee",        city: "geepee",  pos: { x: 1698.0, y: 4924.0,  z: 42.1 }, items: STOCK_247 },
     chi_247:      { label: "Open 24 Chicago",       city: "chicago", pos: { x: -440.0, y: 6005.0,  z: 31.7 }, items: STOCK_247 },
     chi_hardware: { label: "Chicago Hardware",   city: "chicago", pos: { x: -420.0, y: 6025.0,  z: 31.5 }, items: STOCK_HARDWARE },
+    atl_bigbackin: { label: "BigBackin' Bell",  city: "atlanta", pos: { x: 141.0,  y: -673.0,  z: 36.6 }, items: STOCK_247 },
+    atl_genfools:  { label: "General Fools",    city: "atlanta", pos: { x: -707.0, y: -900.0,  z: 19.2 }, items: STOCK_247 },
     // Sat near the stock gun-shop counters in the base game — walk them and tune
-    atl_ammu:     { label: "Gunworks Atlanta", city: "atlanta", pos: { x: 22.0,   y: -1107.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    atl_ammu:     { label: "Shooters Armoury", city: "atlanta", pos: { x: 22.0,   y: -1110.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
     gp_ammu:      { label: "Gunworks GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
     chi_ammu:     { label: "Gunworks Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
 };

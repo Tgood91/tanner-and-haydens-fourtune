@@ -876,7 +876,7 @@ test("console can issue a license (and it clears a ban); players can't", () => {
 test("every city has two hospitals, and you wake at the closer one", () => {
     const med = require("./medical");
     for (const [city, list] of Object.entries(med.HOSPITALS)) {
-        assert.equal(list.length, 2, `${city} should have two hospitals`);
+        assert.ok(list.length >= 2, `${city} should have at least two hospitals`);
         assert.notEqual(list[0].label, list[1].label);
         for (const h of list) assert.equal(cityAt(h.pos), city, `${h.label} isn't inside ${city}`);
     }

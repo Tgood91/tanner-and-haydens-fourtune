@@ -30,6 +30,7 @@ const HOSPITALS = {
     atlanta: [
         { label: "Red Clay General",    pos: { x: 298.0,  y: -584.0,  z: 43.3 } },
         { label: "Peach Ridge Medical", pos: { x: -912.0, y: -870.0,  z: 36.0 } },
+        { label: "Pillbrooke Medical",  pos: { x: 307.0,  y: -1441.0, z: 29.9 } },
     ],
     geepee: [
         { label: "Harvest County Clinic", pos: { x: 1839.0, y: 3672.0, z: 34.3 } },
