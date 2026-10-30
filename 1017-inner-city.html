@@ -213,6 +213,21 @@
   .casings-2 { left: 66%; top: 56%; }   /* the south-east houses */
   .casings-3 { left: 36%; top: 28%; }   /* under the Flyover */
 
+  /* ---- Glizzys-2-Go: hot dog carts parked on the roads (hover for the name) ---- */
+  .glizzys-2-go { position: absolute; width: 2.2%; aspect-ratio: 1.3; z-index: 6; border-radius: 3px;
+          background: linear-gradient(90deg, #d62828 0 33%, #f7c948 33% 66%, #d62828 66%);  /* ketchup, mustard */
+          border: 1px solid #5a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  .glizzys-2-go::after { content: ""; position: absolute; left: 50%; top: -70%; width: 120%; aspect-ratio: 2;
+          transform: translateX(-50%); border-radius: 50% 50% 0 0;
+          background: repeating-conic-gradient(from -90deg at 50% 100%, #d62828 0 30deg, #fff 30deg 60deg);
+          clip-path: inset(0 0 50% 0); }                                                   /* the umbrella */
+  .glizzys-2-go-1 { left: 48.9%; top: 69%; }   /* Connector, south towers */
+  .glizzys-2-go-2 { left: 77.5%; top: 18.8%; }   /* The Perimeter, north-east */
+  .glizzys-2-go-3 { left: 30.15%; top: 42.1%; }   /* Inner Loop, north-west */
+  .glizzys-2-go-4 { left: 41.9%; top: 76.7%; }   /* the south run */
+  .glizzys-2-go-5 { left: 52.9%; top: 19%; }   /* north towers, crosstown */
+  .glizzys-2-go-6 { left: 77.9%; top: 58.9%; }   /* south-east houses */
+
   /* ---- the marking: area code ---- */
   .code { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); z-index: 5;
           font-weight: 900; color: #fff; letter-spacing: 1px; font-size: clamp(34px, 9vw, 64px);
@@ -332,6 +347,14 @@
       <div class="casing" style="left:76%; top:10%; transform:rotate(148deg);"></div>
       <div class="casing" style="left:30%; top:74%; transform:rotate(30deg);"></div>
     </div>
+
+    <!-- Glizzys-2-Go carts -->
+    <div class="glizzys-2-go glizzys-2-go-1" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-2" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-3" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-4" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-5" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-6" title="Glizzys-2-Go"></div>
 
     <div class="code">1017</div>
   </div>
