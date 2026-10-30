@@ -19,6 +19,10 @@ const economy = require("./economy");
 const jobs = require("./jobs");
 const fuel = require("./fuel");
 const places = require("./places");
+const cities = require("./cities");
+
+const CITY_CODES = { chicago: "312", atlanta: "1017", geepee: "770" };
+const CITY_LABELS = { chicago: "CHI", atlanta: "ATL", geepee: "GP" };
 
 const HUD_EVERY_MS = 2000;
 const LOW = 25;        // under this a bar reads as low
@@ -62,6 +66,9 @@ function build(c, { world, crew, car } = {}) {
         status: statusOf(c),
 
         place: places.describe(c.pos),
+        city: (c.pos && cities.cityAt(c.pos)) || "atlanta",
+        cityCode: CITY_CODES[(c.pos && cities.cityAt(c.pos))] || "1017",
+        cityLabel: CITY_LABELS[(c.pos && cities.cityAt(c.pos))] || "ATL",
         time: world ? world.text : null,
         weather: world ? world.weather.toLowerCase() : null,
         night: world ? world.night : false,
