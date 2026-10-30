@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solid Map — 312 / 1017</title>
+<style>
+  /* ============================================================
+     SOLID MAP — the Fourtune world drawn in pure CSS.
+     No image files at all: water, land, roads, districts and
+     labels are styled boxes, blobs (border-radius), rings and
+     clip-path polygons. Schematic — it shows the world's shape
+     (312 north, country between, 1017 south), not walked coords.
+     Only markings on the map itself: the area codes, as always.
+     ============================================================ */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0b1526; font-family: Arial, Helvetica, sans-serif;
+         display: flex; flex-direction: column; align-items: center; padding: 24px 12px; }
+  h1 { color: #e8eef7; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }
+  p.note { color: #8fa5c0; font-size: 13px; margin-bottom: 16px; }
+
+  /* ---- the plate: open water ---- */
+  .map { position: relative; width: min(92vw, 560px); aspect-ratio: 4 / 5;
+         background: linear-gradient(160deg, #17456e, #0d2c4c 70%);
+         border-radius: 18px; overflow: hidden;
+         box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+
+  /* ---- the island: one solid landmass, clipped to shape ---- */
+  .land { position: absolute; inset: 3% 6%;
+          background: linear-gradient(180deg, #9aa578 0%, #a8ad7d 34%, #b3a877 55%, #8f9a72 78%, #7d8f6d 100%);
+          clip-path: polygon(38% 1%, 63% 3%, 72% 13%, 79% 30%, 74% 47%, 83% 65%, 77% 84%, 64% 98%, 35% 99%, 21% 87%, 19% 64%, 13% 44%, 19% 24%, 27% 10%); }
+
+  /* ---- Lake Michigan-side water biting into the 312 ---- */
+  .lake { position: absolute; top: -4%; right: -6%; width: 46%; height: 26%;
+          background: linear-gradient(200deg, #1a4d78, #123a5f);
+          border-radius: 46% 0 30% 62% / 60% 0 40% 55%; }
+
+  /* ---- country between: farm stripes + Mt. Fuugee ---- */
+  .farms { position: absolute; left: 16%; top: 36%; width: 62%; height: 24%;
+           background: repeating-linear-gradient(93deg, rgba(214,188,110,.35) 0 22px, rgba(148,160,94,.35) 22px 44px);
+           border-radius: 40% 46% 44% 40% / 30% 34% 30% 32%; }
+  .mountain { position: absolute; left: 30%; top: 37%; width: 24%; height: 15%;
+              background: linear-gradient(180deg, #8d8578, #6e675c);
+              clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .mountain::after { content: ""; position: absolute; left: 38%; top: 0; width: 24%; height: 34%;
+              background: #e9e9e4; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+  /* ---- Highfield Park: the 1017's east-side district ---- */
+  .highfield { position: absolute; right: 13%; bottom: 17%; width: 27%; height: 15%;
+               background: rgba(70, 62, 55, .45); border: 2px dashed rgba(40,36,32,.5);
+               border-radius: 34% 30% 36% 30% / 40% 38% 42% 38%; }
+
+  /* ---- roads: one base class, then each road ---- */
+  .road { position: absolute; background: #d9d9d4; border-radius: 6px;
+          box-shadow: 0 0 0 1px rgba(60,60,60,.35); }
+  .connector { left: 47%; top: 24%; width: 2.4%; height: 52%; }                    /* 1017 up through the country */
+  .backroads { left: 30%; top: 44%; width: 34%; height: 1.8%; transform: rotate(-24deg); transform-origin: left center; }
+  .lakeshore { right: 12%; top: 7%; width: 2.2%; height: 21%; transform: rotate(14deg); border-radius: 50%; }
+  .skyway    { left: 17%; top: 12%; width: 30%; height: 1.8%; transform: rotate(9deg); }
+  .drive     { right: 14%; bottom: 21.5%; width: 24%; height: 1.7%; transform: rotate(-7deg); background: #efe9dc; } /* Highfield Park Drive */
+  .perimeter { position: absolute; left: 24%; bottom: 6%; width: 52%; height: 26%;
+               border: 9px solid #d9d9d4; border-radius: 50%;
+               box-shadow: 0 0 0 1px rgba(60,60,60,.35), inset 0 0 0 1px rgba(60,60,60,.35); }
+
+  /* ---- the 312 port + the 1017 airport ---- */
+  .port { position: absolute; top: 4.5%; right: 15%; width: 15%; height: 4%;
+          background: repeating-linear-gradient(90deg, #7c7f82 0 10px, #5f6265 10px 20px); border-radius: 3px; }
+  .airport { position: absolute; left: 18%; bottom: 1.8%; width: 64%; height: 4.6%;
+             background: #565a5e; border-radius: 3px; }
+  .airport::after { content: ""; position: absolute; left: 3%; right: 3%; top: 46%; height: 8%;
+             background: repeating-linear-gradient(90deg, #f2f2f2 0 14px, transparent 14px 28px); }
+
+  /* ---- downtown cores ---- */
+  .core { position: absolute; background: repeating-linear-gradient(0deg, #6d7278 0 5px, #83898f 5px 10px);
+          border-radius: 4px; opacity: .85; }
+  .core-north { left: 26%; top: 9%; width: 17%; height: 12%; }
+  .core-south { left: 35%; bottom: 10%; width: 20%; height: 13%; }
+
+  /* ---- the only markings: area codes ---- */
+  .code { position: absolute; font-weight: 900; color: #fff; letter-spacing: 1px;
+          -webkit-text-stroke: 2px #111; text-shadow: 0 3px 0 #111, 0 6px 14px rgba(0,0,0,.5); z-index: 5; }
+  .code-north { top: 12%; left: 50%; transform: translateX(-50%); font-size: clamp(30px, 8vw, 52px); }
+  .code-south { bottom: 15%; left: 44%; transform: translateX(-50%); font-size: clamp(34px, 9vw, 60px); }
+</style>
+</head>
+<body>
+  <h1>SOLID MAP</h1>
+  <p class="note">Drawn in pure CSS — no image files. Schematic: the world's shape, not walked coordinates.</p>
+
+  <div class="map">
+    <div class="land"></div>
+    <div class="lake"></div>
+    <div class="farms"></div>
+    <div class="mountain"></div>
+    <div class="highfield"></div>
+
+    <div class="road connector"></div>
+    <div class="road backroads"></div>
+    <div class="road lakeshore"></div>
+    <div class="road skyway"></div>
+    <div class="perimeter"></div>
+    <div class="road drive"></div>
+
+    <div class="port"></div>
+    <div class="airport"></div>
+    <div class="core core-north"></div>
+    <div class="core core-south"></div>
+
+    <div class="code code-north">312</div>
+    <div class="code code-south">1017</div>
+  </div>
+</body>
+</html>
