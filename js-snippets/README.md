@@ -30,7 +30,7 @@ node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
 | `gangs.js` | Crews with Member/Officer/Leader ranks. Founding costs $25,000 and plants a base where you stand. Invite-and-accept only, `/g` radio chat that needs a **radio** in your bag, and a 120 kg shared stash that only opens at the base |
 | `phone.js` | A number per character, area code from the city you started in (7101 / 770 / 312). `/text` by number or player id, `/texts`, `/contacts`, `/save`. The phone **item** is required: no phone means no texts, no `/911` and no cab |
 | `taxi.js` | `/taxi` calls a cab, on-duty drivers get the ping, `/accept` claims it, `/startfare` starts the meter next to the passenger, `/endfare` bills them. The fare is $30 plus $8 per 100 units **actually driven**, teleports not counted |
-| `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi. Grades, duty, paychecks every 30 min |
+| `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi, Glizzys-2-Go hot dog carts. Grades, duty, paychecks every 30 min. Glizzys-2-Go is open hire: players `/apply glizzys` themselves and earn 11 gold/hr on duty |
 | `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` after 5 min for a bill at whichever of the city's two hospitals is closer to where you dropped |
 | `ammo.js` | Five ammo types, which gun takes which, `/loadammo` boxes into rounds (capped), `/unloadammo` full boxes back, `/equip` / `/holster`. Client ammo reports can only lower the count |
 | `robbery.js` | `/rob` a shop counter: needs a loaded gun in your hands and at least one officer on duty. Every cop gets the call, you must stand at the till 90s, and walking off, getting cuffed or going down ends it with nothing. Pays out as cash, with a cooldown on the shop and on you |
@@ -51,7 +51,7 @@ node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`, `settime <hour> [min]`, `setweather <kind>`, `freeze <time|weather> <on|off>`
 
@@ -75,7 +75,7 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - Taxi flag drop ($30), $8 per 100 units, $5 driver gold, 5-min call timeout (`taxi.js`)
 - Weapon license price ($2,500) and revoke ban (24h) (`licenses.js`)
 - Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
-- Gold: per-paycheck gold by job (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
+- Gold: per-paycheck gold by job, Glizzys-2-Go 11/hr (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
 - Revive/respawn health, 5-min bleedout, $150 EMS bonus, $500 hospital bill, and every hospital coord except Lakeshore General (`medical.js`)
 - Starting money (`character.js`), job pay (`jobs.js`), hunger/thirst rates (`needs.js`)

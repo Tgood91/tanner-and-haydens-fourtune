@@ -443,6 +443,22 @@ test("gold is earned on duty and by reviving — never by civilians, never trade
     assert.match(game.command(as(1), "balance").msg, /Gold: 45/);
 });
 
+test("Glizzys-2-Go: anyone can apply, 11 gold an hour on duty", () => {
+    const { game, a, as } = setup();
+    assert.match(game.command(as(1), "apply", ["police"]).msg, /isn't hiring. Open jobs: glizzys/);
+    assert.match(game.command(as(1), "apply", ["glizzys"]).msg, /Glizzys-2-Go — Cart Hand/);
+    assert.match(game.command(as(1), "apply", ["glizzys"]).msg, /already work for Glizzys-2-Go/);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 0); // off duty
+    game.command(as(1), "duty");
+    game.tick(PAY_INTERVAL_MIN, 0);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 11); // one hour
+    game.tick(PAY_INTERVAL_MIN, 0);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 22); // two hours
+});
+
 test("EMS earn gold for a revive", () => {
     const { game, b, as } = setup();
     game.command(CONSOLE, "setjob", ["2", "ems", "0"]);

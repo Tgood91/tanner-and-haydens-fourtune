@@ -345,6 +345,10 @@ function createGame(opts = {}) {
 
         // ----- jobs -----
         job: { help: "your job and pay", run: ({ c }) => reply(jobs.jobInfo(c)) },
+        apply: {
+            help: "<job> — take an open job (glizzys)",
+            run: ({ c, args }) => reply(jobs.applyJob(c, lower(args[0])).msg),
+        },
         duty: {
             help: "clock in / out — sheriff and EMS get a callsign with it",
             run: ({ c, ctx }) => {
@@ -1191,7 +1195,7 @@ function createGame(opts = {}) {
             minutesSincePay -= PAY_INTERVAL_MIN;
             for (const c of characters.values()) {
                 const amount = jobs.paycheckAmount(c);
-                const gold = jobs.paycheckGold(c);
+                const gold = jobs.paycheckGold(c, PAY_INTERVAL_MIN);
                 if (amount > 0) c.bank += amount;
                 if (gold > 0) c.gold += gold;
                 if (amount > 0 || gold > 0) {
