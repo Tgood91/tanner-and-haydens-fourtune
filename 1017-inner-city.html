@@ -109,6 +109,31 @@
   .dt-2 { left: 36%; top: 60%; width: 24%; }
   .dt-3 { left: 42%; top: 51%; width: .6%; height: 20%; }
   .dt-4 { left: 56%; top: 51%; width: .6%; height: 20%; }
+  /* north towers — a tight grid either side of the spine */
+  .dt-5 { left: 38%; top: 20%; width: 22%; }
+  .dt-6 { left: 41%; top: 4%;  width: .6%; height: 20%; }
+  .dt-7 { left: 57%; top: 4%;  width: .6%; height: 20%; }
+  /* south towers — one more crosstown */
+  .dt-8 { left: 36%; top: 67%; width: 24%; }
+  /* north-east, between the towers and the Perimeter */
+  .ne-1 { left: 62%; top: 14%; width: 14%; transform: rotate(8deg); }
+  .ne-2 { left: 66%; top: 11%; width: .6%; height: 10%; }
+  /* east grid — two more rows through the apartments */
+  .grid-8 { left: 61%; top: 34%; width: 26%; transform: rotate(-28deg); }
+  .grid-9 { left: 63%; top: 42%; width: 26%; transform: rotate(-28deg); }
+  .grid-10 { left: 73%; top: 25%; width: .6%; height: 28%; transform: rotate(-28deg); }
+  /* south-east houses — fill out the grid */
+  .grid-11 { left: 62%; top: 64%; width: 20%; transform: rotate(12deg); }
+  .grid-12 { left: 66%; top: 52%; width: .6%; height: 16%; transform: rotate(12deg); }
+  .grid-13 { left: 78%; top: 53%; width: .6%; height: 14%; transform: rotate(12deg); }
+  /* south-west, inside the Inner Loop, below the hill's foot */
+  .sw-1 { left: 18%; top: 62%; width: 16%; transform: rotate(-4deg); }
+  .sw-2 { left: 20%; top: 69%; width: 14%; transform: rotate(-4deg); }
+  .sw-3 { left: 25%; top: 58%; width: .6%; height: 15%; }
+  .sw-4 { left: 30%; top: 57%; width: .6%; height: 16%; }
+  /* the hill keeps its switchbacks — no grid on the mountain, just one more bend down to the Perimeter */
+  .hill-3 { position: absolute; left: 8%; top: 39%; width: 14%; height: 8%; z-index: 1;
+            border: 3px solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
 
   /* ---- the airport: apron, runway, terminals ---- */
   .apron { position: absolute; left: 6%; top: 80%; width: 76%; height: 12%;
@@ -174,6 +199,23 @@
     <div class="street dt-2"></div>
     <div class="street dt-3"></div>
     <div class="street dt-4"></div>
+    <div class="street dt-5"></div>
+    <div class="street dt-6"></div>
+    <div class="street dt-7"></div>
+    <div class="street dt-8"></div>
+    <div class="street ne-1"></div>
+    <div class="street ne-2"></div>
+    <div class="street grid-8"></div>
+    <div class="street grid-9"></div>
+    <div class="street grid-10"></div>
+    <div class="street grid-11"></div>
+    <div class="street grid-12"></div>
+    <div class="street grid-13"></div>
+    <div class="street sw-1"></div>
+    <div class="street sw-2"></div>
+    <div class="street sw-3"></div>
+    <div class="street sw-4"></div>
+    <div class="hill-3"></div>
 
     <!-- main roads -->
     <div class="ring perimeter"></div>
