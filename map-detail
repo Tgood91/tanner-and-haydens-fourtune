@@ -29,7 +29,7 @@
   p.note { color: #8fa5c0; font-size: 13px; margin-bottom: 16px; }
 
   /* ---- the plate: open water ---- */
-  .map { position: relative; width: min(92vw, 560px); aspect-ratio: 4 / 5;
+  .map { position: relative; width: min(94vw, 860px); aspect-ratio: 4 / 5;   /* big enough for the downtown towers */
          background: linear-gradient(160deg, #17456e, #0d2c4c 70%);
          border-radius: 18px; overflow: hidden;
          box-shadow: 0 18px 50px rgba(0,0,0,.55); }
@@ -127,10 +127,33 @@
              background: repeating-linear-gradient(90deg, #f2f2f2 0 14px, transparent 14px 28px); }
 
   /* ---- downtown cores ---- */
-  .core { position: absolute; background: repeating-linear-gradient(0deg, #6d7278 0 5px, #83898f 5px 10px);
-          border-radius: 4px; opacity: .85; }
+  .core { position: absolute; background: #6c7177; border-radius: 4px; opacity: .85; }   /* downtown pavement */
   .core-north { left: 26%; top: 9%; width: 17%; height: 12%; }
   .core-south { left: 35%; bottom: 10%; width: 20%; height: 13%; }
+
+  /* ---- downtown towers: every one 25 floors or more. --floors sets the height:
+     the taller the tower, the longer its shadow to the south-east. Hover for floors. ---- */
+  .highrise { position: absolute; z-index: 2; border-radius: 2px;
+           background: linear-gradient(135deg, #b9c0c8, #8f979f);
+           border: 1px solid rgba(30,34,40,.55);
+           box-shadow: calc(var(--floors) * .14px) calc(var(--floors) * .14px) 0 rgba(20,24,30,.45),
+                       calc(var(--floors) * .2px) calc(var(--floors) * .2px) 6px rgba(0,0,0,.25); }
+  .highrise::after { content: ""; position: absolute; inset: 22%; border: 1px solid rgba(40,44,50,.35); }
+  .highrise-n1 { left: 26.4%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 34; }
+  .highrise-n2 { left: 29.76%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 49; }
+  .highrise-n3 { left: 33.12%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 27; }
+  .highrise-n4 { left: 36.48%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 34; }
+  .highrise-n5 { left: 39.84%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 45; }
+  .highrise-s1 { left: 36.2%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 39; }
+  .highrise-s2 { left: 39.86%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 37; }
+  .highrise-s3 { left: 43.52%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 54; }
+  .highrise-s4 { left: 47.18%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 53; }
+  .highrise-s5 { left: 50.84%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 32; }
+  .highrise-s6 { left: 36.2%; top: 83.6%; width: 3.16%; height: 4.7%; --floors: 44; }
+  .highrise-s7 { left: 39.86%; top: 83.6%; width: 3.16%; height: 4.7%; --floors: 46; }
+  .highrise-s8 { left: 43.52%; top: 83.6%; width: 3.16%; height: 4.7%; --floors: 34; }
+  .highrise-s9 { left: 47.18%; top: 83.6%; width: 3.16%; height: 4.7%; --floors: 25; }
+  .highrise-s10 { left: 50.84%; top: 83.6%; width: 3.16%; height: 4.7%; --floors: 45; }
 
   /* ---- the only markings: area codes ---- */
   .code { position: absolute; font-weight: 900; color: #fff; letter-spacing: 1px;
@@ -194,6 +217,23 @@
     <div class="airport"></div>
     <div class="core core-north"></div>
     <div class="core core-south"></div>
+
+    <!-- downtown towers -->
+    <div class="highrise highrise-n1" title="312 downtown — 34 floors"></div>
+    <div class="highrise highrise-n2" title="312 downtown — 49 floors"></div>
+    <div class="highrise highrise-n3" title="312 downtown — 27 floors"></div>
+    <div class="highrise highrise-n4" title="312 downtown — 34 floors"></div>
+    <div class="highrise highrise-n5" title="312 downtown — 45 floors"></div>
+    <div class="highrise highrise-s1" title="1017 downtown — 39 floors"></div>
+    <div class="highrise highrise-s2" title="1017 downtown — 37 floors"></div>
+    <div class="highrise highrise-s3" title="1017 downtown — 54 floors"></div>
+    <div class="highrise highrise-s4" title="1017 downtown — 53 floors"></div>
+    <div class="highrise highrise-s5" title="1017 downtown — 32 floors"></div>
+    <div class="highrise highrise-s6" title="1017 downtown — 44 floors"></div>
+    <div class="highrise highrise-s7" title="1017 downtown — 46 floors"></div>
+    <div class="highrise highrise-s8" title="1017 downtown — 34 floors"></div>
+    <div class="highrise highrise-s9" title="1017 downtown — 25 floors"></div>
+    <div class="highrise highrise-s10" title="1017 downtown — 45 floors"></div>
 
     <!-- wear and tear -->
     <div class="pothole pothole-1"></div>
