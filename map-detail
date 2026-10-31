@@ -87,7 +87,7 @@
                background: rgba(70, 62, 55, .45); border: 2px dashed rgba(40,36,32,.5);
                border-radius: 34% 30% 36% 30% / 40% 38% 42% 38%; }
   .peach-ridge-park { left: 15%;  top: 78%; width: 5%; }
-  .groveland-park   { left: 40%; top: 87%; width: 5%; }
+  .groveland-park   { left: 55.5%; top: 88.9%; width: 3.6%; }   /* below the east towers, clear of every roof */
 
   /* ============================================================
      ROADS — one base class, then each road
@@ -129,7 +129,7 @@
   /* ---- downtown cores ---- */
   .core { position: absolute; background: #6c7177; border-radius: 4px; opacity: .85; }   /* downtown pavement */
   .core-north { left: 22.6%; top: 8.2%; width: 34.4%; height: 15%; }   /* grown to hold the extra towers */
-  .core-south { left: 29%; top: 75%; width: 39.5%; height: 14%; }   /* grown to hold the extra towers */
+  .core-south { left: 29%; top: 75%; width: 39.5%; height: 13.6%; }   /* grown to hold the extra towers */
 
   /* ---- downtown towers: every one 25 floors or more. --floors sets the height:
      the taller the tower, the longer its shadow to the south-east. Hover for floors. ---- */
