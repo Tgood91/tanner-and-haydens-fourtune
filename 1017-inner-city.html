@@ -51,10 +51,55 @@
           border-radius: 50%; }
 
   /* ---- districts: towers, blocks, houses ---- */
-  .core { position: absolute; border-radius: 6px; opacity: .9;
-          background: repeating-linear-gradient(0deg, #5f646b 0 5px, #7a8087 5px 10px); }
+  .core { position: absolute; border-radius: 6px; opacity: .9; background: #6c7177; }   /* downtown pavement */
   .core-north { left: 37%; top: 3%;  width: 24%; height: 22%; }    /* the north towers */
   .core-south { left: 35%; top: 50%; width: 26%; height: 22%; }    /* the south towers */
+
+  /* ---- the towers: every one 25 floors or more. --floors sets the height:
+     the taller the tower, the longer the shadow it throws to the south-east.
+     Hover a tower for its floor count. ---- */
+  .highrise { position: absolute; z-index: 1; border-radius: 2px;
+           background: linear-gradient(135deg, #b9c0c8, #8f979f);             /* the roof */
+           border: 1px solid rgba(30,34,40,.55);
+           box-shadow: calc(var(--floors) * .14px) calc(var(--floors) * .14px) 0 rgba(20,24,30,.45),
+                       calc(var(--floors) * .2px) calc(var(--floors) * .2px) 6px rgba(0,0,0,.25); }
+  .highrise::after { content: ""; position: absolute; inset: 22%; border: 1px solid rgba(40,44,50,.35); }  /* rooftop plant */
+  .highrise-n1 { left: 37.9%; top: 3.9%; width: 2.4%; height: 3.0%; --floors: 49; }
+  .highrise-n2 { left: 37.9%; top: 8.3%; width: 2.4%; height: 3.0%; --floors: 25; }
+  .highrise-n3 { left: 37.9%; top: 13.3%; width: 2.4%; height: 6.0%; --floors: 38; }
+  .highrise-n4 { left: 37.9%; top: 21.5%; width: 2.4%; height: 2.8%; --floors: 44; }
+  .highrise-n5 { left: 42.2%; top: 3.9%; width: 5.8%; height: 3.0%; --floors: 55; }
+  .highrise-n6 { left: 42.2%; top: 8.3%; width: 5.8%; height: 3.0%; --floors: 27; }
+  .highrise-n7 { left: 42.2%; top: 13.3%; width: 2.2%; height: 6.0%; --floors: 41; }
+  .highrise-n8 { left: 45.8%; top: 13.3%; width: 2.2%; height: 6.0%; --floors: 27; }
+  .highrise-n9 { left: 42.2%; top: 21.5%; width: 2.2%; height: 2.8%; --floors: 44; }
+  .highrise-n10 { left: 45.8%; top: 21.5%; width: 2.2%; height: 2.8%; --floors: 61; }
+  .highrise-n11 { left: 52.0%; top: 3.9%; width: 4.4%; height: 3.0%; --floors: 52; }
+  .highrise-n12 { left: 52.0%; top: 8.3%; width: 4.4%; height: 3.0%; --floors: 31; }
+  .highrise-n13 { left: 52.0%; top: 13.3%; width: 4.4%; height: 6.0%; --floors: 62; }
+  .highrise-n14 { left: 52.0%; top: 21.5%; width: 4.4%; height: 2.8%; --floors: 32; }
+  .highrise-n15 { left: 58.2%; top: 3.9%; width: 2.1%; height: 3.0%; --floors: 61; }
+  .highrise-n16 { left: 58.2%; top: 8.3%; width: 2.1%; height: 3.0%; --floors: 37; }
+  .highrise-n17 { left: 58.2%; top: 13.3%; width: 2.1%; height: 6.0%; --floors: 57; }
+  .highrise-n18 { left: 58.2%; top: 21.5%; width: 2.1%; height: 2.8%; --floors: 64; }
+  .highrise-s1 { left: 35.9%; top: 50.9%; width: 5.5%; height: 3.5%; --floors: 45; }
+  .highrise-s2 { left: 35.9%; top: 55.8%; width: 5.5%; height: 3.5%; --floors: 36; }
+  .highrise-s3 { left: 35.9%; top: 61.5%; width: 2.1%; height: 4.8%; --floors: 60; }
+  .highrise-s4 { left: 39.4%; top: 61.5%; width: 2.0%; height: 4.8%; --floors: 47; }
+  .highrise-s5 { left: 35.9%; top: 68.3%; width: 2.1%; height: 3.0%; --floors: 57; }
+  .highrise-s6 { left: 39.4%; top: 68.3%; width: 2.0%; height: 3.0%; --floors: 55; }
+  .highrise-s7 { left: 43.3%; top: 61.5%; width: 1.6%; height: 4.8%; --floors: 58; }
+  .highrise-s8 { left: 46.3%; top: 61.5%; width: 1.6%; height: 4.8%; --floors: 31; }
+  .highrise-s9 { left: 43.3%; top: 68.3%; width: 1.6%; height: 3.0%; --floors: 31; }
+  .highrise-s10 { left: 46.3%; top: 68.3%; width: 1.6%; height: 3.0%; --floors: 63; }
+  .highrise-s11 { left: 52.0%; top: 50.9%; width: 3.4%; height: 3.5%; --floors: 62; }
+  .highrise-s12 { left: 52.0%; top: 55.8%; width: 3.4%; height: 3.5%; --floors: 47; }
+  .highrise-s13 { left: 52.0%; top: 61.5%; width: 3.4%; height: 4.8%; --floors: 51; }
+  .highrise-s14 { left: 52.0%; top: 68.3%; width: 3.4%; height: 3.0%; --floors: 47; }
+  .highrise-s15 { left: 57.3%; top: 50.9%; width: 3.0%; height: 3.5%; --floors: 37; }
+  .highrise-s16 { left: 57.3%; top: 55.8%; width: 3.0%; height: 3.5%; --floors: 35; }
+  .highrise-s17 { left: 57.3%; top: 61.5%; width: 3.0%; height: 4.8%; --floors: 64; }
+  .highrise-s18 { left: 57.3%; top: 68.3%; width: 3.0%; height: 3.0%; --floors: 54; }
   .blocks { position: absolute; left: 62%; top: 22%; width: 30%; height: 34%; opacity: .55;
             background: repeating-linear-gradient(-28deg, #8a7f72 0 10px, transparent 10px 18px);
             border-radius: 40% 34% 38% 30%; }                       /* apartment rows east */
@@ -218,6 +263,44 @@
     <div class="street sw-3"></div>
     <div class="street sw-4"></div>
     <div class="hill-3"></div>
+
+    <!-- the towers -->
+    <div class="highrise highrise-n1" title="North towers — 49 floors"></div>
+    <div class="highrise highrise-n2" title="North towers — 25 floors"></div>
+    <div class="highrise highrise-n3" title="North towers — 38 floors"></div>
+    <div class="highrise highrise-n4" title="North towers — 44 floors"></div>
+    <div class="highrise highrise-n5" title="North towers — 55 floors"></div>
+    <div class="highrise highrise-n6" title="North towers — 27 floors"></div>
+    <div class="highrise highrise-n7" title="North towers — 41 floors"></div>
+    <div class="highrise highrise-n8" title="North towers — 27 floors"></div>
+    <div class="highrise highrise-n9" title="North towers — 44 floors"></div>
+    <div class="highrise highrise-n10" title="North towers — 61 floors"></div>
+    <div class="highrise highrise-n11" title="North towers — 52 floors"></div>
+    <div class="highrise highrise-n12" title="North towers — 31 floors"></div>
+    <div class="highrise highrise-n13" title="North towers — 62 floors"></div>
+    <div class="highrise highrise-n14" title="North towers — 32 floors"></div>
+    <div class="highrise highrise-n15" title="North towers — 61 floors"></div>
+    <div class="highrise highrise-n16" title="North towers — 37 floors"></div>
+    <div class="highrise highrise-n17" title="North towers — 57 floors"></div>
+    <div class="highrise highrise-n18" title="North towers — 64 floors"></div>
+    <div class="highrise highrise-s1" title="South towers — 45 floors"></div>
+    <div class="highrise highrise-s2" title="South towers — 36 floors"></div>
+    <div class="highrise highrise-s3" title="South towers — 60 floors"></div>
+    <div class="highrise highrise-s4" title="South towers — 47 floors"></div>
+    <div class="highrise highrise-s5" title="South towers — 57 floors"></div>
+    <div class="highrise highrise-s6" title="South towers — 55 floors"></div>
+    <div class="highrise highrise-s7" title="South towers — 58 floors"></div>
+    <div class="highrise highrise-s8" title="South towers — 31 floors"></div>
+    <div class="highrise highrise-s9" title="South towers — 31 floors"></div>
+    <div class="highrise highrise-s10" title="South towers — 63 floors"></div>
+    <div class="highrise highrise-s11" title="South towers — 62 floors"></div>
+    <div class="highrise highrise-s12" title="South towers — 47 floors"></div>
+    <div class="highrise highrise-s13" title="South towers — 51 floors"></div>
+    <div class="highrise highrise-s14" title="South towers — 47 floors"></div>
+    <div class="highrise highrise-s15" title="South towers — 37 floors"></div>
+    <div class="highrise highrise-s16" title="South towers — 35 floors"></div>
+    <div class="highrise highrise-s17" title="South towers — 64 floors"></div>
+    <div class="highrise highrise-s18" title="South towers — 54 floors"></div>
 
     <!-- main roads -->
     <div class="ring perimeter"></div>
