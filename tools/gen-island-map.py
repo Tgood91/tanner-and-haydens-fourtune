@@ -41,9 +41,9 @@ def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2
 ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
           (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
 MOUNTAIN = (780, 455)
-RING = (760, 470, 620, 300)        # The Perimeter, the island ring
-INNER = (760, 700, 380, 98)        # the Inner Loop round the 1017 towers
-MLOOP = (820, 450, 285, 165)       # County Line Road, round the mountain
+RING = (760, 470, 620, 345)        # The Perimeter: round the 312 waterfront, shares the south run with the Inner Loop
+INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
+MLOOP = (820, 470, 285, 150)       # County Line Road, round the mountain (clear of the 312)
 
 # ---------------------------------------------------------------- defs
 a(f'''<svg id="island" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south">
@@ -182,9 +182,9 @@ for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180
     road(f"farm-{i+1}", FARM_NAMES[i], f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
 # 312 grid streets: numbered west to east, lettered avenues north to south, like a real downtown
 def ordinal(n): return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
-for n, gx in enumerate(range(430, 1140, 34), 1):
+for n, gx in enumerate([g for g in range(430, 1140, 34) if abs(g - 760) > 15], 1):   # none doubling up on the Connector
     road(f"st312-v{gx}", f"{ordinal(n)} Street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
-for n, gy in enumerate(range(140, 310, 30)):
+for n, gy in enumerate(range(170, 290, 30)):   # A-D: the ring road is the waterfront edge, Palisade the south one
     road(f"st312-h{gy}", f"{'ABCDEF'[n]} Avenue", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
 
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
