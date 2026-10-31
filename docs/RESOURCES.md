@@ -58,7 +58,7 @@ requirements are missing, so a wrong order fails loudly instead of half-working.
 
 `world` and `fourtune` **overlap on purpose and are not meant to run together yet.**
 `world` is the Lua twin of `cities.js`, `places.js` and `spawns.js`. Both register
-`/whereami`, `/places` and `/cities`, so enabling both registers those commands twice and the
+`/whereami`, `/places`, `/streets` and `/cities`, so enabling both registers those commands twice and the
 second one silently loses.
 
 Pick one per system first:
