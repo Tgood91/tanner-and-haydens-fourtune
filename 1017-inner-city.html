@@ -260,6 +260,14 @@
   .ship-sea-3 { left: 5%;  top: 84%;   width: 3.4%; height: 1.4%; transform: rotate(-30deg); }  /* fishing boat in the south-west bay */
   .ship-sea-4 { left: 92%; top: 62%;   width: 6.5%; height: 1.7%; transform: rotate(-60deg); } /* ferry out of the east bay */
 
+  /* ---- the dockhand job station: where you /apply dockhand ---- */
+  .dockhand-station { position: absolute; left: 79.5%; top: 77.5%; width: 3.6%; aspect-ratio: 1; z-index: 6;
+          transform: translate(-50%, -50%); border-radius: 22%;
+          background: #1f4e79; border: 3px solid #f2c230;
+          box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(0,0,0,.55); }
+  .dockhand-station::before { content: ""; position: absolute; inset: 22%;            /* a shipping crate */
+          background: repeating-linear-gradient(90deg, #c46a2c 0 18%, #8f4a1c 18% 22%); border: 1px solid #5a2d0e; }
+
   /* ---- the marking: area code ---- */
   .code { position: absolute; right: 2.5%; bottom: 2%; z-index: 5;                 /* out in the bay, off the towers */
           font-weight: 900; color: #fff; letter-spacing: 1px; font-size: clamp(28px, 5vw, 110px);
@@ -314,6 +322,7 @@
     <div class="ship tanker ship-sea-2"></div>
     <div class="ship boat ship-sea-3"></div>
     <div class="ship ferry ship-sea-4"></div>
+    <div class="dockhand-station" title="Dockhand job station, south-east docks — /apply dockhand"></div>
 
     <!-- streets -->
     <div class="street grid-1"></div>

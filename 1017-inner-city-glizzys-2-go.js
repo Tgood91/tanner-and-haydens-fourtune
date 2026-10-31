@@ -19,6 +19,7 @@
     const KEEP_CLEAR = [                              // [x, y, radius]
         [66, 71, 7],                                  // the job station
         [45, 55.5, 6],                                // the job station, south towers
+        [79.5, 77.5, 6],                              // the dockhand station
         [50, 30, 6],                                  // construction, the Connector
         [14.5, 58, 9],                                // construction, Perimeter west arc
         [50, 40.8, 6],                                // the central interchange
