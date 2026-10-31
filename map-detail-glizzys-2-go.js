@@ -30,7 +30,7 @@
         [46.0, 62.9, 6],            // job station, Red Clay Expressway, by the Connector
         [64.5, 70.9, 6],            // job station, the Perimeter, north-east
         [33.6, 74.4, 6],            // job station, 1017 downtown, west
-        [51.4, 77.3, 6],            // job station, 1017 downtown, the Connector's end
+        [53.5, 73, 6],              // job station, 1017 downtown, by the Connector's end
         [44, 73, 9],                             // under the 1017 label
         [56, 63.3, 7],                           // construction, Red Clay Expressway
         [82.4, 41, 6],                           // construction, Backroads Highway
