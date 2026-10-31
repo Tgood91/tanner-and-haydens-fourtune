@@ -1,0 +1,375 @@
+# Phone
+
+Phase 1 resource: `server/resources/[gameplay]/phone/` — it makes the
+inventory's `phone` item real: every character gets a phone number, can text
+other characters, and can call players who are online. It follows the same
+model as economy, inventory, and the marketplace: **server-authoritative**.
+Clients can only *request* actions (text / call / answer / view); the Lua
+server script validates every step. A modded client cannot text as someone
+else, read another character's inbox, spoof a caller, or invent a number.
+
+## How numbers work
+
+- **Derived, not assigned:** a character's number is a hash (djb2) of their
+  **license**, formatted `<area>-555-<4 digits>` — e.g. `1017-555-0123`.
+  The area code is `1017` (Atlanta) when the hash is even, `312` (Chicago)
+  when it is odd. The same license always produces the same number, across
+  restarts and sessions, with no number table to store, sync, or steal —
+  and no way for a player to pick or change their number.
+- **Registry:** a number only becomes reachable once its owner has actually
+  played — the server registers a character when their character loads and
+  the first time they use the phone. Texting a number nobody has ever
+  played on returns "No such number."
+- **The item is the gate:** sending a text or placing a call requires
+  actually carrying the `phone` item (`inventory/shared/items.lua` is its
+  single source). Receiving texts and calls always works. Lose the phone,
+  lose the sending — the item finally does something.
+
+## Texts
+
+- **Live delivery:** if the target is online, the text lands immediately
+  (`Text from <name> (<number>): ...`) and is also stored in their inbox.
+- **Offline delivery:** if the target has played before but is offline, the
+  text is queued into their inbox. On their next login they are told
+  "You have N text(s) waiting — /inbox."
+- **Inbox:** keyed to the license, not the session, so texts survive the
+  recipient logging out and back in. `/inbox` prints the most recent
+  `InboxShow` of up to `InboxCap` stored texts (oldest are dropped past the
+  cap). Maximum text length is `MaxTextLength`; longer texts are rejected,
+  never silently truncated.
+
+## Calls
+
+- **Ringing:** `/call <number>` requires the target to be online and not
+  already on the phone. The target sees who is calling and can `/answer`
+  or `/decline`; an unanswered ring times out after `RingSeconds` and the
+  caller and target are both told.
+- **Talking:** an answered call connects exactly two players. `/c <message>`
+  sends a line to the call partner — and nobody else — and echoes it back
+  to the speaker.
+- **Ending:** `/hangup` ends a call (or cancels your outgoing ring). If a
+  player disconnects mid-call or mid-ring, the partner is told the other
+  side disconnected. Calls are live state only; there is nothing to save.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `/phone` | Show your number and a one-line help summary |
+| `/contacts` | List online players with their numbers (never shows licenses) |
+| `/text <number> <message>` | Text a character, e.g. `/text 1017-555-0123 running late, omw` — delivered live or queued to their inbox |
+| `/inbox` | Read your stored texts (newest last) |
+| `/call <number>` | Ring an online player |
+| `/answer` | Answer an incoming call |
+| `/decline` | Decline an incoming call |
+| `/hangup` | End a call, or cancel your outgoing ring |
+| `/c <message>` | Talk to your call partner (only while in a call) |
+
+## Tuning (`shared/config.lua`)
+
+- `RequirePhoneItem` (default `true`) — sending requires carrying the
+  `phone` item. Receiving always works.
+- `RingSeconds` (default `30`) — how long a call rings before timing out.
+- `MaxTextLength` (default `160`) — longest sendable text, in characters.
+- `InboxCap` (default `50`) — texts kept per character; oldest drop off.
+- `InboxShow` (default `10`) — texts `/inbox` prints at once.
+
+## Exports (for other resources)
+
+- `exports.phone:GetNumber(source)` — the character's derived phone number
+  (or `nil` if their character is not loaded).
+- `exports.phone:SendText(source, toNumber, message)` — the same validated
+  send path `/text` uses; returns a boolean. Other resources (job dispatch,
+  marketplace sale alerts) can text a character without re-implementing any
+  of the checks.
+
+## Not built yet (expansion seams, in rough order)
+
+- **Persistence:** v1 inboxes and the registry are in memory — a server
+  restart wipes stored texts and forgets who has ever played (numbers
+  themselves are derived, so they never change). Fine for testing, not for
+  a public launch. The fix is API tables written through the core bridge
+  (`phone_inboxes`, `phone_registry`), the same road inventory persistence
+  rides.
+- **Real voice:** calls are text lines (`/c`) in v1. The seam is a voice
+  bridge (pma-voice / saltychat style) keyed to the same call state — the
+  ring/answer/hangup flow here becomes the call setup there.
+- **An NUI phone** on the HUD instead of chat output: contacts app, message
+  threads, keypad. The server events are already shaped for it.
+- **Blocking and unknown callers:** a per-character block list, and calls
+  from numbers not in your contacts showing as the raw number only.
+- **Group texts / dispatch channels** for jobs (police/EMS radio as a
+  phone channel, reusing the inbox store).
+###
+##
+#
+##
+###
+-- Phone is server-authoritative, exactly like economy, inventory and the
+-- marketplace: clients can only *request* (text / call / view). Every check
+-- - who owns a number, whether the sender is even carrying a phone, whether
+-- a call partner is free - happens here, so a modded client cannot text as
+-- someone else, read another character's inbox, or invent a number.
+--
+-- Phone numbers are DERIVED, not assigned: a character's number is a hash
+-- (djb2) of their license, formatted '<area>-555-<4 digits>'. Area code is
+-- '1017' (Atlanta) when the hash is even, '312' (Chicago) when it is odd.
+-- The same license therefore always produces the same number, across
+-- restarts and sessions, with no number table to store, sync or steal -
+-- and a client never gets to pick or change its number. Collisions are
+-- possible in principle (a hash, not a registry); with two area codes over
+-- 10,000 numbers each they are not a practical v1 concern, and the
+-- registry below resolves a collision to the first character seen.
+--
+-- The registry (number -> license) is populated when a character loads and
+-- the first time they use the phone, so a number only becomes textable
+-- once its owner has actually played. Inboxes are keyed to the license,
+-- not the session source, so a text that arrives while you are offline is
+-- waiting in your inbox when you next log in.
+--
+-- Calls are live state only: a ring (with a PhoneConfig.RingSeconds
+-- timeout), then a two-party call where /c talks to the partner and nobody
+-- else. Dropping mid-call or mid-ring clears both sides and tells the
+-- partner what happened.
+--
+-- Persistence: v1 keeps inboxes, the registry and call state in memory -
+-- a server restart wipes inboxes and forgets who has ever played (numbers
+-- themselves are derived, so they never change). Acceptable for testing,
+-- NOT for a public launch. The expansion seam is to write inboxes and the
+-- registry through the core bridge to API tables, the same road inventory
+-- persistence rides. See docs/PHONE.md.
+
+local byNumber = {}   -- [number] = license            (characters who have played)
+local names = {}      -- [license] = last known character name
+local online = {}     -- [license] = source            (currently connected)
+local inboxes = {}    -- [license] = { { fromName, fromNumber, message, at }, ... } oldest first
+local calls = {}      -- [source] = partnerSource      (established calls, stored both ways)
+local rings = {}      -- [source] = { partner = source, incoming = boolean } (stored both ways)
+
+local function getChar(source) return exports.player:GetPlayer(source) end
+local function notify(source, msg) TriggerClientEvent('gta:phone:notify', source, msg) end
+
+-- djb2 over the license string: stable in every Lua runtime, which is the
+-- whole point - this must give the same number on every restart.
+local function deriveNumber(license)
+  local h = 5381
+  for i = 1, #license do h = (h * 33 + license:byte(i)) % 4294967296 end
+  local area = (h % 2 == 0) and '1017' or '312'
+  return ('%s-555-%04d'):format(area, h % 10000)
+end
+
+local function registerChar(c)
+  if not c or not c.license then return nil end
+  local number = deriveNumber(c.license)
+  if not byNumber[number] then byNumber[number] = c.license end
+  names[c.license] = c.name
+  return number
+end
+
+local function canSend(source)
+  if not PhoneConfig.RequirePhoneItem then return true end
+  return exports.inventory:GetItemCount(source, 'phone') >= 1
+end
+
+local PHONE_HINT = 'You are not carrying a phone - buy or find the phone item first.'
+
+local function storeMessage(license, entry)
+  local box = inboxes[license]
+  if not box then box = {} inboxes[license] = box end
+  box[#box + 1] = entry
+  while #box > PhoneConfig.InboxCap do table.remove(box, 1) end
+end
+
+-- Ends an established call OR a pending ring involving `source`, clearing
+-- both sides, and tells the partner why: `partnerMsg` when the caller of
+-- this helper supplies one (a disconnect, a ring timeout), otherwise the
+-- natural message for who ended it (hangup / decline / cancel).
+local function endCallState(source, partnerMsg)
+  local partner = calls[source]
+  if partner then
+    calls[source] = nil
+    calls[partner] = nil
+    notify(partner, partnerMsg or 'The call has ended.')
+    return partner
+  end
+  local ring = rings[source]
+  if ring then
+    local p = ring.partner
+    rings[source] = nil
+    rings[p] = nil
+    notify(p, partnerMsg or (ring.incoming and 'They declined the call.' or 'The call was cancelled.'))
+    return p
+  end
+  return nil
+end
+
+-- The one validated send path - /text and the SendText export both come
+-- through here, so the rules can never drift apart.
+function SendText(source, toNumber, message)
+  local c = getChar(source)
+  if not c then return false, 'Your character is not loaded yet.' end
+  local fromNumber = registerChar(c)
+  message = type(message) == 'string' and message or ''
+  if message == '' then return false, 'Usage: /text <number> <message>' end
+  if #message > PhoneConfig.MaxTextLength then
+    return false, ('That text is %d characters - the limit is %d.'):format(#message, PhoneConfig.MaxTextLength)
+  end
+  if not canSend(source) then return false, PHONE_HINT end
+  local targetLicense = byNumber[toNumber]
+  if not targetLicense then return false, ('No such number: %s.'):format(tostring(toNumber)) end
+  if targetLicense == c.license then return false, 'You cannot text yourself.' end
+  local entry = { fromName = c.name, fromNumber = fromNumber, message = message, at = os.time() }
+  local targetSource = online[targetLicense]
+  if targetSource then
+    notify(targetSource, ('Text from %s (%s): %s'):format(c.name, fromNumber, message))
+    storeMessage(targetLicense, entry) -- live texts are readable in /inbox too
+    return true, 'delivered'
+  end
+  storeMessage(targetLicense, entry)
+  return true, 'queued'
+end
+
+function StartCall(source, toNumber)
+  local c = getChar(source)
+  if not c then return false, 'Your character is not loaded yet.' end
+  if calls[source] then return false, 'You are already in a call - /hangup first.' end
+  if rings[source] then return false, 'A call is already ringing - /hangup to cancel it.' end
+  if not canSend(source) then return false, PHONE_HINT end
+  local fromNumber = registerChar(c)
+  local targetLicense = byNumber[toNumber]
+  if not targetLicense then return false, ('No such number: %s.'):format(tostring(toNumber)) end
+  if targetLicense == c.license then return false, 'You cannot call yourself.' end
+  local targetSource = online[targetLicense]
+  if not targetSource then return false, 'They are not online right now - try a text instead.' end
+  if calls[targetSource] or rings[targetSource] then return false, 'They are already on the phone.' end
+  rings[source] = { partner = targetSource, incoming = false }
+  rings[targetSource] = { partner = source, incoming = true }
+  notify(targetSource, ('Incoming call from %s (%s) - /answer or /decline'):format(c.name, fromNumber))
+  SetTimeout(PhoneConfig.RingSeconds * 1000, function()
+    local ring = rings[source]
+    if ring and ring.partner == targetSource then
+      endCallState(source, 'Missed call - nobody answered.')
+      notify(source, 'No answer - the call timed out.')
+    end
+  end)
+  return true, targetSource
+end
+
+exports('GetNumber', function(source)
+  local c = getChar(source)
+  return c and registerChar(c) or nil
+end)
+exports('SendText', function(source, toNumber, message) local ok = SendText(source, toNumber, message) return ok end)
+
+-- Registry + online tracking + waiting-text summary on character load.
+AddEventHandler('gta:player:loaded', function(source)
+  local c = getChar(source)
+  if not c then return end
+  registerChar(c)
+  online[c.license] = source
+  local box = inboxes[c.license]
+  if box and #box > 0 then
+    notify(source, ('You have %d text(s) waiting - /inbox to read them.'):format(#box))
+  end
+end)
+
+AddEventHandler('playerDropped', function()
+  local src = source
+  local c = getChar(src)
+  if c and online[c.license] == src then online[c.license] = nil end
+  endCallState(src, 'The other side disconnected.')
+end)
+
+-- Client requests. Nothing here trusts the client beyond naming a number.
+RegisterNetEvent('gta:phone:request', function()
+  local c = getChar(source)
+  if not c then notify(source, 'Your character is not loaded yet.') return end
+  local number = registerChar(c)
+  online[c.license] = source
+  notify(source, ('Your number is %s.'):format(number))
+  notify(source, 'Texts: /text <number> <message> - Calls: /call <number>, /answer, /decline, /hangup, then /c <message> - People: /contacts - Stored texts: /inbox')
+end)
+
+RegisterNetEvent('gta:phone:contacts', function()
+  local c = getChar(source)
+  if not c then notify(source, 'Your character is not loaded yet.') return end
+  registerChar(c)
+  online[c.license] = source
+  local rows = {}
+  for license, src in pairs(online) do
+    if license ~= c.license and names[license] then
+      rows[#rows + 1] = { name = names[license], number = deriveNumber(license), src = src }
+    end
+  end
+  table.sort(rows, function(a, b) return a.name < b.name end)
+  TriggerClientEvent('gta:phone:contactsList', source, rows)
+end)
+
+RegisterNetEvent('gta:phone:text', function(toNumber, message)
+  local ok, result = SendText(source, toNumber, message)
+  if ok then
+    notify(source, result == 'delivered'
+      and ('Text sent to %s.'):format(names[byNumber[toNumber]] or toNumber)
+      or ('%s is offline - your text is in their inbox.'):format(names[byNumber[toNumber]] or toNumber))
+  else
+    notify(source, result)
+  end
+end)
+
+RegisterNetEvent('gta:phone:inbox', function()
+  local c = getChar(source)
+  if not c then notify(source, 'Your character is not loaded yet.') return end
+  registerChar(c)
+  local box = inboxes[c.license] or {}
+  local rows = {}
+  local first = math.max(1, #box - PhoneConfig.InboxShow + 1)
+  for i = first, #box do
+    local e = box[i]
+    rows[#rows + 1] = { fromName = e.fromName, fromNumber = e.fromNumber, message = e.message, at = os.date('%H:%M', e.at) }
+  end
+  TriggerClientEvent('gta:phone:inboxList', source, rows, #box)
+end)
+
+RegisterNetEvent('gta:phone:call', function(toNumber)
+  local ok, result = StartCall(source, toNumber)
+  if ok then
+    notify(source, ('Calling %s (%s)...'):format(names[byNumber[toNumber]] or toNumber, toNumber))
+  else
+    notify(source, result)
+  end
+end)
+
+RegisterNetEvent('gta:phone:answer', function()
+  local ring = rings[source]
+  if not ring or not ring.incoming then notify(source, 'You have no incoming call to answer.') return end
+  local caller = ring.partner
+  rings[source] = nil
+  rings[caller] = nil
+  calls[source] = caller
+  calls[caller] = source
+  notify(source, 'Call connected - talk with /c <message>, end with /hangup.')
+  notify(caller, 'Call connected - talk with /c <message>, end with /hangup.')
+end)
+
+RegisterNetEvent('gta:phone:decline', function()
+  local ring = rings[source]
+  if not ring or not ring.incoming then notify(source, 'You have no incoming call to decline.') return end
+  endCallState(source)
+  notify(source, 'Call declined.')
+end)
+
+RegisterNetEvent('gta:phone:hangup', function()
+  if not calls[source] and not rings[source] then notify(source, 'You are not on the phone.') return end
+  endCallState(source)
+  notify(source, 'You hung up.')
+end)
+
+RegisterNetEvent('gta:phone:talk', function(message)
+  local partner = calls[source]
+  if not partner then notify(source, 'You are not in a call - /call <number> first.') return end
+  local c = getChar(source)
+  if not c then return end
+  if type(message) ~= 'string' or message == '' then return end
+  notify(partner, ('(call) %s: %s'):format(c.name, message))
+  notify(source, ('(call) %s: %s'):format(c.name, message))
+end)
