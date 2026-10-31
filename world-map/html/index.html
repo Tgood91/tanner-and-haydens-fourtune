@@ -17,6 +17,15 @@
   #island .road:hover { stroke: #fff6c2; }
   #island .tower:hover rect:nth-child(2) { fill: #dfe5ea; }
   #island .station { cursor: help; }
+  #island { touch-action: none; cursor: grab; }
+  #island.dragging { cursor: grabbing; }
+  #island .name { display: none; pointer-events: none; }
+  #island.z-main .main-name, #island.z-main .zone-name { display: inline; }
+  #island.z-street .street-name { display: inline; }
+  .zoombar { display: flex; gap: 6px; justify-content: center; margin: 10px 0 0; }
+  .zoombar button { background: #13223a; color: #dfe7f2; border: 1px solid rgba(143,165,192,.35); border-radius: 8px;
+                     padding: 5px 12px; font: 600 13px Arial, sans-serif; cursor: pointer; }
+  .zoombar button:hover { background: #1c3254; }
   .legend { width: min(96vw, 1500px); margin-top: 18px; padding: 16px 18px 18px; background: #13223a;
              border: 1px solid rgba(143,165,192,.25); border-radius: 14px; font-size: 13px; }
   .legend h2 { font-size: 13px; letter-spacing: 2px; color: #8fa5c0; margin-bottom: 12px; }
@@ -27,21 +36,22 @@
 <style>
   /* NUI shell: the game shows through, the map starts hidden and fits the screen. */
   html, body { background: transparent !important; }
-  body { padding: 16px; justify-content: center; height: 100vh; overflow: hidden; }
+  body { padding: 12px 16px; justify-content: center; height: 100vh; overflow: hidden; }
   #app { display: none; flex-direction: column; align-items: center; }
   #app.open { display: flex; }
   #app h1, #app p.note { text-shadow: 0 2px 6px rgba(0,0,0,.8); }
   /* map and legend side by side; the map takes what's left after the header, hint and legend */
   .stage { display: flex; gap: 14px; align-items: flex-start; justify-content: center; }
-  .frame { width: min(calc(100vw - 32px), calc((100vh - 150px) * 1.5)); flex: 0 0 auto; }
-  .stage.with-legend .frame { width: min(calc(100vw - 32px - 314px), calc((100vh - 150px) * 1.5)); }
+  .frame { width: min(calc(100vw - 32px), calc((100vh - 190px) * 1.5)); flex: 0 0 auto; }
+  .stage.with-legend .frame { width: min(calc(100vw - 32px - 314px), calc((100vh - 190px) * 1.5)); }
   .legend { display: none; width: 300px; margin-top: 0; padding: 12px 12px 14px;
-            max-height: calc(100vh - 150px); overflow-y: auto; flex: 0 0 300px; }
+            max-height: calc(100vh - 190px); overflow-y: auto; flex: 0 0 300px; }
   .stage.with-legend .legend { display: block; }
   .legend ul { grid-template-columns: 1fr; gap: 2px; }
-  .legend li { min-height: 27px; font-size: 12px; gap: 8px; }
-  .legend .sw { flex-basis: 42px; height: 26px; }
-  .hint { margin: 10px auto 0; width: fit-content; padding: 6px 14px; border-radius: 999px;
+  .legend li { min-height: 24px; font-size: 12px; gap: 8px; }
+  .legend .sw { flex-basis: 38px; height: 23px; }
+  .zoombar { margin-top: 8px; }
+  .hint { margin: 8px auto 0; width: fit-content; padding: 6px 14px; border-radius: 999px;
           background: rgba(6,12,22,.78); color: #cfe0f2; font-size: 13px; letter-spacing: 1px; }
 </style>
 </head>
@@ -49,7 +59,7 @@
 <div id="app">
   <h1>THE ISLAND — 312 TO 1017</h1>
   <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south.<br>
-  Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
+  Scroll or + / − to zoom in for every street name, drag to move around. Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
   <div class="stage">
   <div class="frame">
 <svg id="island" viewBox="0 0 1500 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south">
@@ -1891,6 +1901,96 @@
   <rect x="538" y="686" width="18" height="12" fill="#8d8579" transform="rotate(-28 547 692)" filter="url(#shadow)"/>
   <rect x="538" y="730" width="18" height="12" fill="#8d8579" transform="rotate(-28 547 736)" filter="url(#shadow)"/>
 </g>
+<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path id="gs-21" class="road gp-street backroad" d="M569.8 270.2 L598.7 266.8" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Tannery Alley (backroad, 312)</title></path>
+  <path id="gs-22" class="road gp-street backroad" d="M501.8 233.4 L505.9 241.9" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Coal Chute Lane (backroad, 312)</title></path>
+  <path id="gs-23" class="road gp-street backroad" d="M978.8 272.1 L979.9 272.9" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Old Pier Road (backroad, 312)</title></path>
+  <path id="gs-24" class="road gp-street backroad" d="M955.2 175.0 L1029.3 154.6 L1049.9 134.8" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Dunes Track (backroad, 312)</title></path>
+  <path id="gs-31" class="road gp-street backroad" d="M720.0 451.7 L782.0 464.7 L859.0 476.0" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Silo Track (backroad, 770)</title></path>
+  <path id="gs-32" class="road gp-street backroad" d="M570.0 426.3 L672.0 434.7" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Dust Road (backroad, 770)</title></path>
+  <path id="gs-33" class="road gp-street backroad" d="M450.0 385.0 L580.0 391.7 L675.0 403.3" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Old Mill Track (backroad, 770)</title></path>
+  <path id="gs-34" class="road gp-street backroad" d="M860.0 378.3 L980.0 395.0 L1070.0 415.0" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Creekbed Lane (backroad, 770)</title></path>
+  <path id="gs-35" class="road gp-street backroad" d="M520.0 468.3 L640.0 475.0 L760.0 485.0" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Hollow Road (backroad, 770)</title></path>
+  <path id="gs-36" class="road gp-street backroad" d="M828.0 454.5 L1020.0 465.0 L1100.0 486.7" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Fence Line Track (backroad, 770)</title></path>
+  <path id="gs-59" class="road gp-street backroad" d="M723.5 785.9 L750.1 800.6 L772.2 812.9" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Kudzu Lane (backroad, 1017)</title></path>
+  <path id="gs-60" class="road gp-street backroad" d="M1172.3 601.9 L1227.8 613.0 L1233.4 628.9" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Red Clay Track (backroad, 1017)</title></path>
+  <path id="gs-61" class="road gp-street backroad" d="M391.9 743.2 L437.8 754.7 L483.7 760.4" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Pumphouse Road (backroad, 1017)</title></path>
+  <path id="gs-62" class="road gp-street backroad" d="M1126.8 743.2 L1154.4 754.7 L1175.0 770.2" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"><title>Switchyard Lane (backroad, 1017)</title></path>
+  <path d="M881.0 252.8 L872.7 253.5 L956.2 246.9" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-11" class="road gp-street street" d="M881.0 252.8 L872.7 253.5 L956.2 246.9" stroke="#d9d6cc" stroke-width="3.2"><title>Harbor Street (street, 312)</title></path>
+  <path d="M725.4 243.1 L728.5 212.8 L747.0 190.3" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-12" class="road gp-street street" d="M725.4 243.1 L728.5 212.8 L747.0 190.3" stroke="#d9d6cc" stroke-width="3.2"><title>Winter Street (street, 312)</title></path>
+  <path d="M597.6 242.6 L687.3 239.9 L752.2 234.1" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-13" class="road gp-street street" d="M597.6 242.6 L687.3 239.9 L752.2 234.1" stroke="#d9d6cc" stroke-width="3.2"><title>Fenwick Street (street, 312)</title></path>
+  <path d="M632.7 219.6 L731.6 207.9" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-14" class="road gp-street street" d="M632.7 219.6 L731.6 207.9" stroke="#d9d6cc" stroke-width="3.2"><title>Mill Street (street, 312)</title></path>
+  <path d="M598.7 221.3 L623.4 219.6 L699.6 218.8" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-15" class="road gp-street street" d="M598.7 221.3 L623.4 219.6 L699.6 218.8" stroke="#d9d6cc" stroke-width="3.2"><title>Bellmont Street (street, 312)</title></path>
+  <path d="M819.2 178.4 L836.7 152.7" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-16" class="road gp-street street" d="M819.2 178.4 L836.7 152.7" stroke="#d9d6cc" stroke-width="3.2"><title>Ketterling Avenue (street, 312)</title></path>
+  <path d="M665.6 179.6 L750.1 179.6" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-17" class="road gp-street street" d="M665.6 179.6 L750.1 179.6" stroke="#d9d6cc" stroke-width="3.2"><title>Hoyt Street (street, 312)</title></path>
+  <path d="M559.5 162.4 L625.5 149.3 L827.4 147.1" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-18" class="road gp-street street" d="M559.5 162.4 L625.5 149.3 L827.4 147.1" stroke="#d9d6cc" stroke-width="3.2"><title>Granary Row (street, 312)</title></path>
+  <path d="M872.7 253.5 L905.7 251.1 L908.8 228.8" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-19" class="road gp-street street" d="M872.7 253.5 L905.7 251.1 L908.8 228.8" stroke="#d9d6cc" stroke-width="3.2"><title>Dock Street (street, 312)</title></path>
+  <path d="M939.7 198.7 L1002.5 219.6 L957.2 248.2" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-20" class="road gp-street street" d="M939.7 198.7 L1002.5 219.6 L957.2 248.2" stroke="#d9d6cc" stroke-width="3.2"><title>Shoreline Lane (street, 312)</title></path>
+  <path d="M897.0 536.2 L964.0 525.7" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-29" class="road gp-street street" d="M897.0 536.2 L964.0 525.7" stroke="#d9d6cc" stroke-width="3.2"><title>Harvest Lane (street, 770)</title></path>
+  <path d="M932.0 539.3 L980.0 528.3" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-30" class="road gp-street street" d="M932.0 539.3 L980.0 528.3" stroke="#d9d6cc" stroke-width="3.2"><title>Thresher Lane (street, 770)</title></path>
+  <path d="M1103.4 636.7 L1103.8 651.3 L1117.1 671.8" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-49" class="road gp-street street" d="M1103.4 636.7 L1103.8 651.3 L1117.1 671.8" stroke="#d9d6cc" stroke-width="3.2"><title>Pecan Street (street, 1017)</title></path>
+  <path d="M1103.8 636.5 L1145.2 637.9 L1188.3 640.7" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-50" class="road gp-street street" d="M1103.8 636.5 L1145.2 637.9 L1188.3 640.7" stroke="#d9d6cc" stroke-width="3.2"><title>Brickyard Street (street, 1017)</title></path>
+  <path d="M882.4 700.1 L933.9 708.7 L975.2 712.9" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-51" class="road gp-street street" d="M882.4 700.1 L933.9 708.7 L975.2 712.9" stroke="#d9d6cc" stroke-width="3.2"><title>Stovall Street (street, 1017)</title></path>
+  <path d="M875.1 673.9 L878.8 687.7 L890.2 702.0" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-52" class="road gp-street street" d="M875.1 673.9 L878.8 687.7 L890.2 702.0" stroke="#d9d6cc" stroke-width="3.2"><title>Hollis Avenue (street, 1017)</title></path>
+  <path d="M970.6 774.2 L1016.6 778.0 L1049.2 781.3" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-53" class="road gp-street street" d="M970.6 774.2 L1016.6 778.0 L1049.2 781.3" stroke="#d9d6cc" stroke-width="3.2"><title>Fairline Street (street, 1017)</title></path>
+  <path d="M933.0 816.0 L979.8 812.5 L1030.3 816.9" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-54" class="road gp-street street" d="M933.0 816.0 L979.8 812.5 L1030.3 816.9" stroke="#d9d6cc" stroke-width="3.2"><title>Cotton Row (street, 1017)</title></path>
+  <path d="M591.7 717.9 L594.0 693.4 L619.2 671.2" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-55" class="road gp-street street" d="M591.7 717.9 L594.0 693.4 L619.2 671.2" stroke="#d9d6cc" stroke-width="3.2"><title>Bellwood Street (street, 1017)</title></path>
+  <path d="M464.0 706.4 L520.5 685.7 L602.2 684.2" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-56" class="road gp-street street" d="M464.0 706.4 L520.5 685.7 L602.2 684.2" stroke="#d9d6cc" stroke-width="3.2"><title>Terrace Street (street, 1017)</title></path>
+  <path d="M1067.1 832.6 L1085.5 816.0 L1098.8 801.4" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-57" class="road gp-street street" d="M1067.1 832.6 L1085.5 816.0 L1098.8 801.4" stroke="#d9d6cc" stroke-width="3.2"><title>Quarry Street (street, 1017)</title></path>
+  <path d="M750.1 758.5 L796.1 770.0 L842.0 777.7" stroke="#6a6c6e" stroke-width="5.2"/>
+  <path id="gs-58" class="road gp-street street" d="M750.1 758.5 L796.1 770.0 L842.0 777.7" stroke="#d9d6cc" stroke-width="3.2"><title>Dunwood Street (street, 1017)</title></path>
+  <path d="M566.7 268.5 L687.3 256.4 L770.7 228.8" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-4" class="road gp-street arterial" d="M566.7 268.5 L687.3 256.4 L770.7 228.8" stroke="#d4d4cf" stroke-width="5"><title>Sheriff's Row (arterial, 312)</title></path>
+  <path d="M602.8 223.7 L718.2 227.8 L841.8 230.2 L950.0 227.8" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-6" class="road gp-street arterial" d="M602.8 223.7 L718.2 227.8 L841.8 230.2 L950.0 227.8" stroke="#d4d4cf" stroke-width="5"><title>Midway Avenue (arterial, 312)</title></path>
+  <path d="M767.6 205.0 L831.5 200.2 L895.4 206.5 L907.8 228.8" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-7" class="road gp-street arterial" d="M767.6 205.0 L831.5 200.2 L895.4 206.5 L907.8 228.8" stroke="#d4d4cf" stroke-width="5"><title>Winterline Parkway (arterial, 312)</title></path>
+  <path d="M519.3 196.6 L687.3 193.4 L787.2 187.1" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-8" class="road gp-street arterial" d="M519.3 196.6 L687.3 193.4 L787.2 187.1" stroke="#d4d4cf" stroke-width="5"><title>Clayworks Boulevard (arterial, 312)</title></path>
+  <path d="M825.3 154.2 L872.7 149.3 L972.7 170.2" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-9" class="road gp-street arterial" d="M825.3 154.2 L872.7 149.3 L972.7 170.2" stroke="#d4d4cf" stroke-width="5"><title>North Shore Avenue (arterial, 312)</title></path>
+  <path d="M522.4 279.9 L644.0 283.0 L668.7 255.9 L545.1 252.5 L522.4 279.9" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-10" class="road gp-street arterial" d="M522.4 279.9 L644.0 283.0 L668.7 255.9 L545.1 252.5 L522.4 279.9" stroke="#d4d4cf" stroke-width="5"><title>Knot Loop (arterial, 312)</title></path>
+  <path d="M635.0 395.3 L720.0 404.7 L778.0 409.5" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-27" class="road gp-street arterial" d="M635.0 395.3 L720.0 404.7 L778.0 409.5" stroke="#d4d4cf" stroke-width="5"><title>Grain Elevator Road (arterial, 770)</title></path>
+  <path d="M640.0 511.7 L780.0 505.0 L899.0 503.8" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-28" class="road gp-street arterial" d="M640.0 511.7 L780.0 505.0 L899.0 503.8" stroke="#d4d4cf" stroke-width="5"><title>Harvest Flats Road (arterial, 770)</title></path>
+  <path d="M1004.2 842.0 L1055.6 840.5 L1086.8 821.7" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-42" class="road gp-street arterial" d="M1004.2 842.0 L1055.6 840.5 L1086.8 821.7" stroke="#d4d4cf" stroke-width="5"><title>Groveland Street (arterial, 1017)</title></path>
+  <path d="M865.9 675.6 L920.1 684.2 L978.9 685.7" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-43" class="road gp-street arterial" d="M865.9 675.6 L920.1 684.2 L978.9 685.7" stroke="#d4d4cf" stroke-width="5"><title>Alder Avenue (arterial, 1017)</title></path>
+  <path d="M943.1 793.4 L1034.9 797.2 L1120.4 802.9" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-44" class="road gp-street arterial" d="M943.1 793.4 L1034.9 797.2 L1120.4 802.9" stroke="#d4d4cf" stroke-width="5"><title>Southline Boulevard (arterial, 1017)</title></path>
+  <path d="M1106.1 681.0 L1150.7 651.7 L1173.2 626.4" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-45" class="road gp-street arterial" d="M1106.1 681.0 L1150.7 651.7 L1173.2 626.4" stroke="#d4d4cf" stroke-width="5"><title>Clay Street (arterial, 1017)</title></path>
+  <path d="M613.3 672.0 L685.8 674.6 L750.1 690.0" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-46" class="road gp-street arterial" d="M613.3 672.0 L685.8 674.6 L750.1 690.0" stroke="#d4d4cf" stroke-width="5"><title>Ridgeview Drive (arterial, 1017)</title></path>
+  <path d="M437.8 726.3 L552.6 716.8 L662.0 720.2" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-47" class="road gp-street arterial" d="M437.8 726.3 L552.6 716.8 L662.0 720.2" stroke="#d4d4cf" stroke-width="5"><title>Mill Creek Road (arterial, 1017)</title></path>
+  <path d="M1009.2 837.0 L1006.4 816.0 L1024.8 796.8" stroke="#5c5f63" stroke-width="7"/>
+  <path id="gs-48" class="road gp-street arterial" d="M1009.2 837.0 L1006.4 816.0 L1024.8 796.8" stroke="#d4d4cf" stroke-width="5"><title>Sweetwater Avenue (arterial, 1017)</title></path>
+</g>
 <g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path id="st312-v430" class="road street312" d="M430 175 L430 300" stroke="#8a8e93" stroke-width="4" clip-path="url(#clip-island)"><title>312 street</title></path>
   <path id="st312-v464" class="road street312" d="M464 175 L464 300" stroke="#8a8e93" stroke-width="4" clip-path="url(#clip-island)"><title>312 street</title></path>
@@ -2229,6 +2329,91 @@
 <rect x="382.6" y="699.9" width="2" height="5" rx="1" fill="#e0b84f" transform="rotate(22 382.6 699.9)"/>
 <rect x="381.2" y="704.2" width="2" height="5" rx="1" fill="#e0b84f" transform="rotate(12 381.2 704.2)"/>
 </g>
+<g id="names" font-family="Arial, Helvetica, sans-serif" font-weight="700" paint-order="stroke" stroke="#1d2125" stroke-linejoin="round">
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#perimeter" startOffset="25%" text-anchor="middle">The Perimeter</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#inner-loop" startOffset="25%" text-anchor="middle">The Inner Loop</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#county-line" startOffset="25%" text-anchor="middle">County Line Road</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#connector" startOffset="50%" text-anchor="middle">The Connector</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#flyover" startOffset="50%" text-anchor="middle">The Flyover</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#lakeshore" startOffset="50%" text-anchor="middle">Lakeshore Drive</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#skyway" startOffset="50%" text-anchor="middle">The 312 Skyway</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#ironline" startOffset="50%" text-anchor="middle">Ironline Expressway</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#palisade" startOffset="50%" text-anchor="middle">Palisade Boulevard</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#causeway" startOffset="50%" text-anchor="middle">The Causeway</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#backroads" startOffset="50%" text-anchor="middle">The Backroads</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#backroads-hwy" startOffset="50%" text-anchor="middle">Backroads Highway</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#red-clay" startOffset="50%" text-anchor="middle">Red Clay Expressway</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#westside-run" startOffset="50%" text-anchor="middle">Westside Run</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#peachline" startOffset="50%" text-anchor="middle">Peachline Road</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#highfield" startOffset="50%" text-anchor="middle">Highfield Park Drive</textPath></text>
+  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#airport-road" startOffset="50%" text-anchor="middle">Airport Road</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-21" startOffset="50%" text-anchor="middle">Tannery Alley</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-22" startOffset="50%" text-anchor="middle">Coal Chute Lane</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-23" startOffset="50%" text-anchor="middle">Old Pier Road</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-24" startOffset="50%" text-anchor="middle">Dunes Track</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-31" startOffset="50%" text-anchor="middle">Silo Track</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-32" startOffset="50%" text-anchor="middle">Dust Road</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-33" startOffset="50%" text-anchor="middle">Old Mill Track</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-34" startOffset="50%" text-anchor="middle">Creekbed Lane</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-35" startOffset="50%" text-anchor="middle">Hollow Road</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-36" startOffset="50%" text-anchor="middle">Fence Line Track</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-59" startOffset="50%" text-anchor="middle">Kudzu Lane</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-60" startOffset="50%" text-anchor="middle">Red Clay Track</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-61" startOffset="50%" text-anchor="middle">Pumphouse Road</textPath></text>
+  <text class="name street-name" font-size="4.4" fill="#f3e2b8" stroke-width="1.6" dy="1.7"><textPath href="#gs-62" startOffset="50%" text-anchor="middle">Switchyard Lane</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-11" startOffset="50%" text-anchor="middle">Harbor Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-12" startOffset="50%" text-anchor="middle">Winter Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-13" startOffset="50%" text-anchor="middle">Fenwick Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-14" startOffset="50%" text-anchor="middle">Mill Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-15" startOffset="50%" text-anchor="middle">Bellmont Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-16" startOffset="50%" text-anchor="middle">Ketterling Avenue</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-17" startOffset="50%" text-anchor="middle">Hoyt Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-18" startOffset="50%" text-anchor="middle">Granary Row</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-19" startOffset="50%" text-anchor="middle">Dock Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-20" startOffset="50%" text-anchor="middle">Shoreline Lane</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-29" startOffset="50%" text-anchor="middle">Harvest Lane</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-30" startOffset="50%" text-anchor="middle">Thresher Lane</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-49" startOffset="50%" text-anchor="middle">Pecan Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-50" startOffset="50%" text-anchor="middle">Brickyard Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-51" startOffset="50%" text-anchor="middle">Stovall Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-52" startOffset="50%" text-anchor="middle">Hollis Avenue</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-53" startOffset="50%" text-anchor="middle">Fairline Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-54" startOffset="50%" text-anchor="middle">Cotton Row</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-55" startOffset="50%" text-anchor="middle">Bellwood Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-56" startOffset="50%" text-anchor="middle">Terrace Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-57" startOffset="50%" text-anchor="middle">Quarry Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-58" startOffset="50%" text-anchor="middle">Dunwood Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-4" startOffset="50%" text-anchor="middle">Sheriff's Row</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-6" startOffset="50%" text-anchor="middle">Midway Avenue</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-7" startOffset="50%" text-anchor="middle">Winterline Parkway</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-8" startOffset="50%" text-anchor="middle">Clayworks Boulevard</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-9" startOffset="50%" text-anchor="middle">North Shore Avenue</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-10" startOffset="50%" text-anchor="middle">Knot Loop</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-27" startOffset="50%" text-anchor="middle">Grain Elevator Road</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-28" startOffset="50%" text-anchor="middle">Harvest Flats Road</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-42" startOffset="50%" text-anchor="middle">Groveland Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-43" startOffset="50%" text-anchor="middle">Alder Avenue</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-44" startOffset="50%" text-anchor="middle">Southline Boulevard</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-45" startOffset="50%" text-anchor="middle">Clay Street</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-46" startOffset="50%" text-anchor="middle">Ridgeview Drive</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-47" startOffset="50%" text-anchor="middle">Mill Creek Road</textPath></text>
+  <text class="name street-name" font-size="5" fill="#fff" stroke-width="1.6" dy="1.7"><textPath href="#gs-48" startOffset="50%" text-anchor="middle">Sweetwater Avenue</textPath></text>
+  <text class="name zone-name" x="584.2" y="266.1" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">The Knot</text>
+  <text class="name zone-name" x="769.7" y="224.9" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">Midway</text>
+  <text class="name zone-name" x="913.9" y="174.0" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">Northline</text>
+  <text class="name zone-name" x="965.5" y="234.6" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">The Shoreline</text>
+  <text class="name zone-name" x="831.5" y="215.2" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Winterline Park</text>
+  <text class="name zone-name" x="872.7" y="252.8" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Harbor Green</text>
+  <text class="name zone-name" x="870.0" y="531.7" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">Harvest Flats</text>
+  <text class="name zone-name" x="780.0" y="418.3" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">The Backroads</text>
+  <text class="name zone-name" x="720.0" y="340.0" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Harvest Common</text>
+  <text class="name zone-name" x="1140.6" y="639.8" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">Red Clay</text>
+  <text class="name zone-name" x="915.5" y="687.7" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">Alder Heights</text>
+  <text class="name zone-name" x="1039.5" y="802.6" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">Southline</text>
+  <text class="name zone-name" x="529.7" y="716.4" text-anchor="middle" font-size="9" font-style="italic" fill="#ffe9a8" stroke-width="2.4">The Westside</text>
+  <text class="name zone-name" x="639.9" y="676.2" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Peach Ridge Park</text>
+  <text class="name zone-name" x="979.8" y="829.4" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Groveland Park</text>
+</g>
 <text x="770" y="120" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="96" fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">312</text>
 <text x="1010" y="600" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="104" fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">1017</text>
 </svg>
@@ -2271,10 +2456,14 @@
       <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><rect x="17" y="9" width="18" height="15" rx="2" fill="url(#lg-glizzy)" stroke="#5a1a1a"/><path d="M14 10 A12 7 0 0 1 38 10 Z" fill="#d62828"/></svg>Glizzys-2-Go cart (moves each load)</li>
       <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><rect x="14" y="5" width="24" height="24" rx="5" fill="#f7c948" stroke="#d62828" stroke-width="3"/><rect x="18" y="14" width="16" height="6" rx="3" fill="#b5452b"/></svg>Glizzys-2-Go job station</li>
       <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><rect x="14" y="5" width="24" height="24" rx="5" fill="#1f4e79" stroke="#f2c230" stroke-width="3"/><rect x="20" y="11" width="12" height="12" fill="#c46a2c"/></svg>Dockhand job station</li>
+      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><path d="M4 17 H48" stroke="#6a6c6e" stroke-width="5"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="3.2"/><text x="26" y="12" font-size="7" text-anchor="middle" fill="#fff" stroke="#1d2125" stroke-width="1.4" paint-order="stroke" font-weight="700">Mill St</text></svg>Named street (names show zoomed in)</li>
+      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><path d="M4 17 H48" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"/></svg>Backroad</li>
+      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><text x="26" y="21" font-size="9" text-anchor="middle" font-style="italic" fill="#ffe9a8" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">Midway</text></svg>District / park name</li>
     </ul>
   </div>
   </div><!-- .stage -->
-  <div class="hint">M or ESC: CLOSE &nbsp;·&nbsp; L: LEGEND &nbsp;·&nbsp; HOVER FOR NAMES</div>
+  <div class="zoombar"><button data-zoom="in">+ Zoom in</button><button data-zoom="out">− Zoom out</button><button data-zoom="reset">Whole island</button></div>
+  <div class="hint">M or ESC: CLOSE &nbsp;·&nbsp; L: LEGEND &nbsp;·&nbsp; SCROLL / + −: ZOOM &nbsp;·&nbsp; DRAG: MOVE &nbsp;·&nbsp; 0: WHOLE ISLAND</div>
 </div><!-- #app -->
 <script>
 // Places cars, potholes, cones, the barrier, the dig and the hot dog carts along the road paths.
@@ -2308,6 +2497,43 @@ window.placeOnRoad = function () {
   }
 };
 window.placeOnRoad();
+
+// Zoom and pan by moving the viewBox. Main road and district names appear from 1.6x,
+// every street's name from 2.6x. Wheel zooms on the cursor; drag pans; + - 0 on the keyboard.
+(function () {
+  const svg = document.getElementById("island");
+  const W = 1500, H = 1000, MIN = W / 8;
+  let vb = { x: 0, y: 0, w: W, h: H };
+  const apply = () => {
+    vb.w = Math.min(W, Math.max(MIN, vb.w)); vb.h = vb.w * H / W;
+    vb.x = Math.min(W - vb.w, Math.max(0, vb.x)); vb.y = Math.min(H - vb.h, Math.max(0, vb.y));
+    svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+    const z = W / vb.w;
+    svg.classList.toggle("z-main", z >= 1.6);
+    svg.classList.toggle("z-street", z >= 2.6);
+  };
+  const toSvg = (cx, cy) => { const r = svg.getBoundingClientRect(); return { x: vb.x + (cx - r.left) / r.width * vb.w, y: vb.y + (cy - r.top) / r.height * vb.h }; };
+  const zoomAt = (k, px, py) => { const nw = Math.min(W, Math.max(MIN, vb.w / k)); const f = nw / vb.w;
+    vb.x = px - (px - vb.x) * f; vb.y = py - (py - vb.y) * f; vb.w = nw; apply(); };
+  window.mapZoom = (how) => {
+    if (how === "reset") { vb = { x: 0, y: 0, w: W, h: H }; return apply(); }
+    zoomAt(how === "in" ? 1.6 : 1 / 1.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
+  };
+  svg.addEventListener("wheel", (e) => { e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, p.x, p.y); }, { passive: false });
+  let drag = null;
+  svg.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); });
+  svg.addEventListener("pointermove", (e) => { if (!drag) return; const r = svg.getBoundingClientRect();
+    vb.x = drag.vx - (e.clientX - drag.x) / r.width * vb.w; vb.y = drag.vy - (e.clientY - drag.y) / r.height * vb.h; apply(); });
+  const end = () => { drag = null; svg.classList.remove("dragging"); };
+  svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  document.querySelectorAll(".zoombar [data-zoom]").forEach((b) => b.addEventListener("click", () => window.mapZoom(b.dataset.zoom)));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "+" || e.key === "=") window.mapZoom("in");
+    if (e.key === "-" || e.key === "_") window.mapZoom("out");
+    if (e.key === "0") window.mapZoom("reset");
+  });
+  apply();
+})();
 </script>
 <script>
   // client.lua owns focus; this page only shows, hides and asks to close.
@@ -2326,7 +2552,7 @@ window.placeOnRoad();
   });
   document.addEventListener('keyup', (e) => {
     if (!app.classList.contains('open')) return;
-    if (e.key === 'Escape' || e.key === 'm' || e.key === 'M') close();
+    if (e.key === 'Escape' || e.key === 'm' || e.key === 'M') { close(); window.mapZoom && window.mapZoom('reset'); }
     if (e.key === 'l' || e.key === 'L') stage.classList.toggle('with-legend');
   });
 </script>
