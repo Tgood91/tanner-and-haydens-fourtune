@@ -26,6 +26,7 @@
     ];
     const KEEP_CLEAR = [                              // [x, y, radius]
         [58, 72.5, 6],                           // the job station
+        [44, 73, 9],                             // under the 1017 label
         [56, 63.3, 7],                           // construction, Red Clay Expressway
         [82.4, 41, 6],                           // construction, Backroads Highway
     ];
