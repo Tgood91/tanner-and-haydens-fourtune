@@ -345,6 +345,10 @@ function createGame(opts = {}) {
 
         // ----- jobs -----
         job: { help: "your job and pay", run: ({ c }) => reply(jobs.jobInfo(c)) },
+        apply: {
+            help: "<job> — take an open job (glizzys, dockhand)",
+            run: ({ c, args }) => reply(jobs.applyJob(c, lower(args[0])).msg),
+        },
         duty: {
             help: "clock in / out — sheriff and EMS get a callsign with it",
             run: ({ c, ctx }) => {
@@ -559,6 +563,14 @@ function createGame(opts = {}) {
         whereami: {
             help: "the road, area and city you're standing in",
             run: ({ ctx }) => reply(places.describe(ctx.pos)),
+        },
+        mark: {
+            help: "[label] — print where you're standing, ready to paste into js-snippets (see docs/WALK-LIST.md)",
+            run: ({ args, ctx }) => {
+                const r = (v) => Math.round(v * 10) / 10;
+                const label = args.join(" ") || "spot";
+                return reply(`MARK ${label}: { x: ${r(ctx.pos.x)}, y: ${r(ctx.pos.y)}, z: ${r(ctx.pos.z)} }  (${cities.cityAt(ctx.pos)})`);
+            },
         },
 
         // ----- shops -----
@@ -1191,7 +1203,7 @@ function createGame(opts = {}) {
             minutesSincePay -= PAY_INTERVAL_MIN;
             for (const c of characters.values()) {
                 const amount = jobs.paycheckAmount(c);
-                const gold = jobs.paycheckGold(c);
+                const gold = jobs.paycheckGold(c, PAY_INTERVAL_MIN);
                 if (amount > 0) c.bank += amount;
                 if (gold > 0) c.gold += gold;
                 if (amount > 0 || gold > 0) {

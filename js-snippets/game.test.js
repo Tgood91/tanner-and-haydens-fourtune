@@ -443,6 +443,39 @@ test("gold is earned on duty and by reviving — never by civilians, never trade
     assert.match(game.command(as(1), "balance").msg, /Gold: 45/);
 });
 
+test("Glizzys-2-Go: anyone can apply, 11 gold an hour on duty", () => {
+    const { game, a, as } = setup();
+    assert.match(game.command(as(1), "apply", ["police"]).msg, /isn't hiring. Open jobs: glizzys, dockhand/);
+    assert.match(game.command(as(1), "apply", ["glizzys"]).msg, /Glizzys-2-Go — Cart Hand/);
+    assert.match(game.command(as(1), "apply", ["glizzys"]).msg, /already work for Glizzys-2-Go/);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 0); // off duty
+    game.command(as(1), "duty");
+    game.tick(PAY_INTERVAL_MIN, 0);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 11); // one hour
+    game.tick(PAY_INTERVAL_MIN, 0);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 22); // two hours
+});
+
+test("Dockhand: open hire, 14 gold an hour on duty, console promotes", () => {
+    const { game, a, as } = setup();
+    assert.match(game.command(as(1), "apply", ["dockhand"]).msg, /Dockhand — Dockhand, \$200\/paycheck/);
+    game.command(as(1), "duty");
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 7);
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.gold, 14); // one hour
+    assert.match(game.command(CONSOLE, "setjob", ["1", "dockhand", "2"]).msg, /Dockhand — Foreman/);
+});
+
+test("/mark prints a paste-ready position", () => {
+    const { game } = setup();
+    const out = game.command({ id: 1, pos: { x: -269.44, y: -955.31, z: 31.2 }, now: 0 }, "mark", ["Alder", "Street", "bend"]);
+    assert.equal(out.msg, "MARK Alder Street bend: { x: -269.4, y: -955.3, z: 31.2 }  (atlanta)");
+});
+
 test("EMS earn gold for a revive", () => {
     const { game, b, as } = setup();
     game.command(CONSOLE, "setjob", ["2", "ems", "0"]);

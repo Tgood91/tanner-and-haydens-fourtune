@@ -1,0 +1,60 @@
+/* map-detail — wear and tear: potholes, cracks, patches, construction, spent casings.
+   Linked from the map with <link rel="stylesheet">. Remove the link and it all disappears;
+   the <div>s it styles stay in the map but render as nothing. */
+  /* ============================================================
+     WEAR AND TEAR — potholes, cracks, patches, construction,
+     brass on the ground. Everything sits on a road centerline;
+     tilted roads use the road's own rotate(). Perimeter centerline
+     ≈ center (50%, 81%), radii 25.2% × 12.35%.
+     ============================================================ */
+  .pothole { position: absolute; width: 1.8%; aspect-ratio: 1.4; border-radius: 50%; z-index: 4;
+          background: radial-gradient(ellipse at center, #26221e 30%, #4a4238 62%, rgba(74,66,56,0) 78%);
+          box-shadow: inset 0 2px 3px rgba(0,0,0,.65); }
+  .pothole.small { width: 1.2%; }
+  .crack { position: absolute; height: 2px; background: rgba(40,38,35,.6); border-radius: 2px; z-index: 4; }
+  .patch { position: absolute; background: #3a3a3c; border-radius: 3px; z-index: 4; }   /* tar repair */
+  .dig   { position: absolute; background: #6b5636; border-radius: 4px; z-index: 4;
+           box-shadow: inset 0 0 0 2px rgba(60,44,24,.5); }                          /* dug-up dirt */
+  .barrier { position: absolute; z-index: 5; border: 1px solid rgba(60,60,60,.4); border-radius: 2px;
+          background: repeating-linear-gradient(45deg, #ff7a1a 0 6px, #f5f2e8 6px 12px); }
+  .cone { position: absolute; width: 2%; aspect-ratio: .8; z-index: 5;
+          background: linear-gradient(180deg, #ff7a1a, #e85d04);
+          clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .casings { position: absolute; width: 4%; aspect-ratio: 1; z-index: 5; }
+  .casing { position: absolute; width: 12%; aspect-ratio: .4; border-radius: 40% 40% 20% 20%;
+            background: linear-gradient(90deg, #8a6a1e, #e9c46a 45%, #b8892b);
+            box-shadow: 0 0 1px rgba(0,0,0,.6); }
+
+  .pothole-1  { left: 47.3%; top: 29.5%; }   /* Connector, south of Palisade */
+  .pothole-2  { left: 47.3%; top: 54.5%; }   /* Connector, out in GeePee */
+  .pothole-3  { left: 29.1%; top: 40.3%; }   /* County Line Road, west */
+  .pothole-4  { left: 56.9%; top: 37.5%; }   /* The Backroads, up the slope */
+  .pothole-5  { left: 79.2%; top: 54%;   }   /* Backroads Highway, south */
+  .pothole-6  { left: 34.1%; top: 23.3%; }   /* Palisade Boulevard */
+  .pothole-7  { left: 23.1%; top: 11.4%; }   /* The 312 Skyway */
+  .pothole-8  { left: 27.3%; top: 74.3%; }   /* The Perimeter, north-west */
+  .pothole-9  { left: 44.7%; top: 92.7%; }   /* The Perimeter, south */
+  .pothole-10 { left: 35.1%; top: 61.55%; }  /* Red Clay Expressway, west */
+  .pothole-11 { left: 12.1%; top: 71.7%; }   /* Westside Run */
+  .pothole-12 { left: 78.6%; top: 15.1%; }   /* The Causeway */
+  .crack-1 { left: 77.6%; top: 20%;  width: 3%; transform: rotate(104deg); }  /* Lakeshore Drive */
+  .crack-2 { left: 19.4%; top: 15%;  width: 3%; transform: rotate(86deg); }   /* Ironline Expressway */
+  .crack-3 { left: 33%;   top: 74%;  width: 4%; transform: rotate(3deg); }    /* Peachline Road */
+  .patch-1 { left: 47%;   top: 44%;  width: 2.4%; height: 2.5%; }            /* Connector — the one they fixed */
+  .patch-2 { left: 42%;   top: 23%;  width: 4%;   height: 1.7%; }            /* Palisade Boulevard */
+
+  /* construction 1 — Red Clay Expressway, east of the Connector: lane closed, road dug up */
+  .cone-1    { left: 50%;    top: 62.3%; }
+  .dig-1     { left: 52.75%; top: 62.4%; width: 3.5%; height: 2.4%; transform: rotate(6deg); }
+  .barrier-1 { left: 57%;    top: 63.1%; width: 4%;   height: 1.8%; transform: rotate(6deg); }
+  .cone-2    { left: 61.5%;  top: 63.3%; }
+  /* construction 2 — Backroads Highway: one lane closed */
+  .cone-3    { left: 83.3%; top: 34.5%; }
+  .barrier-2 { left: 82.1%; top: 40%;   width: 1.4%; height: 5%; transform: rotate(10deg); }
+  .cone-4    { left: 80.7%; top: 46.5%; }
+
+  /* brass on the ground */
+  .casings-1 { left: 30%; top: 13%; }   /* 312 downtown, off the Skyway */
+  .casings-2 { left: 17%; top: 63%; }   /* Westside */
+  .casings-3 { left: 68%; top: 70%; }   /* Highfield */
+

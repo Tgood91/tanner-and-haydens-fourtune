@@ -1,8 +1,9 @@
 // ============================================================
 // jobs.js — jobs, grades, duty and paychecks
 // Pay is per paycheck (every PAY_INTERVAL_MIN in game.js), into the bank.
-// Workers on duty also earn GOLD per paycheck (goldPerPaycheck) — the
-// only steady way to get gold. Civilians earn none: gold means working.
+// Workers on duty also earn GOLD per paycheck (goldPerPaycheck), or by
+// the hour (goldPerHour, paid out a paycheck at a time) — the only steady
+// way to get gold. Civilians earn none: gold means working.
 // Workers only get paid while on duty; civilians always get the
 // small civilian check.
 //
@@ -54,6 +55,29 @@ const JOBS = {
         ],
         stations: { chicago: { x: -400, y: 6030, z: 33 } },
     },
+    // Hot dog carts parked on the roads (see the map's glizzys-2-go.css).
+    // openHire: anyone can /apply for it — no console needed.
+    glizzys: {
+        label: "Glizzys-2-Go",
+        openHire: true,
+        goldPerHour: 11,
+        grades: [
+            { label: "Cart Hand", pay: 150 },
+            { label: "Cart Owner", pay: 250 },
+        ],
+    },
+    // Loading and unloading ships at the 312 Port and the 1017 Harbor.
+    // Open hire like the carts: /apply dockhand.
+    dockhand: {
+        label: "Dockhand",
+        openHire: true,
+        goldPerHour: 14,
+        grades: [
+            { label: "Dockhand", pay: 200 },
+            { label: "Crane Operator", pay: 300 },
+            { label: "Foreman", pay: 420 },
+        ],
+    },
 };
 
 function jobInfo(c) {
@@ -73,7 +97,17 @@ function setJob(c, name, grade = 0) {
 
     c.job = { name, grade };
     c.onDuty = false; // new job always starts off duty
+    c.goldOwed = 0;   // hourly gold doesn't carry between jobs
     return { ok: true, msg: `Job set: ${jobInfo(c)}` };
+}
+
+// Players can take open-hire jobs themselves; the rest are console-set.
+function applyJob(c, name) {
+    const job = JOBS[name];
+    const open = Object.keys(JOBS).filter((n) => JOBS[n].openHire);
+    if (!job || !job.openHire) return { ok: false, msg: `That job isn't hiring. Open jobs: ${open.join(", ")}` };
+    if (c.job.name === name) return { ok: false, msg: `You already work for ${job.label}` };
+    return setJob(c, name, 0);
 }
 
 function toggleDuty(c) {
@@ -89,9 +123,16 @@ function paycheckAmount(c) {
 }
 
 // Gold for this paycheck (0 for civilians or anyone off duty).
-function paycheckGold(c) {
+// Hourly gold is whole coins only; the leftover fraction carries to the
+// next paycheck (11/hr at 30-min checks pays 5, 6, 5, 6...).
+function paycheckGold(c, intervalMin) {
     if (!c.onDuty) return 0;
-    return JOBS[c.job.name].goldPerPaycheck || 0;
+    const job = JOBS[c.job.name];
+    if (!job.goldPerHour) return job.goldPerPaycheck || 0;
+    c.goldOwed = (c.goldOwed || 0) + (job.goldPerHour * intervalMin) / 60;
+    const whole = Math.floor(c.goldOwed);
+    c.goldOwed -= whole;
+    return whole;
 }
 
-module.exports = { JOBS, jobInfo, setJob, toggleDuty, paycheckAmount, paycheckGold };
+module.exports = { JOBS, jobInfo, setJob, applyJob, toggleDuty, paycheckAmount, paycheckGold };

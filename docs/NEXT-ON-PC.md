@@ -60,6 +60,13 @@ Checks: `lua world/test.lua`.
 `server.cfg` block. The short version: `js-snippets/` has to be installed as a folder named
 `fourtune`, and `chat` + `spawnmanager` must be ensured before either of ours.
 
+## 2d. Walk the map
+
+`docs/WALK-LIST.md` is the checklist of every coordinate the game and both maps read (2 borders,
+15 zones, 63 roads, 50 pins), with the placeholder each has now and the file it lives in. In game,
+stand on each spot and type `/mark <name>`: it prints the position ready to paste. When it's done,
+run the regenerate commands at the top of the list, and the big map gets rebuilt on the walked roads.
+
 ## 3. DECIDED: Lua
 
 Tanner chose Lua on 29 Oct 2026. New systems are written in Lua from here, and the JavaScript in

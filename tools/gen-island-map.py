@@ -1,0 +1,446 @@
+#!/usr/bin/env python3
+# ============================================================
+# tools/gen-island-map.py — draws island-map.html, the whole island
+#
+#   python3 tools/gen-island-map.py > island-map.html
+#
+# The aerial concept shots, as a top-down map: the 312 port city in
+# the north, the farm country and the mountain in the middle, the
+# 1017 at the south end with the airport on the water. Everything
+# we've built is on it: towers, docks and ships, Glizzys-2-Go and
+# dockhand stations, hot dog carts (new spots every load), traffic,
+# potholes and construction, casings. Schematic, not walked coords.
+# ============================================================
+import json, math, random
+random.seed(1017312)
+W, H = 1500, 1000
+out = []
+def a(s): out.append(s)
+def f(v): return f"{v:.1f}"
+
+def smooth(points, closed=True):
+    """Catmull-Rom through the points, as a cubic bezier path."""
+    p = points[:]
+    n = len(p)
+    d = f"M{f(p[0][0])} {f(p[0][1])}"
+    rng = range(n) if closed else range(n - 1)
+    for i in rng:
+        p0 = p[(i - 1) % n] if closed or i > 0 else p[0]
+        p1 = p[i]; p2 = p[(i + 1) % n]
+        p3 = p[(i + 2) % n] if closed or i + 2 < n else p2
+        c1 = (p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6)
+        c2 = (p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6)
+        d += f" C{f(c1[0])} {f(c1[1])} {f(c2[0])} {f(c2[1])} {f(p2[0])} {f(p2[1])}"
+    return d + (" Z" if closed else "")
+
+def ellipse_path(cx, cy, rx, ry):
+    return f"M{cx-rx} {cy} A{rx} {ry} 0 1 0 {cx+rx} {cy} A{rx} {ry} 0 1 0 {cx-rx} {cy} Z"
+
+def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2 <= 1
+
+ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
+          (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
+MOUNTAIN = (780, 455)
+RING = (760, 470, 620, 300)        # The Perimeter, the island ring
+INNER = (760, 700, 380, 98)        # the Inner Loop round the 1017 towers
+MLOOP = (820, 450, 285, 165)       # County Line Road, round the mountain
+
+# ---------------------------------------------------------------- defs
+a(f'''<svg id="island" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south">
+<defs>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a6f9a"/><stop offset="1" stop-color="#174f78"/></linearGradient>
+  <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa36f"/><stop offset=".5" stop-color="#8f9a5e"/><stop offset="1" stop-color="#a49c70"/></linearGradient>
+  <radialGradient id="rock" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#b4ab9b"/><stop offset=".55" stop-color="#8a8172"/><stop offset="1" stop-color="#5f6a45"/></radialGradient>
+  <radialGradient id="hill" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7d8a4a"/><stop offset=".7" stop-color="#8a9356"/><stop offset="1" stop-color="#8f9a5e" stop-opacity="0"/></radialGradient>
+  <clipPath id="clip-island"><path d="{smooth(ISLAND)}"/></clipPath>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="1.5" dy="2" stdDeviation="1.2" flood-opacity=".45"/></filter>
+  <pattern id="containers" width="12" height="6" patternUnits="userSpaceOnUse">
+    <rect width="6" height="6" fill="#c0392b"/><rect x="6" width="6" height="6" fill="#2e86c1"/></pattern>
+</defs>
+<rect width="{W}" height="{H}" fill="url(#sea)"/>
+<g id="waves" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none">''')
+for i in range(40):
+    x, y = random.uniform(0, W), random.uniform(0, H)
+    a(f'  <path d="M{f(x)} {f(y)} q8 -4 16 0 t16 0"/>')
+a('</g>')
+
+# beach + island
+a(f'<path d="{smooth(ISLAND)}" fill="#e2d3a4" transform="translate(0 4)" opacity=".9"/>')
+a(f'<path id="coast" d="{smooth(ISLAND)}" fill="url(#land)" stroke="#d8c690" stroke-width="5"/>')
+
+# ---------------------------------------------------------------- farmland patchwork (under everything)
+a('<g id="fields" clip-path="url(#clip-island)">')
+FIELD_COLORS = ["#6f8f45","#7f9b4c","#a8a25a","#c2b064","#5f7f3e","#93a254","#b39b55","#86a04f"]
+cx, cy, rx, ry = RING
+for gx in range(120, 1420, 46):
+    for gy in range(250, 820, 40):
+        x = gx + random.uniform(-6, 6); y = gy + random.uniform(-5, 5)
+        if not inside_ellipse(x, y, cx, cy, rx - 15, ry - 15): continue
+        if inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1], 230, 160): continue    # the mountain
+        if y > 560 and 470 < x < 1080: continue                                  # 1017
+        if y < 300 and 400 < x < 1150: continue                                  # 312
+        if x < 360 and y < 640 and inside_ellipse(x, y, 250, 470, 170, 200): continue  # west hills
+        w = random.uniform(30, 44); h = random.uniform(26, 36)
+        a(f'  <rect x="{f(x)}" y="{f(y)}" width="{f(w)}" height="{f(h)}" fill="{random.choice(FIELD_COLORS)}" '
+          f'transform="rotate({f(random.uniform(-8,8))} {f(x+w/2)} {f(y+h/2)})" opacity=".9"/>')
+a('</g>')
+
+# west hills + forests
+a(f'<ellipse cx="250" cy="470" rx="190" ry="215" fill="url(#hill)"/>')
+a(f'<ellipse cx="1360" cy="560" rx="90" ry="150" fill="url(#hill)" opacity=".7"/>')
+def forest(cx, cy, rx, ry, n, dark="#2f5a2c", light="#3f7036", title=""):
+    a(f'<g class="woods">' + (f'<title>{title}</title>' if title else ''))
+    for _ in range(n):
+        t = random.uniform(0, 2*math.pi); r = math.sqrt(random.random())
+        x = cx + rx*r*math.cos(t); y = cy + ry*r*math.sin(t)
+        s = random.uniform(4, 7.5)
+        a(f'  <circle cx="{f(x)}" cy="{f(y)}" r="{f(s)}" fill="{random.choice([dark, light])}"/>')
+    a('</g>')
+forest(230, 420, 120, 150, 260, title="The west hills")
+forest(300, 640, 70, 60, 70)
+forest(1350, 560, 50, 90, 60)
+forest(520, 330, 60, 30, 40)
+forest(1080, 340, 60, 26, 40)
+
+# ---------------------------------------------------------------- the mountain
+mx, my = MOUNTAIN
+forest(mx, my + 40, 235, 150, 520, title="The mountain's forest")
+peak = [(mx-200,my+95),(mx-150,my+20),(mx-95,my-55),(mx-40,my-120),(mx+5,my-150),(mx+55,my-110),(mx+120,my-40),
+        (mx+175,my+25),(mx+215,my+100),(mx+120,my+130),(mx,my+120),(mx-110,my+135)]
+a(f'<path d="{smooth(peak)}" fill="url(#rock)" opacity=".95"><title>The mountain</title></path>')
+for dx, dy in [(-130,90),(-70,95),(-20,100),(40,95),(100,100),(160,90)]:
+    a(f'<path d="M{mx+5} {my-150} Q{mx+dx*.5} {my-30} {mx+dx} {my+dy}" stroke="rgba(60,52,40,.45)" stroke-width="3" fill="none"/>')
+a(f'<path d="M{mx-35} {my-125} L{mx+5} {my-152} L{mx+50} {my-112} Q{mx+5} {my-120} {mx-35} {my-125}Z" fill="#f1f0ea"/>')
+forest(mx-60, my+80, 90, 40, 120)
+forest(mx+90, my+70, 90, 40, 120)
+
+# ---------------------------------------------------------------- 312 city blocks (grid)
+a('<g id="city-312" clip-path="url(#clip-island)">')
+for gx in range(430, 1130, 34):
+    for gy in range(140, 300, 30):
+        if not inside_ellipse(gx, gy, 770, 165, 380, 175): continue
+        if random.random() < .08: continue
+        shade = random.choice(["#8f9499","#a2a6aa","#7d838a","#b2b0a8","#969a90"])
+        a(f'  <rect x="{gx+3}" y="{gy+3}" width="26" height="22" fill="#6f7479"/>')
+        for _ in range(random.randint(1, 3)):
+            bw, bh = random.uniform(7, 14), random.uniform(6, 10)
+            bx, by = gx + 4 + random.uniform(0, 26 - bw - 2), gy + 4 + random.uniform(0, 22 - bh - 2)
+            a(f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
+a('</g>')
+
+# ---------------------------------------------------------------- 1017 houses (east and west of downtown)
+a('<g id="houses-1017">')
+for gx in range(930, 1250, 15):
+    for gy in range(610, 800, 14):
+        if not inside_ellipse(gx, gy, *RING[:2], RING[2]-20, RING[3]-20): continue
+        if inside_ellipse(gx, gy, *INNER[:2], INNER[2]-25, INNER[3]-12) and gx < 1080: continue
+        if random.random() < .25: continue
+        col = random.choice(["#a8674c","#8f5e48","#b9b2a3","#7b8b9a","#c4a07a"])
+        a(f'  <rect x="{gx}" y="{gy}" width="9" height="8" fill="{col}" filter="url(#shadow)"/>')
+for gx in range(330, 560, 26):
+    for gy in range(620, 790, 22):
+        if not inside_ellipse(gx, gy, *RING[:2], RING[2]-20, RING[3]-20): continue
+        if random.random() < .3: continue
+        a(f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
+a('</g>')
+
+# ---------------------------------------------------------------- roads
+ROADS = []   # (id, name, d, kind)
+def road(rid, name, d, kind="highway"): ROADS.append((rid, name, d, kind))
+road("perimeter", "The Perimeter — the island ring", ellipse_path(*RING))
+road("inner-loop", "The Inner Loop — round the 1017 towers", ellipse_path(*INNER))
+road("county-line", "County Line Road — round the mountain", ellipse_path(*MLOOP), "arterial")
+road("connector", "The Connector — 312 to 1017, round the mountain and out over the bridge",
+     smooth([(760,120),(760,230),(700,320),(615,410),(610,520),(660,600),(745,650),(760,720),(760,860),(760,1000)], closed=False))
+road("flyover", "The Flyover — off the Perimeter into the 1017 interchange",
+     smooth([(300,640),(420,640),(560,620),(700,640),(760,655)], closed=False), "arterial")
+road("lakeshore", "Lakeshore Drive — the 312 waterfront", smooth([(1130,120),(1240,180),(1330,250),(1385,330)], closed=False), "arterial")
+road("skyway", "The 312 Skyway", "M470 230 L1060 160", "arterial")
+road("ironline", "Ironline Expressway", smooth([(330,210),(420,250),(480,320),(470,420)], closed=False), "arterial")
+road("palisade", "Palisade Boulevard", "M440 300 L1120 300", "arterial")
+road("causeway", "The Causeway — to the 312 docks", "M1120 230 L1300 150", "arterial")
+road("backroads", "The Backroads", smooth([(420,560),(470,470),(560,420),(615,410)], closed=False), "street")
+road("backroads-hwy", "Backroads Highway", smooth([(1105,460),(1180,520),(1240,620),(1280,700)], closed=False), "arterial")
+road("red-clay", "Red Clay Expressway", "M560 680 L960 690", "arterial")
+road("westside-run", "Westside Run", smooth([(150,700),(260,690),(390,680)], closed=False), "arterial")
+road("peachline", "Peachline Road", "M400 720 L590 735", "street")
+road("highfield", "Highfield Park Drive — down to the 1017 harbor", smooth([(1090,720),(1230,760),(1320,790)], closed=False), "street")
+road("airport-road", "Airport Road", "M260 860 L1250 860", "street")
+for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
+    road(f"farm-{i+1}", "Farm track", f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
+# 312 grid streets
+for gx in range(430, 1140, 34):
+    road(f"st312-v{gx}", "312 street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
+for gy in range(140, 310, 30):
+    road(f"st312-h{gy}", "312 street", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
+
+STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
+         "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
+a('<g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">')
+for kind in ["street312", "track", "street", "arterial", "highway"]:
+    for rid, name, d, k in ROADS:
+        if k != kind: continue
+        w, casing, fill = STYLE[k]
+        clip = ' clip-path="url(#clip-island)"' if k == "street312" else ""
+        if casing: a(f'  <path d="{d}" stroke="{casing}" stroke-width="{w+4}"{clip}/>')
+        dash = ' stroke-dasharray="6 4"' if k == "track" else ""
+        a(f'  <path id="{rid}" class="road {k}" d="{d}" stroke="{fill}" stroke-width="{w}"{dash}{clip}><title>{name}</title></path>')
+        if k == "highway": a(f'  <path d="{d}" stroke="#e8c45a" stroke-width="1" stroke-dasharray="10 8" opacity=".8"/>')
+a('</g>')
+# interchanges
+for x, y, name in [(760,655,"The central interchange"),(760,798,"The south stack"),(745,320,"The 312 junction")]:
+    a(f'<circle cx="{x}" cy="{y}" r="22" fill="none" stroke="#cfd0cc" stroke-width="7"><title>{name}</title></circle>')
+
+# ---------------------------------------------------------------- 1017 towers (25+ floors)
+a('<g id="towers">')
+def towers(x0, x1, y0, y1, step, label):
+    for gx in range(x0, x1, step):
+        for gy in range(y0, y1, step):
+            if abs(gx + step/2 - 760) < 16: continue      # leave the Connector clear
+            if random.random() < .15: continue
+            fl = random.randint(25, 64)
+            s = step - 6; sh = fl * .14
+            a(f'  <g class="tower"><title>{label} — {fl} floors</title>'
+              f'<rect x="{gx+3+sh}" y="{gy+3+sh}" width="{s}" height="{s}" fill="rgba(20,24,30,.4)"/>'
+              f'<rect x="{gx+3}" y="{gy+3}" width="{s}" height="{s}" fill="#b5bcc4" stroke="#3e444b" stroke-width="1"/>'
+              f'<rect x="{gx+3+s*.25}" y="{gy+3+s*.25}" width="{s*.5}" height="{s*.5}" fill="none" stroke="#7f878f" stroke-width=".8"/></g>')
+towers(650, 880, 670, 760, 22, "1017 south towers")
+towers(680, 850, 590, 640, 20, "1017 north towers")
+towers(560, 960, 140, 230, 26, "312 downtown")
+a('</g>')
+
+# ---------------------------------------------------------------- the airport
+a('<g id="airport">')
+a('<path d="M210 882 L1250 882 L1250 975 L250 975 Z" fill="#b9b6ad" stroke="#8d8a83" stroke-width="2"><title>The airport</title></path>')
+a('<path d="M1250 860 L1440 830 L1470 930 L1250 975 Z" fill="#b9b6ad" stroke="#8d8a83" stroke-width="2"><title>East apron</title></path>')
+a('<rect x="270" y="935" width="930" height="22" fill="#4f5357"><title>Runway</title></rect>')
+a('<line x1="285" y1="946" x2="1185" y2="946" stroke="#f2f2f2" stroke-width="2" stroke-dasharray="14 12"/>')
+a('<line x1="280" y1="926" x2="1190" y2="926" stroke="#e2b93b" stroke-width="1.5" stroke-dasharray="8 5"/>')
+for x, w in [(300,110),(440,90),(860,100),(1010,110),(1300,70)]:
+    y = 888 if x < 1250 else 870
+    a(f'<rect x="{x}" y="{y}" width="{w}" height="22" rx="2" fill="#4f565d" stroke="#2c3136"><title>Terminal</title></rect>')
+a('<circle cx="560" cy="896" r="8" fill="#e8e6df" stroke="#5b6066" stroke-width="2"><title>Control tower</title></circle>')
+a('<circle cx="1385" cy="880" r="7" fill="#e8e6df" stroke="#5b6066" stroke-width="2"><title>Control tower</title></circle>')
+PLANE = "M0 -12 L1.6 -4 L12 1 L12 3 L1.6 1 L1.2 8 L4.5 11 L4.5 12.5 L0 11.5 L-4.5 12.5 L-4.5 11 L-1.2 8 L-1.6 1 L-12 3 L-12 1 L-1.6 -4 Z"
+for x, y, r in [(340,918,180),(380,918,180),(890,918,180),(1050,918,180),(1330,905,160),(1400,900,160),(620,946,90),(1120,946,-90)]:
+    a(f'<path d="{PLANE}" transform="translate({x} {y}) rotate({r}) scale(1.3)" fill="#f4f4f0" filter="url(#shadow)"><title>Plane</title></path>')
+a('<rect x="752" y="975" width="16" height="25" fill="#7d7f80"><title>The bridge</title></rect>')
+a('</g>')
+
+# ---------------------------------------------------------------- docks + ships
+a('<g id="docks">')
+def pier(x, y, w, h, rot=0, title="Pier"):
+    a(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="#8a8f93" stroke="#55595d" transform="rotate({rot} {x} {y})"><title>{title}</title></rect>')
+def boxes(x, y, w, h, rot=0):
+    a(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#containers)" transform="rotate({rot} {x} {y})"><title>Containers</title></rect>')
+def crane(x, y, rot=0):
+    a(f'<g transform="translate({x} {y}) rotate({rot})"><title>Crane</title><rect x="-4" y="-4" width="8" height="8" fill="#f2c230" stroke="#7a5d0a"/><rect x="-1.5" y="-22" width="3" height="20" fill="#f2c230" stroke="#7a5d0a" stroke-width=".6"/></g>')
+def ship(x, y, l, rot, kind="cargo"):
+    body = {"cargo": "#2f3a46", "tanker": "#2f3a46", "ferry": "#efefea", "boat": "#efeadf"}[kind]
+    a(f'<g transform="translate({x} {y}) rotate({rot})" filter="url(#shadow)"><title>{ {"cargo":"Cargo ship","tanker":"Tanker","ferry":"Ferry","boat":"Boat"}[kind] }</title>'
+      f'<path d="M{-l/2} -{l*.09} L{l*.36} -{l*.09} L{l/2} 0 L{l*.36} {l*.09} L{-l/2} {l*.09} Z" fill="{body}"/>')
+    if kind == "cargo": a(f'<rect x="{-l*.4}" y="{-l*.055}" width="{l*.62}" height="{l*.11}" fill="url(#containers)"/>')
+    if kind == "tanker": a(f'<rect x="{-l*.38}" y="{-l*.045}" width="{l*.6}" height="{l*.09}" rx="{l*.04}" fill="#b03a2e"/>')
+    if kind == "ferry": a(f'<rect x="{-l*.35}" y="{-l*.03}" width="{l*.6}" height="{l*.06}" fill="#2b3a4a"/>')
+    a('</g>')
+# 312 north-east docks: piers off the coast, the photo's big port
+for i, (x, y) in enumerate([(1180,105),(1250,140),(1320,190),(1375,250)]):
+    pier(x, y, 120, 22, -38 + i*12, "312 Port pier")
+    boxes(x+12, y+5, 70, 11, -38 + i*12)
+    crane(x+20, y-6, -38 + i*12)
+for x, y, l, r, k in [(1215,70,90,-38,"cargo"),(1300,105,95,-28,"cargo"),(1390,170,90,-14,"tanker"),(1445,250,80,-4,"cargo")]:
+    ship(x, y, l, r, k)
+# 312 north-west port
+pier(240, 185, 140, 26, -18, "312 west port")
+boxes(255, 188, 90, 14, -18); crane(270, 180, -18); crane(320, 163, -18)
+ship(230, 150, 85, -18, "cargo"); ship(120, 260, 70, 70, "tanker")
+ship(560, 70, 90, -4, "ferry")
+# 1017 west marina
+pier(105, 690, 105, 70, 0, "1017 west yard")
+boxes(115, 700, 60, 40)
+crane(190, 700)
+for y in (770, 790, 810): a(f'<rect x="90" y="{y}" width="70" height="4" fill="#8a7d6b"><title>Marina jetty</title></rect>')
+ship(60, 735, 70, 90, "cargo")
+for x, y in [(110,780),(120,800),(100,820)]: ship(x, y, 22, 0, "boat")
+# 1017 harbor (east)
+pier(1300, 760, 26, 90, 0, "1017 Harbor quay")
+for y in (770, 800, 830): pier(1326, y, 90, 10, 0, "1017 Harbor pier")
+crane(1318, 785, 90); crane(1318, 815, 90)
+ship(1375, 787, 80, 0, "cargo"); ship(1375, 817, 76, 0, "tanker")
+ship(1460, 700, 90, -60, "cargo"); ship(1120, 990, 100, 180, "tanker"); ship(380, 992, 100, 0, "cargo")
+for x, y in [(60,200),(1460,420),(40,560),(1470,560)]:
+    a(f'<path d="M{x} {y-8} L{x+6} {y+6} L{x-6} {y+6} Z" fill="#f4f4f0" filter="url(#shadow)"><title>Sailboat</title></path>')
+a('</g>')
+
+# ---------------------------------------------------------------- farmsteads
+for x, y in [(330,370),(1150,420),(1000,560),(420,560),(1230,320),(560,520)]:
+    a(f'<g filter="url(#shadow)"><title>Farm (barn and silo)</title><rect x="{x}" y="{y}" width="16" height="11" fill="#8e2f22" stroke="#4a160f"/><circle cx="{x+22}" cy="{y+3}" r="5" fill="#b8bcc0" stroke="#6f7478"/></g>')
+
+# ---------------------------------------------------------------- parks
+for x, y, r, name in [(600,590,22,"Groveland Park"),(1150,690,20,"Harvest Common"),(980,270,18,"Harbor Green"),(470,250,15,"Winterline Park")]:
+    a(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#4f8a44" stroke="#2f5a2c" stroke-width="2"><title>{name}</title></circle>')
+
+# ---------------------------------------------------------------- on-road things, placed by script along the roads
+# data-on="road-id"  data-t="0..1"  data-lane="px off the centre line"
+ON = []
+def on(cls, rid, t, lane=0, extra=""): ON.append((cls, rid, t, lane, extra))
+for rid, ts in {"perimeter":[.03,.12,.21,.33,.45,.58,.66,.74,.88,.95], "connector":[.08,.2,.35,.5,.62,.8,.92],
+                "inner-loop":[.1,.3,.55,.8], "county-line":[.15,.4,.7,.9], "palisade":[.3,.7], "red-clay":[.25,.8],
+                "lakeshore":[.5], "backroads-hwy":[.4], "highfield":[.5], "airport-road":[.3,.7]}.items():
+    for i, t in enumerate(ts):
+        on("car", rid, t, 4 if i % 2 else -4, f'data-color="{random.choice(["#c0392b","#2e86c1","#f4f4f0","#1c1c1c","#e6b422","#27ae60","#8e44ad","#7f8c8d"])}"' + (' data-flip="1"' if i % 2 else ""))
+for rid, t in [("perimeter",.16),("perimeter",.52),("perimeter",.8),("connector",.28),("connector",.7),("inner-loop",.42),("county-line",.55),("red-clay",.45),("palisade",.5),("westside-run",.4)]:
+    on("pothole", rid, t)
+for rid, t in [("connector",.42),("connector",.44),("perimeter",.62),("perimeter",.64)]:
+    on("cone", rid, t, 6)
+on("barrier", "connector", .43, 5); on("dig", "perimeter", .63, 0)
+for rid, t in [("perimeter",.27),("connector",.57),("county-line",.25),("inner-loop",.67),("palisade",.15),("red-clay",.6),("airport-road",.5),("highfield",.3)]:
+    on("cart", rid, t, 0, 'data-random="1"')
+
+a('<g id="on-road"></g>')
+
+# ---------------------------------------------------------------- stations (fixed)
+def station(x, y, kind, title):
+    if kind == "glizzy":
+        a(f'<g class="station" transform="translate({x} {y})"><title>{title} — /apply glizzys</title>'
+          '<rect x="-12" y="-12" width="24" height="24" rx="5" fill="#f7c948" stroke="#d62828" stroke-width="3"/>'
+          '<rect x="-9" y="-3.5" width="18" height="7" rx="3.5" fill="#e0a95a"/><rect x="-10" y="-1.6" width="20" height="3.2" rx="1.6" fill="#b5452b"/></g>')
+    else:
+        a(f'<g class="station" transform="translate({x} {y})"><title>{title} — /apply dockhand</title>'
+          '<rect x="-12" y="-12" width="24" height="24" rx="5" fill="#1f4e79" stroke="#f2c230" stroke-width="3"/>'
+          '<rect x="-6" y="-6" width="12" height="12" fill="#c46a2c" stroke="#5a2d0e"/><line x1="-2" y1="-6" x2="-2" y2="6" stroke="#8f4a1c"/><line x1="2" y1="-6" x2="2" y2="6" stroke="#8f4a1c"/></g>')
+a('<g id="stations" filter="url(#shadow)">')
+for x, y, t in [(705,705,"Glizzys-2-Go, south towers"),(890,630,"Glizzys-2-Go, north-east"),(600,690,"Glizzys-2-Go, Red Clay"),
+                (960,760,"Glizzys-2-Go, east houses"),(640,770,"Glizzys-2-Go, west towers")]:
+    station(x, y, "glizzy", t)
+station(1290, 745, "dock", "Dockhand, 1017 Harbor")
+station(1150, 255, "dock", "Dockhand, 312 Port")
+a('</g>')
+
+# casings
+for cx_, cy_ in [(520,610),(1010,700),(620,180),(380,700)]:
+    a(f'<g class="casings"><title>Spent casings</title>')
+    for _ in range(6):
+        x = cx_ + random.uniform(-10, 10); y = cy_ + random.uniform(-8, 8)
+        a(f'<rect x="{f(x)}" y="{f(y)}" width="2" height="5" rx="1" fill="#e0b84f" transform="rotate({random.randint(0,179)} {f(x)} {f(y)})"/>')
+    a('</g>')
+
+# ---------------------------------------------------------------- area codes
+for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104)]:   # 1017 sits over the east houses, off the towers
+    a(f'<text x="{x}" y="{y}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="{s}" '
+      f'fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">{t}</text>')
+a('</svg>')
+SVG = "\n".join(out)
+
+LEGEND = [
+ ('<path d="M4 17 H48" stroke="#5c5f63" stroke-width="12"/><path d="M4 17 H48" stroke="#cfd0cc" stroke-width="9"/><path d="M4 17 H48" stroke="#e8c45a" stroke-width="1" stroke-dasharray="5 4"/>', "Highway (hover for names)"),
+ ('<path d="M4 17 H48" stroke="#5c5f63" stroke-width="9"/><path d="M4 17 H48" stroke="#d4d4cf" stroke-width="6"/>', "Main road"),
+ ('<path d="M4 17 H48" stroke="#6a6c6e" stroke-width="6"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="4"/>', "Street"),
+ ('<path d="M4 17 H48" stroke="#c9b48a" stroke-width="3" stroke-dasharray="6 4"/>', "Farm track"),
+ ('<circle cx="26" cy="17" r="11" fill="none" stroke="#cfd0cc" stroke-width="5"/>', "Interchange"),
+ ('<rect x="13" y="6" width="20" height="20" fill="rgba(20,24,30,.4)"/><rect x="10" y="3" width="20" height="20" fill="#b5bcc4" stroke="#3e444b"/>', "Tower, 25+ floors (hover)"),
+ ('<rect x="6" y="6" width="40" height="22" fill="#6f7479"/><rect x="10" y="10" width="12" height="8" fill="#a2a6aa"/><rect x="26" y="12" width="14" height="9" fill="#8f9499"/>', "312 city block"),
+ ('<rect x="8" y="10" width="9" height="8" fill="#a8674c"/><rect x="22" y="12" width="9" height="8" fill="#b9b2a3"/><rect x="36" y="9" width="9" height="8" fill="#7b8b9a"/>', "Houses"),
+ ('<rect x="4" y="5" width="20" height="12" fill="#7f9b4c"/><rect x="26" y="7" width="22" height="11" fill="#c2b064"/><rect x="8" y="19" width="22" height="11" fill="#5f7f3e"/>', "Farmland"),
+ ('<rect x="14" y="12" width="16" height="11" fill="#8e2f22"/><circle cx="36" cy="15" r="5" fill="#b8bcc0" stroke="#6f7478"/>', "Farm (barn and silo)"),
+ ('<circle cx="14" cy="14" r="6" fill="#2f5a2c"/><circle cx="26" cy="20" r="6" fill="#3f7036"/><circle cx="37" cy="12" r="6" fill="#2f5a2c"/>', "Forest"),
+ ('<path d="M6 30 L26 4 L46 30 Z" fill="#8a8172"/><path d="M20 12 L26 4 L32 12 Z" fill="#f1f0ea"/>', "The mountain"),
+ ('<circle cx="26" cy="17" r="11" fill="#4f8a44" stroke="#2f5a2c" stroke-width="2"/>', "Park"),
+ ('<rect x="6" y="11" width="40" height="12" fill="#8a8f93" stroke="#55595d"/><rect x="10" y="13" width="28" height="7" fill="url(#lg-cont)"/>', "Pier / dock yard"),
+ ('<rect x="22" y="12" width="8" height="8" fill="#f2c230" stroke="#7a5d0a"/><rect x="24.5" y="2" width="3" height="11" fill="#f2c230" stroke="#7a5d0a" stroke-width=".6"/>', "Crane"),
+ ('<path d="M6 13 L38 13 L46 17 L38 21 L6 21 Z" fill="#2f3a46"/><rect x="9" y="15" width="25" height="4" fill="url(#lg-cont)"/>', "Cargo ship"),
+ ('<path d="M6 13 L38 13 L46 17 L38 21 L6 21 Z" fill="#2f3a46"/><rect x="10" y="15" width="24" height="4" rx="2" fill="#b03a2e"/>', "Tanker"),
+ ('<path d="M6 13 L38 13 L46 17 L38 21 L6 21 Z" fill="#efefea"/><rect x="12" y="16" width="22" height="2" fill="#2b3a4a"/>', "Ferry / boat"),
+ ('<rect x="2" y="10" width="48" height="14" fill="#4f5357"/><path d="M5 17 H47" stroke="#fff" stroke-width="2" stroke-dasharray="6 5"/>', "Runway"),
+ ('<rect x="6" y="9" width="40" height="16" rx="2" fill="#4f565d" stroke="#2c3136"/>', "Terminal"),
+ (f'<path d="{PLANE}" transform="translate(26 17) scale(1.2)" fill="#f4f4f0"/>', "Plane"),
+ ('<rect x="15" y="12" width="22" height="10" rx="5" fill="#2e86c1"/><rect x="19" y="13.5" width="3" height="7" fill="rgba(20,30,40,.7)"/><rect x="29" y="13.5" width="3" height="7" fill="rgba(20,30,40,.8)"/>', "Traffic"),
+ ('<ellipse cx="26" cy="17" rx="9" ry="6.5" fill="#2a241f" stroke="#4a4238" stroke-width="2"/>', "Pothole"),
+ ('<path d="M26 5 L33 28 L19 28 Z" fill="#ff7a1a"/>', "Traffic cone"),
+ ('<rect x="8" y="12" width="36" height="10" fill="url(#lg-barrier)" stroke="#555"/>', "Construction barrier"),
+ ('<rect x="14" y="10" width="24" height="14" rx="3" fill="#6b5636"/>', "Road dug up"),
+ ('<rect x="15" y="10" width="2" height="6" fill="#e0b84f" transform="rotate(30 16 13)"/><rect x="25" y="16" width="2" height="6" fill="#e0b84f" transform="rotate(110 26 19)"/><rect x="34" y="9" width="2" height="6" fill="#e0b84f" transform="rotate(70 35 12)"/>', "Spent casings"),
+ ('<rect x="17" y="9" width="18" height="15" rx="2" fill="url(#lg-glizzy)" stroke="#5a1a1a"/><path d="M14 10 A12 7 0 0 1 38 10 Z" fill="#d62828"/>', "Glizzys-2-Go cart (moves each load)"),
+ ('<rect x="14" y="5" width="24" height="24" rx="5" fill="#f7c948" stroke="#d62828" stroke-width="3"/><rect x="18" y="14" width="16" height="6" rx="3" fill="#b5452b"/>', "Glizzys-2-Go job station"),
+ ('<rect x="14" y="5" width="24" height="24" rx="5" fill="#1f4e79" stroke="#f2c230" stroke-width="3"/><rect x="20" y="11" width="12" height="12" fill="#c46a2c"/>', "Dockhand job station"),
+]
+legend_items = "\n".join(
+    f'      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/>{g}</svg>{t}</li>' for g, t in LEGEND)
+
+print(f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Island — 312 to 1017</title>
+<!-- GENERATED by tools/gen-island-map.py — edit the script, then: python3 tools/gen-island-map.py > island-map.html -->
+<style>
+  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+  body {{ background: #0b1526; font-family: Arial, Helvetica, sans-serif; color: #dfe7f2;
+         display: flex; flex-direction: column; align-items: center; padding: 24px 16px; }}
+  h1 {{ color: #e8eef7; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }}
+  p.note {{ color: #8fa5c0; font-size: 13px; margin-bottom: 16px; text-align: center; }}
+  .frame {{ width: min(96vw, 1500px); border-radius: 18px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.55); }}
+  #island {{ display: block; width: 100%; height: auto; }}
+  #island .road {{ cursor: help; }}
+  #island .road:hover {{ stroke: #fff6c2; }}
+  #island .tower:hover rect:nth-child(2) {{ fill: #dfe5ea; }}
+  #island .station {{ cursor: help; }}
+  .legend {{ width: min(96vw, 1500px); margin-top: 18px; padding: 16px 18px 18px; background: #13223a;
+             border: 1px solid rgba(143,165,192,.25); border-radius: 14px; font-size: 13px; }}
+  .legend h2 {{ font-size: 13px; letter-spacing: 2px; color: #8fa5c0; margin-bottom: 12px; }}
+  .legend ul {{ list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px 18px; }}
+  .legend li {{ display: flex; align-items: center; gap: 10px; min-height: 34px; }}
+  .legend .sw {{ flex: 0 0 52px; height: 34px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); }}
+</style>
+</head>
+<body>
+  <h1>THE ISLAND — 312 TO 1017</h1>
+  <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south.<br>
+  Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
+  <div class="frame">
+{SVG}
+  </div>
+  <div class="legend">
+    <h2>LEGEND</h2>
+    <svg width="0" height="0" style="position:absolute"><defs>
+      <pattern id="lg-cont" width="8" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#c0392b"/><rect x="4" width="4" height="4" fill="#2e86c1"/></pattern>
+      <pattern id="lg-barrier" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="#ff7a1a"/><rect x="4" width="4" height="8" fill="#f5f2e8"/></pattern>
+      <linearGradient id="lg-glizzy"><stop offset=".33" stop-color="#d62828"/><stop offset=".33" stop-color="#f7c948"/><stop offset=".66" stop-color="#f7c948"/><stop offset=".66" stop-color="#d62828"/></linearGradient>
+    </defs></svg>
+    <ul>
+{legend_items}
+    </ul>
+  </div>
+<script>
+// Places cars, potholes, cones, the barrier, the dig and the hot dog carts along the road paths.
+(function () {{
+  const NS = "http://www.w3.org/2000/svg";
+  const layer = document.getElementById("on-road");
+  const ON = {json.dumps(ON)};
+  const el = (tag, attrs, parent) => {{ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; }};
+  const tip = (g, text) => {{ const t = document.createElementNS(NS, "title"); t.textContent = text; g.appendChild(t); }};
+  for (const [cls, rid, t0, lane, extra] of ON) {{
+    const path = document.getElementById(rid); if (!path) continue;
+    const t = extra.includes('data-random') ? 0.04 + Math.random() * 0.92 : t0;
+    const L = path.getTotalLength(), p = path.getPointAtLength(L * t), q = path.getPointAtLength(Math.min(L, L * t + 1));
+    let ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+    const nx = -(q.y - p.y), ny = q.x - p.x, nl = Math.hypot(nx, ny) || 1;
+    const x = p.x + nx / nl * lane, y = p.y + ny / nl * lane;
+    if (extra.includes('data-flip')) ang += 180;
+    const g = el("g", {{ transform: `translate(${{x}} ${{y}}) rotate(${{ang}})`, class: cls }});
+    const color = (extra.match(/data-color="([^"]+)"/) || [])[1];
+    if (cls === "car") {{ tip(g, "Traffic"); el("rect", {{ x: -5, y: -2.2, width: 10, height: 4.4, rx: 2, fill: color }}, g); el("rect", {{ x: 1.5, y: -1.8, width: 1.8, height: 3.6, fill: "rgba(20,30,40,.8)" }}, g); el("rect", {{ x: -3.5, y: -1.8, width: 1.5, height: 3.6, fill: "rgba(20,30,40,.7)" }}, g); }}
+    if (cls === "pothole") {{ tip(g, "Pothole"); el("ellipse", {{ rx: 4.5, ry: 3.2, fill: "#2a241f", stroke: "#4a4238", "stroke-width": 1 }}, g); }}
+    if (cls === "cone") {{ tip(g, "Traffic cone"); el("path", {{ d: "M0 -5 L3.5 4 L-3.5 4 Z", fill: "#ff7a1a", transform: `rotate(${{-ang}})` }}, g); }}
+    if (cls === "barrier") {{ tip(g, "Construction — lane closed"); el("rect", {{ x: -9, y: -2, width: 18, height: 4, fill: "#ff7a1a", stroke: "#f5f2e8", "stroke-dasharray": "3 3" }}, g); }}
+    if (cls === "dig") {{ tip(g, "Road dug up"); el("rect", {{ x: -8, y: -5, width: 16, height: 10, rx: 2, fill: "#6b5636" }}, g); }}
+    if (cls === "cart") {{ tip(g, "Glizzys-2-Go cart"); const c = el("g", {{ transform: `rotate(${{-ang}})` }}, g);
+      el("rect", {{ x: -6, y: -4, width: 12, height: 9, rx: 1.5, fill: "#f7c948", stroke: "#5a1a1a", "stroke-width": .8 }}, c);
+      el("rect", {{ x: -6, y: -4, width: 4, height: 9, fill: "#d62828" }}, c); el("rect", {{ x: 2, y: -4, width: 4, height: 9, fill: "#d62828" }}, c);
+      el("path", {{ d: "M-8 -4 A8 5 0 0 1 8 -4 Z", fill: "#d62828", stroke: "#fff", "stroke-width": .6 }}, c); }}
+  }}
+}})();
+</script>
+</body>
+</html>''')

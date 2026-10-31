@@ -1,0 +1,37 @@
+/* map-detail — Glizzys-2-Go hot dog carts parked on the roads.
+   The spots below are the fallback: map-detail-glizzys-2-go.js moves every cart to a
+   random road spot on each load.
+   Linked from the map with <link rel="stylesheet">. Remove the link and it all disappears;
+   the <div>s it styles stay in the map but render as nothing. */
+  /* ---- Glizzys-2-Go: hot dog carts parked on the roads (hover for the name) ---- */
+  .glizzys-2-go { position: absolute; width: 2.2%; aspect-ratio: 1.3; z-index: 6; border-radius: 3px;
+          background: linear-gradient(90deg, #d62828 0 33%, #f7c948 33% 66%, #d62828 66%);  /* ketchup, mustard */
+          border: 1px solid #5a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  .glizzys-2-go::after { content: ""; position: absolute; left: 50%; top: -70%; width: 120%; aspect-ratio: 2;
+          transform: translateX(-50%); border-radius: 50% 50% 0 0;
+          background: repeating-conic-gradient(from -90deg at 50% 100%, #d62828 0 30deg, #fff 30deg 60deg);
+          clip-path: inset(0 0 50% 0); }                                                   /* the umbrella */
+  .glizzys-2-go-1 { left: 47.1%; top: 19.3%; }   /* Connector, the 312 end */
+  .glizzys-2-go-2 { left: 62.9%; top: 40.1%; }   /* County Line Road, east */
+  .glizzys-2-go-3 { left: 24.9%; top: 23.2%; }   /* Palisade Boulevard */
+  .glizzys-2-go-4 { left: 41.2%; top: 42.9%; }   /* The Backroads */
+  .glizzys-2-go-5 { left: 80.7%; top: 10.8%; }   /* Lakeshore Drive */
+  .glizzys-2-go-6 { left: 70.7%; top: 74.1%; }   /* The Perimeter, north-east */
+  .glizzys-2-go-7 { left: 66.9%; top: 77.6%; }   /* Highfield Park Drive */
+  .glizzys-2-go-8 { left: 21.9%; top: 71%; }   /* Westside Run */
+
+  /* ---- the Glizzys-2-Go job station: where you /apply glizzys and pick up a cart ---- */
+  .glizzys-2-go-station { position: absolute; width: 4.2%; aspect-ratio: 1; z-index: 6;
+          transform: translate(-50%, -50%); border-radius: 22%;
+          background: #f7c948; border: 3px solid #d62828;
+          box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(0,0,0,.55); }
+  .glizzys-2-go-station::before { content: ""; position: absolute; left: 10%; right: 10%; top: 34%; height: 34%;
+          background: #e0a95a; border-radius: 999px; box-shadow: inset 0 -2px 0 rgba(120,70,20,.4); }   /* the bun */
+  .glizzys-2-go-station::after { content: ""; position: absolute; left: 4%; right: 4%; top: 42%; height: 17%;
+          background: #b5452b; border-radius: 999px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 -1px 0 #f7c948; }                       /* the glizzy, mustard on top */
+  .glizzys-2-go-station { left: 58%; top: 72.5%; }   /* the depot */
+  .glizzys-2-go-station-2 { left: 46.0%; top: 62.9%; }   /* Red Clay Expressway, by the Connector */
+  .glizzys-2-go-station-3 { left: 64.5%; top: 70.9%; }   /* the Perimeter, north-east */
+  .glizzys-2-go-station-4 { left: 33.6%; top: 74.4%; }   /* 1017 downtown, west — on Peachline, above the towers */
+  .glizzys-2-go-station-5 { left: 53.5%; top: 73%; }     /* 1017 downtown, by the Connector's end — above the towers, right of the label */

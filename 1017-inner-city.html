@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1017 — Inner City</title>
+<style>
+  /* ============================================================
+     1017 INNER CITY — Atlanta's road net, a zoomed-in plate in
+     pure CSS. Same kit as the big map: one class per thing.
+       The Connector  — the spine, straight down the middle from
+                        the north towers, past the airport, out
+                        over the water on the bridge.
+       The Perimeter  — the big outer loop.
+       The Inner Loop — the small loop round the south towers;
+                        it shares the Perimeter's south run.
+       The Flyover    — curves off the hill and drops into the
+                        central interchange.
+       Grid streets   — the apartment blocks east; switchback
+                        streets on the hill west.
+
+     TAMPER GUIDE
+       left / top     move it (% of the map, from the top-left)
+       width / height resize it
+       rotate()       tilt it
+       Delete the <div> in the body and the feature is gone.
+     ============================================================ */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0b1526; font-family: Arial, Helvetica, sans-serif;
+         display: flex; flex-direction: column; align-items: center; padding: 24px 12px; }
+  h1 { color: #e8eef7; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }
+  p.note { color: #8fa5c0; font-size: 13px; margin-bottom: 16px; }
+
+  /* ---- the plate: open water ---- */
+  .map { position: relative; width: min(96vw, 1400px); aspect-ratio: 6 / 5;   /* large: room for detail; shrinks to fit small screens */
+         background: linear-gradient(180deg, #1c4f78, #12395c);
+         border-radius: 18px; overflow: hidden;
+         box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+
+  /* ---- the land: coast bites at the corners, harbor west, bay south ---- */
+  .land { position: absolute; inset: 0;
+          background: linear-gradient(180deg, #a3a37a, #b0a679 60%, #a49c74);
+          clip-path: polygon(10% 0, 84% 0, 90% 8%, 100% 14%, 100% 60%, 94% 66%, 90% 74%,
+                             84% 76%, 82% 92%, 18% 92%, 4% 76%, 13% 70%, 9% 58%, 0 46%,
+                             0 16%, 6% 10%); }
+
+  /* ---- the hill: west, scrubby, streets wind over it ---- */
+  .hill { position: absolute; left: -4%; top: 12%; width: 32%; height: 44%;
+          background: radial-gradient(ellipse at 45% 45%, #7f8a4c, #6c7843 55%, rgba(108,120,67,0) 75%);
+          border-radius: 50%; }
+
+  /* ---- districts: towers, blocks, houses ---- */
+  .core { position: absolute; border-radius: 6px; opacity: .9; background: #6c7177; }   /* downtown pavement */
+  .core-north { left: 37%; top: 3%;  width: 24%; height: 22%; }    /* the north towers */
+  .core-south { left: 35%; top: 50%; width: 26%; height: 22%; }    /* the south towers */
+
+  /* ---- the towers: every one 25 floors or more. --floors sets the height:
+     the taller the tower, the longer the shadow it throws to the south-east.
+     Hover a tower for its floor count. ---- */
+  .highrise { position: absolute; z-index: 1; border-radius: 2px;
+           background: linear-gradient(135deg, #b9c0c8, #8f979f);             /* the roof */
+           border: 1px solid rgba(30,34,40,.55);
+           box-shadow: calc(var(--floors) * .14px) calc(var(--floors) * .14px) 0 rgba(20,24,30,.45),
+                       calc(var(--floors) * .2px) calc(var(--floors) * .2px) 6px rgba(0,0,0,.25); }
+  .highrise::after { content: ""; position: absolute; inset: 22%; border: 1px solid rgba(40,44,50,.35); }  /* rooftop plant */
+  .highrise-n1 { left: 37.9%; top: 3.9%; width: 2.4%; height: 3.0%; --floors: 49; }
+  .highrise-n2 { left: 37.9%; top: 8.3%; width: 2.4%; height: 3.0%; --floors: 25; }
+  .highrise-n3 { left: 37.9%; top: 13.3%; width: 2.4%; height: 6.0%; --floors: 38; }
+  .highrise-n4 { left: 37.9%; top: 21.5%; width: 2.4%; height: 2.8%; --floors: 44; }
+  .highrise-n5 { left: 42.2%; top: 3.9%; width: 5.8%; height: 3.0%; --floors: 55; }
+  .highrise-n6 { left: 42.2%; top: 8.3%; width: 5.8%; height: 3.0%; --floors: 27; }
+  .highrise-n7 { left: 42.2%; top: 13.3%; width: 2.2%; height: 6.0%; --floors: 41; }
+  .highrise-n8 { left: 45.8%; top: 13.3%; width: 2.2%; height: 6.0%; --floors: 27; }
+  .highrise-n9 { left: 42.2%; top: 21.5%; width: 2.2%; height: 2.8%; --floors: 44; }
+  .highrise-n10 { left: 45.8%; top: 21.5%; width: 2.2%; height: 2.8%; --floors: 61; }
+  .highrise-n11 { left: 52.0%; top: 3.9%; width: 4.4%; height: 3.0%; --floors: 52; }
+  .highrise-n12 { left: 52.0%; top: 8.3%; width: 4.4%; height: 3.0%; --floors: 31; }
+  .highrise-n13 { left: 52.0%; top: 13.3%; width: 4.4%; height: 6.0%; --floors: 62; }
+  .highrise-n14 { left: 52.0%; top: 21.5%; width: 4.4%; height: 2.8%; --floors: 32; }
+  .highrise-n15 { left: 58.2%; top: 3.9%; width: 2.1%; height: 3.0%; --floors: 61; }
+  .highrise-n16 { left: 58.2%; top: 8.3%; width: 2.1%; height: 3.0%; --floors: 37; }
+  .highrise-n17 { left: 58.2%; top: 13.3%; width: 2.1%; height: 6.0%; --floors: 57; }
+  .highrise-n18 { left: 58.2%; top: 21.5%; width: 2.1%; height: 2.8%; --floors: 64; }
+  .highrise-s1 { left: 35.9%; top: 50.9%; width: 5.5%; height: 3.5%; --floors: 45; }
+  .highrise-s2 { left: 35.9%; top: 55.8%; width: 5.5%; height: 3.5%; --floors: 36; }
+  .highrise-s3 { left: 35.9%; top: 61.5%; width: 2.1%; height: 4.8%; --floors: 60; }
+  .highrise-s4 { left: 39.4%; top: 61.5%; width: 2.0%; height: 4.8%; --floors: 47; }
+  .highrise-s5 { left: 35.9%; top: 68.3%; width: 2.1%; height: 3.0%; --floors: 57; }
+  .highrise-s6 { left: 39.4%; top: 68.3%; width: 2.0%; height: 3.0%; --floors: 55; }
+  .highrise-s7 { left: 43.3%; top: 61.5%; width: 1.6%; height: 4.8%; --floors: 58; }
+  .highrise-s8 { left: 46.3%; top: 61.5%; width: 1.6%; height: 4.8%; --floors: 31; }
+  .highrise-s9 { left: 43.3%; top: 68.3%; width: 1.6%; height: 3.0%; --floors: 31; }
+  .highrise-s10 { left: 46.3%; top: 68.3%; width: 1.6%; height: 3.0%; --floors: 63; }
+  .highrise-s11 { left: 52.0%; top: 50.9%; width: 3.4%; height: 3.5%; --floors: 62; }
+  .highrise-s12 { left: 52.0%; top: 55.8%; width: 3.4%; height: 3.5%; --floors: 47; }
+  .highrise-s13 { left: 52.0%; top: 61.5%; width: 3.4%; height: 4.8%; --floors: 51; }
+  .highrise-s14 { left: 52.0%; top: 68.3%; width: 3.4%; height: 3.0%; --floors: 47; }
+  .highrise-s15 { left: 57.3%; top: 50.9%; width: 3.0%; height: 3.5%; --floors: 37; }
+  .highrise-s16 { left: 57.3%; top: 55.8%; width: 3.0%; height: 3.5%; --floors: 35; }
+  .highrise-s17 { left: 57.3%; top: 61.5%; width: 3.0%; height: 4.8%; --floors: 64; }
+  .highrise-s18 { left: 57.3%; top: 68.3%; width: 3.0%; height: 3.0%; --floors: 54; }
+  .blocks { position: absolute; left: 62%; top: 22%; width: 30%; height: 34%; opacity: .55;
+            background: repeating-linear-gradient(-28deg, #8a7f72 0 10px, transparent 10px 18px);
+            border-radius: 40% 34% 38% 30%; }                       /* apartment rows east */
+  .houses { position: absolute; left: 60%; top: 48%; width: 28%; height: 18%; opacity: .45;
+            background: radial-gradient(circle, #9a6a50 30%, transparent 32%) 0 0 / 14px 14px;
+            border-radius: 40%; }                                    /* little houses south-east */
+
+  /* ---- roads: one base, then each road ---- */
+  .road { position: absolute; background: #d9d9d4; border-radius: 6px;
+          box-shadow: 0 0 0 1px rgba(60,60,60,.35); z-index: 2; }
+  .ring { position: absolute; border: solid #d9d9d4; border-radius: 50%; z-index: 2;
+          box-shadow: 0 0 0 1px rgba(60,60,60,.35), inset 0 0 0 1px rgba(60,60,60,.35); }
+  .street { position: absolute; background: #cfccc2; border-radius: 3px; height: .8%; z-index: 1; }
+
+  /* the spine — straight top to bottom, onto the bridge */
+  .connector { left: 48.6%; top: 0; width: 2.8%; height: 100%; z-index: 3;
+               background: linear-gradient(90deg, #d9d9d4 45%, #f2d16b 45% 55%, #d9d9d4 55%); }  /* yellow median */
+  .bridge    { left: 47.6%; top: 91%; width: 4.8%; height: 9%; z-index: 2; background: #7d7f80; border-radius: 0; }  /* deck rails */
+
+  /* the loops */
+  .perimeter  { left: 9%;  top: 9%;  width: 82%; height: 70%; border-width: clamp(6px, .9vw, 16px); }   /* The Perimeter */
+  .inner-loop { left: 14%; top: 40%; width: 68%; height: 39%; border-width: clamp(5px, .7vw, 12px); }   /* The Inner Loop — shares the south run */
+
+  /* the flyover: off the hill, curls down into the interchange */
+  .flyover { position: absolute; left: 32%; top: 11.5%; width: 17.5%; height: 30.5%; z-index: 3;
+             border: clamp(5px, .8vw, 14px) solid #d9d9d4; border-top: none; border-right: none;
+             border-bottom-left-radius: 100% 100%;
+             filter: drop-shadow(0 0 1px rgba(60,60,60,.6)); }
+  .interchange { position: absolute; left: 46%; top: 36%; width: 8%; aspect-ratio: 1; z-index: 4;
+                 border: clamp(3px, .45vw, 8px) solid #d9d9d4; border-radius: 50%;
+                 box-shadow: 0 0 0 1px rgba(60,60,60,.45), inset 0 0 0 1px rgba(60,60,60,.45); }  /* the central stack */
+  .south-stack { position: absolute; left: 46.5%; top: 74.5%; width: 7%; aspect-ratio: 1; z-index: 4;
+                 border: clamp(3px, .45vw, 8px) solid #d9d9d4; border-radius: 50%;
+                 box-shadow: 0 0 0 1px rgba(60,60,60,.45); }        /* spine × the loops' south run */
+
+  /* the east grid — apartment streets, tilted with the blocks */
+  .grid-1 { left: 62%; top: 30%; width: 24%; transform: rotate(-28deg); }
+  .grid-2 { left: 63%; top: 38%; width: 26%; transform: rotate(-28deg); }
+  .grid-3 { left: 64%; top: 46%; width: 24%; transform: rotate(-28deg); }
+  .grid-4 { left: 69%; top: 25%; width: .6%; height: 28%; transform: rotate(-28deg); }
+  .grid-5 { left: 77%; top: 25%; width: .6%; height: 28%; transform: rotate(-28deg); }
+  /* south-east houses: a short grid off the Inner Loop */
+  .grid-6 { left: 62%; top: 58%; width: 22%; transform: rotate(12deg); }
+  .grid-7 { left: 72%; top: 52%; width: .6%; height: 16%; transform: rotate(12deg); }
+  /* the hill — switchback streets */
+  .hill-1 { position: absolute; left: 6%;  top: 22%; width: 18%; height: 10%; z-index: 1;
+            border: clamp(2px, .3vw, 5px) solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
+  .hill-2 { position: absolute; left: 10%; top: 31%; width: 16%; height: 9%;  z-index: 1;
+            border: clamp(2px, .3vw, 5px) solid #cfccc2; border-top: none; border-radius: 0 0 50% 50%; }
+  /* downtown cross streets */
+  .dt-1 { left: 38%; top: 12%; width: 22%; }
+  .dt-2 { left: 36%; top: 60%; width: 24%; }
+  .dt-3 { left: 42%; top: 51%; width: .6%; height: 20%; }
+  .dt-4 { left: 56%; top: 51%; width: .6%; height: 20%; }
+  /* north towers — a tight grid either side of the spine */
+  .dt-5 { left: 38%; top: 20%; width: 22%; }
+  .dt-6 { left: 41%; top: 4%;  width: .6%; height: 20%; }
+  .dt-7 { left: 57%; top: 4%;  width: .6%; height: 20%; }
+  /* south towers — one more crosstown */
+  .dt-8 { left: 36%; top: 67%; width: 24%; }
+  /* north-east, between the towers and the Perimeter */
+  .ne-1 { left: 62%; top: 14%; width: 14%; transform: rotate(8deg); }
+  .ne-2 { left: 66%; top: 11%; width: .6%; height: 10%; }
+  /* east grid — two more rows through the apartments */
+  .grid-8 { left: 61%; top: 34%; width: 26%; transform: rotate(-28deg); }
+  .grid-9 { left: 63%; top: 42%; width: 26%; transform: rotate(-28deg); }
+  .grid-10 { left: 73%; top: 25%; width: .6%; height: 28%; transform: rotate(-28deg); }
+  /* south-east houses — fill out the grid */
+  .grid-11 { left: 62%; top: 64%; width: 20%; transform: rotate(12deg); }
+  .grid-12 { left: 66%; top: 52%; width: .6%; height: 16%; transform: rotate(12deg); }
+  .grid-13 { left: 78%; top: 53%; width: .6%; height: 14%; transform: rotate(12deg); }
+  /* south-west, inside the Inner Loop, below the hill's foot */
+  .sw-1 { left: 18%; top: 62%; width: 16%; transform: rotate(-4deg); }
+  .sw-2 { left: 20%; top: 69%; width: 14%; transform: rotate(-4deg); }
+  .sw-3 { left: 25%; top: 58%; width: .6%; height: 15%; }
+  .sw-4 { left: 30%; top: 57%; width: .6%; height: 16%; }
+  /* the hill keeps its switchbacks — no grid on the mountain, just one more bend down to the Perimeter */
+  .hill-3 { position: absolute; left: 8%; top: 39%; width: 14%; height: 8%; z-index: 1;
+            border: clamp(2px, .3vw, 5px) solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
+
+  /* ---- the airport: apron, runway, terminals ---- */
+  .apron { position: absolute; left: 6%; top: 80%; width: 76%; height: 12%;
+           background: #b9b6ad; border-radius: 3px; }
+  .runway { position: absolute; left: 10%; top: 86.5%; width: 66%; height: 3.2%; background: #4f5357; z-index: 1; }
+  .runway::after { content: ""; position: absolute; left: 3%; right: 3%; top: 45%; height: 10%;
+                   background: repeating-linear-gradient(90deg, #f2f2f2 0 14px, transparent 14px 28px); }
+  .terminal { position: absolute; top: 81.5%; height: 3.4%; background: linear-gradient(180deg, #5d646c, #474d54);   /* dark roof: the white planes read against it */ border-radius: 2px;
+              border: 1px solid rgba(25,28,32,.6); }
+  .terminal-w { left: 18%; width: 12%; }
+  .terminal-e { left: 60%; width: 12%; }
+
+  /* ============================================================
+     MORE DETAIL — trees on the hill, parks, houses, the beach,
+     planes and parking at the airport, traffic on the roads.
+     ============================================================ */
+  .trees { position: absolute; left: -2%; top: 14%; width: 30%; height: 42%; z-index: 0; pointer-events: none;
+           background: radial-gradient(circle, #3c6630 34%, transparent 38%) 0 0 / 22px 22px,
+                       radial-gradient(circle, #4d7a3a 30%, transparent 34%) 11px 11px / 22px 22px;
+           -webkit-mask-image: radial-gradient(ellipse at 45% 45%, #000 45%, transparent 70%);
+                   mask-image: radial-gradient(ellipse at 45% 45%, #000 45%, transparent 70%); }   /* the wooded hill */
+  .houses-sw { position: absolute; left: 17%; top: 55%; width: 19%; height: 18%; opacity: .45;
+               background: radial-gradient(circle, #9a6a50 30%, transparent 32%) 0 0 / 16px 16px;
+               border-radius: 35%; }                                   /* little houses, south-west */
+  .park-e  { left: 80%; top: 44%; width: 5%; }                         /* a green in the apartments */
+  .park-sw { left: 22%; top: 64.6%; width: 4%; }                       /* the south-west playground */
+  .park { position: absolute; background: rgba(64,120,58,.75); border: 2px solid rgba(30,60,28,.5);
+          border-radius: 50%; aspect-ratio: 1; z-index: 0; }
+  .beach { position: absolute; left: 97.4%; top: 15%; width: 2.6%; height: 44%;
+           background: linear-gradient(90deg, #d9c58f, #eadcae); border-radius: 40% 0 0 40%; }  /* the east beach */
+
+  /* the airport: taxiway, parking, planes */
+  .taxiway { position: absolute; left: 12%; top: 85.4%; width: 62%; height: .35%; z-index: 1;
+             background: repeating-linear-gradient(90deg, #e2b93b 0 10px, transparent 10px 16px); }
+  .parking { position: absolute; top: 81.3%; height: 3.4%; z-index: 1; border-radius: 2px;
+             background: repeating-linear-gradient(90deg, #8d8a83 0 2px, #a9a69e 2px 12px); }
+  .parking-w { left: 37%; width: 10%; }
+  .parking-e { left: 53%; width: 6%; }
+  .plane { position: absolute; width: 3.4%; aspect-ratio: 1; z-index: 3; background: #f2f2ee;
+           clip-path: polygon(46% 0, 54% 0, 56% 36%, 100% 52%, 100% 60%, 56% 56%, 55% 82%, 68% 92%, 68% 98%,
+                              50% 94%, 32% 98%, 32% 92%, 45% 82%, 44% 56%, 0 60%, 0 52%, 44% 36%);
+           filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .plane-1 { left: 22.5%; top: 82.6%; width: 3%; transform: rotate(180deg); }   /* nosed in at the west terminal gate */
+  .plane-2 { left: 64.5%; top: 82.6%; width: 3%; transform: rotate(180deg); }   /* nosed in at the east terminal gate */
+  .plane-3 { left: 27%;   top: 84.6%; width: 4.6%; transform: rotate(90deg); }   /* rolling down the runway */
+
+  /* traffic */
+  /* Cars at road scale: a Connector lane (half the road, ~3.5 m) is 1.3% of the map,
+     so ~0.37% per metre; a car is ~4.6 m long, 1.9 m wide. Front = direction of travel. */
+  .car { position: absolute; width: 1.7%; aspect-ratio: 2.4; z-index: 4; border-radius: 30% / 45%;
+         background-image: linear-gradient(90deg, transparent 20%, rgba(20,30,40,.7) 20% 32%,
+                           transparent 32% 60%, rgba(20,30,40,.8) 60% 72%, transparent 72%);   /* rear window, windscreen */
+         box-shadow: 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px rgba(0,0,0,.3); }
+  .car-1 { left: 88.0%; top: 32.3%; transform: translate(-50%, -50%) rotate(-117deg); background-color: #2e86c1; }   /* Perimeter */
+  .car-2 { left: 63.8%; top: 11.8%; transform: translate(-50%, -50%) rotate(-166deg); background-color: #f4f4f0; }   /* Perimeter */
+  .car-3 { left: 36.2%; top: 11.8%; transform: translate(-50%, -50%) rotate(166deg); background-color: #1c1c1c; }   /* Perimeter */
+  .car-4 { left: 12.0%; top: 32.3%; transform: translate(-50%, -50%) rotate(117deg); background-color: #e6b422; }   /* Perimeter */
+  .car-5 { left: 36.2%; top: 76.2%; transform: translate(-50%, -50%) rotate(14deg); background-color: #7f8c8d; }   /* Perimeter */
+  .car-6 { left: 70.2%; top: 73.7%; transform: translate(-50%, -50%) rotate(-22deg); background-color: #27ae60; }   /* Perimeter */
+  .car-7 { left: 88.0%; top: 55.7%; transform: translate(-50%, -50%) rotate(-63deg); background-color: #8e44ad; }   /* Perimeter */
+  .car-8 { left: 77.0%; top: 50.1%; transform: translate(-50%, -50%) rotate(-141deg); background-color: #c0392b; }   /* Inner Loop */
+  .car-9 { left: 19.0%; top: 50.1%; transform: translate(-50%, -50%) rotate(141deg); background-color: #2e86c1; }   /* Inner Loop */
+  .car-10 { left: 20.6%; top: 70.3%; transform: translate(-50%, -50%) rotate(34deg); background-color: #f4f4f0; }   /* Inner Loop */
+  .car-11 { left: 73.7%; top: 71.6%; transform: translate(-50%, -50%) rotate(-29deg); background-color: #1c1c1c; }   /* Inner Loop */
+  .car-12 { left: 50.7%; top: 8.0%; transform: translate(-50%, -50%) rotate(90deg); background-color: #e6b422; }   /* Connector */
+  .car-13 { left: 49.3%; top: 48.0%; transform: translate(-50%, -50%) rotate(90deg); background-color: #7f8c8d; }   /* Connector */
+  .car-14 { left: 50.7%; top: 57.0%; transform: translate(-50%, -50%) rotate(90deg); background-color: #27ae60; }   /* Connector */
+  .car-15 { left: 49.3%; top: 66.0%; transform: translate(-50%, -50%) rotate(90deg); background-color: #8e44ad; }   /* Connector */
+  .car-16 { left: 50.7%; top: 88.0%; transform: translate(-50%, -50%) rotate(90deg); background-color: #c0392b; }   /* Connector */
+  .car-17 { left: 49.3%; top: 95.0%; transform: translate(-50%, -50%) rotate(90deg); background-color: #2e86c1; }   /* Connector */
+
+  .tower { position: absolute; left: 33%; top: 80.8%; width: 2.2%; aspect-ratio: 1;
+           border-radius: 50%; background: #e8e6df; border: 2px solid #5b6066; }
+
+  /* ---- piers ---- */
+  .pier { position: absolute; background: repeating-linear-gradient(90deg, #7c7f82 0 10px, #5f6265 10px 20px);
+          border-radius: 3px; }
+  .pier-nw { left: 0;   top: 2%;  width: 12%; height: 4%; }
+  .pier-ne { left: 86%; top: 3%;  width: 14%; height: 4%; }
+  .pier-w  { left: 0;   top: 60%; width: 9%;  height: 9%; }      /* the west harbor */
+  .pier-se { left: 84%; top: 70%; width: 12%; height: 10%; transform: rotate(-20deg); }
+
+  /* ============================================================
+     DOCKS + SHIPS — the four yards become working docks: piers,
+     gantry cranes, container stacks, ships alongside, more at sea.
+     ============================================================ */
+  .pier-deck { position: absolute; z-index: 1; background: #8a7d6b; border: 1px solid rgba(40,32,24,.5);
+               border-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,.35); }
+  .containers { position: absolute; z-index: 2; border-radius: 1px; opacity: .95;
+                background: repeating-linear-gradient(90deg, #c0392b 0 9%, #2e86c1 9% 18%, #e67e22 18% 27%,
+                            #27ae60 27% 36%, #8e44ad 36% 45%, #d4ac0d 45% 54%); }
+  .containers.v { background: repeating-linear-gradient(0deg, #c0392b 0 12%, #2e86c1 12% 24%, #e67e22 24% 36%,
+                            #27ae60 36% 48%, #8e44ad 48% 60%); }
+  .crane { position: absolute; z-index: 3; width: 1.4%; aspect-ratio: 1; background: #f2c230;
+           border: 1px solid #7a5d0a; border-radius: 2px; }
+  .crane::after { content: ""; position: absolute; left: 40%; top: -170%; width: 20%; height: 270%;
+                  background: #f2c230; border: 1px solid #7a5d0a; }                   /* boom north */
+  .crane.east::after { left: 100%; top: 40%; width: 270%; height: 20%; }
+  .crane.west::after { left: auto; right: 100%; top: 40%; width: 270%; height: 20%; }
+  .crane.south::after { top: 100%; }
+  .ship { position: absolute; z-index: 2; background: linear-gradient(180deg, #3b4652, #232a33);
+          clip-path: polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%);
+          box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
+  .ship::after { content: ""; position: absolute; left: 8%; right: 24%; top: 22%; bottom: 22%;
+                 background: repeating-linear-gradient(90deg, #c0392b 0 12%, #2e86c1 12% 24%, #e67e22 24% 36%, #27ae60 36% 48%); }
+  .ship.tanker::after { background: #b03a2e; border-radius: 40%; left: 10%; right: 26%; }
+  .ship.ferry { background: linear-gradient(180deg, #f4f4f0, #c9ccd0); }
+  .ship.ferry::after { background: repeating-linear-gradient(90deg, #2b3a4a 0 6%, transparent 6% 12%); top: 35%; bottom: 35%; }
+  .ship.boat { background: linear-gradient(180deg, #f1efe6, #cfcabb); }
+  .ship.boat::after { background: #2f6f8f; left: 30%; right: 34%; top: 28%; bottom: 28%; border-radius: 2px; }
+  .wake { position: absolute; z-index: 1; height: .6%; border-radius: 50%;
+          background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.55)); }
+
+  /* south-east harbor — the big one: three piers off the bay shore */
+  .pier-se-1 { left: 82.6%; top: 81.6%; width: 14%; height: 1.4%; }
+  .pier-se-2 { left: 82.4%; top: 85.6%; width: 14%; height: 1.4%; }
+  .pier-se-3 { left: 82.2%; top: 89.6%; width: 14%; height: 1.4%; }
+  .crane-se-1 { left: 82.4%; top: 83.3%; }
+  .crane-se-2 { left: 82.2%; top: 87.3%; }
+  .containers-se { left: 85.5%; top: 72%; width: 8%; height: 4%; transform: rotate(-20deg); }   /* stacked on the yard */
+  .ship-se-1 { left: 85%;   top: 83.3%; width: 10%; height: 1.9%; }                          /* container ship */
+  .ship-se-2 { left: 85%;   top: 87.3%; width: 9%;  height: 1.9%; }                          /* tanker */
+  /* north-east — ship alongside the yard, crane over it */
+  .crane-ne { left: 89%; top: 3.9%; }
+  .containers-ne { left: 91%; top: 3.8%; width: 8%; height: 2.4%; }
+  .ship-ne { left: 87%; top: .4%; width: 11%; height: 2.2%; transform: rotate(180deg); }      /* bow west */
+  /* north-west — a work boat at the yard */
+  .containers-nw { left: 1%; top: 2.8%; width: 7%; height: 2.4%; }
+  .crane-nw { left: 9%; top: 3%; }
+  .ship-nw { left: .6%; top: 7%; width: 5.4%; height: 1.6%; }
+  /* west harbor — crane on the yard, ship moored below it */
+  .containers-w { left: .8%; top: 61.5%; width: 3.2%; height: 6%; }
+  .crane-w { left: 5.4%; top: 63.5%; }
+  .ship-w { left: .6%; top: 70.4%; width: 8.5%; height: 2%; }
+  /* at sea */
+  .ship-sea-1 { left: 22%; top: 95.2%; width: 11%; height: 2.2%; }                            /* heading east past the airport */
+  .wake-sea-1 { left: 15%; top: 95.9%; width: 7.5%; }
+  .ship-sea-2 { left: 64%; top: 96%;   width: 9%;  height: 2%; transform: rotate(180deg); }    /* tanker heading west */
+  .ship-sea-3 { left: 5%;  top: 84%;   width: 3.4%; height: 1.4%; transform: rotate(-30deg); }  /* fishing boat in the south-west bay */
+  .ship-sea-4 { left: 92%; top: 62%;   width: 6.5%; height: 1.7%; transform: rotate(-60deg); } /* ferry out of the east bay */
+
+  /* ---- the dockhand job station: where you /apply dockhand ---- */
+  .dockhand-station { position: absolute; left: 79.5%; top: 77.5%; width: 3.6%; aspect-ratio: 1; z-index: 6;
+          transform: translate(-50%, -50%); border-radius: 22%;
+          background: #1f4e79; border: 3px solid #f2c230;
+          box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(0,0,0,.55); }
+  .dockhand-station::before { content: ""; position: absolute; inset: 22%;            /* a shipping crate */
+          background: repeating-linear-gradient(90deg, #c46a2c 0 18%, #8f4a1c 18% 22%); border: 1px solid #5a2d0e; }
+
+  /* ---- the marking: area code ---- */
+  .code { position: absolute; right: 2.5%; bottom: 2%; z-index: 5;                 /* out in the bay, off the towers */
+          font-weight: 900; color: #fff; letter-spacing: 1px; font-size: clamp(28px, 5vw, 110px);
+          -webkit-text-stroke: 2px #111; text-shadow: 0 3px 0 #111, 0 6px 14px rgba(0,0,0,.5); }
+
+  /* ============================================================
+     LEGEND — under the map. Each swatch reuses the map's own
+     class, re-centred in a small box.
+     ============================================================ */
+  .legend { width: min(96vw, 1400px); margin-top: 18px; padding: 16px 18px 18px;
+            background: #13223a; border: 1px solid rgba(143,165,192,.25); border-radius: 14px;
+            color: #dfe7f2; font-size: 13px; }
+  .legend h2 { font-size: 13px; letter-spacing: 2px; color: #8fa5c0; margin-bottom: 12px; font-weight: 700; }
+  .legend ul { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 18px; }
+  .legend li { display: flex; align-items: center; gap: 10px; min-height: 34px; }
+  .legend .sw { position: relative; flex: 0 0 52px; height: 34px; border-radius: 6px; overflow: hidden;
+                background: #a8a67a; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); }
+  .legend .sw.water { background: #1c4f78; }
+  .legend .sw.on-apron { background: #b9b6ad; }
+  .legend .lg { position: absolute !important; left: 50% !important; top: 50% !important;
+                right: auto !important; bottom: auto !important; transform: translate(-50%, -50%) !important; }
+</style>
+<link rel="stylesheet" href="1017-inner-city-wear-and-tear.css">
+<link rel="stylesheet" href="1017-inner-city-glizzys-2-go.css">
+</head>
+<body>
+  <h1>1017 — INNER CITY</h1>
+  <p class="note">The spine, two loops, the flyover, and the streets between. Pure CSS, same kit as the big map.</p>
+
+  <div class="map">
+    <div class="land"></div>
+    <div class="hill"></div>
+
+    <div class="core core-north"></div>
+    <div class="core core-south"></div>
+    <div class="blocks"></div>
+    <div class="houses"></div>
+    <div class="trees"></div>
+    <div class="houses-sw"></div>
+    <div class="park park-e"></div>
+    <div class="park park-sw"></div>
+    <div class="beach"></div>
+
+    <div class="apron"></div>
+    <div class="runway"></div>
+    <div class="terminal terminal-w"></div>
+    <div class="terminal terminal-e"></div>
+    <div class="tower"></div>
+    <div class="taxiway"></div>
+    <div class="parking parking-w"></div>
+    <div class="parking parking-e"></div>
+    <div class="plane plane-1"></div>
+    <div class="plane plane-2"></div>
+    <div class="plane plane-3"></div>
+    <div class="pier pier-nw"></div>
+    <div class="pier pier-ne"></div>
+    <div class="pier pier-w"></div>
+    <div class="pier pier-se"></div>
+
+    <!-- docks + ships -->
+    <div class="pier-deck pier-se-1"></div>
+    <div class="pier-deck pier-se-2"></div>
+    <div class="pier-deck pier-se-3"></div>
+    <div class="containers containers-se"></div>
+    <div class="crane east crane-se-1"></div>
+    <div class="crane east crane-se-2"></div>
+    <div class="ship ship-se-1"></div>
+    <div class="ship tanker ship-se-2"></div>
+    <div class="containers containers-ne"></div>
+    <div class="crane crane-ne"></div>
+    <div class="ship ship-ne"></div>
+    <div class="containers containers-nw"></div>
+    <div class="crane south crane-nw"></div>
+    <div class="ship boat ship-nw"></div>
+    <div class="containers v containers-w"></div>
+    <div class="crane south crane-w"></div>
+    <div class="ship ship-w"></div>
+    <div class="wake wake-sea-1"></div>
+    <div class="ship ship-sea-1"></div>
+    <div class="ship tanker ship-sea-2"></div>
+    <div class="ship boat ship-sea-3"></div>
+    <div class="ship ferry ship-sea-4"></div>
+    <div class="dockhand-station" title="Dockhand job station, south-east docks — /apply dockhand"></div>
+
+    <!-- streets -->
+    <div class="street grid-1"></div>
+    <div class="street grid-2"></div>
+    <div class="street grid-3"></div>
+    <div class="street grid-4"></div>
+    <div class="street grid-5"></div>
+    <div class="street grid-6"></div>
+    <div class="street grid-7"></div>
+    <div class="hill-1"></div>
+    <div class="hill-2"></div>
+    <div class="street dt-1"></div>
+    <div class="street dt-2"></div>
+    <div class="street dt-3"></div>
+    <div class="street dt-4"></div>
+    <div class="street dt-5"></div>
+    <div class="street dt-6"></div>
+    <div class="street dt-7"></div>
+    <div class="street dt-8"></div>
+    <div class="street ne-1"></div>
+    <div class="street ne-2"></div>
+    <div class="street grid-8"></div>
+    <div class="street grid-9"></div>
+    <div class="street grid-10"></div>
+    <div class="street grid-11"></div>
+    <div class="street grid-12"></div>
+    <div class="street grid-13"></div>
+    <div class="street sw-1"></div>
+    <div class="street sw-2"></div>
+    <div class="street sw-3"></div>
+    <div class="street sw-4"></div>
+    <div class="hill-3"></div>
+
+    <!-- the towers -->
+    <div class="highrise highrise-n1" title="North towers — 49 floors"></div>
+    <div class="highrise highrise-n2" title="North towers — 25 floors"></div>
+    <div class="highrise highrise-n3" title="North towers — 38 floors"></div>
+    <div class="highrise highrise-n4" title="North towers — 44 floors"></div>
+    <div class="highrise highrise-n5" title="North towers — 55 floors"></div>
+    <div class="highrise highrise-n6" title="North towers — 27 floors"></div>
+    <div class="highrise highrise-n7" title="North towers — 41 floors"></div>
+    <div class="highrise highrise-n8" title="North towers — 27 floors"></div>
+    <div class="highrise highrise-n9" title="North towers — 44 floors"></div>
+    <div class="highrise highrise-n10" title="North towers — 61 floors"></div>
+    <div class="highrise highrise-n11" title="North towers — 52 floors"></div>
+    <div class="highrise highrise-n12" title="North towers — 31 floors"></div>
+    <div class="highrise highrise-n13" title="North towers — 62 floors"></div>
+    <div class="highrise highrise-n14" title="North towers — 32 floors"></div>
+    <div class="highrise highrise-n15" title="North towers — 61 floors"></div>
+    <div class="highrise highrise-n16" title="North towers — 37 floors"></div>
+    <div class="highrise highrise-n17" title="North towers — 57 floors"></div>
+    <div class="highrise highrise-n18" title="North towers — 64 floors"></div>
+    <div class="highrise highrise-s1" title="South towers — 45 floors"></div>
+    <div class="highrise highrise-s2" title="South towers — 36 floors"></div>
+    <div class="highrise highrise-s3" title="South towers — 60 floors"></div>
+    <div class="highrise highrise-s4" title="South towers — 47 floors"></div>
+    <div class="highrise highrise-s5" title="South towers — 57 floors"></div>
+    <div class="highrise highrise-s6" title="South towers — 55 floors"></div>
+    <div class="highrise highrise-s7" title="South towers — 58 floors"></div>
+    <div class="highrise highrise-s8" title="South towers — 31 floors"></div>
+    <div class="highrise highrise-s9" title="South towers — 31 floors"></div>
+    <div class="highrise highrise-s10" title="South towers — 63 floors"></div>
+    <div class="highrise highrise-s11" title="South towers — 62 floors"></div>
+    <div class="highrise highrise-s12" title="South towers — 47 floors"></div>
+    <div class="highrise highrise-s13" title="South towers — 51 floors"></div>
+    <div class="highrise highrise-s14" title="South towers — 47 floors"></div>
+    <div class="highrise highrise-s15" title="South towers — 37 floors"></div>
+    <div class="highrise highrise-s16" title="South towers — 35 floors"></div>
+    <div class="highrise highrise-s17" title="South towers — 64 floors"></div>
+    <div class="highrise highrise-s18" title="South towers — 54 floors"></div>
+
+    <!-- main roads -->
+    <div class="ring perimeter"></div>
+    <div class="ring inner-loop"></div>
+    <div class="road bridge"></div>
+    <div class="road connector"></div>
+    <div class="flyover"></div>
+    <div class="interchange"></div>
+    <div class="south-stack"></div>
+
+    <!-- traffic -->
+    <div class="car car-1"></div>
+    <div class="car car-2"></div>
+    <div class="car car-3"></div>
+    <div class="car car-4"></div>
+    <div class="car car-5"></div>
+    <div class="car car-6"></div>
+    <div class="car car-7"></div>
+    <div class="car car-8"></div>
+    <div class="car car-9"></div>
+    <div class="car car-10"></div>
+    <div class="car car-11"></div>
+    <div class="car car-12"></div>
+    <div class="car car-13"></div>
+    <div class="car car-14"></div>
+    <div class="car car-15"></div>
+    <div class="car car-16"></div>
+    <div class="car car-17"></div>
+
+    <!-- wear and tear -->
+    <div class="pothole pothole-1"></div>
+    <div class="pothole small pothole-2"></div>
+    <div class="pothole pothole-3"></div>
+    <div class="pothole pothole-4"></div>
+    <div class="pothole small pothole-5"></div>
+    <div class="pothole pothole-6"></div>
+    <div class="pothole pothole-7"></div>
+    <div class="pothole pothole-8"></div>
+    <div class="pothole small pothole-9"></div>
+    <div class="pothole pothole-10"></div>
+    <div class="crack crack-1"></div>
+    <div class="crack crack-2"></div>
+    <div class="crack crack-3"></div>
+    <div class="patch patch-1"></div>
+    <div class="patch patch-2"></div>
+    <div class="cone cone-1"></div>
+    <div class="barrier barrier-1"></div>
+    <div class="cone cone-2"></div>
+    <div class="cone cone-3"></div>
+    <div class="dig dig-1"></div>
+    <div class="barrier barrier-2"></div>
+    <div class="cone cone-4"></div>
+
+    <!-- spent casings -->
+    <div class="casings casings-1">
+      <div class="casing" style="left:66%; top:59%; transform:rotate(48deg);"></div>
+      <div class="casing" style="left:17%; top:50%; transform:rotate(79deg);"></div>
+      <div class="casing" style="left:18%; top:42%; transform:rotate(69deg);"></div>
+      <div class="casing" style="left:6%; top:41%; transform:rotate(122deg);"></div>
+      <div class="casing" style="left:72%; top:60%; transform:rotate(159deg);"></div>
+      <div class="casing" style="left:66%; top:48%; transform:rotate(66deg);"></div>
+      <div class="casing" style="left:76%; top:64%; transform:rotate(19deg);"></div>
+    </div>
+    <div class="casings casings-2">
+      <div class="casing" style="left:67%; top:14%; transform:rotate(163deg);"></div>
+      <div class="casing" style="left:64%; top:37%; transform:rotate(115deg);"></div>
+      <div class="casing" style="left:22%; top:69%; transform:rotate(30deg);"></div>
+      <div class="casing" style="left:24%; top:61%; transform:rotate(51deg);"></div>
+      <div class="casing" style="left:40%; top:23%; transform:rotate(145deg);"></div>
+      <div class="casing" style="left:23%; top:23%; transform:rotate(102deg);"></div>
+    </div>
+    <div class="casings casings-3">
+      <div class="casing" style="left:54%; top:55%; transform:rotate(74deg);"></div>
+      <div class="casing" style="left:18%; top:13%; transform:rotate(124deg);"></div>
+      <div class="casing" style="left:44%; top:8%; transform:rotate(164deg);"></div>
+      <div class="casing" style="left:76%; top:10%; transform:rotate(148deg);"></div>
+      <div class="casing" style="left:30%; top:74%; transform:rotate(30deg);"></div>
+    </div>
+
+    <!-- Glizzys-2-Go job station + carts -->
+    <div class="glizzys-2-go-station" title="Glizzys-2-Go job station — /apply glizzys"></div>
+    <div class="glizzys-2-go-station glizzys-2-go-station-2" title="Glizzys-2-Go job station, south towers — /apply glizzys"></div>
+    <div class="glizzys-2-go glizzys-2-go-1" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-2" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-3" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-4" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-5" title="Glizzys-2-Go"></div>
+    <div class="glizzys-2-go glizzys-2-go-6" title="Glizzys-2-Go"></div>
+
+    <div class="code">1017</div>
+  </div>
+  <div class="legend">
+    <h2>LEGEND</h2>
+    <ul>
+      <li><span class="sw"><div class="road lg" style="width:46px;height:10px"></div></span>Main road</li>
+      <li><span class="sw"><div class="street lg" style="width:46px;height:5px"></div></span>Side street</li>
+      <li><span class="sw"><div class="car lg" style="width:22px;background-color:#2e86c1"></div></span>Traffic (to scale)</li>
+      <li><span class="sw"><div class="highrise lg" style="width:22px;height:22px;--floors:40"></div></span>Tower (25+ floors, hover for floors)</li>
+      <li><span class="sw"><div class="park lg" style="width:24px"></div></span>Park</li>
+      <li><span class="sw"><div class="trees lg" style="width:60px;height:40px;-webkit-mask-image:none;mask-image:none"></div></span>Woods</li>
+      <li><span class="sw"><div class="houses lg" style="width:48px;height:30px;border-radius:0"></div></span>Houses</li>
+      <li><span class="sw"><div class="beach lg" style="width:48px;height:30px;border-radius:0"></div></span>Beach</li>
+      <li><span class="sw"><div class="pothole lg" style="width:20px"></div></span>Pothole</li>
+      <li><span class="sw"><div class="patch lg" style="width:30px;height:10px"></div></span>Patched road</li>
+      <li><span class="sw"><div class="crack lg" style="width:32px"></div></span>Crack</li>
+      <li><span class="sw"><div class="barrier lg" style="width:34px;height:10px"></div></span>Construction barrier</li>
+      <li><span class="sw"><div class="cone lg" style="width:16px"></div></span>Traffic cone</li>
+      <li><span class="sw"><div class="dig lg" style="width:30px;height:16px"></div></span>Road dug up</li>
+      <li><span class="sw"><div class="casings lg" style="width:30px;height:30px"><div class="casing" style="left:10%;top:20%;width:14%;transform:rotate(30deg)"></div><div class="casing" style="left:45%;top:40%;width:14%;transform:rotate(110deg)"></div><div class="casing" style="left:70%;top:15%;width:14%;transform:rotate(70deg)"></div></div></span>Spent casings</li>
+      <li><span class="sw"><div class="glizzys-2-go lg" style="width:20px"></div></span>Glizzys-2-Go cart (moves each load)</li>
+      <li><span class="sw"><div class="glizzys-2-go-station lg" style="width:26px"></div></span>Glizzys-2-Go job station</li>
+      <li><span class="sw water"><div class="dockhand-station lg" style="width:26px"></div></span>Dockhand job station</li>
+      <li><span class="sw water"><div class="pier lg" style="width:44px;height:16px"></div></span>Dock yard</li>
+      <li><span class="sw water"><div class="pier-deck lg" style="width:40px;height:10px"></div></span>Pier</li>
+      <li><span class="sw water"><div class="containers lg" style="width:40px;height:10px"></div></span>Containers</li>
+      <li><span class="sw water"><div class="crane east lg" style="width:12px;margin-left:-10px"></div></span>Crane</li>
+      <li><span class="sw water"><div class="ship lg" style="width:44px;height:12px"></div></span>Cargo ship</li>
+      <li><span class="sw water"><div class="ship tanker lg" style="width:44px;height:12px"></div></span>Tanker</li>
+      <li><span class="sw water"><div class="ship ferry lg" style="width:40px;height:10px"></div></span>Ferry</li>
+      <li><span class="sw water"><div class="ship boat lg" style="width:28px;height:10px"></div></span>Work / fishing boat</li>
+      <li><span class="sw on-apron"><div class="runway lg" style="width:48px;height:12px"></div></span>Runway</li>
+      <li><span class="sw on-apron"><div class="taxiway lg" style="width:44px;height:3px"></div></span>Taxiway</li>
+      <li><span class="sw on-apron"><div class="parking lg" style="width:40px;height:16px"></div></span>Parking</li>
+      <li><span class="sw on-apron"><div class="plane lg" style="width:26px"></div></span>Plane</li>
+    </ul>
+  </div>
+  <script src="1017-inner-city-glizzys-2-go.js"></script>
+</body>
+</html>
