@@ -299,6 +299,58 @@
   .car-21 { left: 41.4%; top: 92.6%; transform: translate(-50%, -50%) rotate(13deg); background-color: #7f8c8d; }   /* The Perimeter */
   .car-22 { left: 69.3%; top: 88.9%; transform: translate(-50%, -50%) rotate(-36deg); background-color: #27ae60; }   /* The Perimeter */
   .car-23 { left: 27.0%; top: 13.0%; transform: translate(-50%, -50%) rotate(-25deg); background-color: #8e44ad; }   /* Knot Loop */
+
+  /* ============================================================
+     MORE DETAIL — woods, houses, farmsteads, sailboats, planes
+     ============================================================ */
+  .woods { position: absolute; z-index: 0; pointer-events: none;
+           background: radial-gradient(circle, #3c6630 34%, transparent 38%) 0 0 / 20px 20px,
+                       radial-gradient(circle, #4d7a3a 30%, transparent 34%) 10px 10px / 20px 20px;
+           -webkit-mask-image: radial-gradient(ellipse, #000 42%, transparent 70%);
+                   mask-image: radial-gradient(ellipse, #000 42%, transparent 70%); }
+  .woods-west { left: 21%; top: 25.5%; width: 25%; height: 13%; }    /* between Palisade and County Line */
+  .woods-east { left: 62%; top: 41.5%; width: 14%; height: 9%; }     /* the mountain's east foot */
+  .woods-lake { left: 57%; top: 20%; width: 9%; height: 6%; }        /* round Harbor Green */
+  .houses { position: absolute; z-index: 0; opacity: .5; border-radius: 35%;
+            background: radial-gradient(circle, #9a6a50 30%, transparent 33%) 0 0 / 15px 15px; }
+  .houses-backroads { left: 57%; top: 27%; width: 16%; height: 7.5%; }   /* the Backroads neighbourhood */
+  .houses-harvest   { left: 62%; top: 52%; width: 11%; height: 6.5%; }   /* Harvest Flats */
+  .houses-alder     { left: 31%; top: 69.6%; width: 5.5%; height: 3.4%; } /* Alder Heights */
+  .barn { position: absolute; z-index: 1; width: 1.6%; aspect-ratio: 1.4; background: #8e2f22;
+          border: 1px solid #4a160f; border-radius: 1px; box-shadow: 1px 2px 2px rgba(0,0,0,.35); }
+  .barn::after { content: ""; position: absolute; left: 115%; top: -10%; width: 60%; aspect-ratio: 1;
+          border-radius: 50%; background: #b8bcc0; border: 1px solid #6f7478; }        /* the silo */
+  .barn-1 { left: 22%; top: 44.5%; }
+  .barn-2 { left: 27%; top: 55%; }
+  .barn-3 { left: 66%; top: 47%; }
+  .barn-4 { left: 40%; top: 56%; }
+  .sailboat { position: absolute; z-index: 2; width: .9%; aspect-ratio: .7; background: #f4f4f0;
+              clip-path: polygon(50% 0, 100% 100%, 0 100%); filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .sailboat-1 { left: 66%; top: 12%; }
+  .sailboat-2 { left: 70%; top: 17.5%; }
+  .sailboat-3 { left: 92%; top: 4%; }
+  .plane { position: absolute; width: 2.6%; aspect-ratio: 1; z-index: 3; background: #f2f2ee;
+           clip-path: polygon(46% 0, 54% 0, 56% 36%, 100% 52%, 100% 60%, 56% 56%, 55% 82%, 68% 92%, 68% 98%,
+                              50% 94%, 32% 98%, 32% 92%, 45% 82%, 44% 56%, 0 60%, 0 52%, 44% 36%);
+           filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .plane-1 { left: 28%; top: 94.2%; transform: rotate(90deg); }    /* rolling down the runway */
+  .plane-2 { left: 70%; top: 94.2%; transform: rotate(-90deg); }   /* just landed */
+
+  /* ============================================================
+     LEGEND — under the map. Each swatch reuses the map's own
+     class, re-centred in a small box.
+     ============================================================ */
+  .legend { width: min(96vw, 1400px); margin-top: 18px; padding: 16px 18px 18px;
+            background: #13223a; border: 1px solid rgba(143,165,192,.25); border-radius: 14px;
+            color: #dfe7f2; font-size: 13px; }
+  .legend h2 { font-size: 13px; letter-spacing: 2px; color: #8fa5c0; margin-bottom: 12px; font-weight: 700; }
+  .legend ul { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 18px; }
+  .legend li { display: flex; align-items: center; gap: 10px; min-height: 34px; }
+  .legend .sw { position: relative; flex: 0 0 52px; height: 34px; border-radius: 6px; overflow: hidden;
+                background: #a8ad7d; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); }
+  .legend .sw.water { background: #17456e; }
+  .legend .lg { position: absolute !important; left: 50% !important; top: 50% !important;
+                right: auto !important; bottom: auto !important; transform: translate(-50%, -50%) !important; }
 </style>
 <link rel="stylesheet" href="map-detail-wear-and-tear.css">
 <link rel="stylesheet" href="map-detail-glizzys-2-go.css">
@@ -312,6 +364,16 @@
     <div class="lake"></div>
     <div class="farms"></div>
     <div class="mountain"></div>
+    <div class="woods woods-west"></div>
+    <div class="woods woods-east"></div>
+    <div class="woods woods-lake"></div>
+    <div class="houses houses-backroads"></div>
+    <div class="houses houses-harvest"></div>
+    <div class="houses houses-alder"></div>
+    <div class="barn barn-1"></div>
+    <div class="barn barn-2"></div>
+    <div class="barn barn-3"></div>
+    <div class="barn barn-4"></div>
 
     <!-- districts + parks -->
     <div class="district knot"></div>
@@ -355,6 +417,11 @@
 
     <div class="port"></div>
     <div class="airport"></div>
+    <div class="plane plane-1"></div>
+    <div class="plane plane-2"></div>
+    <div class="sailboat sailboat-1"></div>
+    <div class="sailboat sailboat-2"></div>
+    <div class="sailboat sailboat-3"></div>
     <div class="core core-north"></div>
     <div class="core core-south"></div>
 
@@ -539,6 +606,38 @@
 
     <div class="code code-north">312</div>
     <div class="code code-south">1017</div>
+  </div>
+
+  <div class="legend">
+    <h2>LEGEND</h2>
+    <ul>
+      <li><span class="sw"><div class="road lg" style="width:46px;height:10px"></div></span>Road</li>
+      <li><span class="sw"><div class="car lg" style="width:22px;background-color:#c0392b"></div></span>Traffic</li>
+      <li><span class="sw"><div class="highrise lg" style="width:22px;height:22px;--floors:40"></div></span>Tower (25+ floors, hover for floors)</li>
+      <li><span class="sw"><div class="district lg" style="width:44px;height:26px"></div></span>District</li>
+      <li><span class="sw"><div class="park lg" style="width:24px"></div></span>Park</li>
+      <li><span class="sw"><div class="woods lg" style="width:60px;height:40px;-webkit-mask-image:none;mask-image:none"></div></span>Woods</li>
+      <li><span class="sw"><div class="houses lg" style="width:48px;height:30px;border-radius:0"></div></span>Houses</li>
+      <li><span class="sw"><div class="barn lg" style="width:16px;margin-left:-6px"></div></span>Farm (barn and silo)</li>
+      <li><span class="sw"><div class="pothole lg" style="width:20px"></div></span>Pothole</li>
+      <li><span class="sw"><div class="patch lg" style="width:30px;height:10px"></div></span>Patched road</li>
+      <li><span class="sw"><div class="crack lg" style="width:32px;transform:translate(-50%,-50%) rotate(-12deg) !important"></div></span>Crack</li>
+      <li><span class="sw"><div class="barrier lg" style="width:34px;height:10px"></div></span>Construction barrier</li>
+      <li><span class="sw"><div class="cone lg" style="width:16px"></div></span>Traffic cone</li>
+      <li><span class="sw"><div class="dig lg" style="width:30px;height:16px"></div></span>Road dug up</li>
+      <li><span class="sw"><div class="casings lg" style="width:30px;height:30px"><div class="casing" style="left:10%;top:20%;width:14%;transform:rotate(30deg)"></div><div class="casing" style="left:45%;top:40%;width:14%;transform:rotate(110deg)"></div><div class="casing" style="left:70%;top:15%;width:14%;transform:rotate(70deg)"></div></div></span>Spent casings</li>
+      <li><span class="sw"><div class="glizzys-2-go lg" style="width:20px"></div></span>Glizzys-2-Go cart (moves each load)</li>
+      <li><span class="sw"><div class="glizzys-2-go-station lg" style="width:26px"></div></span>Glizzys-2-Go job station</li>
+      <li><span class="sw water"><div class="dockhand-station lg" style="width:26px"></div></span>Dockhand job station</li>
+      <li><span class="sw water"><div class="pier-deck lg" style="width:40px;height:10px"></div></span>Pier</li>
+      <li><span class="sw water"><div class="crane east lg" style="width:12px;margin-left:-10px"></div></span>Crane</li>
+      <li><span class="sw water"><div class="ship lg" style="width:44px;height:12px"></div></span>Cargo ship</li>
+      <li><span class="sw water"><div class="ship tanker lg" style="width:44px;height:12px"></div></span>Tanker</li>
+      <li><span class="sw water"><div class="ship ferry lg" style="width:40px;height:10px"></div></span>Ferry</li>
+      <li><span class="sw water"><div class="sailboat lg" style="width:12px"></div></span>Sailboat</li>
+      <li><span class="sw"><div class="airport lg" style="width:48px;height:14px"></div></span>Runway</li>
+      <li><span class="sw"><div class="plane lg" style="width:26px"></div></span>Plane</li>
+    </ul>
   </div>
   <script src="map-detail-glizzys-2-go.js"></script>
 </body>
