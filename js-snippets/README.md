@@ -12,6 +12,7 @@ node js-snippets/02-demo.js           # inventory + cars walkthrough
 node --test js-snippets/game.test.js  # 131 checks across every system
 node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
 node tools/gen-map-detail-layer.js            # redraw the big map's gameplay roads, pins and legend rows
+node tools/gen-walk-list.js > docs/WALK-LIST.md  # the in-game checklist of every coordinate to walk (/mark)
 ```
 
 ## What's in here
@@ -52,7 +53,7 @@ node tools/gen-map-detail-layer.js            # redraw the big map's gameplay ro
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /mark /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`, `settime <hour> [min]`, `setweather <kind>`, `freeze <time|weather> <on|off>`
 

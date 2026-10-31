@@ -564,6 +564,14 @@ function createGame(opts = {}) {
             help: "the road, area and city you're standing in",
             run: ({ ctx }) => reply(places.describe(ctx.pos)),
         },
+        mark: {
+            help: "[label] — print where you're standing, ready to paste into js-snippets (see docs/WALK-LIST.md)",
+            run: ({ args, ctx }) => {
+                const r = (v) => Math.round(v * 10) / 10;
+                const label = args.join(" ") || "spot";
+                return reply(`MARK ${label}: { x: ${r(ctx.pos.x)}, y: ${r(ctx.pos.y)}, z: ${r(ctx.pos.z)} }  (${cities.cityAt(ctx.pos)})`);
+            },
+        },
 
         // ----- shops -----
         shop: {

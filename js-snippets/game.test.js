@@ -470,6 +470,12 @@ test("Dockhand: open hire, 14 gold an hour on duty, console promotes", () => {
     assert.match(game.command(CONSOLE, "setjob", ["1", "dockhand", "2"]).msg, /Dockhand — Foreman/);
 });
 
+test("/mark prints a paste-ready position", () => {
+    const { game } = setup();
+    const out = game.command({ id: 1, pos: { x: -269.44, y: -955.31, z: 31.2 }, now: 0 }, "mark", ["Alder", "Street", "bend"]);
+    assert.equal(out.msg, "MARK Alder Street bend: { x: -269.4, y: -955.3, z: 31.2 }  (atlanta)");
+});
+
 test("EMS earn gold for a revive", () => {
     const { game, b, as } = setup();
     game.command(CONSOLE, "setjob", ["2", "ems", "0"]);
