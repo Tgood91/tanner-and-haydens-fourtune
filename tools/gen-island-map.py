@@ -187,6 +187,7 @@ const p = require('./js-snippets/places.js'), c = require('./js-snippets/cities.
 console.log(JSON.stringify({
   roads: p.ROADS.map(r => ({ name: r.name, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
   zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
+  borders: { chicago: c.CHICAGO_STARTS_AT_Y, geepee: c.GEEPEE_STARTS_AT_Y },
 }));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
 ON_ISLAND = {"Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
              "Palisade Boulevard", "The Causeway", "Backroads Highway", "Red Clay Expressway", "Westside Run", "Peachline Road"}
@@ -201,7 +202,9 @@ def fitter(city):
     # and spreading the streets out keeps every name readable when zoomed in.
     x0, x1, y0, y1 = CITY_BOX[city]
     kx = (x1 - x0) / (max(xs) - min(xs)); ky = (y1 - y0) / (max(ys) - min(ys))
+    FIT_PARAMS[city] = {"minX": min(xs), "maxX": max(xs), "minY": min(ys), "maxY": max(ys), "x0": x0, "x1": x1, "y0": y0, "y1": y1}
     return lambda x, y: (x0 + (x - min(xs)) * kx, y0 + (max(ys) - y) * ky)     # game y runs north
+FIT_PARAMS = {}   # the same fit, handed to the page: "you are here" and click-to-waypoint use it
 FIT = {c: fitter(c) for c in CITY_BOX}
 STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4cf", "#5c5f63", ""),
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
@@ -385,6 +388,14 @@ for z in GAME["zones"]:
       f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
 a('</g>')
 
+# ---------------------------------------------------------------- you-are-here and the waypoint (placed by script)
+a('<g id="waypoint" class="marker" style="display:none"><title>Waypoint</title>'
+  '<path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/>'
+  '<circle cx="0" cy="-17" r="3.5" fill="#fff"/></g>')
+a('<g id="you" class="marker" style="display:none"><title>You are here</title>'
+  '<circle r="16" fill="rgba(56,189,248,.25)" class="pulse"/><circle r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/>'
+  '<path class="heading" d="M0 -17 L5 -9 L-5 -9 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/></g>')
+
 for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104)]:   # 1017 sits over the east houses, off the towers
     a(f'<text x="{x}" y="{y}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="{s}" '
       f'fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">{t}</text>')
@@ -425,6 +436,8 @@ LEGEND = [
  ('<path d="M4 17 H48" stroke="#6a6c6e" stroke-width="5"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="3.2"/><text x="26" y="12" font-size="7" text-anchor="middle" fill="#fff" stroke="#1d2125" stroke-width="1.4" paint-order="stroke" font-weight="700">Mill St</text>', "Named street (names show zoomed in)"),
  ('<path d="M4 17 H48" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"/>', "Backroad"),
  ('<text x="26" y="21" font-size="9" text-anchor="middle" font-style="italic" fill="#ffe9a8" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">Midway</text>', "District / park name"),
+ ('<circle cx="26" cy="19" r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/><path d="M26 3 L31 11 L21 11 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/>', "You are here (arrow: facing)"),
+ ('<g transform="translate(26 30) scale(1.2)"><path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-17" r="3.5" fill="#fff"/></g>', "Waypoint (click map to set, right-click to clear)"),
 ]
 legend_items = "\n".join(
     f'      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/>{g}</svg>{t}</li>' for g, t in LEGEND)
@@ -451,6 +464,9 @@ print(f'''<!DOCTYPE html>
   #island {{ touch-action: none; cursor: grab; }}
   #island.dragging {{ cursor: grabbing; }}
   #island .name {{ display: none; pointer-events: none; }}
+  #island .marker {{ pointer-events: none; }}
+  #island .pulse {{ animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }}
+  @keyframes pulse {{ from {{ transform: scale(.6); opacity: 1; }} to {{ transform: scale(1.6); opacity: 0; }} }}
   #island.z-main .main-name, #island.z-main .zone-name {{ display: inline; }}
   #island.z-street .street-name {{ display: inline; }}
   .zoombar {{ display: flex; gap: 6px; justify-content: center; margin: 10px 0 0; }}
@@ -530,7 +546,52 @@ window.placeOnRoad();
     const z = W / vb.w;
     svg.classList.toggle("z-main", z >= 1.6);
     svg.classList.toggle("z-street", z >= 2.6);
+    drawMarkers(z);
   }};
+
+  // ---- game coordinates <-> map. The same per-city fit the streets are drawn with
+  // (tools/gen-island-map.py), so a position lands where its street is drawn.
+  const FIT = {json.dumps(FIT_PARAMS)};
+  const BORDERS = {json.dumps(GAME["borders"])};
+  const cityAt = (y) => y >= BORDERS.chicago ? "chicago" : y >= BORDERS.geepee ? "geepee" : "atlanta";
+  window.gameToMap = (x, y) => {{
+    const f = FIT[cityAt(y)];
+    let px = f.x0 + (x - f.minX) / (f.maxX - f.minX) * (f.x1 - f.x0);
+    let py = f.y0 + (f.maxY - y) / (f.maxY - f.minY) * (f.y1 - f.y0);
+    const off = px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1;      // outside the city's drawn streets
+    px = Math.min(f.x1, Math.max(f.x0, px)); py = Math.min(f.y1, Math.max(f.y0, py));
+    return {{ x: px, y: py, off }};
+  }};
+  window.mapToGame = (px, py) => {{
+    for (const f of Object.values(FIT)) {{
+      if (px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1) continue;
+      return {{ x: f.minX + (px - f.x0) / (f.x1 - f.x0) * (f.maxX - f.minX),
+                y: f.maxY - (py - f.y0) / (f.y1 - f.y0) * (f.maxY - f.minY) }};
+    }}
+    return null;   // not over a city's streets: no game position to send
+  }};
+
+  // ---- markers. Kept a steady size on screen whatever the zoom.
+  let you = null, wp = null;
+  function drawMarkers(z) {{
+    const k = 1 / Math.sqrt(z || W / vb.w);
+    const g1 = document.getElementById("you"), g2 = document.getElementById("waypoint");
+    if (you) {{ const m = window.gameToMap(you.x, you.y);
+      g1.style.display = ""; g1.setAttribute("transform", `translate(${{m.x}} ${{m.y}}) scale(${{k}})`);
+      g1.querySelector(".heading").setAttribute("transform", `rotate(${{-(you.heading || 0)}})`);   // GTA heading: degrees anticlockwise from north
+      g1.querySelector("title").textContent = m.off ? "You are here (off the drawn streets)" : "You are here"; }}
+    else g1.style.display = "none";
+    if (wp) {{ const m = window.gameToMap(wp.x, wp.y);
+      g2.style.display = ""; g2.setAttribute("transform", `translate(${{m.x}} ${{m.y}}) scale(${{k}})`); }}
+    else g2.style.display = "none";
+  }}
+  window.mapSetPlayer = (p) => {{ you = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); }};
+  window.mapSetWaypoint = (p) => {{ wp = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); }};
+  window.mapCentreOn = (x, y) => {{ const m = window.gameToMap(x, y); vb.x = m.x - vb.w / 2; vb.y = m.y - vb.h / 2; apply(); }};
+
+  // Outside the game (this page on its own), a click just drops the pin.
+  window.onMapClick = window.onMapClick || ((pt) => {{ const g = window.mapToGame(pt.x, pt.y); if (g) window.mapSetWaypoint(g); }});
+  window.onMapRightClick = window.onMapRightClick || (() => window.mapSetWaypoint(null));
   const toSvg = (cx, cy) => {{ const r = svg.getBoundingClientRect(); return {{ x: vb.x + (cx - r.left) / r.width * vb.w, y: vb.y + (cy - r.top) / r.height * vb.h }}; }};
   const zoomAt = (k, px, py) => {{ const nw = Math.min(W, Math.max(MIN, vb.w / k)); const f = nw / vb.w;
     vb.x = px - (px - vb.x) * f; vb.y = py - (py - vb.y) * f; vb.w = nw; apply(); }};
@@ -540,11 +601,17 @@ window.placeOnRoad();
   }};
   svg.addEventListener("wheel", (e) => {{ e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, p.x, p.y); }}, {{ passive: false }});
   let drag = null;
-  svg.addEventListener("pointerdown", (e) => {{ drag = {{ x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }}; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); }});
+  svg.addEventListener("pointerdown", (e) => {{ if (e.button !== 0) return;   // left button only: right-click is "clear waypoint"
+    drag = {{ x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }}; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); }});
   svg.addEventListener("pointermove", (e) => {{ if (!drag) return; const r = svg.getBoundingClientRect();
     vb.x = drag.vx - (e.clientX - drag.x) / r.width * vb.w; vb.y = drag.vy - (e.clientY - drag.y) / r.height * vb.h; apply(); }});
-  const end = () => {{ drag = null; svg.classList.remove("dragging"); }};
+  // A press that barely moves is a click (a waypoint), not a drag.
+  const end = (e) => {{
+    if (drag && e && e.type === "pointerup" && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5 && window.onMapClick) window.onMapClick(toSvg(e.clientX, e.clientY));
+    drag = null; svg.classList.remove("dragging");
+  }};
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("contextmenu", (e) => {{ e.preventDefault(); if (window.onMapRightClick) window.onMapRightClick(); }});
   document.querySelectorAll(".zoombar [data-zoom]").forEach((b) => b.addEventListener("click", () => window.mapZoom(b.dataset.zoom)));
   document.addEventListener("keydown", (e) => {{
     if (e.key === "+" || e.key === "=") window.mapZoom("in");

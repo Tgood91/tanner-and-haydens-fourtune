@@ -20,6 +20,9 @@
   #island { touch-action: none; cursor: grab; }
   #island.dragging { cursor: grabbing; }
   #island .name { display: none; pointer-events: none; }
+  #island .marker { pointer-events: none; }
+  #island .pulse { animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes pulse { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
   #island.z-main .main-name, #island.z-main .zone-name { display: inline; }
   #island.z-street .street-name { display: inline; }
   .zoombar { display: flex; gap: 6px; justify-content: center; margin: 10px 0 0; }
@@ -2420,6 +2423,8 @@
   <text class="name zone-name" x="639.9" y="676.2" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Peach Ridge Park</text>
   <text class="name zone-name" x="979.8" y="829.4" text-anchor="middle" font-size="7" font-style="italic" fill="#c9f2b8" stroke-width="2.4">Groveland Park</text>
 </g>
+<g id="waypoint" class="marker" style="display:none"><title>Waypoint</title><path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-17" r="3.5" fill="#fff"/></g>
+<g id="you" class="marker" style="display:none"><title>You are here</title><circle r="16" fill="rgba(56,189,248,.25)" class="pulse"/><circle r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/><path class="heading" d="M0 -17 L5 -9 L-5 -9 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/></g>
 <text x="770" y="120" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="96" fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">312</text>
 <text x="1010" y="600" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="104" fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">1017</text>
 </svg>
@@ -2465,11 +2470,13 @@
       <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><path d="M4 17 H48" stroke="#6a6c6e" stroke-width="5"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="3.2"/><text x="26" y="12" font-size="7" text-anchor="middle" fill="#fff" stroke="#1d2125" stroke-width="1.4" paint-order="stroke" font-weight="700">Mill St</text></svg>Named street (names show zoomed in)</li>
       <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><path d="M4 17 H48" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"/></svg>Backroad</li>
       <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><text x="26" y="21" font-size="9" text-anchor="middle" font-style="italic" fill="#ffe9a8" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">Midway</text></svg>District / park name</li>
+      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><circle cx="26" cy="19" r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/><path d="M26 3 L31 11 L21 11 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/></svg>You are here (arrow: facing)</li>
+      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/><g transform="translate(26 30) scale(1.2)"><path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-17" r="3.5" fill="#fff"/></g></svg>Waypoint (click map to set, right-click to clear)</li>
     </ul>
   </div>
   </div><!-- .stage -->
   <div class="zoombar"><button data-zoom="in">+ Zoom in</button><button data-zoom="out">− Zoom out</button><button data-zoom="reset">Whole island</button></div>
-  <div class="hint">M or ESC: CLOSE &nbsp;·&nbsp; L: LEGEND &nbsp;·&nbsp; SCROLL / + −: ZOOM &nbsp;·&nbsp; DRAG: MOVE &nbsp;·&nbsp; 0: WHOLE ISLAND</div>
+  <div class="hint">M or ESC: CLOSE &nbsp;·&nbsp; L: LEGEND &nbsp;·&nbsp; CLICK: SET WAYPOINT &nbsp;·&nbsp; RIGHT-CLICK: CLEAR &nbsp;·&nbsp; SCROLL: ZOOM &nbsp;·&nbsp; DRAG: MOVE &nbsp;·&nbsp; 0: WHOLE ISLAND</div>
 </div><!-- #app -->
 <script>
 // Places cars, potholes, cones, the barrier, the dig and the hot dog carts along the road paths.
@@ -2517,7 +2524,52 @@ window.placeOnRoad();
     const z = W / vb.w;
     svg.classList.toggle("z-main", z >= 1.6);
     svg.classList.toggle("z-street", z >= 2.6);
+    drawMarkers(z);
   };
+
+  // ---- game coordinates <-> map. The same per-city fit the streets are drawn with
+  // (tools/gen-island-map.py), so a position lands where its street is drawn.
+  const FIT = {"chicago": {"minX": -570, "maxX": 90, "minY": 5880, "maxY": 6590, "x0": 440, "x1": 1120, "y0": 128, "y1": 300}, "geepee": {"minX": 1340, "maxX": 2180, "minY": 3460, "maxY": 4990, "x0": 360, "x1": 1200, "y0": 320, "y1": 575}, "atlanta": {"minX": -1600, "maxX": 490, "minY": -1850, "maxY": -440, "x0": 300, "x1": 1260, "y0": 590, "y1": 860}};
+  const BORDERS = {"chicago": 5500, "geepee": 3000};
+  const cityAt = (y) => y >= BORDERS.chicago ? "chicago" : y >= BORDERS.geepee ? "geepee" : "atlanta";
+  window.gameToMap = (x, y) => {
+    const f = FIT[cityAt(y)];
+    let px = f.x0 + (x - f.minX) / (f.maxX - f.minX) * (f.x1 - f.x0);
+    let py = f.y0 + (f.maxY - y) / (f.maxY - f.minY) * (f.y1 - f.y0);
+    const off = px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1;      // outside the city's drawn streets
+    px = Math.min(f.x1, Math.max(f.x0, px)); py = Math.min(f.y1, Math.max(f.y0, py));
+    return { x: px, y: py, off };
+  };
+  window.mapToGame = (px, py) => {
+    for (const f of Object.values(FIT)) {
+      if (px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1) continue;
+      return { x: f.minX + (px - f.x0) / (f.x1 - f.x0) * (f.maxX - f.minX),
+                y: f.maxY - (py - f.y0) / (f.y1 - f.y0) * (f.maxY - f.minY) };
+    }
+    return null;   // not over a city's streets: no game position to send
+  };
+
+  // ---- markers. Kept a steady size on screen whatever the zoom.
+  let you = null, wp = null;
+  function drawMarkers(z) {
+    const k = 1 / Math.sqrt(z || W / vb.w);
+    const g1 = document.getElementById("you"), g2 = document.getElementById("waypoint");
+    if (you) { const m = window.gameToMap(you.x, you.y);
+      g1.style.display = ""; g1.setAttribute("transform", `translate(${m.x} ${m.y}) scale(${k})`);
+      g1.querySelector(".heading").setAttribute("transform", `rotate(${-(you.heading || 0)})`);   // GTA heading: degrees anticlockwise from north
+      g1.querySelector("title").textContent = m.off ? "You are here (off the drawn streets)" : "You are here"; }
+    else g1.style.display = "none";
+    if (wp) { const m = window.gameToMap(wp.x, wp.y);
+      g2.style.display = ""; g2.setAttribute("transform", `translate(${m.x} ${m.y}) scale(${k})`); }
+    else g2.style.display = "none";
+  }
+  window.mapSetPlayer = (p) => { you = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); };
+  window.mapSetWaypoint = (p) => { wp = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); };
+  window.mapCentreOn = (x, y) => { const m = window.gameToMap(x, y); vb.x = m.x - vb.w / 2; vb.y = m.y - vb.h / 2; apply(); };
+
+  // Outside the game (this page on its own), a click just drops the pin.
+  window.onMapClick = window.onMapClick || ((pt) => { const g = window.mapToGame(pt.x, pt.y); if (g) window.mapSetWaypoint(g); });
+  window.onMapRightClick = window.onMapRightClick || (() => window.mapSetWaypoint(null));
   const toSvg = (cx, cy) => { const r = svg.getBoundingClientRect(); return { x: vb.x + (cx - r.left) / r.width * vb.w, y: vb.y + (cy - r.top) / r.height * vb.h }; };
   const zoomAt = (k, px, py) => { const nw = Math.min(W, Math.max(MIN, vb.w / k)); const f = nw / vb.w;
     vb.x = px - (px - vb.x) * f; vb.y = py - (py - vb.y) * f; vb.w = nw; apply(); };
@@ -2527,11 +2579,17 @@ window.placeOnRoad();
   };
   svg.addEventListener("wheel", (e) => { e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, p.x, p.y); }, { passive: false });
   let drag = null;
-  svg.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); });
+  svg.addEventListener("pointerdown", (e) => { if (e.button !== 0) return;   // left button only: right-click is "clear waypoint"
+    drag = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); });
   svg.addEventListener("pointermove", (e) => { if (!drag) return; const r = svg.getBoundingClientRect();
     vb.x = drag.vx - (e.clientX - drag.x) / r.width * vb.w; vb.y = drag.vy - (e.clientY - drag.y) / r.height * vb.h; apply(); });
-  const end = () => { drag = null; svg.classList.remove("dragging"); };
+  // A press that barely moves is a click (a waypoint), not a drag.
+  const end = (e) => {
+    if (drag && e && e.type === "pointerup" && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5 && window.onMapClick) window.onMapClick(toSvg(e.clientX, e.clientY));
+    drag = null; svg.classList.remove("dragging");
+  };
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("contextmenu", (e) => { e.preventDefault(); if (window.onMapRightClick) window.onMapRightClick(); });
   document.querySelectorAll(".zoombar [data-zoom]").forEach((b) => b.addEventListener("click", () => window.mapZoom(b.dataset.zoom)));
   document.addEventListener("keydown", (e) => {
     if (e.key === "+" || e.key === "=") window.mapZoom("in");
@@ -2542,25 +2600,40 @@ window.placeOnRoad();
 })();
 </script>
 <script>
-  // client.lua owns focus; this page only shows, hides and asks to close.
+  // client.lua owns focus. This page shows and hides, draws you and the waypoint from what
+  // the client sends, and asks the client to close, set or clear the waypoint.
   const app = document.getElementById('app');
   const stage = document.querySelector('.stage');
-  const close = () => {
+  const post = (name, body) => {
     const res = typeof GetParentResourceName === 'function' ? GetParentResourceName() : null;
-    if (res) fetch(`https://${res}/close`, { method: 'POST', body: '{}' });
+    if (res) fetch(`https://${res}/${name}`, { method: 'POST', body: JSON.stringify(body || {}) });
   };
   window.addEventListener('message', (e) => {
     const d = e.data || {};
-    if (d.type !== 'map:visibility') return;
-    const visible = !!(d.payload && d.payload.visible);
-    app.classList.toggle('open', visible);
-    if (visible && window.placeOnRoad) window.placeOnRoad();   // new hot dog cart spots each time
+    if (d.type === 'map:visibility') {
+      const visible = !!(d.payload && d.payload.visible);
+      app.classList.toggle('open', visible);
+      if (visible && window.placeOnRoad) window.placeOnRoad();   // new hot dog cart spots each time
+    }
+    if (d.type === 'map:player') window.mapSetPlayer && window.mapSetPlayer(d.payload);
+    if (d.type === 'map:waypoint') window.mapSetWaypoint && window.mapSetWaypoint(d.payload || null);
   });
+  // Click a spot on a city's streets: the GPS waypoint goes there. Right-click clears it.
+  window.onMapClick = (pt) => {
+    const g = window.mapToGame(pt.x, pt.y);
+    if (!g) return;                                  // countryside / sea: no game position to send
+    window.mapSetWaypoint(g);
+    post('waypoint', { x: Math.round(g.x * 10) / 10, y: Math.round(g.y * 10) / 10 });
+  };
+  window.onMapRightClick = () => { window.mapSetWaypoint(null); post('clearWaypoint'); };
   document.addEventListener('keyup', (e) => {
     if (!app.classList.contains('open')) return;
-    if (e.key === 'Escape' || e.key === 'm' || e.key === 'M') { close(); window.mapZoom && window.mapZoom('reset'); }
+    if (e.key === 'Escape' || e.key === 'm' || e.key === 'M') { post('close'); window.mapZoom && window.mapZoom('reset'); }
     if (e.key === 'l' || e.key === 'L') stage.classList.toggle('with-legend');
   });
+  // Tell the client the page is up: until it hears this it won't take focus,
+  // so a page that failed to load can never trap the player.
+  post('ready');
 </script>
 </body>
 </html>
