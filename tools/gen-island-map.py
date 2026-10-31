@@ -414,9 +414,11 @@ print(f'''<!DOCTYPE html>
   </div>
 <script>
 // Places cars, potholes, cones, the barrier, the dig and the hot dog carts along the road paths.
-(function () {{
+// window.placeOnRoad() can be called again (the in-game map does, on every open) for new cart spots.
+window.placeOnRoad = function () {{
   const NS = "http://www.w3.org/2000/svg";
   const layer = document.getElementById("on-road");
+  layer.replaceChildren();
   const ON = {json.dumps(ON)};
   const el = (tag, attrs, parent) => {{ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; }};
   const tip = (g, text) => {{ const t = document.createElementNS(NS, "title"); t.textContent = text; g.appendChild(t); }};
@@ -440,7 +442,8 @@ print(f'''<!DOCTYPE html>
       el("rect", {{ x: -6, y: -4, width: 4, height: 9, fill: "#d62828" }}, c); el("rect", {{ x: 2, y: -4, width: 4, height: 9, fill: "#d62828" }}, c);
       el("path", {{ d: "M-8 -4 A8 5 0 0 1 8 -4 Z", fill: "#d62828", stroke: "#fff", "stroke-width": .6 }}, c); }}
   }}
-}})();
+}};
+window.placeOnRoad();
 </script>
 </body>
 </html>''')

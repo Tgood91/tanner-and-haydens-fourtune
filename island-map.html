@@ -2253,9 +2253,11 @@
   </div>
 <script>
 // Places cars, potholes, cones, the barrier, the dig and the hot dog carts along the road paths.
-(function () {
+// window.placeOnRoad() can be called again (the in-game map does, on every open) for new cart spots.
+window.placeOnRoad = function () {
   const NS = "http://www.w3.org/2000/svg";
   const layer = document.getElementById("on-road");
+  layer.replaceChildren();
   const ON = [["car", "perimeter", 0.03, -4, "data-color=\"#f4f4f0\""], ["car", "perimeter", 0.12, 4, "data-color=\"#27ae60\" data-flip=\"1\""], ["car", "perimeter", 0.21, -4, "data-color=\"#e6b422\""], ["car", "perimeter", 0.33, 4, "data-color=\"#8e44ad\" data-flip=\"1\""], ["car", "perimeter", 0.45, -4, "data-color=\"#8e44ad\""], ["car", "perimeter", 0.58, 4, "data-color=\"#8e44ad\" data-flip=\"1\""], ["car", "perimeter", 0.66, -4, "data-color=\"#f4f4f0\""], ["car", "perimeter", 0.74, 4, "data-color=\"#e6b422\" data-flip=\"1\""], ["car", "perimeter", 0.88, -4, "data-color=\"#e6b422\""], ["car", "perimeter", 0.95, 4, "data-color=\"#e6b422\" data-flip=\"1\""], ["car", "connector", 0.08, -4, "data-color=\"#1c1c1c\""], ["car", "connector", 0.2, 4, "data-color=\"#27ae60\" data-flip=\"1\""], ["car", "connector", 0.35, -4, "data-color=\"#27ae60\""], ["car", "connector", 0.5, 4, "data-color=\"#2e86c1\" data-flip=\"1\""], ["car", "connector", 0.62, -4, "data-color=\"#f4f4f0\""], ["car", "connector", 0.8, 4, "data-color=\"#7f8c8d\" data-flip=\"1\""], ["car", "connector", 0.92, -4, "data-color=\"#2e86c1\""], ["car", "inner-loop", 0.1, -4, "data-color=\"#7f8c8d\""], ["car", "inner-loop", 0.3, 4, "data-color=\"#8e44ad\" data-flip=\"1\""], ["car", "inner-loop", 0.55, -4, "data-color=\"#8e44ad\""], ["car", "inner-loop", 0.8, 4, "data-color=\"#e6b422\" data-flip=\"1\""], ["car", "county-line", 0.15, -4, "data-color=\"#8e44ad\""], ["car", "county-line", 0.4, 4, "data-color=\"#7f8c8d\" data-flip=\"1\""], ["car", "county-line", 0.7, -4, "data-color=\"#c0392b\""], ["car", "county-line", 0.9, 4, "data-color=\"#2e86c1\" data-flip=\"1\""], ["car", "palisade", 0.3, -4, "data-color=\"#2e86c1\""], ["car", "palisade", 0.7, 4, "data-color=\"#f4f4f0\" data-flip=\"1\""], ["car", "red-clay", 0.25, -4, "data-color=\"#f4f4f0\""], ["car", "red-clay", 0.8, 4, "data-color=\"#7f8c8d\" data-flip=\"1\""], ["car", "lakeshore", 0.5, -4, "data-color=\"#27ae60\""], ["car", "backroads-hwy", 0.4, -4, "data-color=\"#c0392b\""], ["car", "highfield", 0.5, -4, "data-color=\"#1c1c1c\""], ["car", "airport-road", 0.3, -4, "data-color=\"#8e44ad\""], ["car", "airport-road", 0.7, 4, "data-color=\"#7f8c8d\" data-flip=\"1\""], ["pothole", "perimeter", 0.16, 0, ""], ["pothole", "perimeter", 0.52, 0, ""], ["pothole", "perimeter", 0.8, 0, ""], ["pothole", "connector", 0.28, 0, ""], ["pothole", "connector", 0.7, 0, ""], ["pothole", "inner-loop", 0.42, 0, ""], ["pothole", "county-line", 0.55, 0, ""], ["pothole", "red-clay", 0.45, 0, ""], ["pothole", "palisade", 0.5, 0, ""], ["pothole", "westside-run", 0.4, 0, ""], ["cone", "connector", 0.42, 6, ""], ["cone", "connector", 0.44, 6, ""], ["cone", "perimeter", 0.62, 6, ""], ["cone", "perimeter", 0.64, 6, ""], ["barrier", "connector", 0.43, 5, ""], ["dig", "perimeter", 0.63, 0, ""], ["cart", "perimeter", 0.27, 0, "data-random=\"1\""], ["cart", "connector", 0.57, 0, "data-random=\"1\""], ["cart", "county-line", 0.25, 0, "data-random=\"1\""], ["cart", "inner-loop", 0.67, 0, "data-random=\"1\""], ["cart", "palisade", 0.15, 0, "data-random=\"1\""], ["cart", "red-clay", 0.6, 0, "data-random=\"1\""], ["cart", "airport-road", 0.5, 0, "data-random=\"1\""], ["cart", "highfield", 0.3, 0, "data-random=\"1\""]];
   const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; };
   const tip = (g, text) => { const t = document.createElementNS(NS, "title"); t.textContent = text; g.appendChild(t); };
@@ -2279,7 +2281,8 @@
       el("rect", { x: -6, y: -4, width: 4, height: 9, fill: "#d62828" }, c); el("rect", { x: 2, y: -4, width: 4, height: 9, fill: "#d62828" }, c);
       el("path", { d: "M-8 -4 A8 5 0 0 1 8 -4 Z", fill: "#d62828", stroke: "#fff", "stroke-width": .6 }, c); }
   }
-})();
+};
+window.placeOnRoad();
 </script>
 </body>
 </html>

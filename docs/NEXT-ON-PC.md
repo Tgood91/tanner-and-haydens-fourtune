@@ -60,6 +60,12 @@ Checks: `lua world/test.lua`.
 `server.cfg` block. The short version: `js-snippets/` has to be installed as a folder named
 `fourtune`, and `chat` + `spawnmanager` must be ensured before either of ours.
 
+## 2c+. The in-game map
+
+`world-map/` is its own client-only resource: copy it into `resources/` and add `ensure world-map`.
+M or `/map` opens the whole-island map; M or Esc closes it, L shows the legend. Its page is built,
+not hand-edited: `python3 tools/gen-island-map.py > island-map.html` then `python3 tools/gen-world-map-nui.py`.
+
 ## 2d. Walk the map
 
 `docs/WALK-LIST.md` is the checklist of every coordinate the game and both maps read (2 borders,
