@@ -16,8 +16,9 @@
         { line: [36, 60.4, 60, 60.4] },               // south towers crosstown
         { line: [36, 67.4, 60, 67.4] },               // south towers crosstown
     ];
-    const KEEP_CLEAR = [
-        [66, 71, 7],                                  // the job station                              // [x, y, radius]
+    const KEEP_CLEAR = [                              // [x, y, radius]
+        [66, 71, 7],                                  // the job station
+        [45, 55.5, 6],                                // the job station, south towers
         [50, 30, 6],                                  // construction, the Connector
         [14.5, 58, 9],                                // construction, Perimeter west arc
         [50, 40.8, 6],                                // the central interchange

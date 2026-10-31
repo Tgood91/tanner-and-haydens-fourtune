@@ -24,8 +24,8 @@
         { arc: [50, 81, 25.2, 12.35, 0, 360] },  // The Perimeter
         { arc: [23.5, 9, 7.05, 4.64, 0, 360] },  // Knot Loop
     ];
-    const KEEP_CLEAR = [
-        [58, 72.5, 6],                           // the job station                         // [x, y, radius]
+    const KEEP_CLEAR = [                              // [x, y, radius]
+        [58, 72.5, 6],                           // the job station
         [56, 63.3, 7],                           // construction, Red Clay Expressway
         [82.4, 41, 6],                           // construction, Backroads Highway
     ];
