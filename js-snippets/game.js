@@ -346,7 +346,7 @@ function createGame(opts = {}) {
         // ----- jobs -----
         job: { help: "your job and pay", run: ({ c }) => reply(jobs.jobInfo(c)) },
         apply: {
-            help: "<job> — take an open job (glizzys)",
+            help: "<job> — take an open job (glizzys, dockhand)",
             run: ({ c, args }) => reply(jobs.applyJob(c, lower(args[0])).msg),
         },
         duty: {

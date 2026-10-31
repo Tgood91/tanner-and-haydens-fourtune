@@ -66,6 +66,18 @@ const JOBS = {
             { label: "Cart Owner", pay: 250 },
         ],
     },
+    // Loading and unloading ships at the 312 Port and the 1017 Harbor.
+    // Open hire like the carts: /apply dockhand.
+    dockhand: {
+        label: "Dockhand",
+        openHire: true,
+        goldPerHour: 14,
+        grades: [
+            { label: "Dockhand", pay: 200 },
+            { label: "Crane Operator", pay: 300 },
+            { label: "Foreman", pay: 420 },
+        ],
+    },
 };
 
 function jobInfo(c) {
