@@ -13,6 +13,7 @@ node --test js-snippets/game.test.js  # 131 checks across every system
 node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
 node tools/gen-map-detail-layer.js            # redraw the big map's gameplay roads, pins and legend rows
 node tools/gen-walk-list.js > docs/WALK-LIST.md  # the in-game checklist of every coordinate to walk (/mark)
+node tools/print-streets.js [city]                # print every street the game knows, by city and kind
 ```
 
 ## What's in here
