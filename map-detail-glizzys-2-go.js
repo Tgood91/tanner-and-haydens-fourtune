@@ -21,6 +21,7 @@
         { line: [7, 72.57, 31, 71.23] },         // Westside Run
         { line: [18, 73.25, 44, 74.35] },        // Peachline Road
         { line: [62, 78.83, 75.2, 77.53] },      // Highfield Park Drive, to the shore
+        { line: [74.6, 77.6, 78.1, 81.2] },      // down onto the harbor quay
         { arc: [50, 81, 25.2, 12.35, 0, 360] },  // The Perimeter
         { arc: [23.5, 9, 7.05, 4.64, 0, 360] },  // Knot Loop
     ];
