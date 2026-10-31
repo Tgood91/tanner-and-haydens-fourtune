@@ -41,6 +41,7 @@ def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2
 ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
           (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
 MOUNTAIN = (780, 455)
+WEST_TOWERS = (370, 510, 128, 102)  # the west tower district (FAFO ST ... EUPHORIA Lane): no trees or farms in it
 RING = (760, 470, 620, 345)        # The Perimeter: round the 312 waterfront, shares the south run with the Inner Loop
 INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
 MLOOP = (820, 470, 285, 150)       # County Line Road, round the mountain (clear of the 312)
@@ -93,6 +94,7 @@ def forest(cx, cy, rx, ry, n, dark="#2f5a2c", light="#3f7036", title=""):
     for _ in range(n):
         t = random.uniform(0, 2*math.pi); r = math.sqrt(random.random())
         x = cx + rx*r*math.cos(t); y = cy + ry*r*math.sin(t)
+        if inside_ellipse(x, y, *WEST_TOWERS): continue          # cleared for the west towers
         s = random.uniform(4, 7.5)
         a(f'  <circle cx="{f(x)}" cy="{f(y)}" r="{f(s)}" fill="{random.choice([dark, light])}"/>')
     a('</g>')
@@ -177,8 +179,15 @@ road("highfield", "Highfield Park Drive — down to the 1017 harbor", smooth([(1
 road("primrose", "Primrose Street — south off Highfield Park Drive", "M1150 737 L1150 812", "street")
 road("crystal-lake", "Crystal Lake Drive — along the south of the east houses to Primrose", "M935 812 L1150 812", "street")
 road("airport-road", "Airport Road", "M260 860 L1250 860", "street")
+# The west tower district, in the west hills: three streets across, one down the middle,
+# and a lane curving through to The Backroads.
+road("fafo-st", "FAFO ST.", "M268 455 L470 455", "street")
+road("fomo-st", "FOMO ST", "M250 505 L490 505", "street")
+road("fud-st", "FUD ST", "M262 555 L478 555", "street")
+road("cope-st", "COPE ST", "M368 418 L368 600", "street")
+road("euphoria-ln", "EUPHORIA Lane", smooth([(285,590),(340,575),(400,540),(440,500),(470,450)], closed=False) + " M400 540 L420 560", "street")
 FARM_NAMES = ["Orchard Track", "Millpond Lane", "Windmill Lane", "Sawmill Track", "Pasture Way", "Haybale Lane", "Ridge Track"]
-for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
+for i, (x1, y1, x2, y2) in enumerate([(500,640,575,610),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
     road(f"farm-{i+1}", FARM_NAMES[i], f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
 # 312 grid streets: numbered west to east, lettered avenues north to south, like a real downtown
 def ordinal(n): return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
@@ -225,7 +234,9 @@ CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
 NEXT = {}
 for r in GAME["roads"]:
     key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
-MAP_ONLY = {"inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
+MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
+            "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"),
+            "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
             "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S")}
 def map_only_kind(rid):
     if rid in MAP_ONLY: return MAP_ONLY[rid]
@@ -292,6 +303,19 @@ def towers(x0, x1, y0, y1, step, label):
 towers(650, 880, 670, 760, 22, "1017 south towers")
 towers(680, 850, 590, 640, 20, "1017 north towers")
 towers(560, 960, 140, 230, 26, "312 downtown")
+# The west towers: the island's biggest. Several candidate spots in each gap between
+# FAFO, FOMO, FUD, COPE and EUPHORIA; the ones clear of every road (and each other) stay.
+for _ in range(260):
+    cx_, cy_ = random.uniform(255, 485), random.uniform(420, 600)
+    if not inside_ellipse(cx_, cy_, *WEST_TOWERS): continue
+    fl = random.randint(45, 95); sz = random.choice([12, 14, 16]); sh = fl * .09
+    x_, y_ = cx_ - sz / 2, cy_ - sz / 2
+    bld("west-towers", x_, y_, sz, sz,
+        f'  <g class="tower"><title>West towers — {fl} floors</title>'
+        f'<rect x="{f(x_ + sh)}" y="{f(y_ + sh)}" width="{sz}" height="{sz}" fill="rgba(20,24,30,.42)"/>'
+        f'<rect x="{f(x_)}" y="{f(y_)}" width="{sz}" height="{sz}" fill="#c3cad2" stroke="#2f343a" stroke-width="1.1"/>'
+        f'<rect x="{f(x_ + sz * .2)}" y="{f(y_ + sz * .2)}" width="{f(sz * .6)}" height="{f(sz * .6)}" fill="none" stroke="#7f878f" stroke-width=".8"/>'
+        f'<rect x="{f(x_ + sz * .4)}" y="{f(y_ + sz * .4)}" width="{f(sz * .2)}" height="{f(sz * .2)}" fill="#8d959d"/></g>')
 a('%%towers%%')
 a('</g>')
 
@@ -359,7 +383,7 @@ for x, y in [(60,200),(1460,420),(40,560),(1470,560)]:
 a('</g>')
 
 # ---------------------------------------------------------------- farmsteads
-for x, y in [(330,370),(1150,420),(1000,560),(420,560),(1230,320),(560,520)]:
+for x, y in [(330,370),(1150,420),(1000,560),(560,640),(1230,320),(560,520)]:
     a(f'<g filter="url(#shadow)"><title>Farm (barn and silo)</title><rect x="{x}" y="{y}" width="16" height="11" fill="#8e2f22" stroke="#4a160f"/><circle cx="{x+22}" cy="{y+3}" r="5" fill="#b8bcc0" stroke="#6f7478"/></g>')
 
 # ---------------------------------------------------------------- parks
@@ -419,7 +443,8 @@ for rid, name, d, k in ROADS:
     label = name.split(" — ")[0]
     if k in ("street312", "track", "street"):     # the island's smaller roads: named once zoomed in close
         fill = "#f3e2b8" if k == "track" else "#fff"
-        a(f'  <text class="name street-name" font-size="4.6" fill="{fill}" stroke-width="1.5" dy="1.6"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 3.6)}</textPath></text>')
+        at = {"cope-st": 22}.get(rid, 50)      # move a label off a crossing where it would sit on another
+        a(f'  <text class="name street-name" font-size="4.6" fill="{fill}" stroke-width="1.5" dy="1.6"><textPath href="#{rid}" startOffset="{at}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 3.6)}</textPath></text>')
     else:
         a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 6)}</textPath></text>')
 for rid, name, kind, code in LABELS:
@@ -502,7 +527,7 @@ def on_land(x, y):
         if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
     return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
 
-kept = {"city-312": [], "houses-1017": [], "towers": []}
+kept = {"city-312": [], "houses-1017": [], "towers": [], "west-towers": []}
 TAKEN = {}        # footprints already used, so frontage never lands on a building
 def take(x, y, w, h):
     for cx in range(int(x // CELL), int((x + w) // CELL) + 1):
@@ -515,7 +540,7 @@ def taken(x, y, w, h, gap=1.5):
     return False
 cleared = 0
 for group, x, y, w, h, svg in BUILDINGS:
-    if on_road(x, y, w, h) or (group == "city-312" and taken(x, y, w, h, 1.0)): cleared += 1; continue
+    if on_road(x, y, w, h) or (group in ("city-312", "west-towers") and taken(x, y, w, h, 1.5)): cleared += 1; continue
     kept[group].append(svg); take(x, y, w, h)
 
 # Frontage: walk each city street and set a building on either side every few units,
@@ -554,7 +579,7 @@ for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the
     frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
 
 FILL = {"%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
-        "%%towers%%": "\n".join(kept["towers"]), "%%frontage%%": "\n".join(frontage)}
+        "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"]), "%%frontage%%": "\n".join(frontage)}
 out = [FILL.get(line, line) for line in out]
 print(f"buildings: {len(BUILDINGS) - cleared} kept, {cleared} left out (on a road, or overlapping in a 312 block), {len(frontage)} added along streets", file=sys.stderr)
 
