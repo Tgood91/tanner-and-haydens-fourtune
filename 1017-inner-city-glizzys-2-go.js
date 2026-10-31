@@ -47,7 +47,7 @@
         const lengths = ROADS.map(length);
         const total = lengths.reduce((a, b) => a + b, 0);
         const taken = [];
-        for (const cart of document.querySelectorAll(".glizzys-2-go:not(.glizzys-2-go-station)")) {
+        for (const cart of document.querySelectorAll(".map .glizzys-2-go")) {
             for (let tries = 0; tries < 300; tries++) {
                 let pick = Math.random() * total, i = 0;   // longer roads get more carts
                 while (pick > lengths[i]) pick -= lengths[i++];
