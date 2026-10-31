@@ -11,6 +11,7 @@ node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
 node --test js-snippets/game.test.js  # 131 checks across every system
 node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
+node tools/gen-map-detail-layer.js            # redraw the big map's gameplay roads, pins and legend rows
 ```
 
 ## What's in here
