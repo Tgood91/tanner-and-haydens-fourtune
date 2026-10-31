@@ -40,7 +40,8 @@ _G.GetPlayerPed = function() return 1 end
 _G.GetEntityCoords = function() return { x = 0.0, y = 0.0, z = 0.0 } end
 _G.TriggerClientEvent = function(_, src, payload) chat[#chat + 1] = { src = src, msg = payload.args[2] } end
 _G.AddEventHandler = function() end
-_G.RegisterCommand = function() end
+local COMMANDS = {}
+_G.RegisterCommand = function(name, fn) COMMANDS[name] = fn end
 
 dofile('world/data.lua')
 dofile('world/main.lua')
@@ -96,6 +97,24 @@ ok(W.ListFor('chicago'):find('District: The Knot', 1, true) ~= nil, 'Chicago lis
 ok(W.ListFor('chicago'):find('Park: Winterline Park', 1, true) ~= nil, 'Chicago lists its parks')
 ok(W.ListFor('chicago'):find('Road: Lakeshore Drive', 1, true) ~= nil, 'Chicago lists its roads')
 same(W.ListFor('nowhere'), 'Nothing mapped here yet.', 'an unmapped city says so')
+
+-- ---------- /streets ----------
+local atl = W.ListStreets('atlanta')
+ok(atl:find('^1017 Atlanta: %d+ roads') ~= nil, '/streets heads Atlanta with its code and count')
+ok(atl:find('Highways: The Connector, The Perimeter', 1, true) ~= nil, '/streets lists highways first')
+ok(atl:find('Primrose Street', 1, true) ~= nil and atl:find('Crystal Lake Drive', 1, true) ~= nil, '/streets includes the new Highfield streets')
+same(W.CityNamed('312'), 'chicago', 'an area code names its city')
+same(W.CityNamed('GeePee'), 'geepee', 'a label names its city, any case')
+same(W.CityNamed('mars'), nil, 'not a city')
+chat = {}
+COMMANDS.streets(7, {})                                  -- standing at 0,0: Atlanta
+ok(chat[#chat] and chat[#chat].msg:find('^1017 Atlanta') ~= nil, '/streets with no city answers for where you stand')
+COMMANDS.streets(7, { '312' })
+ok(chat[#chat].msg:find('^312 Chicago') ~= nil, '/streets 312 shows Chicago')
+COMMANDS.streets(7, { 'all' })
+ok(chat[#chat].msg:find('312 Chicago', 1, true) and chat[#chat].msg:find('770 GeePee', 1, true) and chat[#chat].msg:find('1017 Atlanta', 1, true), '/streets all shows every city')
+COMMANDS.streets(7, { 'mars' })
+ok(chat[#chat].msg:find('No city called mars', 1, true) ~= nil, '/streets with a bad name says so')
 
 print(string.format('# pass %d\n# fail %d', passed, failed))
 os.exit(failed == 0 and 0 or 1)

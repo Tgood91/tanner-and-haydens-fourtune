@@ -144,6 +144,39 @@ local function ListFor(city)
     return table.concat(out, '\n')
 end
 
+-- /streets: every road in one city, grouped by kind, biggest first.
+-- Same text as places.listStreets in js-snippets, so either side answers the same.
+local STREET_KINDS = { { 'highway', 'Highways' }, { 'arterial', 'Avenues' }, { 'street', 'Streets' }, { 'backroad', 'Backroads' } }
+local CITY_CODE = { chicago = '312', geepee = '770', atlanta = '1017' }
+
+local function ListStreets(city)
+    local roads = {}
+    for _, r in ipairs(Data.roads) do
+        if r.city == city then roads[#roads + 1] = r end
+    end
+    local lines = { string.format('%s %s: %d roads', CITY_CODE[city] or '?', CityLabel(city), #roads) }
+    for _, k in ipairs(STREET_KINDS) do
+        local names = {}
+        for _, r in ipairs(roads) do
+            if r.kind == k[1] then names[#names + 1] = r.name end
+        end
+        if #names > 0 then lines[#lines + 1] = k[2] .. ': ' .. table.concat(names, ', ') end
+    end
+    return table.concat(lines, '\n')
+end
+
+-- "atlanta", "1017", "ATL" ... -> "atlanta"; nil if it isn't a city.
+local function CityNamed(text)
+    local t = string.lower(tostring(text or ''))
+    for city, code in pairs(CITY_CODE) do
+        if t == city or t == code or t == string.lower(CityLabel(city)) then return city end
+    end
+    return nil
+end
+
+exports('ListStreets', ListStreets)
+exports('CityNamed', CityNamed)
+
 -- ============================================================
 -- SPAWNS
 -- ============================================================
@@ -280,6 +313,30 @@ end, false)
 RegisterCommand('places', function(src)
     if src == 0 then return print('Players only.') end
     tell(src, ListFor(CityAt(coordsOf(src))))
+end, false)
+
+-- /streets [city|all]: every street in your city, another city, or all of them.
+RegisterCommand('streets', function(src, args)
+    local want = string.lower(args and args[1] or '')
+    local text
+    if want == 'all' then
+        text = table.concat({ ListStreets('chicago'), ListStreets('geepee'), ListStreets('atlanta') }, '\n\n')
+    else
+        local city
+        if want ~= '' then
+            city = CityNamed(want)
+        elseif src ~= 0 then
+            city = CityAt(coordsOf(src))
+        end
+        if want == '' and src == 0 then
+            text = 'From the console, name a city: streets atlanta | geepee | chicago | all'
+        elseif not city then
+            text = 'No city called ' .. args[1] .. '. Try atlanta, geepee, chicago (or 1017, 770, 312), or all'
+        else
+            text = ListStreets(city)
+        end
+    end
+    if src == 0 then print(text) else tell(src, text) end
 end, false)
 
 RegisterCommand('cities', function(src)
