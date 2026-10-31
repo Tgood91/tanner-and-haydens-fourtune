@@ -190,6 +190,62 @@
               border: 1px solid rgba(60,60,60,.35); }
   .terminal-w { left: 18%; width: 12%; }
   .terminal-e { left: 60%; width: 12%; }
+
+  /* ============================================================
+     MORE DETAIL — trees on the hill, parks, houses, the beach,
+     planes and parking at the airport, traffic on the roads.
+     ============================================================ */
+  .trees { position: absolute; left: -2%; top: 14%; width: 30%; height: 42%; z-index: 0; pointer-events: none;
+           background: radial-gradient(circle, #3c6630 34%, transparent 38%) 0 0 / 22px 22px,
+                       radial-gradient(circle, #4d7a3a 30%, transparent 34%) 11px 11px / 22px 22px;
+           -webkit-mask-image: radial-gradient(ellipse at 45% 45%, #000 45%, transparent 70%);
+                   mask-image: radial-gradient(ellipse at 45% 45%, #000 45%, transparent 70%); }   /* the wooded hill */
+  .houses-sw { position: absolute; left: 17%; top: 55%; width: 19%; height: 18%; opacity: .45;
+               background: radial-gradient(circle, #9a6a50 30%, transparent 32%) 0 0 / 16px 16px;
+               border-radius: 35%; }                                   /* little houses, south-west */
+  .park-e  { left: 80%; top: 44%; width: 5%; }                         /* a green in the apartments */
+  .park-sw { left: 22%; top: 64.6%; width: 4%; }                       /* the south-west playground */
+  .park { position: absolute; background: rgba(64,120,58,.75); border: 2px solid rgba(30,60,28,.5);
+          border-radius: 50%; aspect-ratio: 1; z-index: 0; }
+  .beach { position: absolute; left: 97.4%; top: 15%; width: 2.6%; height: 44%;
+           background: linear-gradient(90deg, #d9c58f, #eadcae); border-radius: 40% 0 0 40%; }  /* the east beach */
+
+  /* the airport: taxiway, parking, planes */
+  .taxiway { position: absolute; left: 12%; top: 85.4%; width: 62%; height: .35%; z-index: 1;
+             background: repeating-linear-gradient(90deg, #e2b93b 0 10px, transparent 10px 16px); }
+  .parking { position: absolute; top: 81.3%; height: 3.4%; z-index: 1; border-radius: 2px;
+             background: repeating-linear-gradient(90deg, #8d8a83 0 2px, #a9a69e 2px 12px); }
+  .parking-w { left: 37%; width: 10%; }
+  .parking-e { left: 53%; width: 6%; }
+  .plane { position: absolute; width: 3.4%; aspect-ratio: 1; z-index: 3; background: #f2f2ee;
+           clip-path: polygon(46% 0, 54% 0, 56% 36%, 100% 52%, 100% 60%, 56% 56%, 55% 82%, 68% 92%, 68% 98%,
+                              50% 94%, 32% 98%, 32% 92%, 45% 82%, 44% 56%, 0 60%, 0 52%, 44% 36%);
+           filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .plane-1 { left: 22.5%; top: 84.2%; transform: rotate(180deg); }   /* at the west terminal */
+  .plane-2 { left: 64.5%; top: 84.2%; transform: rotate(180deg); }   /* at the east terminal */
+  .plane-3 { left: 27%;   top: 84.6%; width: 4.6%; transform: rotate(90deg); }   /* rolling down the runway */
+
+  /* traffic */
+  .car { position: absolute; width: 1.3%; aspect-ratio: 2; z-index: 4; border-radius: 2px;
+         box-shadow: 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px rgba(0,0,0,.25); }
+  .car-1 { left: 88.0%; top: 32.3%; transform: translate(-50%, -50%) rotate(-117deg); background: #2e86c1; }   /* Perimeter */
+  .car-2 { left: 63.8%; top: 11.8%; transform: translate(-50%, -50%) rotate(-166deg); background: #f4f4f0; }   /* Perimeter */
+  .car-3 { left: 36.2%; top: 11.8%; transform: translate(-50%, -50%) rotate(166deg); background: #1c1c1c; }   /* Perimeter */
+  .car-4 { left: 12.0%; top: 32.3%; transform: translate(-50%, -50%) rotate(117deg); background: #e6b422; }   /* Perimeter */
+  .car-5 { left: 36.2%; top: 76.2%; transform: translate(-50%, -50%) rotate(14deg); background: #7f8c8d; }   /* Perimeter */
+  .car-6 { left: 70.2%; top: 73.7%; transform: translate(-50%, -50%) rotate(-22deg); background: #27ae60; }   /* Perimeter */
+  .car-7 { left: 88.0%; top: 55.7%; transform: translate(-50%, -50%) rotate(-63deg); background: #8e44ad; }   /* Perimeter */
+  .car-8 { left: 77.0%; top: 50.1%; transform: translate(-50%, -50%) rotate(-141deg); background: #c0392b; }   /* Inner Loop */
+  .car-9 { left: 19.0%; top: 50.1%; transform: translate(-50%, -50%) rotate(141deg); background: #2e86c1; }   /* Inner Loop */
+  .car-10 { left: 20.6%; top: 70.3%; transform: translate(-50%, -50%) rotate(34deg); background: #f4f4f0; }   /* Inner Loop */
+  .car-11 { left: 73.7%; top: 71.6%; transform: translate(-50%, -50%) rotate(-29deg); background: #1c1c1c; }   /* Inner Loop */
+  .car-12 { left: 50.7%; top: 8.0%; transform: translate(-50%, -50%) rotate(90deg); background: #e6b422; }   /* Connector */
+  .car-13 { left: 49.3%; top: 48.0%; transform: translate(-50%, -50%) rotate(90deg); background: #7f8c8d; }   /* Connector */
+  .car-14 { left: 50.7%; top: 57.0%; transform: translate(-50%, -50%) rotate(90deg); background: #27ae60; }   /* Connector */
+  .car-15 { left: 49.3%; top: 66.0%; transform: translate(-50%, -50%) rotate(90deg); background: #8e44ad; }   /* Connector */
+  .car-16 { left: 50.7%; top: 88.0%; transform: translate(-50%, -50%) rotate(90deg); background: #c0392b; }   /* Connector */
+  .car-17 { left: 49.3%; top: 95.0%; transform: translate(-50%, -50%) rotate(90deg); background: #2e86c1; }   /* Connector */
+
   .tower { position: absolute; left: 33%; top: 80.8%; width: 2.2%; aspect-ratio: 1;
            border-radius: 50%; background: #e8e6df; border: 2px solid #5b6066; }
 
@@ -288,12 +344,23 @@
     <div class="core core-south"></div>
     <div class="blocks"></div>
     <div class="houses"></div>
+    <div class="trees"></div>
+    <div class="houses-sw"></div>
+    <div class="park park-e"></div>
+    <div class="park park-sw"></div>
+    <div class="beach"></div>
 
     <div class="apron"></div>
     <div class="runway"></div>
     <div class="terminal terminal-w"></div>
     <div class="terminal terminal-e"></div>
     <div class="tower"></div>
+    <div class="taxiway"></div>
+    <div class="parking parking-w"></div>
+    <div class="parking parking-e"></div>
+    <div class="plane plane-1"></div>
+    <div class="plane plane-2"></div>
+    <div class="plane plane-3"></div>
     <div class="pier pier-nw"></div>
     <div class="pier pier-ne"></div>
     <div class="pier pier-w"></div>
@@ -402,6 +469,25 @@
     <div class="flyover"></div>
     <div class="interchange"></div>
     <div class="south-stack"></div>
+
+    <!-- traffic -->
+    <div class="car car-1"></div>
+    <div class="car car-2"></div>
+    <div class="car car-3"></div>
+    <div class="car car-4"></div>
+    <div class="car car-5"></div>
+    <div class="car car-6"></div>
+    <div class="car car-7"></div>
+    <div class="car car-8"></div>
+    <div class="car car-9"></div>
+    <div class="car car-10"></div>
+    <div class="car car-11"></div>
+    <div class="car car-12"></div>
+    <div class="car car-13"></div>
+    <div class="car car-14"></div>
+    <div class="car car-15"></div>
+    <div class="car car-16"></div>
+    <div class="car car-17"></div>
 
     <!-- wear and tear -->
     <div class="pothole pothole-1"></div>
