@@ -155,6 +155,21 @@ const ROADS = ROAD_DEFS.map((r) => ({
     width: r.width ?? ROAD_WIDTH[r.kind || "street"],
 }));
 
+// Every road's number: area code, a letter for its kind, its place in that city's
+// list of that kind — 1017-H1 is the Connector, 1017-S10 Primrose Street. Given out
+// here once, so the game, the Lua layer, /streets and every map print the same code.
+// Adding a road at the END of its city's kind keeps the others' numbers.
+const CITY_CODE = { chicago: "312", geepee: "770", atlanta: "1017" };
+const KIND_LETTER = { highway: "H", arterial: "A", street: "S", backroad: "B" };
+{
+    const seen = {};
+    for (const r of ROADS) {
+        const key = `${r.city}/${r.kind}`;
+        seen[key] = (seen[key] || 0) + 1;
+        r.code = `${CITY_CODE[r.city]}-${KIND_LETTER[r.kind]}${seen[key]}`;
+    }
+}
+
 function dist2(a, b) {
     return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
 }
@@ -221,6 +236,27 @@ function updateZone(c, pos) {
     return first || !name ? null : `Entering ${name}`;
 }
 
+// /streets: every road in one city, grouped by kind, biggest first.
+const STREET_KINDS = [["highway", "Highways"], ["arterial", "Avenues"], ["street", "Streets"], ["backroad", "Backroads"]];
+function listStreets(city) {
+    const roads = ROADS.filter((r) => r.city === city);
+    const lines = [`${CITY_CODE[city]} ${cities.CITIES[city].label}: ${roads.length} roads`];
+    for (const [kind, label] of STREET_KINDS) {
+        const names = roads.filter((r) => r.kind === kind).map((r) => `${r.name} (${r.code})`);
+        if (names.length) lines.push(`${label}: ${names.join(", ")}`);
+    }
+    return lines.join("\n");
+}
+
+// "atlanta", "1017", "ATL" ... -> "atlanta"; null if it isn't a city.
+function cityNamed(text) {
+    const t = String(text || "").toLowerCase();
+    for (const [city, code] of Object.entries(CITY_CODE)) {
+        if (t === city || t === code || t === cities.CITIES[city].label.toLowerCase()) return city;
+    }
+    return null;
+}
+
 function listFor(city) {
     const zones = ZONES.filter((z) => z.city === city);
     const roads = ROADS.filter((r) => r.city === city);
@@ -232,4 +268,4 @@ function listFor(city) {
     ].join("\n");
 }
 
-module.exports = { ZONES, ROADS, ROAD_WIDTH, distanceToSegment, roadAt, zoneAt, placeAt, describe, label, updateZone, listFor };
+module.exports = { ZONES, ROADS, ROAD_WIDTH, CITY_CODE, KIND_LETTER, listStreets, cityNamed, distanceToSegment, roadAt, zoneAt, placeAt, describe, label, updateZone, listFor };

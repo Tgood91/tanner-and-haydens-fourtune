@@ -11,7 +11,7 @@
 # dockhand stations, hot dog carts (new spots every load), traffic,
 # potholes and construction, casings. Schematic, not walked coords.
 # ============================================================
-import json, math, random, pathlib, subprocess
+import json, math, random, pathlib, re, subprocess, sys
 random.seed(1017312)
 W, H = 1500, 1000
 out = []
@@ -41,9 +41,10 @@ def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2
 ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
           (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
 MOUNTAIN = (780, 455)
-RING = (760, 470, 620, 300)        # The Perimeter, the island ring
-INNER = (760, 700, 380, 98)        # the Inner Loop round the 1017 towers
-MLOOP = (820, 450, 285, 165)       # County Line Road, round the mountain
+WEST_TOWERS = (370, 510, 128, 102)  # the west tower district (FAFO ST ... EUPHORIA Lane): no trees or farms in it
+RING = (760, 470, 620, 345)        # The Perimeter: round the 312 waterfront, shares the south run with the Inner Loop
+INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
+MLOOP = (820, 470, 285, 150)       # County Line Road, round the mountain (clear of the 312)
 
 # ---------------------------------------------------------------- defs
 a(f'''<svg id="island" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south">
@@ -93,6 +94,7 @@ def forest(cx, cy, rx, ry, n, dark="#2f5a2c", light="#3f7036", title=""):
     for _ in range(n):
         t = random.uniform(0, 2*math.pi); r = math.sqrt(random.random())
         x = cx + rx*r*math.cos(t); y = cy + ry*r*math.sin(t)
+        if inside_ellipse(x, y, *WEST_TOWERS): continue          # cleared for the west towers
         s = random.uniform(4, 7.5)
         a(f'  <circle cx="{f(x)}" cy="{f(y)}" r="{f(s)}" fill="{random.choice([dark, light])}"/>')
     a('</g>')
@@ -115,17 +117,24 @@ forest(mx-60, my+80, 90, 40, 120)
 forest(mx+90, my+70, 90, 40, 120)
 
 # ---------------------------------------------------------------- 312 city blocks (grid)
+# Buildings are collected here and drawn once every road is known (see "buildings meet
+# the streets" near the end): any that would sit on a road are left out, and the city
+# streets get buildings along both sides, facing the street.
+BUILDINGS = []    # (group, x, y, w, h, svg) — x, y, w, h is the footprint's bounding box
+def bld(group, x, y, w, h, svg): BUILDINGS.append((group, x, y, w, h, svg))
+
 a('<g id="city-312" clip-path="url(#clip-island)">')
 for gx in range(430, 1130, 34):
     for gy in range(140, 300, 30):
         if not inside_ellipse(gx, gy, 770, 165, 380, 175): continue
         if random.random() < .08: continue
         shade = random.choice(["#8f9499","#a2a6aa","#7d838a","#b2b0a8","#969a90"])
-        a(f'  <rect x="{gx+3}" y="{gy+3}" width="26" height="22" fill="#6f7479"/>')
-        for _ in range(random.randint(1, 3)):
+        a(f'  <rect x="{gx+3}" y="{gy+3}" width="26" height="22" fill="#6f7479"/>')      # the block's pavement stays
+        for _ in range(8):          # candidates: the ones clear of roads and each other are kept
             bw, bh = random.uniform(7, 14), random.uniform(6, 10)
             bx, by = gx + 4 + random.uniform(0, 26 - bw - 2), gy + 4 + random.uniform(0, 22 - bh - 2)
-            a(f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
+            bld("city-312", bx, by, bw, bh, f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
+a('%%city-312%%')          # after the pavement, so the buildings sit on top of it
 a('</g>')
 
 # ---------------------------------------------------------------- 1017 houses (east and west of downtown)
@@ -136,12 +145,14 @@ for gx in range(930, 1250, 15):
         if inside_ellipse(gx, gy, *INNER[:2], INNER[2]-25, INNER[3]-12) and gx < 1080: continue
         if random.random() < .25: continue
         col = random.choice(["#a8674c","#8f5e48","#b9b2a3","#7b8b9a","#c4a07a"])
-        a(f'  <rect x="{gx}" y="{gy}" width="9" height="8" fill="{col}" filter="url(#shadow)"/>')
+        bld("houses-1017", gx, gy, 9, 8, f'  <rect x="{gx}" y="{gy}" width="9" height="8" fill="{col}" filter="url(#shadow)"/>')
 for gx in range(330, 560, 26):
     for gy in range(620, 790, 22):
         if not inside_ellipse(gx, gy, *RING[:2], RING[2]-20, RING[3]-20): continue
         if random.random() < .3: continue
-        a(f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
+        bld("houses-1017", gx - 1, gy - 4, 20, 20, f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
+a('%%houses-1017%%')
+a('%%frontage%%')
 a('</g>')
 
 # ---------------------------------------------------------------- roads
@@ -168,13 +179,23 @@ road("highfield", "Highfield Park Drive — down to the 1017 harbor", smooth([(1
 road("primrose", "Primrose Street — south off Highfield Park Drive", "M1150 737 L1150 812", "street")
 road("crystal-lake", "Crystal Lake Drive — along the south of the east houses to Primrose", "M935 812 L1150 812", "street")
 road("airport-road", "Airport Road", "M260 860 L1250 860", "street")
-for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
-    road(f"farm-{i+1}", "Farm track", f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
-# 312 grid streets
-for gx in range(430, 1140, 34):
-    road(f"st312-v{gx}", "312 street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
-for gy in range(140, 310, 30):
-    road(f"st312-h{gy}", "312 street", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
+# The west tower district, in the west hills: three streets across, one down the middle,
+# and a lane curving through to The Backroads.
+road("fafo-st", "FAFO ST.", "M268 455 L470 455", "street")
+road("fomo-st", "FOMO ST", "M250 505 L490 505", "street")
+road("fud-st", "FUD ST", "M262 555 L478 555", "street")
+road("cope-st", "COPE ST", "M368 418 L368 600", "street")
+road("euphoria-ln", "EUPHORIA Lane", smooth([(285,590),(340,575),(400,540),(440,500),(470,450)], closed=False) + " M400 540 L420 560", "street")
+road("hodl-st", "HODL ST", smooth([(286,505),(289,530),(291,555),(296,572),(302,586)], closed=False), "street")   # FOMO ST down to EUPHORIA Lane
+FARM_NAMES = ["Orchard Track", "Millpond Lane", "Windmill Lane", "Sawmill Track", "Pasture Way", "Haybale Lane", "Ridge Track"]
+for i, (x1, y1, x2, y2) in enumerate([(500,640,575,610),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
+    road(f"farm-{i+1}", FARM_NAMES[i], f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
+# 312 grid streets: numbered west to east, lettered avenues north to south, like a real downtown
+def ordinal(n): return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+for n, gx in enumerate([g for g in range(430, 1140, 34) if abs(g - 760) > 15], 1):   # none doubling up on the Connector
+    road(f"st312-v{gx}", f"{ordinal(n)} Street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
+for n, gy in enumerate(range(170, 290, 30)):   # A-D: the ring road is the waterfront edge, Palisade the south one
+    road(f"st312-h{gy}", f"{'ABCDEF'[n]} Avenue", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
 
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
          "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
@@ -185,8 +206,10 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 GAME = json.loads(subprocess.run(["node", "-e", """
 const p = require('./js-snippets/places.js'), c = require('./js-snippets/cities.js');
 console.log(JSON.stringify({
-  roads: p.ROADS.map(r => ({ name: r.name, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
+  roads: p.ROADS.map(r => ({ name: r.name, code: r.code, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
+  cityCode: p.CITY_CODE, kindLetter: p.KIND_LETTER,
   zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
+  borders: { chicago: c.CHICAGO_STARTS_AT_Y, geepee: c.GEEPEE_STARTS_AT_Y },
 }));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
 ON_ISLAND = {"Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
              "Palisade Boulevard", "The Causeway", "Backroads Highway", "Red Clay Expressway", "Westside Run", "Peachline Road"}
@@ -201,11 +224,38 @@ def fitter(city):
     # and spreading the streets out keeps every name readable when zoomed in.
     x0, x1, y0, y1 = CITY_BOX[city]
     kx = (x1 - x0) / (max(xs) - min(xs)); ky = (y1 - y0) / (max(ys) - min(ys))
+    FIT_PARAMS[city] = {"minX": min(xs), "maxX": max(xs), "minY": min(ys), "maxY": max(ys), "x0": x0, "x1": x1, "y0": y0, "y1": y1}
     return lambda x, y: (x0 + (x - min(xs)) * kx, y0 + (max(ys) - y) * ky)     # game y runs north
+FIT_PARAMS = {}   # the same fit, handed to the page: "you are here" and click-to-waypoint use it
 FIT = {c: fitter(c) for c in CITY_BOX}
+
+# Every road on the island gets a name and a number. Roads the game knows keep their
+# places.js number (1017-H1 ...); the map-only ones carry on each city's sequence.
+CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
+NEXT = {}
+for r in GAME["roads"]:
+    key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
+MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
+            "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"),
+            "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
+            "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S")}
+def map_only_kind(rid):
+    if rid in MAP_ONLY: return MAP_ONLY[rid]
+    if rid.startswith("farm-"): return ("geepee", "B")
+    if rid.startswith("st312-"): return ("chicago", "S")
+    return None
+ROAD_CODE = {}
+for rid, name, d, k in ROADS:
+    base = name.split(" — ")[0]
+    if base in CODE_BY_NAME: ROAD_CODE[rid] = CODE_BY_NAME[base]; continue
+    city, letter = map_only_kind(rid)
+    NEXT[(city, letter)] = NEXT.get((city, letter), 0) + 1
+    ROAD_CODE[rid] = f'{GAME["cityCode"][city]}-{letter}{NEXT[(city, letter)]}'
+assert len(set(ROAD_CODE.values())) == len(ROAD_CODE), "two island roads share a number"
 STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4cf", "#5c5f63", ""),
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
 LABELS = []   # (path id, name, kind)
+STREET_LINES = []   # (points, width, kind, city) of every game street drawn, for the buildings
 a('<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">')
 for kind in ["backroad", "street", "arterial", "highway"]:
     for i, r in enumerate(GAME["roads"]):
@@ -217,8 +267,9 @@ for kind in ["backroad", "street", "arterial", "highway"]:
         if casing: a(f'  <path d="{d}" stroke="{casing}" stroke-width="{w + 2}"/>')
         rid = f"gs-{i}"
         a(f'  <path id="{rid}" class="road gp-street {kind}" d="{d}" stroke="{fill}" stroke-width="{w}"'
-          + (f' stroke-dasharray="{dash}"' if dash else "") + f'><title>{r["name"]} ({kind}, {CODE[r["city"]]})</title></path>')
-        LABELS.append((rid, r["name"], kind))
+          + (f' stroke-dasharray="{dash}"' if dash else "") + f'><title>{r["name"]} · {r["code"]} ({kind})</title></path>')
+        LABELS.append((rid, r["name"], kind, r["code"]))
+        STREET_LINES.append((pts, w, kind, r["city"]))
 a('</g>')
 
 a('<g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">')
@@ -229,7 +280,7 @@ for kind in ["street312", "track", "street", "arterial", "highway"]:
         clip = ' clip-path="url(#clip-island)"' if k == "street312" else ""
         if casing: a(f'  <path d="{d}" stroke="{casing}" stroke-width="{w+4}"{clip}/>')
         dash = ' stroke-dasharray="6 4"' if k == "track" else ""
-        a(f'  <path id="{rid}" class="road {k}" d="{d}" stroke="{fill}" stroke-width="{w}"{dash}{clip}><title>{name}</title></path>')
+        a(f'  <path id="{rid}" class="road {k}" d="{d}" stroke="{fill}" stroke-width="{w}"{dash}{clip}><title>{name} · {ROAD_CODE[rid]}</title></path>')
         if k == "highway": a(f'  <path d="{d}" stroke="#e8c45a" stroke-width="1" stroke-dasharray="10 8" opacity=".8"/>')
 a('</g>')
 # interchanges
@@ -245,13 +296,28 @@ def towers(x0, x1, y0, y1, step, label):
             if random.random() < .15: continue
             fl = random.randint(25, 64)
             s = step - 6; sh = fl * .14
-            a(f'  <g class="tower"><title>{label} — {fl} floors</title>'
+            bld("towers", gx + 3, gy + 3, s, s,
+              f'  <g class="tower"><title>{label} — {fl} floors</title>'
               f'<rect x="{gx+3+sh}" y="{gy+3+sh}" width="{s}" height="{s}" fill="rgba(20,24,30,.4)"/>'
               f'<rect x="{gx+3}" y="{gy+3}" width="{s}" height="{s}" fill="#b5bcc4" stroke="#3e444b" stroke-width="1"/>'
               f'<rect x="{gx+3+s*.25}" y="{gy+3+s*.25}" width="{s*.5}" height="{s*.5}" fill="none" stroke="#7f878f" stroke-width=".8"/></g>')
 towers(650, 880, 670, 760, 22, "1017 south towers")
 towers(680, 850, 590, 640, 20, "1017 north towers")
 towers(560, 960, 140, 230, 26, "312 downtown")
+# The west towers: the island's biggest. Several candidate spots in each gap between
+# FAFO, FOMO, FUD, COPE and EUPHORIA; the ones clear of every road (and each other) stay.
+for _ in range(260):
+    cx_, cy_ = random.uniform(255, 485), random.uniform(420, 600)
+    if not inside_ellipse(cx_, cy_, *WEST_TOWERS): continue
+    fl = random.randint(45, 95); sz = random.choice([12, 14, 16]); sh = fl * .09
+    x_, y_ = cx_ - sz / 2, cy_ - sz / 2
+    bld("west-towers", x_, y_, sz, sz,
+        f'  <g class="tower"><title>West towers — {fl} floors</title>'
+        f'<rect x="{f(x_ + sh)}" y="{f(y_ + sh)}" width="{sz}" height="{sz}" fill="rgba(20,24,30,.42)"/>'
+        f'<rect x="{f(x_)}" y="{f(y_)}" width="{sz}" height="{sz}" fill="#c3cad2" stroke="#2f343a" stroke-width="1.1"/>'
+        f'<rect x="{f(x_ + sz * .2)}" y="{f(y_ + sz * .2)}" width="{f(sz * .6)}" height="{f(sz * .6)}" fill="none" stroke="#7f878f" stroke-width=".8"/>'
+        f'<rect x="{f(x_ + sz * .4)}" y="{f(y_ + sz * .4)}" width="{f(sz * .2)}" height="{f(sz * .2)}" fill="#8d959d"/></g>')
+a('%%towers%%')
 a('</g>')
 
 # ---------------------------------------------------------------- the airport
@@ -318,7 +384,7 @@ for x, y in [(60,200),(1460,420),(40,560),(1470,560)]:
 a('</g>')
 
 # ---------------------------------------------------------------- farmsteads
-for x, y in [(330,370),(1150,420),(1000,560),(420,560),(1230,320),(560,520)]:
+for x, y in [(330,370),(1150,420),(1000,560),(560,640),(1230,320),(560,520)]:
     a(f'<g filter="url(#shadow)"><title>Farm (barn and silo)</title><rect x="{x}" y="{y}" width="16" height="11" fill="#8e2f22" stroke="#4a160f"/><circle cx="{x+22}" cy="{y+3}" r="5" fill="#b8bcc0" stroke="#6f7478"/></g>')
 
 # ---------------------------------------------------------------- parks
@@ -373,22 +439,151 @@ for cx_, cy_ in [(520,610),(1010,700),(620,180),(380,700)]:
 # ---------------------------------------------------------------- area codes
 # ---------------------------------------------------------------- road and place names (show when zoomed in)
 a('<g id="names" font-family="Arial, Helvetica, sans-serif" font-weight="700" paint-order="stroke" stroke="#1d2125" stroke-linejoin="round">')
+def num(code, size): return f'<tspan class="road-no" font-size="{size}" fill="#9fe3ff"> {code}</tspan>'
 for rid, name, d, k in ROADS:
-    if k in ("street312", "track"): continue
     label = name.split(" — ")[0]
-    a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}</textPath></text>')
-for rid, name, kind in LABELS:
-    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}</textPath></text>')
+    if k in ("street312", "track", "street"):     # the island's smaller roads: named once zoomed in close
+        fill = "#f3e2b8" if k == "track" else "#fff"
+        at = {"cope-st": 22}.get(rid, 50)      # move a label off a crossing where it would sit on another
+        a(f'  <text class="name street-name" font-size="4.6" fill="{fill}" stroke-width="1.5" dy="1.6"><textPath href="#{rid}" startOffset="{at}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 3.6)}</textPath></text>')
+    else:
+        a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 6)}</textPath></text>')
+for rid, name, kind, code in LABELS:
+    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}{num(code, 3.8)}</textPath></text>')
 for z in GAME["zones"]:
     x, y = FIT[z["city"]](z["x"], z["y"])
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
       f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
 a('</g>')
 
+# ---------------------------------------------------------------- you-are-here and the waypoint (placed by script)
+a('<g id="waypoint" class="marker" style="display:none"><title>Waypoint</title>'
+  '<path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/>'
+  '<circle cx="0" cy="-17" r="3.5" fill="#fff"/></g>')
+a('<g id="you" class="marker" style="display:none"><title>You are here</title>'
+  '<circle r="16" fill="rgba(56,189,248,.25)" class="pulse"/><circle r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/>'
+  '<path class="heading" d="M0 -17 L5 -9 L-5 -9 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/></g>')
+
 for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104)]:   # 1017 sits over the east houses, off the towers
     a(f'<text x="{x}" y="{y}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="{s}" '
       f'fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">{t}</text>')
 a('</svg>')
+# ---------------------------------------------------------------- buildings meet the streets
+# Every road is known now: sample each one into points (with its half-width) and keep
+# only the buildings clear of all of them. Then line the city streets with buildings.
+def sample_path(d, step=2.0):
+    """Points along an SVG path made of M, L, C, Q and full-ellipse A segments."""
+    toks = re.findall(r"[MLCQAZ]|-?\d+(?:\.\d+)?", d)
+    pts, cur, i, cmd = [], (0.0, 0.0), 0, None
+    def nums(n):
+        nonlocal i
+        v = [float(t) for t in toks[i:i + n]]; i += n; return v
+    def line(p0, p1):
+        n = max(1, int(math.dist(p0, p1) / step))
+        for k in range(n + 1): pts.append((p0[0] + (p1[0] - p0[0]) * k / n, p0[1] + (p1[1] - p0[1]) * k / n))
+    while i < len(toks):
+        if toks[i] in "MLCQAZ": cmd = toks[i]; i += 1
+        if cmd == "Z": continue
+        if cmd == "M": x, y = nums(2); cur = (x, y); pts.append(cur); cmd = "L"
+        elif cmd == "L": x, y = nums(2); line(cur, (x, y)); cur = (x, y)
+        elif cmd in "CQ":
+            v = nums(6 if cmd == "C" else 4); ctrl = [cur] + [(v[k], v[k + 1]) for k in range(0, len(v), 2)]
+            n = max(2, int(sum(math.dist(ctrl[k], ctrl[k + 1]) for k in range(len(ctrl) - 1)) / step))
+            for k in range(n + 1):
+                t = k / n; q = ctrl[:]
+                while len(q) > 1: q = [(q[m][0] + (q[m + 1][0] - q[m][0]) * t, q[m][1] + (q[m + 1][1] - q[m][1]) * t) for m in range(len(q) - 1)]
+                pts.append(q[0])
+            cur = ctrl[-1]
+        elif cmd == "A":
+            rx, ry, _, _, _, x, y = nums(7); cx, cy = (cur[0] + x) / 2, (cur[1] + y) / 2
+            n = max(8, int(math.pi * (rx + ry) / step))
+            for k in range(n + 1): pts.append((cx + rx * math.cos(2 * math.pi * k / n), cy + ry * math.sin(2 * math.pi * k / n)))
+            cur = (x, y)
+    return pts
+
+ROAD_PTS = []     # (x, y, half-width) every couple of units along every road
+for rid, name, d, k in ROADS:
+    hw = STYLE[k][0] / 2 + (2 if STYLE[k][1] else 0)
+    ROAD_PTS += [(x, y, hw) for x, y in sample_path(d)]
+for pts, w, kind, city in STREET_LINES:
+    d = "M" + " L".join(f"{x} {y}" for x, y in pts)
+    ROAD_PTS += [(x, y, w / 2 + 1) for x, y in sample_path(d)]
+CELL = 10
+GRID = {}
+for x, y, hw in ROAD_PTS: GRID.setdefault((int(x // CELL), int(y // CELL)), []).append((x, y, hw))
+
+def on_road(x, y, w, h, margin=1.5):
+    reach = 9 + margin
+    for cx in range(int((x - reach) // CELL), int((x + w + reach) // CELL) + 1):
+        for cy in range(int((y - reach) // CELL), int((y + h + reach) // CELL) + 1):
+            for px, py, hw in GRID.get((cx, cy), ()):
+                if x - hw - margin <= px <= x + w + hw + margin and y - hw - margin <= py <= y + h + hw + margin: return True
+    return False
+
+def on_land(x, y):
+    """Inside the island's outline, off the mountain's rock and the airport."""
+    poly, inside = ISLAND, False
+    for k in range(len(poly)):
+        (x1, y1), (x2, y2) = poly[k], poly[(k + 1) % len(poly)]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
+    return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
+
+kept = {"city-312": [], "houses-1017": [], "towers": [], "west-towers": []}
+TAKEN = {}        # footprints already used, so frontage never lands on a building
+def take(x, y, w, h):
+    for cx in range(int(x // CELL), int((x + w) // CELL) + 1):
+        for cy in range(int(y // CELL), int((y + h) // CELL) + 1): TAKEN.setdefault((cx, cy), []).append((x, y, w, h))
+def taken(x, y, w, h, gap=1.5):
+    for cx in range(int((x - gap) // CELL), int((x + w + gap) // CELL) + 1):
+        for cy in range(int((y - gap) // CELL), int((y + h + gap) // CELL) + 1):
+            for bx, by, bw, bh in TAKEN.get((cx, cy), ()):
+                if x - gap < bx + bw and bx < x + w + gap and y - gap < by + bh and by < y + h + gap: return True
+    return False
+cleared = 0
+for group, x, y, w, h, svg in BUILDINGS:
+    if on_road(x, y, w, h) or (group in ("city-312", "west-towers") and taken(x, y, w, h, 1.5)): cleared += 1; continue
+    kept[group].append(svg); take(x, y, w, h)
+
+# Frontage: walk each city street and set a building on either side every few units,
+# turned to face the street. 312 gets grey city buildings, 1017 houses, 770 the odd farmhouse.
+FRONT_STYLE = {"chicago": (["#8f9499","#a2a6aa","#7d838a","#b2b0a8"], 11, 8, 14),
+               "atlanta": (["#a8674c","#8f5e48","#b9b2a3","#7b8b9a","#c4a07a"], 8, 7, 12),
+               "geepee":  (["#b9a27e","#a8674c","#c4a07a"], 8, 7, 40)}
+frontage = []
+def frontage_along(pts, w, city):
+    colours, bw, bh, spacing = FRONT_STYLE[city]
+    walked = spacing / 2
+    for k in range(len(pts) - 1):
+        (x1, y1), (x2, y2) = pts[k], pts[k + 1]
+        seg = math.dist((x1, y1), (x2, y2))
+        if seg < 1e-6: continue
+        ux, uy = (x2 - x1) / seg, (y2 - y1) / seg; nx, ny = -uy, ux
+        ang = math.degrees(math.atan2(uy, ux))
+        t = walked
+        while t < seg:
+            mx, my = x1 + ux * t, y1 + uy * t
+            for side in (1, -1):
+                off = w / 2 + 2 + bh / 2
+                cx, cy = mx + nx * off * side, my + ny * off * side
+                r = math.hypot(bw, bh) / 2          # the turned footprint's bounding box
+                bx, by, bs = cx - r, cy - r, 2 * r
+                if not on_land(cx, cy) or on_road(bx + 2, by + 2, bs - 4, bs - 4, 0.5) or taken(bx + 1, by + 1, bs - 2, bs - 2, 0.5): continue
+                take(bx + 1, by + 1, bs - 2, bs - 2)
+                frontage.append(f'  <rect x="{f(cx - bw / 2)}" y="{f(cy - bh / 2)}" width="{bw}" height="{bh}" fill="{random.choice(colours)}" '
+                                f'transform="rotate({f(ang)} {f(cx)} {f(cy)})" filter="url(#shadow)"/>')
+            t += spacing
+        walked = t - seg
+for pts, w, kind, city in STREET_LINES:
+    if kind in ("street", "arterial") and (city != "geepee" or kind == "street"): frontage_along(pts, w, city)
+for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the island's own 1017 streets
+    d = next(d for r, n, d, k in ROADS if r == rid)
+    frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
+
+FILL = {"%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
+        "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"]), "%%frontage%%": "\n".join(frontage)}
+out = [FILL.get(line, line) for line in out]
+print(f"buildings: {len(BUILDINGS) - cleared} kept, {cleared} left out (on a road, or overlapping in a 312 block), {len(frontage)} added along streets", file=sys.stderr)
+
 SVG = "\n".join(out)
 
 LEGEND = [
@@ -425,6 +620,9 @@ LEGEND = [
  ('<path d="M4 17 H48" stroke="#6a6c6e" stroke-width="5"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="3.2"/><text x="26" y="12" font-size="7" text-anchor="middle" fill="#fff" stroke="#1d2125" stroke-width="1.4" paint-order="stroke" font-weight="700">Mill St</text>', "Named street (names show zoomed in)"),
  ('<path d="M4 17 H48" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"/>', "Backroad"),
  ('<text x="26" y="21" font-size="9" text-anchor="middle" font-style="italic" fill="#ffe9a8" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">Midway</text>', "District / park name"),
+ ('<text x="26" y="21" font-size="9" text-anchor="middle" fill="#9fe3ff" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">1017-S10</text>', "Road number: area code · H highway / A avenue / S street / B backroad · number"),
+ ('<circle cx="26" cy="19" r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/><path d="M26 3 L31 11 L21 11 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/>', "You are here (arrow: facing)"),
+ ('<g transform="translate(26 30) scale(1.2)"><path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-17" r="3.5" fill="#fff"/></g>', "Waypoint (click map to set, right-click to clear)"),
 ]
 legend_items = "\n".join(
     f'      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/>{g}</svg>{t}</li>' for g, t in LEGEND)
@@ -451,6 +649,9 @@ print(f'''<!DOCTYPE html>
   #island {{ touch-action: none; cursor: grab; }}
   #island.dragging {{ cursor: grabbing; }}
   #island .name {{ display: none; pointer-events: none; }}
+  #island .marker {{ pointer-events: none; }}
+  #island .pulse {{ animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }}
+  @keyframes pulse {{ from {{ transform: scale(.6); opacity: 1; }} to {{ transform: scale(1.6); opacity: 0; }} }}
   #island.z-main .main-name, #island.z-main .zone-name {{ display: inline; }}
   #island.z-street .street-name {{ display: inline; }}
   .zoombar {{ display: flex; gap: 6px; justify-content: center; margin: 10px 0 0; }}
@@ -530,7 +731,52 @@ window.placeOnRoad();
     const z = W / vb.w;
     svg.classList.toggle("z-main", z >= 1.6);
     svg.classList.toggle("z-street", z >= 2.6);
+    drawMarkers(z);
   }};
+
+  // ---- game coordinates <-> map. The same per-city fit the streets are drawn with
+  // (tools/gen-island-map.py), so a position lands where its street is drawn.
+  const FIT = {json.dumps(FIT_PARAMS)};
+  const BORDERS = {json.dumps(GAME["borders"])};
+  const cityAt = (y) => y >= BORDERS.chicago ? "chicago" : y >= BORDERS.geepee ? "geepee" : "atlanta";
+  window.gameToMap = (x, y) => {{
+    const f = FIT[cityAt(y)];
+    let px = f.x0 + (x - f.minX) / (f.maxX - f.minX) * (f.x1 - f.x0);
+    let py = f.y0 + (f.maxY - y) / (f.maxY - f.minY) * (f.y1 - f.y0);
+    const off = px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1;      // outside the city's drawn streets
+    px = Math.min(f.x1, Math.max(f.x0, px)); py = Math.min(f.y1, Math.max(f.y0, py));
+    return {{ x: px, y: py, off }};
+  }};
+  window.mapToGame = (px, py) => {{
+    for (const f of Object.values(FIT)) {{
+      if (px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1) continue;
+      return {{ x: f.minX + (px - f.x0) / (f.x1 - f.x0) * (f.maxX - f.minX),
+                y: f.maxY - (py - f.y0) / (f.y1 - f.y0) * (f.maxY - f.minY) }};
+    }}
+    return null;   // not over a city's streets: no game position to send
+  }};
+
+  // ---- markers. Kept a steady size on screen whatever the zoom.
+  let you = null, wp = null;
+  function drawMarkers(z) {{
+    const k = 1 / Math.sqrt(z || W / vb.w);
+    const g1 = document.getElementById("you"), g2 = document.getElementById("waypoint");
+    if (you) {{ const m = window.gameToMap(you.x, you.y);
+      g1.style.display = ""; g1.setAttribute("transform", `translate(${{m.x}} ${{m.y}}) scale(${{k}})`);
+      g1.querySelector(".heading").setAttribute("transform", `rotate(${{-(you.heading || 0)}})`);   // GTA heading: degrees anticlockwise from north
+      g1.querySelector("title").textContent = m.off ? "You are here (off the drawn streets)" : "You are here"; }}
+    else g1.style.display = "none";
+    if (wp) {{ const m = window.gameToMap(wp.x, wp.y);
+      g2.style.display = ""; g2.setAttribute("transform", `translate(${{m.x}} ${{m.y}}) scale(${{k}})`); }}
+    else g2.style.display = "none";
+  }}
+  window.mapSetPlayer = (p) => {{ you = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); }};
+  window.mapSetWaypoint = (p) => {{ wp = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); }};
+  window.mapCentreOn = (x, y) => {{ const m = window.gameToMap(x, y); vb.x = m.x - vb.w / 2; vb.y = m.y - vb.h / 2; apply(); }};
+
+  // Outside the game (this page on its own), a click just drops the pin.
+  window.onMapClick = window.onMapClick || ((pt) => {{ const g = window.mapToGame(pt.x, pt.y); if (g) window.mapSetWaypoint(g); }});
+  window.onMapRightClick = window.onMapRightClick || (() => window.mapSetWaypoint(null));
   const toSvg = (cx, cy) => {{ const r = svg.getBoundingClientRect(); return {{ x: vb.x + (cx - r.left) / r.width * vb.w, y: vb.y + (cy - r.top) / r.height * vb.h }}; }};
   const zoomAt = (k, px, py) => {{ const nw = Math.min(W, Math.max(MIN, vb.w / k)); const f = nw / vb.w;
     vb.x = px - (px - vb.x) * f; vb.y = py - (py - vb.y) * f; vb.w = nw; apply(); }};
@@ -540,11 +786,17 @@ window.placeOnRoad();
   }};
   svg.addEventListener("wheel", (e) => {{ e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, p.x, p.y); }}, {{ passive: false }});
   let drag = null;
-  svg.addEventListener("pointerdown", (e) => {{ drag = {{ x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }}; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); }});
+  svg.addEventListener("pointerdown", (e) => {{ if (e.button !== 0) return;   // left button only: right-click is "clear waypoint"
+    drag = {{ x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }}; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); }});
   svg.addEventListener("pointermove", (e) => {{ if (!drag) return; const r = svg.getBoundingClientRect();
     vb.x = drag.vx - (e.clientX - drag.x) / r.width * vb.w; vb.y = drag.vy - (e.clientY - drag.y) / r.height * vb.h; apply(); }});
-  const end = () => {{ drag = null; svg.classList.remove("dragging"); }};
+  // A press that barely moves is a click (a waypoint), not a drag.
+  const end = (e) => {{
+    if (drag && e && e.type === "pointerup" && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5 && window.onMapClick) window.onMapClick(toSvg(e.clientX, e.clientY));
+    drag = null; svg.classList.remove("dragging");
+  }};
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("contextmenu", (e) => {{ e.preventDefault(); if (window.onMapRightClick) window.onMapRightClick(); }});
   document.querySelectorAll(".zoombar [data-zoom]").forEach((b) => b.addEventListener("click", () => window.mapZoom(b.dataset.zoom)));
   document.addEventListener("keydown", (e) => {{
     if (e.key === "+" || e.key === "=") window.mapZoom("in");

@@ -63,7 +63,8 @@ Checks: `lua world/test.lua`.
 ## 2c+. The in-game map
 
 `world-map/` is its own client-only resource: copy it into `resources/` and add `ensure world-map`.
-M or `/map` opens the whole-island map; M or Esc closes it, L shows the legend. Its page is built,
+M or `/map` opens the whole-island map with a "you are here" marker; click a street to set the GPS waypoint,
+right-click to clear it. M or Esc closes it, L shows the legend. Headless checks: `lua world-map/test.lua`. Its page is built,
 not hand-edited: `python3 tools/gen-island-map.py > island-map.html` then `python3 tools/gen-world-map-nui.py`.
 
 ## 2d. Walk the map

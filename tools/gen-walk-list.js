@@ -108,7 +108,7 @@ for (const city of ORDER) {
     L.push("");
     for (const r of rs) {
         const pts = r.points.map((p) => `(${p.x}, ${p.y})`).join(" → ");
-        L.push(`${box} **${r.name}** · ${r.kind} · ${r.points.length} points: ${pts}`);
+        L.push(`${box} **${r.name}** · ${r.code} · ${r.kind} · ${r.points.length} points: ${pts}`);
     }
     L.push("");
 }

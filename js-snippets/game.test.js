@@ -470,6 +470,26 @@ test("Dockhand: open hire, 14 gold an hour on duty, console promotes", () => {
     assert.match(game.command(CONSOLE, "setjob", ["1", "dockhand", "2"]).msg, /Dockhand — Foreman/);
 });
 
+test("/streets lists every street in your city, another city, or all", () => {
+    const { game } = setup();
+    const at = (pos) => ({ id: 1, pos, now: 0 });
+    const here = game.command(at({ x: 262, y: -1240, z: 30 }), "streets").msg;
+    assert.match(here, /^1017 Atlanta: 28 roads/);
+    assert.match(here, /Highways: The Connector \(1017-H1\), The Perimeter \(1017-H2\)/);
+    assert.match(here, /Streets: .*Primrose Street \(1017-S\d+\).*Crystal Lake Drive \(1017-S\d+\)/);
+    assert.match(here, /Backroads: Kudzu Lane \(1017-B1\)/);
+    // every road has a code, and no two share one
+    const { ROADS } = require("./places");
+    const codes = ROADS.map((r) => r.code);
+    assert.equal(new Set(codes).size, ROADS.length);
+    for (const r of ROADS) assert.match(r.code, /^(312|770|1017)-[HASB]\d+$/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["312"]).msg, /^312 Chicago: 25 roads[\s\S]*Granary Row/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["GeePee"]).msg, /^770 GeePee: 12 roads/);
+    const all = game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["all"]).msg;
+    assert.match(all, /312 Chicago[\s\S]*770 GeePee[\s\S]*1017 Atlanta/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["mars"]).msg, /No city called mars/);
+});
+
 test("/mark prints a paste-ready position", () => {
     const { game } = setup();
     const out = game.command({ id: 1, pos: { x: -269.44, y: -955.31, z: 31.2 }, now: 0 }, "mark", ["Alder", "Street", "bend"]);
