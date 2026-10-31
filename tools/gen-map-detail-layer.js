@@ -125,7 +125,7 @@ function build() {
         for (const r of roads.filter((r) => !HAND_DRAWN.has(r.name)).sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind))) {
             const st = ROAD_STYLE[r.kind] || ROAD_STYLE.street;
             const pts = r.points.map((p) => `${X(p.x)},${Y(p.y)}`).join(" ");
-            const title = `<title>${esc(r.name)} (${r.kind}, ${city === "chicago" ? "312" : city === "geepee" ? "770" : "1017"})</title>`;
+            const title = `<title>${esc(r.name)} · ${r.code} (${r.kind}, ${city === "chicago" ? "312" : city === "geepee" ? "770" : "1017"})</title>`;
             if (st.casing) roadsSvg.push(`      <polyline class="gp-casing" points="${pts}" stroke="${st.casing}" stroke-width="${st.w + 2.5}"/>`);
             roadsSvg.push(`      <polyline class="gp-road gp-${r.kind}" points="${pts}" stroke="${st.fill}" stroke-width="${st.w}"${st.dash ? ` stroke-dasharray="${st.dash}"` : ""}>${title}</polyline>`);
         }

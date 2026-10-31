@@ -158,7 +158,7 @@ local function ListStreets(city)
     for _, k in ipairs(STREET_KINDS) do
         local names = {}
         for _, r in ipairs(roads) do
-            if r.kind == k[1] then names[#names + 1] = r.name end
+            if r.kind == k[1] then names[#names + 1] = r.name .. ' (' .. r.code .. ')' end
         end
         if #names > 0 then lines[#lines + 1] = k[2] .. ': ' .. table.concat(names, ', ') end
     end

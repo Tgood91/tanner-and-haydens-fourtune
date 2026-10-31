@@ -168,13 +168,15 @@ road("highfield", "Highfield Park Drive — down to the 1017 harbor", smooth([(1
 road("primrose", "Primrose Street — south off Highfield Park Drive", "M1150 737 L1150 812", "street")
 road("crystal-lake", "Crystal Lake Drive — along the south of the east houses to Primrose", "M935 812 L1150 812", "street")
 road("airport-road", "Airport Road", "M260 860 L1250 860", "street")
+FARM_NAMES = ["Orchard Track", "Millpond Lane", "Windmill Lane", "Sawmill Track", "Pasture Way", "Haybale Lane", "Ridge Track"]
 for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
-    road(f"farm-{i+1}", "Farm track", f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
-# 312 grid streets
-for gx in range(430, 1140, 34):
-    road(f"st312-v{gx}", "312 street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
-for gy in range(140, 310, 30):
-    road(f"st312-h{gy}", "312 street", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
+    road(f"farm-{i+1}", FARM_NAMES[i], f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
+# 312 grid streets: numbered west to east, lettered avenues north to south, like a real downtown
+def ordinal(n): return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+for n, gx in enumerate(range(430, 1140, 34), 1):
+    road(f"st312-v{gx}", f"{ordinal(n)} Street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
+for n, gy in enumerate(range(140, 310, 30)):
+    road(f"st312-h{gy}", f"{'ABCDEF'[n]} Avenue", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
 
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
          "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
@@ -185,7 +187,8 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 GAME = json.loads(subprocess.run(["node", "-e", """
 const p = require('./js-snippets/places.js'), c = require('./js-snippets/cities.js');
 console.log(JSON.stringify({
-  roads: p.ROADS.map(r => ({ name: r.name, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
+  roads: p.ROADS.map(r => ({ name: r.name, code: r.code, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
+  cityCode: p.CITY_CODE, kindLetter: p.KIND_LETTER,
   zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
   borders: { chicago: c.CHICAGO_STARTS_AT_Y, geepee: c.GEEPEE_STARTS_AT_Y },
 }));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
@@ -206,6 +209,28 @@ def fitter(city):
     return lambda x, y: (x0 + (x - min(xs)) * kx, y0 + (max(ys) - y) * ky)     # game y runs north
 FIT_PARAMS = {}   # the same fit, handed to the page: "you are here" and click-to-waypoint use it
 FIT = {c: fitter(c) for c in CITY_BOX}
+
+# Every road on the island gets a name and a number. Roads the game knows keep their
+# places.js number (1017-H1 ...); the map-only ones carry on each city's sequence.
+CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
+NEXT = {}
+for r in GAME["roads"]:
+    key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
+MAP_ONLY = {"inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
+            "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S")}
+def map_only_kind(rid):
+    if rid in MAP_ONLY: return MAP_ONLY[rid]
+    if rid.startswith("farm-"): return ("geepee", "B")
+    if rid.startswith("st312-"): return ("chicago", "S")
+    return None
+ROAD_CODE = {}
+for rid, name, d, k in ROADS:
+    base = name.split(" — ")[0]
+    if base in CODE_BY_NAME: ROAD_CODE[rid] = CODE_BY_NAME[base]; continue
+    city, letter = map_only_kind(rid)
+    NEXT[(city, letter)] = NEXT.get((city, letter), 0) + 1
+    ROAD_CODE[rid] = f'{GAME["cityCode"][city]}-{letter}{NEXT[(city, letter)]}'
+assert len(set(ROAD_CODE.values())) == len(ROAD_CODE), "two island roads share a number"
 STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4cf", "#5c5f63", ""),
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
 LABELS = []   # (path id, name, kind)
@@ -220,8 +245,8 @@ for kind in ["backroad", "street", "arterial", "highway"]:
         if casing: a(f'  <path d="{d}" stroke="{casing}" stroke-width="{w + 2}"/>')
         rid = f"gs-{i}"
         a(f'  <path id="{rid}" class="road gp-street {kind}" d="{d}" stroke="{fill}" stroke-width="{w}"'
-          + (f' stroke-dasharray="{dash}"' if dash else "") + f'><title>{r["name"]} ({kind}, {CODE[r["city"]]})</title></path>')
-        LABELS.append((rid, r["name"], kind))
+          + (f' stroke-dasharray="{dash}"' if dash else "") + f'><title>{r["name"]} · {r["code"]} ({kind})</title></path>')
+        LABELS.append((rid, r["name"], kind, r["code"]))
 a('</g>')
 
 a('<g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">')
@@ -232,7 +257,7 @@ for kind in ["street312", "track", "street", "arterial", "highway"]:
         clip = ' clip-path="url(#clip-island)"' if k == "street312" else ""
         if casing: a(f'  <path d="{d}" stroke="{casing}" stroke-width="{w+4}"{clip}/>')
         dash = ' stroke-dasharray="6 4"' if k == "track" else ""
-        a(f'  <path id="{rid}" class="road {k}" d="{d}" stroke="{fill}" stroke-width="{w}"{dash}{clip}><title>{name}</title></path>')
+        a(f'  <path id="{rid}" class="road {k}" d="{d}" stroke="{fill}" stroke-width="{w}"{dash}{clip}><title>{name} · {ROAD_CODE[rid]}</title></path>')
         if k == "highway": a(f'  <path d="{d}" stroke="#e8c45a" stroke-width="1" stroke-dasharray="10 8" opacity=".8"/>')
 a('</g>')
 # interchanges
@@ -376,12 +401,16 @@ for cx_, cy_ in [(520,610),(1010,700),(620,180),(380,700)]:
 # ---------------------------------------------------------------- area codes
 # ---------------------------------------------------------------- road and place names (show when zoomed in)
 a('<g id="names" font-family="Arial, Helvetica, sans-serif" font-weight="700" paint-order="stroke" stroke="#1d2125" stroke-linejoin="round">')
+def num(code, size): return f'<tspan class="road-no" font-size="{size}" fill="#9fe3ff"> {code}</tspan>'
 for rid, name, d, k in ROADS:
-    if k in ("street312", "track"): continue
     label = name.split(" — ")[0]
-    a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}</textPath></text>')
-for rid, name, kind in LABELS:
-    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}</textPath></text>')
+    if k in ("street312", "track", "street"):     # the island's smaller roads: named once zoomed in close
+        fill = "#f3e2b8" if k == "track" else "#fff"
+        a(f'  <text class="name street-name" font-size="4.6" fill="{fill}" stroke-width="1.5" dy="1.6"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 3.6)}</textPath></text>')
+    else:
+        a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 6)}</textPath></text>')
+for rid, name, kind, code in LABELS:
+    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}{num(code, 3.8)}</textPath></text>')
 for z in GAME["zones"]:
     x, y = FIT[z["city"]](z["x"], z["y"])
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
@@ -436,6 +465,7 @@ LEGEND = [
  ('<path d="M4 17 H48" stroke="#6a6c6e" stroke-width="5"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="3.2"/><text x="26" y="12" font-size="7" text-anchor="middle" fill="#fff" stroke="#1d2125" stroke-width="1.4" paint-order="stroke" font-weight="700">Mill St</text>', "Named street (names show zoomed in)"),
  ('<path d="M4 17 H48" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"/>', "Backroad"),
  ('<text x="26" y="21" font-size="9" text-anchor="middle" font-style="italic" fill="#ffe9a8" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">Midway</text>', "District / park name"),
+ ('<text x="26" y="21" font-size="9" text-anchor="middle" fill="#9fe3ff" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">1017-S10</text>', "Road number: area code · H highway / A avenue / S street / B backroad · number"),
  ('<circle cx="26" cy="19" r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/><path d="M26 3 L31 11 L21 11 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/>', "You are here (arrow: facing)"),
  ('<g transform="translate(26 30) scale(1.2)"><path d="M0 0 C-3 -7 -9 -10 -9 -17 A9 9 0 1 1 9 -17 C9 -10 3 -7 0 0 Z" fill="#a855f7" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-17" r="3.5" fill="#fff"/></g>', "Waypoint (click map to set, right-click to clear)"),
 ]

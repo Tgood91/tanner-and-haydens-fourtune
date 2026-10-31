@@ -101,7 +101,13 @@ same(W.ListFor('nowhere'), 'Nothing mapped here yet.', 'an unmapped city says so
 -- ---------- /streets ----------
 local atl = W.ListStreets('atlanta')
 ok(atl:find('^1017 Atlanta: %d+ roads') ~= nil, '/streets heads Atlanta with its code and count')
-ok(atl:find('Highways: The Connector, The Perimeter', 1, true) ~= nil, '/streets lists highways first')
+ok(atl:find('Highways: The Connector (1017-H1), The Perimeter (1017-H2)', 1, true) ~= nil, '/streets lists highways first, with their numbers')
+local codes = {}
+for _, r in ipairs(Data.roads) do
+    ok(type(r.code) == 'string' and r.code:match('^%d+%-[HASB]%d+$') ~= nil, r.name .. ' has a road number')
+    ok(not codes[r.code], r.name .. ' has a number no other road has')
+    codes[r.code] = true
+end
 ok(atl:find('Primrose Street', 1, true) ~= nil and atl:find('Crystal Lake Drive', 1, true) ~= nil, '/streets includes the new Highfield streets')
 same(W.CityNamed('312'), 'chicago', 'an area code names its city')
 same(W.CityNamed('GeePee'), 'geepee', 'a label names its city, any case')
