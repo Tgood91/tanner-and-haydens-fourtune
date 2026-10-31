@@ -470,6 +470,21 @@ test("Dockhand: open hire, 14 gold an hour on duty, console promotes", () => {
     assert.match(game.command(CONSOLE, "setjob", ["1", "dockhand", "2"]).msg, /Dockhand — Foreman/);
 });
 
+test("/streets lists every street in your city, another city, or all", () => {
+    const { game } = setup();
+    const at = (pos) => ({ id: 1, pos, now: 0 });
+    const here = game.command(at({ x: 262, y: -1240, z: 30 }), "streets").msg;
+    assert.match(here, /^1017 Atlanta: 28 roads/);
+    assert.match(here, /Highways: The Connector, The Perimeter/);
+    assert.match(here, /Streets: .*Primrose Street.*Crystal Lake Drive/);
+    assert.match(here, /Backroads: Kudzu Lane/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["312"]).msg, /^312 Chicago: 25 roads[\s\S]*Granary Row/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["GeePee"]).msg, /^770 GeePee: 12 roads/);
+    const all = game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["all"]).msg;
+    assert.match(all, /312 Chicago[\s\S]*770 GeePee[\s\S]*1017 Atlanta/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["mars"]).msg, /No city called mars/);
+});
+
 test("/mark prints a paste-ready position", () => {
     const { game } = setup();
     const out = game.command({ id: 1, pos: { x: -269.44, y: -955.31, z: 31.2 }, now: 0 }, "mark", ["Alder", "Street", "bend"]);

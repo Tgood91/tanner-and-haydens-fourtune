@@ -221,6 +221,28 @@ function updateZone(c, pos) {
     return first || !name ? null : `Entering ${name}`;
 }
 
+// /streets: every road in one city, grouped by kind, biggest first.
+const STREET_KINDS = [["highway", "Highways"], ["arterial", "Avenues"], ["street", "Streets"], ["backroad", "Backroads"]];
+const CITY_CODE = { chicago: "312", geepee: "770", atlanta: "1017" };
+function listStreets(city) {
+    const roads = ROADS.filter((r) => r.city === city);
+    const lines = [`${CITY_CODE[city]} ${cities.CITIES[city].label}: ${roads.length} roads`];
+    for (const [kind, label] of STREET_KINDS) {
+        const names = roads.filter((r) => r.kind === kind).map((r) => r.name);
+        if (names.length) lines.push(`${label}: ${names.join(", ")}`);
+    }
+    return lines.join("\n");
+}
+
+// "atlanta", "1017", "ATL" ... -> "atlanta"; null if it isn't a city.
+function cityNamed(text) {
+    const t = String(text || "").toLowerCase();
+    for (const [city, code] of Object.entries(CITY_CODE)) {
+        if (t === city || t === code || t === cities.CITIES[city].label.toLowerCase()) return city;
+    }
+    return null;
+}
+
 function listFor(city) {
     const zones = ZONES.filter((z) => z.city === city);
     const roads = ROADS.filter((r) => r.city === city);
@@ -232,4 +254,4 @@ function listFor(city) {
     ].join("\n");
 }
 
-module.exports = { ZONES, ROADS, ROAD_WIDTH, distanceToSegment, roadAt, zoneAt, placeAt, describe, label, updateZone, listFor };
+module.exports = { ZONES, ROADS, ROAD_WIDTH, listStreets, cityNamed, distanceToSegment, roadAt, zoneAt, placeAt, describe, label, updateZone, listFor };

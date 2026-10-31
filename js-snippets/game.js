@@ -560,6 +560,16 @@ function createGame(opts = {}) {
             help: "every district, park and road in this city",
             run: ({ ctx }) => reply(places.listFor(cities.cityAt(ctx.pos))),
         },
+        streets: {
+            help: "[city|all] — every street in this city (or atlanta / geepee / chicago, 1017 / 770 / 312, or all)",
+            run: ({ args, ctx }) => {
+                const want = lower(args[0]);
+                if (want === "all") return reply(["chicago", "geepee", "atlanta"].map(places.listStreets).join("\n\n"));
+                const city = want ? places.cityNamed(want) : cities.cityAt(ctx.pos);
+                if (!city) return reply(`No city called ${args[0]}. Try atlanta, geepee, chicago (or 1017, 770, 312), or all`);
+                return reply(places.listStreets(city));
+            },
+        },
         whereami: {
             help: "the road, area and city you're standing in",
             run: ({ ctx }) => reply(places.describe(ctx.pos)),
