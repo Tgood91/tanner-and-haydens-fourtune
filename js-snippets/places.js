@@ -134,6 +134,10 @@ const ROAD_DEFS = [
     { name: "Bellwood Street",         city: "atlanta",  kind: "street",    points: [{ x: -965, y: -1108 }, { x: -960, y: -980 }, { x: -905, y: -864 }] },
     { name: "Terrace Street",          city: "atlanta",  kind: "street",    points: [{ x: -1243, y: -1048 }, { x: -1120, y: -940 }, { x: -942, y: -932 }] },
     { name: "Quarry Street",           city: "atlanta",  kind: "street",    points: [{ x: 70, y: -1707 }, { x: 110, y: -1620 }, { x: 139, y: -1544 }] },
+    // Highfield, by the east towers: Primrose runs south off Highfield Park Drive and meets
+    // Crystal Lake Drive at its east end. Placeholders like the rest: walk them (docs/WALK-LIST.md).
+    { name: "Primrose Street",         city: "atlanta",  kind: "street",    points: [{ x: 262, y: -1180 }, { x: 262, y: -1300 }] },
+    { name: "Crystal Lake Drive",      city: "atlanta",  kind: "street",    points: [{ x: 120, y: -1305 }, { x: 262, y: -1300 }] },
     { name: "Dunwood Street",          city: "atlanta",  kind: "street",    points: [{ x: -620, y: -1320 }, { x: -520, y: -1380 }, { x: -420, y: -1420 }] },
 
     // ---- back roads: unlit, unsigned, useful ----

@@ -40,7 +40,7 @@ const W = 1400, H = 1750;   // the plate at full size; the SVGs use this as thei
 const HAND_DRAWN = new Set([
     "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway", "Palisade Boulevard", "The Causeway",
     "Knot Loop", "Backroads Highway", "County Line Road", "The Connector", "The Perimeter",
-    "Westside Run", "Red Clay Expressway", "Peachline Road",
+    "Westside Run", "Red Clay Expressway", "Peachline Road", "Primrose Street", "Crystal Lake Drive",
 ]);
 
 // Where each city sits on the plate, in % of width / height.

@@ -11,7 +11,7 @@
 # dockhand stations, hot dog carts (new spots every load), traffic,
 # potholes and construction, casings. Schematic, not walked coords.
 # ============================================================
-import json, math, random
+import json, math, random, pathlib, subprocess
 random.seed(1017312)
 W, H = 1500, 1000
 out = []
@@ -165,6 +165,8 @@ road("red-clay", "Red Clay Expressway", "M560 680 L960 690", "arterial")
 road("westside-run", "Westside Run", smooth([(150,700),(260,690),(390,680)], closed=False), "arterial")
 road("peachline", "Peachline Road", "M400 720 L590 735", "street")
 road("highfield", "Highfield Park Drive — down to the 1017 harbor", smooth([(1090,720),(1230,760),(1320,790)], closed=False), "street")
+road("primrose", "Primrose Street — south off Highfield Park Drive", "M1150 737 L1150 812", "street")
+road("crystal-lake", "Crystal Lake Drive — along the south of the east houses to Primrose", "M935 812 L1150 812", "street")
 road("airport-road", "Airport Road", "M260 860 L1250 860", "street")
 for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
     road(f"farm-{i+1}", "Farm track", f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
@@ -176,6 +178,49 @@ for gy in range(140, 310, 30):
 
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
          "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
+# ---------------------------------------------------------------- every gameplay street (from js-snippets/places.js)
+# Each city's named roads are fitted into its part of the island; the main roads the island
+# already draws by hand are skipped so nothing shows twice. Names on hover, and as labels once zoomed in.
+REPO = pathlib.Path(__file__).resolve().parent.parent
+GAME = json.loads(subprocess.run(["node", "-e", """
+const p = require('./js-snippets/places.js'), c = require('./js-snippets/cities.js');
+console.log(JSON.stringify({
+  roads: p.ROADS.map(r => ({ name: r.name, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
+  zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
+}));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
+ON_ISLAND = {"Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
+             "Palisade Boulevard", "The Causeway", "Backroads Highway", "Red Clay Expressway", "Westside Run", "Peachline Road"}
+CITY_BOX = {"chicago": (440, 1120, 128, 300), "geepee": (360, 1200, 320, 575), "atlanta": (300, 1260, 590, 860)}
+CODE = {"chicago": "312", "geepee": "770", "atlanta": "1017"}
+def fitter(city):
+    xs = [q[0] for r in GAME["roads"] if r["city"] == city for q in r["points"]]
+    ys = [q[1] for r in GAME["roads"] if r["city"] == city for q in r["points"]]
+    for z in GAME["zones"]:
+        if z["city"] == city: xs += [z["x"] - z["r"], z["x"] + z["r"]]; ys += [z["y"] - z["r"], z["y"] + z["r"]]
+    # Stretched to fill the city's whole area (x and y scale separately): the island is schematic,
+    # and spreading the streets out keeps every name readable when zoomed in.
+    x0, x1, y0, y1 = CITY_BOX[city]
+    kx = (x1 - x0) / (max(xs) - min(xs)); ky = (y1 - y0) / (max(ys) - min(ys))
+    return lambda x, y: (x0 + (x - min(xs)) * kx, y0 + (max(ys) - y) * ky)     # game y runs north
+FIT = {c: fitter(c) for c in CITY_BOX}
+STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4cf", "#5c5f63", ""),
+                "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
+LABELS = []   # (path id, name, kind)
+a('<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">')
+for kind in ["backroad", "street", "arterial", "highway"]:
+    for i, r in enumerate(GAME["roads"]):
+        if r["kind"] != kind or r["name"] in ON_ISLAND: continue
+        pts = [FIT[r["city"]](x, y) for x, y in r["points"]]
+        if pts[-1][0] < pts[0][0]: pts.reverse()                    # so the label reads left to right
+        d = "M" + " L".join(f"{f(x)} {f(y)}" for x, y in pts)
+        w, fill, casing, dash = STREET_STYLE[kind]
+        if casing: a(f'  <path d="{d}" stroke="{casing}" stroke-width="{w + 2}"/>')
+        rid = f"gs-{i}"
+        a(f'  <path id="{rid}" class="road gp-street {kind}" d="{d}" stroke="{fill}" stroke-width="{w}"'
+          + (f' stroke-dasharray="{dash}"' if dash else "") + f'><title>{r["name"]} ({kind}, {CODE[r["city"]]})</title></path>')
+        LABELS.append((rid, r["name"], kind))
+a('</g>')
+
 a('<g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">')
 for kind in ["street312", "track", "street", "arterial", "highway"]:
     for rid, name, d, k in ROADS:
@@ -285,7 +330,7 @@ for x, y, r, name in [(600,590,22,"Groveland Park"),(1150,690,20,"Harvest Common
 ON = []
 def on(cls, rid, t, lane=0, extra=""): ON.append((cls, rid, t, lane, extra))
 for rid, ts in {"perimeter":[.03,.12,.21,.33,.45,.58,.66,.74,.88,.95], "connector":[.08,.2,.35,.5,.62,.8,.92],
-                "inner-loop":[.1,.3,.55,.8], "county-line":[.15,.4,.7,.9], "palisade":[.3,.7], "red-clay":[.25,.8],
+                "inner-loop":[.1,.3,.55,.8], "county-line":[.15,.4,.7,.9], "primrose":[.5], "crystal-lake":[.4], "palisade":[.3,.7], "red-clay":[.25,.8],
                 "lakeshore":[.5], "backroads-hwy":[.4], "highfield":[.5], "airport-road":[.3,.7]}.items():
     for i, t in enumerate(ts):
         on("car", rid, t, 4 if i % 2 else -4, f'data-color="{random.choice(["#c0392b","#2e86c1","#f4f4f0","#1c1c1c","#e6b422","#27ae60","#8e44ad","#7f8c8d"])}"' + (' data-flip="1"' if i % 2 else ""))
@@ -326,6 +371,20 @@ for cx_, cy_ in [(520,610),(1010,700),(620,180),(380,700)]:
     a('</g>')
 
 # ---------------------------------------------------------------- area codes
+# ---------------------------------------------------------------- road and place names (show when zoomed in)
+a('<g id="names" font-family="Arial, Helvetica, sans-serif" font-weight="700" paint-order="stroke" stroke="#1d2125" stroke-linejoin="round">')
+for rid, name, d, k in ROADS:
+    if k in ("street312", "track"): continue
+    label = name.split(" — ")[0]
+    a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}</textPath></text>')
+for rid, name, kind in LABELS:
+    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}</textPath></text>')
+for z in GAME["zones"]:
+    x, y = FIT[z["city"]](z["x"], z["y"])
+    a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
+      f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
+a('</g>')
+
 for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104)]:   # 1017 sits over the east houses, off the towers
     a(f'<text x="{x}" y="{y}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="{s}" '
       f'fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">{t}</text>')
@@ -363,6 +422,9 @@ LEGEND = [
  ('<rect x="17" y="9" width="18" height="15" rx="2" fill="url(#lg-glizzy)" stroke="#5a1a1a"/><path d="M14 10 A12 7 0 0 1 38 10 Z" fill="#d62828"/>', "Glizzys-2-Go cart (moves each load)"),
  ('<rect x="14" y="5" width="24" height="24" rx="5" fill="#f7c948" stroke="#d62828" stroke-width="3"/><rect x="18" y="14" width="16" height="6" rx="3" fill="#b5452b"/>', "Glizzys-2-Go job station"),
  ('<rect x="14" y="5" width="24" height="24" rx="5" fill="#1f4e79" stroke="#f2c230" stroke-width="3"/><rect x="20" y="11" width="12" height="12" fill="#c46a2c"/>', "Dockhand job station"),
+ ('<path d="M4 17 H48" stroke="#6a6c6e" stroke-width="5"/><path d="M4 17 H48" stroke="#d9d6cc" stroke-width="3.2"/><text x="26" y="12" font-size="7" text-anchor="middle" fill="#fff" stroke="#1d2125" stroke-width="1.4" paint-order="stroke" font-weight="700">Mill St</text>', "Named street (names show zoomed in)"),
+ ('<path d="M4 17 H48" stroke="#c9b48a" stroke-width="2.2" stroke-dasharray="4 3"/>', "Backroad"),
+ ('<text x="26" y="21" font-size="9" text-anchor="middle" font-style="italic" fill="#ffe9a8" stroke="#1d2125" stroke-width="2" paint-order="stroke" font-weight="700">Midway</text>', "District / park name"),
 ]
 legend_items = "\n".join(
     f'      <li><svg class="sw" viewBox="0 0 52 34"><rect width="52" height="34" fill="#9aa36f"/>{g}</svg>{t}</li>' for g, t in LEGEND)
@@ -386,6 +448,15 @@ print(f'''<!DOCTYPE html>
   #island .road:hover {{ stroke: #fff6c2; }}
   #island .tower:hover rect:nth-child(2) {{ fill: #dfe5ea; }}
   #island .station {{ cursor: help; }}
+  #island {{ touch-action: none; cursor: grab; }}
+  #island.dragging {{ cursor: grabbing; }}
+  #island .name {{ display: none; pointer-events: none; }}
+  #island.z-main .main-name, #island.z-main .zone-name {{ display: inline; }}
+  #island.z-street .street-name {{ display: inline; }}
+  .zoombar {{ display: flex; gap: 6px; justify-content: center; margin: 10px 0 0; }}
+  .zoombar button {{ background: #13223a; color: #dfe7f2; border: 1px solid rgba(143,165,192,.35); border-radius: 8px;
+                     padding: 5px 12px; font: 600 13px Arial, sans-serif; cursor: pointer; }}
+  .zoombar button:hover {{ background: #1c3254; }}
   .legend {{ width: min(96vw, 1500px); margin-top: 18px; padding: 16px 18px 18px; background: #13223a;
              border: 1px solid rgba(143,165,192,.25); border-radius: 14px; font-size: 13px; }}
   .legend h2 {{ font-size: 13px; letter-spacing: 2px; color: #8fa5c0; margin-bottom: 12px; }}
@@ -397,10 +468,11 @@ print(f'''<!DOCTYPE html>
 <body>
   <h1>THE ISLAND — 312 TO 1017</h1>
   <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south.<br>
-  Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
+  Scroll or + / − to zoom in for every street name, drag to move around. Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
   <div class="frame">
 {SVG}
   </div>
+  <div class="zoombar"><button data-zoom="in">+ Zoom in</button><button data-zoom="out">− Zoom out</button><button data-zoom="reset">Whole island</button></div>
   <div class="legend">
     <h2>LEGEND</h2>
     <svg width="0" height="0" style="position:absolute"><defs>
@@ -414,9 +486,11 @@ print(f'''<!DOCTYPE html>
   </div>
 <script>
 // Places cars, potholes, cones, the barrier, the dig and the hot dog carts along the road paths.
-(function () {{
+// window.placeOnRoad() can be called again (the in-game map does, on every open) for new cart spots.
+window.placeOnRoad = function () {{
   const NS = "http://www.w3.org/2000/svg";
   const layer = document.getElementById("on-road");
+  layer.replaceChildren();
   const ON = {json.dumps(ON)};
   const el = (tag, attrs, parent) => {{ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; }};
   const tip = (g, text) => {{ const t = document.createElementNS(NS, "title"); t.textContent = text; g.appendChild(t); }};
@@ -440,6 +514,44 @@ print(f'''<!DOCTYPE html>
       el("rect", {{ x: -6, y: -4, width: 4, height: 9, fill: "#d62828" }}, c); el("rect", {{ x: 2, y: -4, width: 4, height: 9, fill: "#d62828" }}, c);
       el("path", {{ d: "M-8 -4 A8 5 0 0 1 8 -4 Z", fill: "#d62828", stroke: "#fff", "stroke-width": .6 }}, c); }}
   }}
+}};
+window.placeOnRoad();
+
+// Zoom and pan by moving the viewBox. Main road and district names appear from 1.6x,
+// every street's name from 2.6x. Wheel zooms on the cursor; drag pans; + - 0 on the keyboard.
+(function () {{
+  const svg = document.getElementById("island");
+  const W = {W}, H = {H}, MIN = W / 8;
+  let vb = {{ x: 0, y: 0, w: W, h: H }};
+  const apply = () => {{
+    vb.w = Math.min(W, Math.max(MIN, vb.w)); vb.h = vb.w * H / W;
+    vb.x = Math.min(W - vb.w, Math.max(0, vb.x)); vb.y = Math.min(H - vb.h, Math.max(0, vb.y));
+    svg.setAttribute("viewBox", `${{vb.x}} ${{vb.y}} ${{vb.w}} ${{vb.h}}`);
+    const z = W / vb.w;
+    svg.classList.toggle("z-main", z >= 1.6);
+    svg.classList.toggle("z-street", z >= 2.6);
+  }};
+  const toSvg = (cx, cy) => {{ const r = svg.getBoundingClientRect(); return {{ x: vb.x + (cx - r.left) / r.width * vb.w, y: vb.y + (cy - r.top) / r.height * vb.h }}; }};
+  const zoomAt = (k, px, py) => {{ const nw = Math.min(W, Math.max(MIN, vb.w / k)); const f = nw / vb.w;
+    vb.x = px - (px - vb.x) * f; vb.y = py - (py - vb.y) * f; vb.w = nw; apply(); }};
+  window.mapZoom = (how) => {{
+    if (how === "reset") {{ vb = {{ x: 0, y: 0, w: W, h: H }}; return apply(); }}
+    zoomAt(how === "in" ? 1.6 : 1 / 1.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
+  }};
+  svg.addEventListener("wheel", (e) => {{ e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, p.x, p.y); }}, {{ passive: false }});
+  let drag = null;
+  svg.addEventListener("pointerdown", (e) => {{ drag = {{ x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y }}; svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId); }});
+  svg.addEventListener("pointermove", (e) => {{ if (!drag) return; const r = svg.getBoundingClientRect();
+    vb.x = drag.vx - (e.clientX - drag.x) / r.width * vb.w; vb.y = drag.vy - (e.clientY - drag.y) / r.height * vb.h; apply(); }});
+  const end = () => {{ drag = null; svg.classList.remove("dragging"); }};
+  svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  document.querySelectorAll(".zoombar [data-zoom]").forEach((b) => b.addEventListener("click", () => window.mapZoom(b.dataset.zoom)));
+  document.addEventListener("keydown", (e) => {{
+    if (e.key === "+" || e.key === "=") window.mapZoom("in");
+    if (e.key === "-" || e.key === "_") window.mapZoom("out");
+    if (e.key === "0") window.mapZoom("reset");
+  }});
+  apply();
 }})();
 </script>
 </body>

@@ -77,9 +77,9 @@ Drive north across each line and mark where the city should change. Only the **y
 
 ## 3. Roads — `js-snippets/places.js` (`ROAD_DEFS`)
 
-63 roads. Each line shows the points it has now, in order from start to end.
+65 roads. Each line shows the points it has now, in order from start to end.
 
-### 1017 Atlanta — 26 roads
+### 1017 Atlanta — 28 roads
 
 - [ ] **The Connector** · highway · 4 points: (281, -620) → (60, -1100) → (20, -1560) → (-69, -1755)
 - [ ] **The Perimeter** · highway · 9 points: (348, -536) → (420, -900) → (300, -1400) → (0, -1800) → (-500, -1700) → (-800, -1300) → (-700, -800) → (-300, -520) → (348, -536)
@@ -102,6 +102,8 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Bellwood Street** · street · 3 points: (-965, -1108) → (-960, -980) → (-905, -864)
 - [ ] **Terrace Street** · street · 3 points: (-1243, -1048) → (-1120, -940) → (-942, -932)
 - [ ] **Quarry Street** · street · 3 points: (70, -1707) → (110, -1620) → (139, -1544)
+- [ ] **Primrose Street** · street · 2 points: (262, -1180) → (262, -1300)
+- [ ] **Crystal Lake Drive** · street · 2 points: (120, -1305) → (262, -1300)
 - [ ] **Dunwood Street** · street · 3 points: (-620, -1320) → (-520, -1380) → (-420, -1420)
 - [ ] **Kudzu Lane** · backroad · 3 points: (-678, -1463) → (-620, -1540) → (-572, -1604)
 - [ ] **Red Clay Track** · backroad · 3 points: (299, -502) → (420, -560) → (432, -643)
@@ -225,4 +227,4 @@ and they'll be added to the data so the game knows about them too.
 - [ ] The 1017 Harbor and the 312 Port: a point on each quay
 - [ ] The airport: the terminal door and the runway's two ends
 
-_Totals: 2 borders, 15 zones, 63 roads (195 points), 50 pins._
+_Totals: 2 borders, 15 zones, 65 roads (199 points), 50 pins._
