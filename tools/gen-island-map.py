@@ -165,6 +165,8 @@ road("red-clay", "Red Clay Expressway", "M560 680 L960 690", "arterial")
 road("westside-run", "Westside Run", smooth([(150,700),(260,690),(390,680)], closed=False), "arterial")
 road("peachline", "Peachline Road", "M400 720 L590 735", "street")
 road("highfield", "Highfield Park Drive — down to the 1017 harbor", smooth([(1090,720),(1230,760),(1320,790)], closed=False), "street")
+road("primrose", "Primrose Street — south off Highfield Park Drive", "M1150 737 L1150 812", "street")
+road("crystal-lake", "Crystal Lake Drive — along the south of the east houses to Primrose", "M935 812 L1150 812", "street")
 road("airport-road", "Airport Road", "M260 860 L1250 860", "street")
 for i, (x1, y1, x2, y2) in enumerate([(320,520,420,560),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
     road(f"farm-{i+1}", "Farm track", f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
@@ -186,7 +188,7 @@ console.log(JSON.stringify({
   roads: p.ROADS.map(r => ({ name: r.name, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
   zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
 }));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
-ON_ISLAND = {"The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
+ON_ISLAND = {"Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
              "Palisade Boulevard", "The Causeway", "Backroads Highway", "Red Clay Expressway", "Westside Run", "Peachline Road"}
 CITY_BOX = {"chicago": (440, 1120, 128, 300), "geepee": (360, 1200, 320, 575), "atlanta": (300, 1260, 590, 860)}
 CODE = {"chicago": "312", "geepee": "770", "atlanta": "1017"}
@@ -328,7 +330,7 @@ for x, y, r, name in [(600,590,22,"Groveland Park"),(1150,690,20,"Harvest Common
 ON = []
 def on(cls, rid, t, lane=0, extra=""): ON.append((cls, rid, t, lane, extra))
 for rid, ts in {"perimeter":[.03,.12,.21,.33,.45,.58,.66,.74,.88,.95], "connector":[.08,.2,.35,.5,.62,.8,.92],
-                "inner-loop":[.1,.3,.55,.8], "county-line":[.15,.4,.7,.9], "palisade":[.3,.7], "red-clay":[.25,.8],
+                "inner-loop":[.1,.3,.55,.8], "county-line":[.15,.4,.7,.9], "primrose":[.5], "crystal-lake":[.4], "palisade":[.3,.7], "red-clay":[.25,.8],
                 "lakeshore":[.5], "backroads-hwy":[.4], "highfield":[.5], "airport-road":[.3,.7]}.items():
     for i, t in enumerate(ts):
         on("car", rid, t, 4 if i % 2 else -4, f'data-color="{random.choice(["#c0392b","#2e86c1","#f4f4f0","#1c1c1c","#e6b422","#27ae60","#8e44ad","#7f8c8d"])}"' + (' data-flip="1"' if i % 2 else ""))

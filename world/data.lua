@@ -352,6 +352,14 @@ FourtuneWorldData = {
             { x = 110, y = -1620 },
             { x = 139, y = -1544 },
         } },
+        { name = "Primrose Street", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 262, y = -1180 },
+            { x = 262, y = -1300 },
+        } },
+        { name = "Crystal Lake Drive", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 120, y = -1305 },
+            { x = 262, y = -1300 },
+        } },
         { name = "Dunwood Street", city = "atlanta", kind = "street", width = 16, points = {
             { x = -620, y = -1320 },
             { x = -520, y = -1380 },
