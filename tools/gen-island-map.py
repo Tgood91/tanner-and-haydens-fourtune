@@ -11,7 +11,7 @@
 # dockhand stations, hot dog carts (new spots every load), traffic,
 # potholes and construction, casings. Schematic, not walked coords.
 # ============================================================
-import json, math, random, pathlib, subprocess
+import json, math, random, pathlib, re, subprocess, sys
 random.seed(1017312)
 W, H = 1500, 1000
 out = []
@@ -115,17 +115,24 @@ forest(mx-60, my+80, 90, 40, 120)
 forest(mx+90, my+70, 90, 40, 120)
 
 # ---------------------------------------------------------------- 312 city blocks (grid)
+# Buildings are collected here and drawn once every road is known (see "buildings meet
+# the streets" near the end): any that would sit on a road are left out, and the city
+# streets get buildings along both sides, facing the street.
+BUILDINGS = []    # (group, x, y, w, h, svg) — x, y, w, h is the footprint's bounding box
+def bld(group, x, y, w, h, svg): BUILDINGS.append((group, x, y, w, h, svg))
+
 a('<g id="city-312" clip-path="url(#clip-island)">')
 for gx in range(430, 1130, 34):
     for gy in range(140, 300, 30):
         if not inside_ellipse(gx, gy, 770, 165, 380, 175): continue
         if random.random() < .08: continue
         shade = random.choice(["#8f9499","#a2a6aa","#7d838a","#b2b0a8","#969a90"])
-        a(f'  <rect x="{gx+3}" y="{gy+3}" width="26" height="22" fill="#6f7479"/>')
-        for _ in range(random.randint(1, 3)):
+        a(f'  <rect x="{gx+3}" y="{gy+3}" width="26" height="22" fill="#6f7479"/>')      # the block's pavement stays
+        for _ in range(8):          # candidates: the ones clear of roads and each other are kept
             bw, bh = random.uniform(7, 14), random.uniform(6, 10)
             bx, by = gx + 4 + random.uniform(0, 26 - bw - 2), gy + 4 + random.uniform(0, 22 - bh - 2)
-            a(f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
+            bld("city-312", bx, by, bw, bh, f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
+a('%%city-312%%')          # after the pavement, so the buildings sit on top of it
 a('</g>')
 
 # ---------------------------------------------------------------- 1017 houses (east and west of downtown)
@@ -136,12 +143,14 @@ for gx in range(930, 1250, 15):
         if inside_ellipse(gx, gy, *INNER[:2], INNER[2]-25, INNER[3]-12) and gx < 1080: continue
         if random.random() < .25: continue
         col = random.choice(["#a8674c","#8f5e48","#b9b2a3","#7b8b9a","#c4a07a"])
-        a(f'  <rect x="{gx}" y="{gy}" width="9" height="8" fill="{col}" filter="url(#shadow)"/>')
+        bld("houses-1017", gx, gy, 9, 8, f'  <rect x="{gx}" y="{gy}" width="9" height="8" fill="{col}" filter="url(#shadow)"/>')
 for gx in range(330, 560, 26):
     for gy in range(620, 790, 22):
         if not inside_ellipse(gx, gy, *RING[:2], RING[2]-20, RING[3]-20): continue
         if random.random() < .3: continue
-        a(f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
+        bld("houses-1017", gx - 1, gy - 4, 20, 20, f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
+a('%%houses-1017%%')
+a('%%frontage%%')
 a('</g>')
 
 # ---------------------------------------------------------------- roads
@@ -234,6 +243,7 @@ assert len(set(ROAD_CODE.values())) == len(ROAD_CODE), "two island roads share a
 STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4cf", "#5c5f63", ""),
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
 LABELS = []   # (path id, name, kind)
+STREET_LINES = []   # (points, width, kind, city) of every game street drawn, for the buildings
 a('<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">')
 for kind in ["backroad", "street", "arterial", "highway"]:
     for i, r in enumerate(GAME["roads"]):
@@ -247,6 +257,7 @@ for kind in ["backroad", "street", "arterial", "highway"]:
         a(f'  <path id="{rid}" class="road gp-street {kind}" d="{d}" stroke="{fill}" stroke-width="{w}"'
           + (f' stroke-dasharray="{dash}"' if dash else "") + f'><title>{r["name"]} · {r["code"]} ({kind})</title></path>')
         LABELS.append((rid, r["name"], kind, r["code"]))
+        STREET_LINES.append((pts, w, kind, r["city"]))
 a('</g>')
 
 a('<g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">')
@@ -273,13 +284,15 @@ def towers(x0, x1, y0, y1, step, label):
             if random.random() < .15: continue
             fl = random.randint(25, 64)
             s = step - 6; sh = fl * .14
-            a(f'  <g class="tower"><title>{label} — {fl} floors</title>'
+            bld("towers", gx + 3, gy + 3, s, s,
+              f'  <g class="tower"><title>{label} — {fl} floors</title>'
               f'<rect x="{gx+3+sh}" y="{gy+3+sh}" width="{s}" height="{s}" fill="rgba(20,24,30,.4)"/>'
               f'<rect x="{gx+3}" y="{gy+3}" width="{s}" height="{s}" fill="#b5bcc4" stroke="#3e444b" stroke-width="1"/>'
               f'<rect x="{gx+3+s*.25}" y="{gy+3+s*.25}" width="{s*.5}" height="{s*.5}" fill="none" stroke="#7f878f" stroke-width=".8"/></g>')
 towers(650, 880, 670, 760, 22, "1017 south towers")
 towers(680, 850, 590, 640, 20, "1017 north towers")
 towers(560, 960, 140, 230, 26, "312 downtown")
+a('%%towers%%')
 a('</g>')
 
 # ---------------------------------------------------------------- the airport
@@ -429,6 +442,122 @@ for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104)]:   # 1017 sits over
     a(f'<text x="{x}" y="{y}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="{s}" '
       f'fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">{t}</text>')
 a('</svg>')
+# ---------------------------------------------------------------- buildings meet the streets
+# Every road is known now: sample each one into points (with its half-width) and keep
+# only the buildings clear of all of them. Then line the city streets with buildings.
+def sample_path(d, step=2.0):
+    """Points along an SVG path made of M, L, C, Q and full-ellipse A segments."""
+    toks = re.findall(r"[MLCQAZ]|-?\d+(?:\.\d+)?", d)
+    pts, cur, i, cmd = [], (0.0, 0.0), 0, None
+    def nums(n):
+        nonlocal i
+        v = [float(t) for t in toks[i:i + n]]; i += n; return v
+    def line(p0, p1):
+        n = max(1, int(math.dist(p0, p1) / step))
+        for k in range(n + 1): pts.append((p0[0] + (p1[0] - p0[0]) * k / n, p0[1] + (p1[1] - p0[1]) * k / n))
+    while i < len(toks):
+        if toks[i] in "MLCQAZ": cmd = toks[i]; i += 1
+        if cmd == "Z": continue
+        if cmd == "M": x, y = nums(2); cur = (x, y); pts.append(cur); cmd = "L"
+        elif cmd == "L": x, y = nums(2); line(cur, (x, y)); cur = (x, y)
+        elif cmd in "CQ":
+            v = nums(6 if cmd == "C" else 4); ctrl = [cur] + [(v[k], v[k + 1]) for k in range(0, len(v), 2)]
+            n = max(2, int(sum(math.dist(ctrl[k], ctrl[k + 1]) for k in range(len(ctrl) - 1)) / step))
+            for k in range(n + 1):
+                t = k / n; q = ctrl[:]
+                while len(q) > 1: q = [(q[m][0] + (q[m + 1][0] - q[m][0]) * t, q[m][1] + (q[m + 1][1] - q[m][1]) * t) for m in range(len(q) - 1)]
+                pts.append(q[0])
+            cur = ctrl[-1]
+        elif cmd == "A":
+            rx, ry, _, _, _, x, y = nums(7); cx, cy = (cur[0] + x) / 2, (cur[1] + y) / 2
+            n = max(8, int(math.pi * (rx + ry) / step))
+            for k in range(n + 1): pts.append((cx + rx * math.cos(2 * math.pi * k / n), cy + ry * math.sin(2 * math.pi * k / n)))
+            cur = (x, y)
+    return pts
+
+ROAD_PTS = []     # (x, y, half-width) every couple of units along every road
+for rid, name, d, k in ROADS:
+    hw = STYLE[k][0] / 2 + (2 if STYLE[k][1] else 0)
+    ROAD_PTS += [(x, y, hw) for x, y in sample_path(d)]
+for pts, w, kind, city in STREET_LINES:
+    d = "M" + " L".join(f"{x} {y}" for x, y in pts)
+    ROAD_PTS += [(x, y, w / 2 + 1) for x, y in sample_path(d)]
+CELL = 10
+GRID = {}
+for x, y, hw in ROAD_PTS: GRID.setdefault((int(x // CELL), int(y // CELL)), []).append((x, y, hw))
+
+def on_road(x, y, w, h, margin=1.5):
+    reach = 9 + margin
+    for cx in range(int((x - reach) // CELL), int((x + w + reach) // CELL) + 1):
+        for cy in range(int((y - reach) // CELL), int((y + h + reach) // CELL) + 1):
+            for px, py, hw in GRID.get((cx, cy), ()):
+                if x - hw - margin <= px <= x + w + hw + margin and y - hw - margin <= py <= y + h + hw + margin: return True
+    return False
+
+def on_land(x, y):
+    """Inside the island's outline, off the mountain's rock and the airport."""
+    poly, inside = ISLAND, False
+    for k in range(len(poly)):
+        (x1, y1), (x2, y2) = poly[k], poly[(k + 1) % len(poly)]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
+    return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
+
+kept = {"city-312": [], "houses-1017": [], "towers": []}
+TAKEN = {}        # footprints already used, so frontage never lands on a building
+def take(x, y, w, h):
+    for cx in range(int(x // CELL), int((x + w) // CELL) + 1):
+        for cy in range(int(y // CELL), int((y + h) // CELL) + 1): TAKEN.setdefault((cx, cy), []).append((x, y, w, h))
+def taken(x, y, w, h, gap=1.5):
+    for cx in range(int((x - gap) // CELL), int((x + w + gap) // CELL) + 1):
+        for cy in range(int((y - gap) // CELL), int((y + h + gap) // CELL) + 1):
+            for bx, by, bw, bh in TAKEN.get((cx, cy), ()):
+                if x - gap < bx + bw and bx < x + w + gap and y - gap < by + bh and by < y + h + gap: return True
+    return False
+cleared = 0
+for group, x, y, w, h, svg in BUILDINGS:
+    if on_road(x, y, w, h) or (group == "city-312" and taken(x, y, w, h, 1.0)): cleared += 1; continue
+    kept[group].append(svg); take(x, y, w, h)
+
+# Frontage: walk each city street and set a building on either side every few units,
+# turned to face the street. 312 gets grey city buildings, 1017 houses, 770 the odd farmhouse.
+FRONT_STYLE = {"chicago": (["#8f9499","#a2a6aa","#7d838a","#b2b0a8"], 11, 8, 14),
+               "atlanta": (["#a8674c","#8f5e48","#b9b2a3","#7b8b9a","#c4a07a"], 8, 7, 12),
+               "geepee":  (["#b9a27e","#a8674c","#c4a07a"], 8, 7, 40)}
+frontage = []
+def frontage_along(pts, w, city):
+    colours, bw, bh, spacing = FRONT_STYLE[city]
+    walked = spacing / 2
+    for k in range(len(pts) - 1):
+        (x1, y1), (x2, y2) = pts[k], pts[k + 1]
+        seg = math.dist((x1, y1), (x2, y2))
+        if seg < 1e-6: continue
+        ux, uy = (x2 - x1) / seg, (y2 - y1) / seg; nx, ny = -uy, ux
+        ang = math.degrees(math.atan2(uy, ux))
+        t = walked
+        while t < seg:
+            mx, my = x1 + ux * t, y1 + uy * t
+            for side in (1, -1):
+                off = w / 2 + 2 + bh / 2
+                cx, cy = mx + nx * off * side, my + ny * off * side
+                r = math.hypot(bw, bh) / 2          # the turned footprint's bounding box
+                bx, by, bs = cx - r, cy - r, 2 * r
+                if not on_land(cx, cy) or on_road(bx + 2, by + 2, bs - 4, bs - 4, 0.5) or taken(bx + 1, by + 1, bs - 2, bs - 2, 0.5): continue
+                take(bx + 1, by + 1, bs - 2, bs - 2)
+                frontage.append(f'  <rect x="{f(cx - bw / 2)}" y="{f(cy - bh / 2)}" width="{bw}" height="{bh}" fill="{random.choice(colours)}" '
+                                f'transform="rotate({f(ang)} {f(cx)} {f(cy)})" filter="url(#shadow)"/>')
+            t += spacing
+        walked = t - seg
+for pts, w, kind, city in STREET_LINES:
+    if kind in ("street", "arterial") and (city != "geepee" or kind == "street"): frontage_along(pts, w, city)
+for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the island's own 1017 streets
+    d = next(d for r, n, d, k in ROADS if r == rid)
+    frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
+
+FILL = {"%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
+        "%%towers%%": "\n".join(kept["towers"]), "%%frontage%%": "\n".join(frontage)}
+out = [FILL.get(line, line) for line in out]
+print(f"buildings: {len(BUILDINGS) - cleared} kept, {cleared} left out (on a road, or overlapping in a 312 block), {len(frontage)} added along streets", file=sys.stderr)
+
 SVG = "\n".join(out)
 
 LEGEND = [
