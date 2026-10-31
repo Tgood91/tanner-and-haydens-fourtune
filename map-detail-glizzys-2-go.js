@@ -20,7 +20,7 @@
         { line: [31, 61.64, 61, 64.16] },        // Red Clay Expressway
         { line: [7, 72.57, 31, 71.23] },         // Westside Run
         { line: [18, 73.25, 44, 74.35] },        // Peachline Road
-        { line: [62, 78.83, 86, 76.47] },        // Highfield Park Drive
+        { line: [62, 78.83, 75.2, 77.53] },      // Highfield Park Drive, to the shore
         { arc: [50, 81, 25.2, 12.35, 0, 360] },  // The Perimeter
         { arc: [23.5, 9, 7.05, 4.64, 0, 360] },  // Knot Loop
     ];
