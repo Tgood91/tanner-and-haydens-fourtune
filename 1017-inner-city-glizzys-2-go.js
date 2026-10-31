@@ -23,7 +23,6 @@
         [14.5, 58, 9],                                // construction, Perimeter west arc
         [50, 40.8, 6],                                // the central interchange
         [50, 78.7, 5],                                // the south stack
-        [50, 10, 11],                                 // under the 1017 label
     ];
 
     function at(road, t) {                    // t: 0..1 along the road

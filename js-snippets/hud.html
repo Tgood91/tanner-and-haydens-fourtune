@@ -280,7 +280,9 @@ html, body {
 }
 
 /* ========================================================
-   ZONE TRANSITION  —  brief centre flash on city change
+   ZONE TRANSITION  —  on city change the old area code
+   floats up and away ("Now leaving 1017"), then the new
+   one floats in ("Now entering 312")
    ======================================================== */
 #zone-flash {
   position: fixed;
@@ -290,10 +292,14 @@ html, body {
   justify-content: center;
   pointer-events: none;
   opacity: 0;
-  transition: opacity .2s;
 }
-#zone-flash.show { opacity: 1; }
-#zone-flash.fade { opacity: 0; transition: opacity 1.2s ease-out; }
+#zone-flash.float { animation: zone-float var(--zone-ms, 2400ms) ease-out forwards; }
+@keyframes zone-float {
+  0%   { opacity: 0; transform: translateY(28px); }
+  18%  { opacity: 1; transform: translateY(0); }
+  70%  { opacity: 1; transform: translateY(-8px); }
+  100% { opacity: 0; transform: translateY(-36px); }
+}
 
 .zone-inner {
   text-align: center;
@@ -404,7 +410,7 @@ html, body {
   <!-- zone-transition flash -->
   <div id="zone-flash">
     <div class="zone-inner">
-      <div class="zone-entering">Now entering</div>
+      <div class="zone-entering" id="flash-kind">Now entering</div>
       <div class="zone-code" id="flash-code" data-city="atlanta">1017</div>
       <div class="zone-name" id="flash-name">Atlanta</div>
     </div>
@@ -418,7 +424,11 @@ html, body {
 
   const CITY_NAMES = { chicago: 'Chicago', atlanta: 'Atlanta', geepee: 'GeePee' };
 
+  const LEAVE_MS = 1600;   // old code floats away
+  const ENTER_MS = 2600;   // then the new one floats in
+
   let lastCity = null;
+  let lastCode = null;
   let flashTimer = null;
 
   function setBar(barEl, valEl, value, kind) {
@@ -435,19 +445,22 @@ html, body {
     barEl.className = 'veh-bar ' + kind + ' ' + (p <= 10 ? 'level-critical' : p <= 25 ? 'level-low' : '');
   }
 
-  function flashZone(city, code) {
+  function floatCode(kind, city, code, ms) {
     const el = $('zone-flash');
-    const codeEl = $('flash-code');
-    const nameEl = $('flash-name');
-    codeEl.textContent = code;
-    codeEl.dataset.city = city;
-    nameEl.textContent = CITY_NAMES[city] || city;
-    el.className = 'show';
+    $('flash-kind').textContent = kind;
+    $('flash-code').textContent = code;
+    $('flash-code').dataset.city = city;
+    $('flash-name').textContent = CITY_NAMES[city] || city;
+    el.style.setProperty('--zone-ms', ms + 'ms');
+    el.classList.remove('float');
+    void el.offsetWidth;          // restart the animation
+    el.classList.add('float');
+  }
+
+  function flashZone(fromCity, fromCode, toCity, toCode) {
     if (flashTimer) clearTimeout(flashTimer);
-    flashTimer = setTimeout(() => {
-      el.className = 'fade';
-      flashTimer = setTimeout(() => { el.className = ''; }, 1200);
-    }, 1600);
+    floatCode('Now leaving', fromCity, fromCode, LEAVE_MS);
+    flashTimer = setTimeout(() => floatCode('Now entering', toCity, toCode, ENTER_MS), LEAVE_MS);
   }
 
   function applyHud(p) {
@@ -458,8 +471,10 @@ html, body {
     $('city-code').textContent = p.cityCode || '1017';
 
     // zone transition
-    if (lastCity && lastCity !== p.city) flashZone(p.city, p.cityCode || p.city);
+    const code = p.cityCode || p.city;
+    if (lastCity && lastCity !== p.city) flashZone(lastCity, lastCode, p.city, code);
     lastCity = p.city;
+    lastCode = code;
 
     // world
     const parts = [];
