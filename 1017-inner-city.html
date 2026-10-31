@@ -33,7 +33,7 @@
   p.note { color: #8fa5c0; font-size: 13px; margin-bottom: 16px; }
 
   /* ---- the plate: open water ---- */
-  .map { position: relative; width: min(92vw, 640px); aspect-ratio: 6 / 5;
+  .map { position: relative; width: min(96vw, 1400px); aspect-ratio: 6 / 5;   /* large: room for detail; shrinks to fit small screens */
          background: linear-gradient(180deg, #1c4f78, #12395c);
          border-radius: 18px; overflow: hidden;
          box-shadow: 0 18px 50px rgba(0,0,0,.55); }
@@ -120,19 +120,19 @@
   .bridge    { left: 47.6%; top: 91%; width: 4.8%; height: 9%; z-index: 2; background: #7d7f80; border-radius: 0; }  /* deck rails */
 
   /* the loops */
-  .perimeter  { left: 9%;  top: 9%;  width: 82%; height: 70%; border-width: 8px; }   /* The Perimeter */
-  .inner-loop { left: 14%; top: 40%; width: 68%; height: 39%; border-width: 6px; }   /* The Inner Loop — shares the south run */
+  .perimeter  { left: 9%;  top: 9%;  width: 82%; height: 70%; border-width: clamp(6px, .9vw, 16px); }   /* The Perimeter */
+  .inner-loop { left: 14%; top: 40%; width: 68%; height: 39%; border-width: clamp(5px, .7vw, 12px); }   /* The Inner Loop — shares the south run */
 
   /* the flyover: off the hill, curls down into the interchange */
   .flyover { position: absolute; left: 32%; top: 11.5%; width: 17.5%; height: 30.5%; z-index: 3;
-             border: 7px solid #d9d9d4; border-top: none; border-right: none;
+             border: clamp(5px, .8vw, 14px) solid #d9d9d4; border-top: none; border-right: none;
              border-bottom-left-radius: 100% 100%;
              filter: drop-shadow(0 0 1px rgba(60,60,60,.6)); }
   .interchange { position: absolute; left: 46%; top: 36%; width: 8%; aspect-ratio: 1; z-index: 4;
-                 border: 4px solid #d9d9d4; border-radius: 50%;
+                 border: clamp(3px, .45vw, 8px) solid #d9d9d4; border-radius: 50%;
                  box-shadow: 0 0 0 1px rgba(60,60,60,.45), inset 0 0 0 1px rgba(60,60,60,.45); }  /* the central stack */
   .south-stack { position: absolute; left: 46.5%; top: 74.5%; width: 7%; aspect-ratio: 1; z-index: 4;
-                 border: 4px solid #d9d9d4; border-radius: 50%;
+                 border: clamp(3px, .45vw, 8px) solid #d9d9d4; border-radius: 50%;
                  box-shadow: 0 0 0 1px rgba(60,60,60,.45); }        /* spine × the loops' south run */
 
   /* the east grid — apartment streets, tilted with the blocks */
@@ -146,9 +146,9 @@
   .grid-7 { left: 72%; top: 52%; width: .6%; height: 16%; transform: rotate(12deg); }
   /* the hill — switchback streets */
   .hill-1 { position: absolute; left: 6%;  top: 22%; width: 18%; height: 10%; z-index: 1;
-            border: 3px solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
+            border: clamp(2px, .3vw, 5px) solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
   .hill-2 { position: absolute; left: 10%; top: 31%; width: 16%; height: 9%;  z-index: 1;
-            border: 3px solid #cfccc2; border-top: none; border-radius: 0 0 50% 50%; }
+            border: clamp(2px, .3vw, 5px) solid #cfccc2; border-top: none; border-radius: 0 0 50% 50%; }
   /* downtown cross streets */
   .dt-1 { left: 38%; top: 12%; width: 22%; }
   .dt-2 { left: 36%; top: 60%; width: 24%; }
@@ -178,7 +178,7 @@
   .sw-4 { left: 30%; top: 57%; width: .6%; height: 16%; }
   /* the hill keeps its switchbacks — no grid on the mountain, just one more bend down to the Perimeter */
   .hill-3 { position: absolute; left: 8%; top: 39%; width: 14%; height: 8%; z-index: 1;
-            border: 3px solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
+            border: clamp(2px, .3vw, 5px) solid #cfccc2; border-bottom: none; border-radius: 50% 50% 0 0; }
 
   /* ---- the airport: apron, runway, terminals ---- */
   .apron { position: absolute; left: 6%; top: 80%; width: 76%; height: 12%;
@@ -201,9 +201,68 @@
   .pier-w  { left: 0;   top: 60%; width: 9%;  height: 9%; }      /* the west harbor */
   .pier-se { left: 84%; top: 70%; width: 12%; height: 10%; transform: rotate(-20deg); }
 
+  /* ============================================================
+     DOCKS + SHIPS — the four yards become working docks: piers,
+     gantry cranes, container stacks, ships alongside, more at sea.
+     ============================================================ */
+  .pier-deck { position: absolute; z-index: 1; background: #8a7d6b; border: 1px solid rgba(40,32,24,.5);
+               border-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,.35); }
+  .containers { position: absolute; z-index: 2; border-radius: 1px; opacity: .95;
+                background: repeating-linear-gradient(90deg, #c0392b 0 9%, #2e86c1 9% 18%, #e67e22 18% 27%,
+                            #27ae60 27% 36%, #8e44ad 36% 45%, #d4ac0d 45% 54%); }
+  .containers.v { background: repeating-linear-gradient(0deg, #c0392b 0 12%, #2e86c1 12% 24%, #e67e22 24% 36%,
+                            #27ae60 36% 48%, #8e44ad 48% 60%); }
+  .crane { position: absolute; z-index: 3; width: 1.4%; aspect-ratio: 1; background: #f2c230;
+           border: 1px solid #7a5d0a; border-radius: 2px; }
+  .crane::after { content: ""; position: absolute; left: 40%; top: -170%; width: 20%; height: 270%;
+                  background: #f2c230; border: 1px solid #7a5d0a; }                   /* boom north */
+  .crane.east::after { left: 100%; top: 40%; width: 270%; height: 20%; }
+  .crane.west::after { left: auto; right: 100%; top: 40%; width: 270%; height: 20%; }
+  .crane.south::after { top: 100%; }
+  .ship { position: absolute; z-index: 2; background: linear-gradient(180deg, #3b4652, #232a33);
+          clip-path: polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%);
+          box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
+  .ship::after { content: ""; position: absolute; left: 8%; right: 24%; top: 22%; bottom: 22%;
+                 background: repeating-linear-gradient(90deg, #c0392b 0 12%, #2e86c1 12% 24%, #e67e22 24% 36%, #27ae60 36% 48%); }
+  .ship.tanker::after { background: #b03a2e; border-radius: 40%; left: 10%; right: 26%; }
+  .ship.ferry { background: linear-gradient(180deg, #f4f4f0, #c9ccd0); }
+  .ship.ferry::after { background: repeating-linear-gradient(90deg, #2b3a4a 0 6%, transparent 6% 12%); top: 35%; bottom: 35%; }
+  .ship.boat { background: linear-gradient(180deg, #f1efe6, #cfcabb); }
+  .ship.boat::after { background: #2f6f8f; left: 30%; right: 34%; top: 28%; bottom: 28%; border-radius: 2px; }
+  .wake { position: absolute; z-index: 1; height: .6%; border-radius: 50%;
+          background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.55)); }
+
+  /* south-east harbor — the big one: three piers off the bay shore */
+  .pier-se-1 { left: 82.6%; top: 81.6%; width: 14%; height: 1.4%; }
+  .pier-se-2 { left: 82.4%; top: 85.6%; width: 14%; height: 1.4%; }
+  .pier-se-3 { left: 82.2%; top: 89.6%; width: 14%; height: 1.4%; }
+  .crane-se-1 { left: 82.4%; top: 83.3%; }
+  .crane-se-2 { left: 82.2%; top: 87.3%; }
+  .containers-se { left: 85.5%; top: 72%; width: 8%; height: 4%; transform: rotate(-20deg); }   /* stacked on the yard */
+  .ship-se-1 { left: 85%;   top: 83.3%; width: 10%; height: 1.9%; }                          /* container ship */
+  .ship-se-2 { left: 85%;   top: 87.3%; width: 9%;  height: 1.9%; }                          /* tanker */
+  /* north-east — ship alongside the yard, crane over it */
+  .crane-ne { left: 89%; top: 3.9%; }
+  .containers-ne { left: 91%; top: 3.8%; width: 8%; height: 2.4%; }
+  .ship-ne { left: 87%; top: .4%; width: 11%; height: 2.2%; transform: rotate(180deg); }      /* bow west */
+  /* north-west — a work boat at the yard */
+  .containers-nw { left: 1%; top: 2.8%; width: 7%; height: 2.4%; }
+  .crane-nw { left: 9%; top: 3%; }
+  .ship-nw { left: .6%; top: 7%; width: 5.4%; height: 1.6%; }
+  /* west harbor — crane on the yard, ship moored below it */
+  .containers-w { left: .8%; top: 61.5%; width: 3.2%; height: 6%; }
+  .crane-w { left: 5.4%; top: 63.5%; }
+  .ship-w { left: .6%; top: 70.4%; width: 8.5%; height: 2%; }
+  /* at sea */
+  .ship-sea-1 { left: 22%; top: 95.2%; width: 11%; height: 2.2%; }                            /* heading east past the airport */
+  .wake-sea-1 { left: 15%; top: 95.9%; width: 7.5%; }
+  .ship-sea-2 { left: 64%; top: 96%;   width: 9%;  height: 2%; transform: rotate(180deg); }    /* tanker heading west */
+  .ship-sea-3 { left: 5%;  top: 84%;   width: 3.4%; height: 1.4%; transform: rotate(-30deg); }  /* fishing boat in the south-west bay */
+  .ship-sea-4 { left: 92%; top: 62%;   width: 6.5%; height: 1.7%; transform: rotate(-60deg); } /* ferry out of the east bay */
+
   /* ---- the marking: area code ---- */
   .code { position: absolute; right: 2.5%; bottom: 2%; z-index: 5;                 /* out in the bay, off the towers */
-          font-weight: 900; color: #fff; letter-spacing: 1px; font-size: clamp(28px, 8vw, 54px);
+          font-weight: 900; color: #fff; letter-spacing: 1px; font-size: clamp(28px, 5vw, 110px);
           -webkit-text-stroke: 2px #111; text-shadow: 0 3px 0 #111, 0 6px 14px rgba(0,0,0,.5); }
 </style>
 <link rel="stylesheet" href="1017-inner-city-wear-and-tear.css">
@@ -231,6 +290,30 @@
     <div class="pier pier-ne"></div>
     <div class="pier pier-w"></div>
     <div class="pier pier-se"></div>
+
+    <!-- docks + ships -->
+    <div class="pier-deck pier-se-1"></div>
+    <div class="pier-deck pier-se-2"></div>
+    <div class="pier-deck pier-se-3"></div>
+    <div class="containers containers-se"></div>
+    <div class="crane east crane-se-1"></div>
+    <div class="crane east crane-se-2"></div>
+    <div class="ship ship-se-1"></div>
+    <div class="ship tanker ship-se-2"></div>
+    <div class="containers containers-ne"></div>
+    <div class="crane crane-ne"></div>
+    <div class="ship ship-ne"></div>
+    <div class="containers containers-nw"></div>
+    <div class="crane south crane-nw"></div>
+    <div class="ship boat ship-nw"></div>
+    <div class="containers v containers-w"></div>
+    <div class="crane south crane-w"></div>
+    <div class="ship ship-w"></div>
+    <div class="wake wake-sea-1"></div>
+    <div class="ship ship-sea-1"></div>
+    <div class="ship tanker ship-sea-2"></div>
+    <div class="ship boat ship-sea-3"></div>
+    <div class="ship ferry ship-sea-4"></div>
 
     <!-- streets -->
     <div class="street grid-1"></div>
