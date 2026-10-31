@@ -92,9 +92,9 @@
   /* ============================================================
      ROADS — one base class, then each road
      ============================================================ */
-  .road { position: absolute; background: #d9d9d4; border-radius: 6px;
+  .road { position: absolute; z-index: 1; background: #d9d9d4; border-radius: 6px;
           box-shadow: 0 0 0 1px rgba(60,60,60,.35); }
-  .ring { position: absolute; border: solid #d9d9d4; border-radius: 50%;
+  .ring { position: absolute; z-index: 1; border: solid #d9d9d4; border-radius: 50%;
           box-shadow: 0 0 0 1px rgba(60,60,60,.35), inset 0 0 0 1px rgba(60,60,60,.35); }
 
   /* the spine + the country */
@@ -128,7 +128,7 @@
 
   /* ---- downtown cores ---- */
   .core { position: absolute; background: #6c7177; border-radius: 4px; opacity: .85; }   /* downtown pavement */
-  .core-north { left: 26%; top: 9%; width: 17%; height: 12%; }
+  .core-north { left: 22.6%; top: 8.2%; width: 34.4%; height: 15%; }   /* grown to hold the extra towers */
   .core-south { left: 35%; bottom: 10%; width: 20%; height: 13%; }
 
   /* ---- downtown towers: every one 25 floors or more. --floors sets the height:
@@ -144,6 +144,20 @@
   .highrise-n3 { left: 33.12%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 27; }
   .highrise-n4 { left: 36.48%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 34; }
   .highrise-n5 { left: 39.84%; top: 15.8%; width: 2.86%; height: 4.8%; --floors: 45; }
+  .highrise-n6 { left: 31.8%; top: 8.6%; width: 3.2%; height: 3.38%; --floors: 58; }
+  .highrise-n7 { left: 35.5%; top: 8.6%; width: 3.2%; height: 3.85%; --floors: 46; }
+  .highrise-n8 { left: 39.2%; top: 8.6%; width: 3.2%; height: 4.32%; --floors: 52; }
+  .highrise-n9 { left: 42.9%; top: 8.6%; width: 3.4%; height: 4.82%; --floors: 45; }
+  .highrise-n10 { left: 50.4%; top: 8.6%; width: 2.8%; height: 3.0%; --floors: 63; }
+  .highrise-n11 { left: 53.7%; top: 8.6%; width: 2.8%; height: 3.0%; --floors: 52; }
+  .highrise-n12 { left: 50.4%; top: 18.2%; width: 2.8%; height: 4.4%; --floors: 60; }
+  .highrise-n13 { left: 53.7%; top: 18.2%; width: 2.8%; height: 4.4%; --floors: 61; }
+  .highrise-n14 { left: 23%; top: 15.8%; width: 2.9%; height: 6.6%; --floors: 54; }
+  .highrise-n15 { left: 26.4%; top: 21.1%; width: 2.86%; height: 1.5%; --floors: 30; }
+  .highrise-n16 { left: 29.76%; top: 21.1%; width: 2.86%; height: 1.5%; --floors: 46; }
+  .highrise-n17 { left: 33.12%; top: 21.1%; width: 2.86%; height: 1.5%; --floors: 25; }
+  .highrise-n18 { left: 36.48%; top: 21.1%; width: 2.86%; height: 1.5%; --floors: 43; }
+  .highrise-n19 { left: 39.84%; top: 21.1%; width: 2.86%; height: 1.5%; --floors: 29; }
   .highrise-s1 { left: 36.2%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 39; }
   .highrise-s2 { left: 39.86%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 37; }
   .highrise-s3 { left: 43.52%; top: 78.2%; width: 3.16%; height: 4.7%; --floors: 54; }
@@ -224,6 +238,20 @@
     <div class="highrise highrise-n3" title="312 downtown — 27 floors"></div>
     <div class="highrise highrise-n4" title="312 downtown — 34 floors"></div>
     <div class="highrise highrise-n5" title="312 downtown — 45 floors"></div>
+    <div class="highrise highrise-n6" title="312 downtown — 58 floors"></div>
+    <div class="highrise highrise-n7" title="312 downtown — 46 floors"></div>
+    <div class="highrise highrise-n8" title="312 downtown — 52 floors"></div>
+    <div class="highrise highrise-n9" title="312 downtown — 45 floors"></div>
+    <div class="highrise highrise-n10" title="312 downtown — 63 floors"></div>
+    <div class="highrise highrise-n11" title="312 downtown — 52 floors"></div>
+    <div class="highrise highrise-n12" title="312 downtown — 60 floors"></div>
+    <div class="highrise highrise-n13" title="312 downtown — 61 floors"></div>
+    <div class="highrise highrise-n14" title="312 downtown — 54 floors"></div>
+    <div class="highrise highrise-n15" title="312 downtown — 30 floors"></div>
+    <div class="highrise highrise-n16" title="312 downtown — 46 floors"></div>
+    <div class="highrise highrise-n17" title="312 downtown — 25 floors"></div>
+    <div class="highrise highrise-n18" title="312 downtown — 43 floors"></div>
+    <div class="highrise highrise-n19" title="312 downtown — 29 floors"></div>
     <div class="highrise highrise-s1" title="1017 downtown — 39 floors"></div>
     <div class="highrise highrise-s2" title="1017 downtown — 37 floors"></div>
     <div class="highrise highrise-s3" title="1017 downtown — 54 floors"></div>
