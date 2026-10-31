@@ -254,7 +254,7 @@
   .ship-sea-1  { left: 87%;   top: 67%;   width: 10%; height: 2.2%; transform: rotate(-24deg); }  /* heading in */
   .wake-sea-1  { left: 80.5%; top: 70.3%; width: 7%; transform: rotate(-24deg) scaleX(-1); }
   .ship-sea-2  { left: 3%;    top: 36%;   width: 9%;  height: 2%;   transform: rotate(78deg); }   /* off the west coast */
-  .ship-sea-3  { left: 86%;   top: 95.5%; width: 8%;  height: 1.8%; transform: rotate(180deg); }  /* leaving the bay */
+  .ship-sea-3  { left: 5%;    top: 88%;   width: 8%;  height: 1.8%; transform: rotate(180deg); }  /* off the south-west coast */
 
   /* ---- the dockhand job station: where you /apply dockhand ---- */
   .dockhand-station { position: absolute; left: 74.3%; top: 93.2%; width: 3.6%; aspect-ratio: 1; z-index: 6;
@@ -335,6 +335,21 @@
            filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
   .plane-1 { left: 28%; top: 94.2%; transform: rotate(90deg); }    /* rolling down the runway */
   .plane-2 { left: 70%; top: 94.2%; transform: rotate(-90deg); }   /* just landed */
+  /* terminals: an apron built out over the water at each end of the runway */
+  .apron { position: absolute; top: 92.4%; height: 6.4%; z-index: 1; background: #b9b6ad;
+           border: 1px solid rgba(40,40,40,.4); border-radius: 3px; }
+  .apron-w { left: 4.5%;  width: 13.8%; }
+  .apron-e { left: 81.7%; width: 13.8%; }
+  .terminal { position: absolute; top: 93%; height: 2.2%; width: 10%; z-index: 2; border-radius: 2px;
+              background: linear-gradient(180deg, #5d646c, #474d54); border: 1px solid rgba(25,28,32,.6); }
+  .terminal-w { left: 6.4%; }
+  .terminal-e { left: 83.6%; }
+  .control-tower { position: absolute; left: 16.6%; top: 93.1%; width: 1.4%; aspect-ratio: 1; z-index: 2;
+                   border-radius: 50%; background: #e8e6df; border: 2px solid #5b6066; }
+  .plane-3 { left: 7.6%;  top: 95.3%; width: 2.4%; transform: rotate(180deg); }   /* at a west gate */
+  .plane-4 { left: 11.6%; top: 95.3%; width: 2.4%; transform: rotate(180deg); }
+  .plane-5 { left: 86%;   top: 95.3%; width: 2.4%; transform: rotate(180deg); }   /* at an east gate */
+  .plane-6 { left: 90%;   top: 95.3%; width: 2.4%; transform: rotate(180deg); }
 
   /* ============================================================
      LEGEND — under the map. Each swatch reuses the map's own
@@ -419,6 +434,15 @@
     <div class="airport"></div>
     <div class="plane plane-1"></div>
     <div class="plane plane-2"></div>
+    <div class="apron apron-w"></div>
+    <div class="apron apron-e"></div>
+    <div class="terminal terminal-w"></div>
+    <div class="terminal terminal-e"></div>
+    <div class="control-tower"></div>
+    <div class="plane plane-3"></div>
+    <div class="plane plane-4"></div>
+    <div class="plane plane-5"></div>
+    <div class="plane plane-6"></div>
     <div class="sailboat sailboat-1"></div>
     <div class="sailboat sailboat-2"></div>
     <div class="sailboat sailboat-3"></div>
@@ -636,6 +660,7 @@
       <li><span class="sw water"><div class="ship ferry lg" style="width:40px;height:10px"></div></span>Ferry</li>
       <li><span class="sw water"><div class="sailboat lg" style="width:12px"></div></span>Sailboat</li>
       <li><span class="sw"><div class="airport lg" style="width:48px;height:14px"></div></span>Runway</li>
+      <li><span class="sw"><div class="apron lg" style="width:48px;height:30px"></div><div class="terminal lg" style="width:36px;height:12px"></div></span>Terminal</li>
       <li><span class="sw"><div class="plane lg" style="width:26px"></div></span>Plane</li>
     </ul>
   </div>
