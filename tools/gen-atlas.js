@@ -18,7 +18,12 @@
 //               job stations, supply spots, the jail, and the city borders
 //   The island  the custom landmass: its coastline (tools/gen-island-map.py),
 //               every street (street-renders/streets.json) and every building
-//               (island-buildings/buildings.json)
+//               (island-buildings/buildings.json), over the island concept art
+//               itself (island-map.html: ships, docks, farms, woods, towers)
+//
+// The game world also gets a Scenery layer: generated town streets, buildings,
+// fields, woods, roads between the cities and ships offshore. It is illustration
+// only, drawn where nothing has been coded yet, and can be switched off.
 //
 // Plain Node, no installs. Without git it just reads the working tree.
 // ============================================================
@@ -188,7 +193,21 @@ function island() {
     const streetsRaw = read("street-renders/streets.json");
     const bldgRaw = read("island-buildings/buildings.json");
     const roadsIdx = read("island-roads/xml/roads-index.json");
-    if (!py && !streetsRaw && !bldgRaw) return null;
+    const artHtml = read("island-map.html");
+    if (!py && !streetsRaw && !bldgRaw && !artHtml) return null;
+
+    // The island concept map itself (ships, docks, farms, woods, towers, traffic), drawn
+    // on the same 1500 x 1000 units, embedded whole as the island's ground layer
+    let artwork = null;
+    if (artHtml) {
+        const a = artHtml.indexOf('<svg id="island"'), b = artHtml.indexOf("</svg>", a);
+        if (a >= 0 && b > a) {
+            let svg = artHtml.slice(a, b + 6).replace(/^<svg id="island"/, '<svg width="1500" height="1000"');
+            // its page hides labels and markers with CSS; carry just that across
+            svg = svg.replace(/(<svg[^>]*>)/, "$1<style>.name,.marker,.pulse{display:none}</style>");
+            artwork = "data:image/svg+xml;base64," + Buffer.from(svg).toString("base64");
+        }
+    }
 
     let outline = null, mountain = null;
     if (py) {
@@ -211,7 +230,7 @@ function island() {
         const b = JSON.parse(bldgRaw);
         buildings = b.buildings.map((x) => ({ type: x.type, name: x.label, floors: x.floors || null, height: x.top != null && x.base != null ? Math.round(x.top - x.base) : null, pts: x.footprint.map(toMap), world: x.footprint[0] }));
     }
-    return { outline, mountain, streets, buildings, cfg };
+    return { outline, mountain, streets, buildings, cfg, artwork };
 }
 
 // ------------------------------------------------------------ build

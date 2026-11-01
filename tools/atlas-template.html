@@ -22,6 +22,10 @@
   --bldg: #8d8f96;
   --tower: #5e6f8e;
   --select: #1667c9;
+  --field: #d9dcc0;
+  --tree: #8fae7a;
+  --block: #c9cbc4;
+  --hull: #4b5a66;
   --font-display: "Overpass", "Highway Gothic", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Overpass", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Overpass Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -31,13 +35,13 @@
   :root:not([data-theme="light"]) {
     --sea: #0d1b24; --land: #1b2629; --paper: #121a1f; --ink: #e6ebe8; --muted: #95a3a8; --line: #2c3a40;
     --accent: #f07a3d; --hwy: #f07a3d; --art: #e8b04a; --street: #9aa6ab; --back: #b39a76;
-    --zone: #6cc0aa; --park: #79c47c; --bldg: #6c7178; --tower: #8ea3cb; --select: #5fa8ff; color-scheme: dark;
+    --zone: #6cc0aa; --park: #79c47c; --bldg: #6c7178; --tower: #8ea3cb; --select: #5fa8ff; --field: #263326; --tree: #35523a; --block: #2e3a3e; --hull: #9fb0bc; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --sea: #0d1b24; --land: #1b2629; --paper: #121a1f; --ink: #e6ebe8; --muted: #95a3a8; --line: #2c3a40;
   --accent: #f07a3d; --hwy: #f07a3d; --art: #e8b04a; --street: #9aa6ab; --back: #b39a76;
-  --zone: #6cc0aa; --park: #79c47c; --bldg: #6c7178; --tower: #8ea3cb; --select: #5fa8ff; color-scheme: dark;
+  --zone: #6cc0aa; --park: #79c47c; --bldg: #6c7178; --tower: #8ea3cb; --select: #5fa8ff; --field: #263326; --tree: #35523a; --block: #2e3a3e; --hull: #9fb0bc; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -118,6 +122,14 @@ aside h2 { margin: 0 0 8px; font: 600 11px var(--font-body); letter-spacing: .08
 .m-bldg { fill: var(--bldg); fill-opacity: .75; stroke: var(--ink); stroke-opacity: .35; stroke-width: .6; vector-effect: non-scaling-stroke; cursor: pointer; }
 .m-bldg.tall { fill: var(--tower); }
 .m-bldg.sel { stroke: var(--select); stroke-width: 2.5; stroke-opacity: 1; }
+.m-scen-st { stroke: var(--street); stroke-opacity: .35; stroke-width: .8; vector-effect: non-scaling-stroke; fill: none; }
+.m-scen-rd { stroke: var(--art); stroke-opacity: .55; stroke-width: 2; vector-effect: non-scaling-stroke; fill: none; stroke-linecap: round; }
+.m-scen-b { fill: var(--block); }
+.m-scen-f { fill: var(--field); }
+.m-scen-t { fill: var(--tree); fill-opacity: .8; }
+.m-ship { fill: var(--hull); }
+.m-wake { stroke: var(--paper); stroke-opacity: .6; stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; }
+.m-scenery { pointer-events: none; }
 .m-peak { fill: var(--muted); fill-opacity: .18; }
 
 @media (max-width: 760px) {
@@ -233,6 +245,8 @@ const DATA = /*__DATA__*/null;
     for (let gx = Math.ceil(v.bounds.x / 1000) * 1000; gx < v.bounds.x + v.bounds.w; gx += 1000) el("line", { class: "m-grid", x1: gx, x2: gx, y1: v.bounds.y, y2: v.bounds.y + v.bounds.h }, grid);
     for (let gy = Math.ceil(v.bounds.y / 1000) * 1000; gy < v.bounds.y + v.bounds.h; gy += 1000) el("line", { class: "m-grid", y1: gy, y2: gy, x1: v.bounds.x, x2: v.bounds.x + v.bounds.w }, grid);
 
+    buildScenery(v, W, P);
+
     const gb = addLayer(v, "borders", "City borders", css("--muted"), W.borders.length, { line: true });
     for (const bd of W.borders) {
       el("line", { class: "m-border", x1: v.bounds.x, x2: v.bounds.x + v.bounds.w, y1: -bd.y, y2: -bd.y }, gb);
@@ -289,6 +303,90 @@ const DATA = /*__DATA__*/null;
     return v;
   }
 
+  // ---------------------------------------------------------------- scenery: illustration where nothing is coded yet
+  // Seeded, so it looks the same every load. Never drawn inside a district or park,
+  // or on a real road, and not clickable: the real plots stay the only things you can pick.
+  function buildScenery(v, W, P) {
+    let seed = 1017312;
+    const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>>  0) / 4294967296);
+    const B = v.bounds;
+    const zones = W.zones.map((z) => { const [x, y] = P(z.x, z.y); return { x, y, r: z.r }; });
+    const anchors = zones.concat(W.pois.map((p) => { const [x, y] = P(p.x, p.y); return { x, y, r: 0 }; }));
+    const segs = [];
+    for (const r of W.roads) for (let i = 1; i < r.pts.length; i++) segs.push([P(...r.pts[i - 1]), P(...r.pts[i])]);
+    const segDist = (x, y, [a, b]) => {
+      const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L));
+      return Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy);
+    };
+    const nearRoad = (x, y, d) => segs.some((sg) => segDist(x, y, sg) < d);
+    const inZone = (x, y, pad = 0) => zones.some((z) => Math.hypot(x - z.x, y - z.y) < z.r + pad);
+    const town = (x, y) => Math.min(...anchors.map((a) => Math.hypot(x - a.x, y - a.y) - a.r));
+
+    const g = addLayer(v, "scenery", "Scenery (illustration)", css("--block"), 0);
+    g.classList.add("m-scenery");
+    const fields = el("g", {}, g), streets = el("g", {}, g), blocks = el("g", {}, g), trees = el("g", {}, g), roads = el("g", {}, g), sea = el("g", {}, g);
+    let count = 0;
+    const CELL = 110;
+    for (let x = B.x + 30; x < B.x + B.w - CELL; x += CELL) {
+      for (let y = B.y + 30; y < B.y + B.h - CELL; y += CELL) {
+        const cx = x + CELL / 2, cy = y + CELL / 2;
+        if (inZone(cx, cy, 10)) continue;
+        const d = town(cx, cy);
+        if (d < 750) {
+          // town: a street grid with buildings in the blocks
+          if (!inZone(x, cy)) el("line", { class: "m-scen-st", x1: x, y1: y, x2: x, y2: y + CELL }, streets);
+          if (!inZone(cx, y)) el("line", { class: "m-scen-st", x1: x, y1: y, x2: x + CELL, y2: y }, streets);
+          const n = d < 350 ? 4 : 2;
+          for (let i = 0; i < n; i++) {
+            if (rnd() < (d < 350 ? 0.15 : 0.4)) continue;
+            const w = 18 + rnd() * 30, h = 18 + rnd() * 30;
+            const bx = x + 10 + (i % 2) * (CELL / 2) + rnd() * (CELL / 2 - w - 10), by = y + 10 + Math.floor(i / 2) * (CELL / 2) + rnd() * (CELL / 2 - h - 10);
+            if (nearRoad(bx + w / 2, by + h / 2, 30) || inZone(bx + w / 2, by + h / 2, 5)) continue;
+            el("rect", { class: "m-scen-b", x: bx, y: by, width: w, height: h }, blocks); count++;
+          }
+        } else if (d < 1500) {
+          // edge of town: houses on lots, a few trees
+          if (rnd() < 0.5 && !nearRoad(cx, cy, 30)) { el("rect", { class: "m-scen-b", x: cx - 8, y: cy - 7, width: 16 + rnd() * 8, height: 14 }, blocks); count++; }
+          if (rnd() < 0.4) el("circle", { class: "m-scen-t", cx: x + rnd() * CELL, cy: y + rnd() * CELL, r: 12 + rnd() * 14 }, trees);
+        } else {
+          // country: fields and woods, the odd farmhouse
+          const k = rnd();
+          if (k < 0.35) el("rect", { class: "m-scen-f", x: x + 6, y: y + 6, width: CELL - 12, height: CELL - 12, "fill-opacity": 0.5 + rnd() * 0.5 }, fields);
+          else if (k < 0.6) for (let i = 0; i < 3; i++) el("circle", { class: "m-scen-t", cx: x + rnd() * CELL, cy: y + rnd() * CELL, r: 14 + rnd() * 18 }, trees);
+          if (rnd() < 0.05) { el("rect", { class: "m-scen-b", x: cx - 10, y: cy - 8, width: 20, height: 16 }, blocks); count++; }
+        }
+      }
+    }
+    // roads between the cities: centre of Atlanta to GeePee to Chicago, with a little wander
+    const centre = (city) => {
+      const zs = W.zones.filter((z) => z.city === city);
+      if (!zs.length) return null;
+      return P(zs.reduce((s, z) => s + z.x, 0) / zs.length, zs.reduce((s, z) => s + z.y, 0) / zs.length);
+    };
+    const hubs = ["atlanta", "geepee", "chicago"].map(centre).filter(Boolean);
+    for (let i = 1; i < hubs.length; i++) {
+      const [a, b] = [hubs[i - 1], hubs[i]];
+      const pts = [];
+      for (let t = 0; t <= 1.0001; t += 0.1) pts.push([a[0] + (b[0] - a[0]) * t + Math.sin(t * Math.PI * 2) * 160 * (i % 2 ? 1 : -1), a[1] + (b[1] - a[1]) * t]);
+      el("path", { class: "m-scen-rd", d: pathOf(pts) }, roads);
+      el("path", { class: "m-scen-rd", d: pathOf(pts.map(([x, y]) => [x + 420, y])), "stroke-opacity": .35 }, roads);
+    }
+    // ships offshore, both coasts, heading up or down the coast
+    for (let i = 0; i < 22; i++) {
+      const west = i % 2 === 0;
+      const sx = west ? B.x - 180 - rnd() * 900 : B.x + B.w + 180 + rnd() * 900;
+      const sy = B.y + 300 + rnd() * (B.h - 600);
+      const L = 90 + rnd() * 140, Wd = L * 0.22, ang = (rnd() < 0.5 ? 0 : 180) + (rnd() - 0.5) * 30;
+      const ship = el("g", { transform: `translate(${sx} ${sy}) rotate(${ang})` }, sea);
+      el("path", { class: "m-wake", d: `M0 ${L / 2} L${-Wd} ${L * 1.6} M0 ${L / 2} L${Wd} ${L * 1.6}` }, ship);
+      el("path", { class: "m-ship", d: `M0 ${-L / 2} Q${Wd / 2} ${-L / 3} ${Wd / 2} 0 L${Wd / 2} ${L / 2} L${-Wd / 2} ${L / 2} L${-Wd / 2} 0 Q${-Wd / 2} ${-L / 3} 0 ${-L / 2}Z` }, ship);
+      el("rect", { x: -Wd * 0.35, y: L * 0.22, width: Wd * 0.7, height: L * 0.18, fill: css("--paper") }, ship);
+      count++;
+    }
+    v.layers.at(-1).count = count;
+  }
+
   // ---------------------------------------------------------------- the island (map units, 1 unit = metresPerUnit m)
   function buildIsland() {
     const I = DATA.island;
@@ -296,12 +394,15 @@ const DATA = /*__DATA__*/null;
     const root = el("g");
     const mpu = (I.cfg && I.cfg.metresPerUnit) || 2;
     const v = { root, layers: [], unit: "u", mpu, flipY: false, labels: [], bounds: { x: 0, y: 0, w: 1500, h: 1000 } };
-    if (I.outline) el("path", { class: "m-coast", d: pathOf(I.outline, true) }, root);
-    if (I.mountain) {
+    if (I.artwork) {
+      const g = addLayer(v, "artwork", "Island art: ships, docks, farms", css("--hull"), "map");
+      el("image", { href: I.artwork, x: 0, y: 0, width: 1500, height: 1000, preserveAspectRatio: "none" }, g);
+    } else if (I.outline) el("path", { class: "m-coast", d: pathOf(I.outline, true) }, root);
+    if (I.mountain && !I.artwork) {
       for (const [rx, ry, o] of [[150, 95, 1], [95, 60, 1.4], [45, 28, 1.9]]) el("ellipse", { class: "m-peak", cx: I.mountain[0], cy: I.mountain[1], rx, ry, "fill-opacity": .12 * o }, root);
     }
     const labels = el("g", {}, root);
-    for (const [name, x, y] of [["312", 760, 250], ["770", 1000, 470], ["1017", 760, 800]]) {
+    for (const [name, x, y] of I.artwork ? [] : [["312", 760, 250], ["770", 1000, 470], ["1017", 760, 800]]) {
       const t = el("text", { class: "m-label big", x, y, "data-size": 30, "text-anchor": "middle" }, labels); t.textContent = name; v.labels.push(t);
     }
 
