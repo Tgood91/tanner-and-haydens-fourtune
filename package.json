@@ -1,0 +1,44 @@
+{
+  "name": "@tgood91/tanner-and-haydens-fourtune",
+  "version": "0.1.0",
+  "description": "The fourtune game core, world data, tools and crew knowledge base, runnable with plain Node.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tgood91/tanner-and-haydens-fourtune.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "js-snippets/game.js",
+  "bin": {
+    "kb": "tools/kb.js"
+  },
+  "files": [
+    "js-snippets/*.js",
+    "js-snippets/hud.html",
+    "js-snippets/fxmanifest.lua",
+    "js-snippets/README.md",
+    "tools/*.js",
+    "docs/",
+    "world/",
+    "crew/",
+    "world-map/"
+  ],
+  "scripts": {
+    "test": "node --test js-snippets/game.test.js tools/kb.test.js",
+    "kb": "node tools/kb.js",
+    "lessons": "node js-snippets/01-lessons.js",
+    "demo": "node js-snippets/02-demo.js",
+    "streets": "node tools/print-streets.js",
+    "stores": "node tools/print-stores.js",
+    "gen:map": "node tools/gen-map.js > docs/city-map.html",
+    "gen:map-detail": "node tools/gen-map-detail-layer.js",
+    "gen:walk-list": "node tools/gen-walk-list.js > docs/WALK-LIST.md",
+    "gen:world": "node tools/gen-world-data.js > world/data.lua",
+    "join-server": "node tools/join-server.js"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

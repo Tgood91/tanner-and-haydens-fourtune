@@ -6,6 +6,20 @@ adapter files, and the rules stay the same.
 
 ## Run it
 
+With npm (Node 20 or newer, nothing to install — `npm ci` just checks the lockfile):
+
+```
+npm test                       # every check: the game core and the knowledge base tool
+npm run kb -- search <words>   # find where anything is written down: docs, notes, lessons, code
+npm run kb -- list             # every note, doc, lesson and resource, by area
+npm run kb -- show TUNING      # print one entry (part of its path is enough)
+npm run kb -- where 120 -900   # name a coordinate the way the game does
+npm run lessons | demo | streets | stores
+npm run gen:map | gen:map-detail | gen:walk-list | gen:world
+```
+
+Or call the files directly:
+
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
