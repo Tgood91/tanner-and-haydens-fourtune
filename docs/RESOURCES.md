@@ -31,7 +31,15 @@ cp -r ~/fourtune-src/js-snippets <server>/resources/fourtune
 
 On Windows, copy the folders in Explorer and rename `js-snippets` to `fourtune`.
 
-To update later, pull in `~/fourtune-src` and copy again. A symlink works too and saves the
+Or let the script do it (it renames `js-snippets` for you and checks `server.cfg`):
+
+```bash
+node tools/deploy-to-server.js "<server>" --dry-run   # see what it would do
+node tools/deploy-to-server.js "<server>"             # copy world + crew
+node tools/deploy-to-server.js "<server>" --link      # once: after this, git pull is the deploy
+```
+
+Add `--with-fourtune` to include `fourtune`. To update later, pull and run it again. A symlink works too and saves the
 copy step, if your OS and FXServer are happy with one.
 
 ## server.cfg
