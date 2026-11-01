@@ -38,7 +38,8 @@
     "gen:walk-list": "node tools/gen-walk-list.js > docs/WALK-LIST.md",
     "gen:world": "node tools/gen-world-data.js > world/data.lua",
     "join-server": "node tools/join-server.js",
-    "gen:atlas": "node tools/gen-atlas.js > docs/atlas.html"
+    "gen:atlas": "node tools/gen-atlas.js > docs/atlas.html",
+    "test:lua": "lua world/test.lua && lua crew/test.lua && lua world-map/test.lua"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

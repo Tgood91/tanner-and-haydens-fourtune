@@ -1,0 +1,19 @@
+{
+  // FiveM runs Lua 5.4 (fxmanifest: lua54 'yes')
+  "Lua.runtime.version": "Lua 5.4",
+  // FiveM globals, so the editor doesn't flag them as undefined.
+  // The CfxLua extension adds every native (GetEntityCoords, ...) on top of these.
+  "Lua.diagnostics.globals": [
+    "Citizen", "CreateThread", "Wait", "SetTimeout",
+    "RegisterCommand", "RegisterNetEvent", "AddEventHandler", "TriggerEvent",
+    "TriggerServerEvent", "TriggerClientEvent", "RegisterNUICallback", "SendNUIMessage",
+    "exports", "source", "GetPlayerName", "GetPlayers", "GetCurrentResourceName",
+    "json", "vector3", "vec3", "lib",
+    "fx_version", "game", "description", "dependencies", "server_script", "server_scripts",
+    "client_script", "client_scripts", "shared_script", "files", "ui_page", "lua54",
+    "FourtuneWorldData"
+  ],
+  "Lua.workspace.ignoreDir": ["node_modules", "island-roads", "island-terrain", "island-buildings"],
+  "files.associations": { "fxmanifest.lua": "lua", "*.cfg": "properties" },
+  "editor.formatOnSave": false
+}
