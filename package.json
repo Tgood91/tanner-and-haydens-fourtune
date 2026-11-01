@@ -23,7 +23,8 @@
     "docs/",
     "world/",
     "crew/",
-    "world-map/"
+    "world-map/",
+    "tools/atlas-template.html"
   ],
   "scripts": {
     "test": "node --test js-snippets/game.test.js tools/kb.test.js",
@@ -36,7 +37,8 @@
     "gen:map-detail": "node tools/gen-map-detail-layer.js",
     "gen:walk-list": "node tools/gen-walk-list.js > docs/WALK-LIST.md",
     "gen:world": "node tools/gen-world-data.js > world/data.lua",
-    "join-server": "node tools/join-server.js"
+    "join-server": "node tools/join-server.js",
+    "gen:atlas": "node tools/gen-atlas.js > docs/atlas.html"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

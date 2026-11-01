@@ -1,0 +1,532 @@
+<title>Fourtune Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800&family=Overpass+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a working map app. Header strip, the map as the main surface, a side panel of layers, the selected place and sources. */
+:root {
+  --sea: #c7d9df;
+  --land: #e9ebe2;
+  --paper: #f6f6f1;
+  --ink: #1d2830;
+  --muted: #5d6b72;
+  --line: #cfd5cf;
+  --accent: #c8501c;          /* highway-sign orange */
+  --hwy: #c8501c;
+  --art: #d99a2b;
+  --street: #6b767c;
+  --back: #8f7a5c;
+  --zone: #3f7d6e;
+  --park: #4f9a52;
+  --bldg: #8d8f96;
+  --tower: #5e6f8e;
+  --select: #1667c9;
+  --font-display: "Overpass", "Highway Gothic", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Overpass", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Overpass Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  height: 100%;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sea: #0d1b24; --land: #1b2629; --paper: #121a1f; --ink: #e6ebe8; --muted: #95a3a8; --line: #2c3a40;
+    --accent: #f07a3d; --hwy: #f07a3d; --art: #e8b04a; --street: #9aa6ab; --back: #b39a76;
+    --zone: #6cc0aa; --park: #79c47c; --bldg: #6c7178; --tower: #8ea3cb; --select: #5fa8ff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sea: #0d1b24; --land: #1b2629; --paper: #121a1f; --ink: #e6ebe8; --muted: #95a3a8; --line: #2c3a40;
+  --accent: #f07a3d; --hwy: #f07a3d; --art: #e8b04a; --street: #9aa6ab; --back: #b39a76;
+  --zone: #6cc0aa; --park: #79c47c; --bldg: #6c7178; --tower: #8ea3cb; --select: #5fa8ff; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; display: flex; flex-direction: column; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+
+header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand h1 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: .01em; text-wrap: balance; }
+.brand .codes { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.tabs button { font: 600 13px var(--font-body); padding: 6px 12px; background: transparent; color: var(--ink); border: 0; cursor: pointer; }
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.search { flex: 1 1 220px; display: flex; gap: 6px; min-width: 0; max-width: 420px; margin-left: auto; }
+.search input { flex: 1; min-width: 0; font: 14px var(--font-body); padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); }
+button:focus-visible, input:focus-visible, .chip:focus-within { outline: 2px solid var(--select); outline-offset: 1px; }
+
+main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
+.mapwrap { position: relative; min-width: 0; min-height: 0; background: var(--sea); overflow: hidden; touch-action: none; }
+svg.map { width: 100%; height: 100%; display: block; cursor: grab; user-select: none; }
+svg.map.dragging { cursor: grabbing; }
+.zoom { position: absolute; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+.zoom button { width: 34px; height: 34px; font: 600 18px var(--font-body); border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.zoom button.fit { font-size: 11px; }
+.scale { position: absolute; left: 12px; bottom: 12px; font: 11px var(--font-mono); color: var(--ink); background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 4px 8px; border-radius: 4px; }
+.scale i { display: block; height: 4px; border: 1px solid var(--ink); border-top: 0; margin-top: 2px; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); font: 12px var(--font-body); padding: 4px 8px; border-radius: 4px; white-space: nowrap; transform: translate(10px, -130%); }
+
+aside { border-left: 1px solid var(--line); overflow-y: auto; padding-block: 14px; padding-inline: 16px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+aside h2 { margin: 0 0 8px; font: 600 11px var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.layers { display: flex; flex-direction: column; gap: 2px; }
+.chip { display: grid; grid-template-columns: 18px 14px 1fr auto; align-items: center; gap: 8px; padding: 4px 4px; border-radius: 4px; cursor: pointer; }
+.chip:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.chip input { margin: 0; accent-color: var(--ink); }
+.chip .sw { width: 14px; height: 14px; border-radius: 50%; }
+.chip .sw.line { height: 4px; border-radius: 2px; }
+.chip .n { font: 12px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.card { border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.card .t { font: 800 16px var(--font-display); text-wrap: balance; }
+.card .code { font: 600 12px var(--font-mono); color: var(--accent); }
+.card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13px; }
+.card dt { color: var(--muted); }
+.card dd { margin: 0; font-variant-numeric: tabular-nums; min-width: 0; overflow-wrap: anywhere; }
+.card .mono { font-family: var(--font-mono); font-size: 12px; }
+.empty { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.sources li { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sources .f { font-family: var(--font-mono); overflow-wrap: anywhere; }
+.sources .b { color: var(--muted); overflow-wrap: anywhere; }
+.sources .b.new { color: var(--accent); }
+.foot { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* map marks */
+.m-road { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.m-road.highway { stroke: var(--hwy); stroke-width: 4; }
+.m-road.arterial { stroke: var(--art); stroke-width: 3; }
+.m-road.street, .m-road.street312 { stroke: var(--street); stroke-width: 1.8; }
+.m-road.backroad, .m-road.track { stroke: var(--back); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.m-road.sel { stroke: var(--select); stroke-width: 6; }
+.m-hit { fill: none; stroke: transparent; stroke-width: 14; vector-effect: non-scaling-stroke; cursor: pointer; }
+.m-zone { fill: var(--zone); fill-opacity: .1; stroke: var(--zone); stroke-opacity: .6; stroke-width: 1.2; vector-effect: non-scaling-stroke; cursor: pointer; }
+.m-zone.park { fill: var(--park); stroke: var(--park); fill-opacity: .18; }
+.m-zone.sel { stroke: var(--select); stroke-width: 3; stroke-opacity: 1; }
+.m-label { font-family: var(--font-display); font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--land); stroke-linejoin: round; pointer-events: none; text-anchor: middle; }
+.m-label.zone { fill: var(--zone); letter-spacing: .06em; text-transform: uppercase; }
+.m-label.big { font-weight: 800; fill: var(--muted); letter-spacing: .2em; text-transform: uppercase; }
+.m-poi { stroke: var(--paper); vector-effect: non-scaling-stroke; stroke-width: 1.5; cursor: pointer; }
+.m-poi.sel { stroke: var(--select); stroke-width: 3; }
+.m-border { stroke: var(--muted); stroke-dasharray: 10 6; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.m-band { fill: var(--land); }
+.m-grid { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.m-coast { fill: var(--land); stroke: var(--muted); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.m-bldg { fill: var(--bldg); fill-opacity: .75; stroke: var(--ink); stroke-opacity: .35; stroke-width: .6; vector-effect: non-scaling-stroke; cursor: pointer; }
+.m-bldg.tall { fill: var(--tower); }
+.m-bldg.sel { stroke: var(--select); stroke-width: 2.5; stroke-opacity: 1; }
+.m-peak { fill: var(--muted); fill-opacity: .18; }
+
+@media (max-width: 760px) {
+  main { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(340px, 62vh) auto; }
+  body { height: auto; }
+  aside { border-left: 0; border-top: 1px solid var(--line); overflow: visible; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .search { max-width: none; margin-left: 0; }
+}
+@media (prefers-reduced-motion: no-preference) { svg.map.anim { transition: none; } }
+</style>
+
+<header>
+  <div class="brand"><h1>Fourtune Atlas</h1><span class="codes">1017 · 770 · 312</span></div>
+  <div class="tabs" role="tablist" aria-label="Which map">
+    <button role="tab" id="tab-world" data-view="world" aria-selected="true">Game world</button>
+    <button role="tab" id="tab-island" data-view="island" aria-selected="false">The island</button>
+  </div>
+  <form class="search" id="search-form" autocomplete="off">
+    <input id="search" list="names" placeholder="Find a street, code or place (e.g. 312-S35)" aria-label="Find a place">
+    <datalist id="names"></datalist>
+  </form>
+</header>
+<main>
+  <div class="mapwrap" id="mapwrap">
+    <svg class="map" id="map" xmlns="http://www.w3.org/2000/svg" aria-label="Map"></svg>
+    <div class="tip" id="tip" hidden></div>
+    <div class="scale" id="scale"><span id="scale-t">100 m</span><i id="scale-bar" style="width:60px"></i></div>
+    <div class="zoom">
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zout" aria-label="Zoom out">−</button>
+      <button id="zfit" class="fit" aria-label="Fit the whole map">FIT</button>
+    </div>
+  </div>
+  <aside>
+    <section><h2>Selected</h2><div id="info" class="empty">Tap a road, district, building or pin. Drag to pan, scroll or pinch to zoom.</div></section>
+    <section><h2>Layers</h2><div class="layers" id="layers"></div></section>
+    <section><h2>Where this came from</h2><ul class="sources" id="sources"></ul></section>
+    <p class="foot" id="foot"></p>
+  </aside>
+</main>
+
+<script>
+const DATA = /*__DATA__*/null;
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const svg = $("map"), wrap = $("mapwrap"), tip = $("tip");
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const el = (tag, attrs = {}, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) if (v != null) e.setAttribute(k, v);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  const CITY = { atlanta: "Atlanta (1017)", geepee: "GeePee (770)", chicago: "Chicago (312)", "1017": "1017 (south)", "770": "770 (the middle)", "312": "312 (north)" };
+  const KIND = { highway: "Highway", arterial: "Arterial", street: "Street", street312: "312 grid street", backroad: "Back road", track: "Track", district: "District", park: "Park" };
+
+  const POI = {
+    store:    { label: "24/7 stores",      color: "#2f8f6b" },
+    gun:      { label: "Gun shops",        color: "#7a2f2f" },
+    fuel:     { label: "Fuel",             color: "#d9821f" },
+    clothing: { label: "Clothing",         color: "#a24fb0" },
+    hospital: { label: "Hospitals",        color: "#d33d4a" },
+    spawn:    { label: "Spawn points",     color: "#2a6fd1" },
+    house:    { label: "Houses",           color: "#6f5a3a" },
+    impound:  { label: "Impound lots",     color: "#5a6570" },
+    job:      { label: "Job stations",     color: "#1f7f8f" },
+    supply:   { label: "Supply spots",     color: "#5f8f2f" },
+    jail:     { label: "Jail",             color: "#222a30" },
+  };
+
+  // ---------------------------------------------------------------- state
+  const views = {};           // world | island -> { root, layers, bounds, flipY, unit }
+  let view = "world";
+  let vb = null;              // current viewBox
+  let selected = null;
+  const index = [];           // search entries: { key, view, item, el, bounds }
+
+  // ---------------------------------------------------------------- helpers
+  const bbox = (pts) => {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    return { x0, y0, x1, y1 };
+  };
+  const pathOf = (pts, close) => pts.map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join("") + (close ? "Z" : "");
+  const fmt = (n) => Number(n).toLocaleString("en-US", { maximumFractionDigits: 1 });
+
+  function addLayer(v, id, label, swatch, count, opts = {}) {
+    const g = el("g", { "data-layer": id }, v.root);
+    v.layers.push({ id, label, swatch, count, g, line: !!opts.line, on: opts.on !== false });
+    if (opts.on === false) g.setAttribute("display", "none");
+    return g;
+  }
+
+  // ---------------------------------------------------------------- game world (GTA coords, y flipped so north is up)
+  function buildWorld() {
+    const W = DATA.world;
+    if (!W) return null;
+    const root = el("g");
+    const v = { root, layers: [], unit: "m", flipY: true, labels: [] };
+    const P = (x, y) => [x, -y];
+    const all = [];
+    W.roads.forEach((r) => r.pts.forEach(([x, y]) => all.push(P(x, y))));
+    W.zones.forEach((z) => { all.push(P(z.x - z.r, z.y - z.r)); all.push(P(z.x + z.r, z.y + z.r)); });
+    W.pois.forEach((p) => all.push(P(p.x, p.y)));
+    const b = bbox(all), pad = 260;
+    v.bounds = { x: b.x0 - pad, y: b.y0 - pad, w: b.x1 - b.x0 + pad * 2, h: b.y1 - b.y0 + pad * 2 };
+
+    // ground: one land sheet, a 1 km grid, and the city borders
+    const base = el("g", {}, root);
+    el("rect", { class: "m-band", x: v.bounds.x, y: v.bounds.y, width: v.bounds.w, height: v.bounds.h, rx: 40 }, base);
+    const grid = el("g", {}, base);
+    for (let gx = Math.ceil(v.bounds.x / 1000) * 1000; gx < v.bounds.x + v.bounds.w; gx += 1000) el("line", { class: "m-grid", x1: gx, x2: gx, y1: v.bounds.y, y2: v.bounds.y + v.bounds.h }, grid);
+    for (let gy = Math.ceil(v.bounds.y / 1000) * 1000; gy < v.bounds.y + v.bounds.h; gy += 1000) el("line", { class: "m-grid", y1: gy, y2: gy, x1: v.bounds.x, x2: v.bounds.x + v.bounds.w }, grid);
+
+    const gb = addLayer(v, "borders", "City borders", css("--muted"), W.borders.length, { line: true });
+    for (const bd of W.borders) {
+      el("line", { class: "m-border", x1: v.bounds.x, x2: v.bounds.x + v.bounds.w, y1: -bd.y, y2: -bd.y }, gb);
+    }
+    // City names in their bands
+    const cut = W.borders.map((x) => x.y).sort((a, c) => a - c);
+    const bands = [["Atlanta · 1017", v.bounds.y + v.bounds.h, -cut[0]], ["GeePee · 770", -cut[0], -cut[1]], ["Chicago · 312", -cut[1], v.bounds.y]];
+    for (const [name, yLow, yHigh] of bands) {
+      if (!(yLow > yHigh)) continue;
+      const t = el("text", { class: "m-label big", x: v.bounds.x + 40, y: yLow - 60, "data-size": 18, "text-anchor": "start", "fill-opacity": .7 }, gb);
+      t.textContent = name; v.labels.push(t);
+    }
+
+    const zonesG = addLayer(v, "zones", "Districts & parks", css("--zone"), W.zones.length);
+    const zoneLabels = el("g", {}, zonesG);
+    for (const z of W.zones) {
+      const [cx, cy] = P(z.x, z.y);
+      const c = el("circle", { class: "m-zone " + z.kind, cx, cy, r: z.r }, zonesG);
+      zonesG.insertBefore(c, zoneLabels);
+      const item = { type: "zone", title: z.name, kind: KIND[z.kind] || z.kind, city: CITY[z.city], extra: [["Radius", fmt(z.r) + " m"], ["Centre", `${fmt(z.x)}, ${fmt(z.y)}`]], source: "places.js" };
+      hook(c, item, "world", { x0: cx - z.r, y0: cy - z.r, x1: cx + z.r, y1: cy + z.r });
+      const t = el("text", { class: "m-label zone", x: cx, y: cy, "data-size": 11 }, zoneLabels);
+      t.textContent = z.name; v.labels.push(t);
+    }
+
+    const kinds = ["backroad", "street", "arterial", "highway"];
+    for (const k of kinds) {
+      const list = W.roads.filter((r) => r.kind === k);
+      if (!list.length) continue;
+      const g = addLayer(v, "road-" + k, KIND[k] + "s", css(k === "highway" ? "--hwy" : k === "arterial" ? "--art" : k === "street" ? "--street" : "--back"), list.length, { line: true });
+      for (const r of list) {
+        const pts = r.pts.map(([x, y]) => P(x, y));
+        const d = pathOf(pts);
+        const line = el("path", { class: "m-road " + r.kind, d }, g);
+        const hit = el("path", { class: "m-hit", d }, g);
+        const len = pts.reduce((s, p, i) => i ? s + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0, 0);
+        const item = { type: "road", title: r.name, code: r.code, kind: KIND[r.kind], city: CITY[r.city], extra: [["Length", fmt(Math.round(len)) + " m"], ["Width", r.width ? r.width + " m" : "default"], ["From", `${fmt(r.pts[0][0])}, ${fmt(r.pts[0][1])}`], ["To", `${fmt(r.pts.at(-1)[0])}, ${fmt(r.pts.at(-1)[1])}`]], source: "places.js" };
+        hook(hit, item, "world", bbox(pts), line);
+      }
+    }
+
+    // pins, one layer per kind
+    for (const [cat, meta] of Object.entries(POI)) {
+      const list = W.pois.filter((p) => p.cat === cat);
+      if (!list.length) continue;
+      const g = addLayer(v, "poi-" + cat, meta.label, meta.color, list.length);
+      for (const p of list) {
+        const [cx, cy] = P(p.x, p.y);
+        const c = el("circle", { class: "m-poi", cx, cy, r: 6, fill: meta.color, "data-pin": 1 }, g);
+        const item = { type: "pin", title: p.name, kind: meta.label.replace(/s$/, ""), city: CITY[p.city] || p.city, extra: [["Coords", `${fmt(p.x)}, ${fmt(p.y)}${p.z != null ? ", " + fmt(p.z) : ""}`]], source: p.module, coords: `vector3(${p.x}, ${p.y}, ${p.z ?? 0})` };
+        hook(c, item, "world", { x0: cx - 40, y0: cy - 40, x1: cx + 40, y1: cy + 40 });
+      }
+    }
+    return v;
+  }
+
+  // ---------------------------------------------------------------- the island (map units, 1 unit = metresPerUnit m)
+  function buildIsland() {
+    const I = DATA.island;
+    if (!I) return null;
+    const root = el("g");
+    const mpu = (I.cfg && I.cfg.metresPerUnit) || 2;
+    const v = { root, layers: [], unit: "u", mpu, flipY: false, labels: [], bounds: { x: 0, y: 0, w: 1500, h: 1000 } };
+    if (I.outline) el("path", { class: "m-coast", d: pathOf(I.outline, true) }, root);
+    if (I.mountain) {
+      for (const [rx, ry, o] of [[150, 95, 1], [95, 60, 1.4], [45, 28, 1.9]]) el("ellipse", { class: "m-peak", cx: I.mountain[0], cy: I.mountain[1], rx, ry, "fill-opacity": .12 * o }, root);
+    }
+    const labels = el("g", {}, root);
+    for (const [name, x, y] of [["312", 760, 250], ["770", 1000, 470], ["1017", 760, 800]]) {
+      const t = el("text", { class: "m-label big", x, y, "data-size": 30, "text-anchor": "middle" }, labels); t.textContent = name; v.labels.push(t);
+    }
+
+    const typeName = { tower: "1017 towers", "west-tower": "West towers", "highrise-312": "312 high-rises", house: "Houses", apartments: "Apartments", terminal: "Airport terminals", "control-tower": "Control towers", barn: "Barns", silo: "Silos" };
+    if (I.buildings.length) {
+      const g = addLayer(v, "buildings", "Buildings", css("--bldg"), I.buildings.length);
+      for (const bd of I.buildings) {
+        const tall = (bd.floors || 0) >= 15;
+        const p = el("path", { class: "m-bldg" + (tall ? " tall" : ""), d: pathOf(bd.pts, true) }, g);
+        const item = { type: "building", title: bd.name || typeName[bd.type] || "Building", kind: typeName[bd.type] || bd.type, extra: [bd.floors ? ["Floors", bd.floors] : null, bd.height ? ["Height", bd.height + " m"] : null, ["World", `${fmt(bd.world[0])}, ${fmt(bd.world[1])}`]].filter(Boolean), source: "buildings.json" };
+        hook(p, item, "island", bbox(bd.pts));
+      }
+    }
+    const order = ["track", "backroad", "street312", "street", "arterial", "highway"];
+    for (const k of order) {
+      const list = I.streets.filter((s) => s.kind === k);
+      if (!list.length) continue;
+      const tok = k === "highway" ? "--hwy" : k === "arterial" ? "--art" : (k === "backroad" || k === "track") ? "--back" : "--street";
+      const g = addLayer(v, "st-" + k, (KIND[k] || k) + "s", css(tok), list.length, { line: true });
+      for (const s of list) {
+        const d = pathOf(s.pts);
+        const line = el("path", { class: "m-road " + s.kind, d }, g);
+        const hit = el("path", { class: "m-hit", d }, g);
+        const item = { type: "road", title: s.name, code: s.code, kind: KIND[s.kind] || s.kind, city: CITY[s.city], extra: [["Length", fmt(s.length * mpu) + " m"], s.note ? ["Note", s.note] : null].filter(Boolean), source: "streets.json" };
+        hook(hit, item, "island", bbox(s.pts), line);
+      }
+    }
+    return v;
+  }
+
+  // ---------------------------------------------------------------- interaction on each mark
+  function hook(target, item, vName, b, shown) {
+    const mark = shown || target;
+    const entry = { item, view: vName, mark, bounds: b };
+    index.push(entry);
+    target.addEventListener("pointerenter", (e) => { tip.textContent = item.code ? `${item.title} · ${item.code}` : item.title; tip.hidden = false; moveTip(e); });
+    target.addEventListener("pointermove", moveTip);
+    target.addEventListener("pointerleave", () => { tip.hidden = true; });
+    target.addEventListener("click", (e) => { if (!moved) select(entry); e.stopPropagation(); });
+  }
+  function moveTip(e) {
+    const r = wrap.getBoundingClientRect();
+    tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px";
+  }
+
+  function select(entry, zoom) {
+    if (selected) selected.mark.classList.remove("sel");
+    selected = entry;
+    const info = $("info");
+    if (!entry) { info.className = "empty"; info.textContent = "Nothing selected."; return; }
+    entry.mark.classList.add("sel");
+    if (entry.mark.parentNode) entry.mark.parentNode.appendChild(entry.mark);
+    const it = entry.item;
+    info.className = "card";
+    info.innerHTML = "";
+    const t = document.createElement("div"); t.className = "t"; t.textContent = it.title; info.appendChild(t);
+    if (it.code) { const c = document.createElement("div"); c.className = "code"; c.textContent = it.code; info.appendChild(c); }
+    const dl = document.createElement("dl");
+    const rows = [["Kind", it.kind], it.city ? ["City", it.city] : null, ...it.extra, ["Map", entry.view === "world" ? "Game world" : "The island"], ["Source", it.source]].filter(Boolean);
+    for (const [k, val] of rows) {
+      const dt = document.createElement("dt"); dt.textContent = k;
+      const dd = document.createElement("dd"); dd.textContent = val;
+      if (/Coords|From|To|World|Centre/.test(k)) dd.className = "mono";
+      dl.append(dt, dd);
+    }
+    info.appendChild(dl);
+    if (it.coords) {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = "Copy vector3"; b.id = "copy-vec";
+      b.style.cssText = "align-self:flex-start;font:600 12px var(--font-body);padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer";
+      b.addEventListener("click", () => {
+        const done = () => { b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy vector3"), 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(it.coords).then(done, () => { b.textContent = it.coords; });
+        else b.textContent = it.coords;
+      });
+      info.appendChild(b);
+    }
+    if (zoom) {
+      if (entry.view !== view) show(entry.view, true);
+      const b = entry.bounds, w = Math.max(b.x1 - b.x0, 1), h = Math.max(b.y1 - b.y0, 1);
+      const m = Math.max(w, h) * 0.6 + (view === "world" ? 120 : 25);
+      fitTo({ x: b.x0 - m, y: b.y0 - m, w: w + 2 * m, h: h + 2 * m });
+    }
+  }
+
+  // ---------------------------------------------------------------- viewBox, zoom and pan
+  function fitTo(box) {
+    const r = svg.getBoundingClientRect();
+    const aspect = (r.width || 1) / (r.height || 1);
+    let { x, y, w, h } = box;
+    if (w / h > aspect) { const nh = w / aspect; y -= (nh - h) / 2; h = nh; } else { const nw = h * aspect; x -= (nw - w) / 2; w = nw; }
+    vb = { x, y, w, h };
+    apply();
+  }
+  function apply() {
+    svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+    const r = svg.getBoundingClientRect();
+    const k = vb.w / (r.width || 1);                        // map units per screen px
+    const v = views[view];
+    for (const c of v.root.querySelectorAll("[data-pin]")) c.setAttribute("r", 6 * k);
+    for (const t of v.labels) { t.setAttribute("font-size", (+t.dataset.size) * k); t.setAttribute("stroke-width", 3 * k); }
+    // zone names only once there's room for them
+    for (const t of v.root.querySelectorAll(".m-label.zone")) t.setAttribute("display", k < 3.2 ? "inline" : "none");
+    // scale bar: a round number of metres about 80px long
+    const perPx = k * (v.unit === "u" ? v.mpu : 1);
+    const target = perPx * 80, pow = Math.pow(10, Math.floor(Math.log10(target)));
+    const nice = [1, 2, 5, 10].map((n) => n * pow).filter((n) => n <= target).pop() || pow;
+    $("scale-bar").style.width = (nice / perPx) + "px";
+    $("scale-t").textContent = nice >= 1000 ? (nice / 1000) + " km" : nice + " m";
+  }
+  function zoomAt(f, cx, cy) {
+    const r = svg.getBoundingClientRect();
+    const px = cx == null ? 0.5 : (cx - r.left) / r.width, py = cy == null ? 0.5 : (cy - r.top) / r.height;
+    const mx = vb.x + vb.w * px, my = vb.y + vb.h * py;
+    const b = views[view].bounds, maxW = Math.max(b.w, b.h) * 3, minW = view === "world" ? 60 : 12;
+    const nw = Math.min(Math.max(vb.w * f, minW), maxW), s = nw / vb.w;
+    vb = { x: mx - (mx - vb.x) * s, y: my - (my - vb.y) * s, w: nw, h: vb.h * s };
+    apply();
+  }
+  svg.addEventListener("wheel", (e) => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * 0.0015), e.clientX, e.clientY); }, { passive: false });
+  const ptrs = new Map();
+  let moved = false, last = null, pinch = null;
+  svg.addEventListener("pointerdown", (e) => {
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    moved = false; last = { x: e.clientX, y: e.clientY };
+    if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); }
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size === 2 && pinch) {
+      const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+      zoomAt(pinch / d, (a.x + b.x) / 2, (a.y + b.y) / 2); pinch = d; moved = true; return;
+    }
+    const dx = e.clientX - last.x, dy = e.clientY - last.y;
+    if (!moved && Math.hypot(dx, dy) < 4) return;
+    if (!moved) { moved = true; svg.classList.add("dragging"); if (svg.hasPointerCapture && !svg.hasPointerCapture(e.pointerId)) try { svg.setPointerCapture(e.pointerId); } catch {} }
+    const r = svg.getBoundingClientRect(), k = vb.w / r.width;
+    vb.x -= dx * k; vb.y -= dy * k; last = { x: e.clientX, y: e.clientY };
+    apply();
+  });
+  const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; svg.classList.remove("dragging"); setTimeout(() => (moved = false), 0); };
+  window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
+  svg.addEventListener("click", () => { if (!moved) select(null); });
+  $("zin").onclick = () => zoomAt(1 / 1.6);
+  $("zout").onclick = () => zoomAt(1.6);
+  $("zfit").onclick = () => fitTo(views[view].bounds);
+  window.addEventListener("resize", () => vb && fitTo(vb));
+
+  // ---------------------------------------------------------------- views, layers, search
+  function show(name, keep) {
+    if (!views[name]) return;
+    view = name;
+    svg.innerHTML = "";
+    svg.appendChild(views[name].root);
+    for (const b of document.querySelectorAll(".tabs button")) b.setAttribute("aria-selected", b.dataset.view === name ? "true" : "false");
+    renderLayers();
+    if (!keep) fitTo(views[name].bounds);
+    try { history.replaceState(null, "", "#" + name); } catch {}
+  }
+  function renderLayers() {
+    const box = $("layers"); box.innerHTML = "";
+    for (const L of views[view].layers) {
+      const lab = document.createElement("label"); lab.className = "chip";
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = L.on; cb.id = `layer-${view}-${L.id}`;
+      cb.addEventListener("change", () => { L.on = cb.checked; L.g.setAttribute("display", L.on ? "inline" : "none"); });
+      const sw = document.createElement("span"); sw.className = "sw" + (L.line ? " line" : ""); sw.style.background = L.swatch;
+      const nm = document.createElement("span"); nm.textContent = L.label;
+      const n = document.createElement("span"); n.className = "n"; n.textContent = L.count;
+      lab.append(cb, sw, nm, n); box.appendChild(lab);
+    }
+  }
+  for (const b of document.querySelectorAll(".tabs button")) b.addEventListener("click", () => show(b.dataset.view));
+
+  function find(q) {
+    q = q.trim().toLowerCase();
+    if (!q) return null;
+    const score = (e) => {
+      const t = (e.item.title || "").toLowerCase(), c = (e.item.code || "").toLowerCase();
+      if (c === q || t === q) return 3;
+      if (t.startsWith(q) || c.startsWith(q)) return 2;
+      return t.includes(q) || c.includes(q) ? 1 : 0;
+    };
+    let best = null, bs = 0;
+    for (const e of index) { const s = score(e) + (e.view === view ? 0.5 : 0); if (s > 0.5 && s > bs) { best = e; bs = s; } }
+    return best;
+  }
+  $("search-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const hit = find($("search").value.replace(/\s+·.*$/, ""));
+    if (hit) select(hit, true);
+    else { const info = $("info"); info.className = "empty"; info.textContent = `Nothing on either map is called "${$("search").value}".`; }
+  });
+  $("search").addEventListener("change", () => $("search-form").requestSubmit());
+
+  // ---------------------------------------------------------------- go
+  if (!DATA) { $("info").textContent = "No map data. Run: node tools/gen-atlas.js > docs/atlas.html"; return; }
+  views.world = buildWorld();
+  views.island = buildIsland();
+  if (!views.island) $("tab-island").hidden = true;
+  if (!views.world) $("tab-world").hidden = true;
+
+  const names = new Set();
+  const dl = $("names");
+  for (const e of index) {
+    if (e.item.type === "building") continue;
+    const label = e.item.code ? `${e.item.title} · ${e.item.code}` : e.item.title;
+    if (names.has(label)) continue;
+    names.add(label);
+    const o = document.createElement("option"); o.value = label; dl.appendChild(o);
+  }
+
+  const src = $("sources");
+  for (const s of DATA.sources) {
+    const li = document.createElement("li");
+    const f = document.createElement("span"); f.className = "f"; f.textContent = s.file;
+    const b = document.createElement("span"); b.className = "b" + (s.elsewhere ? " new" : "");
+    b.textContent = s.from + (s.commit ? ` · ${s.commit} · ${s.date}` : "");
+    li.append(f, b); src.appendChild(li);
+  }
+  const elsewhere = DATA.sources.filter((s) => s.elsewhere).length;
+  $("foot").textContent = `Built ${DATA.generated} from ${DATA.refs} branches. ${elsewhere ? elsewhere + " of these files were newer on another session's branch (orange) and were used from there." : "Every file was newest on " + DATA.branch + "."}`;
+
+  const start = (location.hash || "").slice(1);
+  show(views[start] ? start : (views.world ? "world" : "island"));
+  requestAnimationFrame(() => fitTo(views[view].bounds));
+})();
+</script>

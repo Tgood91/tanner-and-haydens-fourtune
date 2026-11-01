@@ -112,3 +112,17 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
    both at once would give you two of every command. Pick one per system before enabling it.
 5. **Gold is never for sale.** FiveM's license bans selling in-game currency for real money, so a Tebex package must
    never grant gold or guns. Keep Tebex for cosmetics only.
+
+## The atlas: every plot on one map
+
+`npm run gen:atlas` (or `node tools/gen-atlas.js > docs/atlas.html`) draws `docs/atlas.html`, one map
+of everything with a coordinate. It checks this branch **and every `origin/*` branch** and uses the
+newest version of each file, so plots made in other sessions show up before they're merged. Run
+`git fetch origin` first. `node tools/gen-atlas.js --sources` lists where each file came from.
+
+- **Game world**: districts, parks, all roads by kind, the city borders, and every pin: 24/7s, gun shops,
+  fuel, clothing, hospitals, spawns, houses, impound lots, job stations, supply spots, the jail
+- **The island**: the coastline, every street from `street-renders/streets.json` and every building
+  from `island-buildings/buildings.json`
+
+Search by name or road code (`312-S35`), toggle layers, and tap a pin to copy its `vector3`.
