@@ -231,12 +231,12 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 GAME = json.loads(subprocess.run(["node", "-e", """
 const p = require('./js-snippets/places.js'), c = require('./js-snippets/cities.js');
 console.log(JSON.stringify({
-  roads: p.ROADS.map(r => ({ name: r.name, code: r.code, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
+  roads: p.ROADS.map(r => ({ name: r.name, code: r.code, pinned: !!r.pinned, kind: r.kind, city: c.cityAt(r.points[0]), points: r.points.map(q => [q.x, q.y]) })),
   cityCode: p.CITY_CODE, kindLetter: p.KIND_LETTER,
   zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
   borders: { chicago: c.CHICAGO_STARTS_AT_Y, geepee: c.GEEPEE_STARTS_AT_Y },
 }));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
-ON_ISLAND = {"Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
+ON_ISLAND = {"Cut St.", "Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
              "Palisade Boulevard", "The Causeway", "Backroads Highway", "Red Clay Expressway", "Westside Run", "Peachline Road"}
 CITY_BOX = {"chicago": (440, 1120, 128, 300), "geepee": (360, 1200, 320, 575), "atlanta": (300, 1260, 590, 860)}
 CODE = {"chicago": "312", "geepee": "770", "atlanta": "1017"}
@@ -259,6 +259,7 @@ FIT = {c: fitter(c) for c in CITY_BOX}
 CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
 NEXT = {}
 for r in GAME["roads"]:
+    if r["pinned"]: continue                  # its own number, not a place in the sequence
     key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
 MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
             "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"),

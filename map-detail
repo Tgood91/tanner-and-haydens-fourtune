@@ -450,6 +450,8 @@
       <polyline class="gp-road gp-street" points="604,337.4 622.2,331.7 623.9,279.6" stroke="#cfccc2" stroke-width="4.5"><title>Dock Street · 312-S9 (street, 312)</title></polyline>
       <polyline class="gp-casing" points="650.5,324.9 675.5,258 640.9,209.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="650.5,324.9 675.5,258 640.9,209.3" stroke="#cfccc2" stroke-width="4.5"><title>Shoreline Lane · 312-S10 (street, 312)</title></polyline>
+      <polyline class="gp-casing" points="575.7,186.6 572.3,230.8 573.4,277.9 569.4,329.5 570.6,376 574.5,417.9 576.2,446.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="575.7,186.6 572.3,230.8 573.4,277.9 569.4,329.5 570.6,376 574.5,417.9 576.2,446.3" stroke="#cfccc2" stroke-width="4.5"><title>Cut St. · 312-S35 (street, 312)</title></polyline>
       <polyline class="gp-casing" points="435.7,372.6 502,344.2 547.9,279.6" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="435.7,372.6 502,344.2 547.9,279.6" stroke="#d9d9d4" stroke-width="7"><title>Sheriff's Row · 312-A2 (arterial, 312)</title></polyline>
       <polyline class="gp-casing" points="455.5,267.7 519,277.3 587,283 646.5,277.3" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>

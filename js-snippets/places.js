@@ -85,6 +85,9 @@ const ROAD_DEFS = [
     { name: "Coal Chute Lane",         city: "chicago",  kind: "backroad",  points: [{ x: -506, y: 6120 }, { x: -510, y: 6155 }] },
     { name: "Old Pier Road",           city: "chicago",  kind: "backroad",  points: [{ x: -46, y: 5992 }, { x: -47, y: 5995 }] },
     { name: "Dunes Track",             city: "chicago",  kind: "backroad",  points: [{ x: -70, y: 6396 }, { x: 2, y: 6480 }, { x: 22, y: 6562 }] },
+    // Cut St. was laid on the island map first (312-S35, after the map's own grid streets), so
+    // its number is pinned: given here in sequence it would be 312-S11 and renumber 1st Street on.
+    { name: "Cut St.",                 city: "chicago",  kind: "street",    code: "312-S35", points: [{ x: -200, y: 6338 }, { x: -206, y: 6260 }, { x: -204, y: 6177 }, { x: -211, y: 6086 }, { x: -209, y: 6004 }, { x: -202, y: 5930 }, { x: -199, y: 5880 }] },
 
     // ================= GeePee (770), the middle =================
     // ---- highways: the lines you cross the plate on ----
@@ -159,11 +162,13 @@ const ROADS = ROAD_DEFS.map((r) => ({
 // list of that kind — 1017-H1 is the Connector, 1017-S10 Primrose Street. Given out
 // here once, so the game, the Lua layer, /streets and every map print the same code.
 // Adding a road at the END of its city's kind keeps the others' numbers.
+// A road given its own code (pinned) keeps it and doesn't take a place in the sequence.
 const CITY_CODE = { chicago: "312", geepee: "770", atlanta: "1017" };
 const KIND_LETTER = { highway: "H", arterial: "A", street: "S", backroad: "B" };
 {
     const seen = {};
     for (const r of ROADS) {
+        if (r.code) { r.pinned = true; continue; }
         const key = `${r.city}/${r.kind}`;
         seen[key] = (seen[key] || 0) + 1;
         r.code = `${CITY_CODE[r.city]}-${KIND_LETTER[r.kind]}${seen[key]}`;

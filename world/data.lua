@@ -181,6 +181,15 @@ FourtuneWorldData = {
             { x = 2, y = 6480 },
             { x = 22, y = 6562 },
         } },
+        { name = "Cut St.", code = "312-S35", city = "chicago", kind = "street", width = 16, points = {
+            { x = -200, y = 6338 },
+            { x = -206, y = 6260 },
+            { x = -204, y = 6177 },
+            { x = -211, y = 6086 },
+            { x = -209, y = 6004 },
+            { x = -202, y = 5930 },
+            { x = -199, y = 5880 },
+        } },
         { name = "Backroads Highway", code = "770-H1", city = "geepee", kind = "highway", width = 34, points = {
             { x = 1690, y = 4930 },
             { x = 1780, y = 4300 },
