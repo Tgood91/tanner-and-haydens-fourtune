@@ -31,7 +31,7 @@ const SPAWNS = {
     ],
     chicago: [
         { label: "Chicago Main",     pos: { x: -450.0, y: 6015.0, z: 33.0 }, heading: 315.0 },
-        { label: "Palisade Boulevard", pos: { x: -125.0, y: 6380.0, z: 31.5 }, heading: 45.0 },
+        { label: "Palisade Boulevard", pos: { x: -150.0, y: 5890.0, z: 31.5 }, heading: 281.4 },   // on the moved Palisade, facing east toward Lakeshore
     ],
 };
 

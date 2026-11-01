@@ -474,7 +474,7 @@ test("/streets lists every street in your city, another city, or all", () => {
     const { game } = setup();
     const at = (pos) => ({ id: 1, pos, now: 0 });
     const here = game.command(at({ x: 262, y: -1240, z: 30 }), "streets").msg;
-    assert.match(here, /^1017 Atlanta: 28 roads/);
+    assert.match(here, /^1017 Atlanta: 35 roads/);   // 28 + Halfway's 7
     assert.match(here, /Highways: The Connector \(1017-H1\), The Perimeter \(1017-H2\)/);
     assert.match(here, /Streets: .*Primrose Street \(1017-S\d+\).*Crystal Lake Drive \(1017-S\d+\)/);
     assert.match(here, /Backroads: Kudzu Lane \(1017-B1\)/);
@@ -483,11 +483,30 @@ test("/streets lists every street in your city, another city, or all", () => {
     const codes = ROADS.map((r) => r.code);
     assert.equal(new Set(codes).size, ROADS.length);
     for (const r of ROADS) assert.match(r.code, /^(312|770|1017)-[HASB]\d+$/);
-    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["312"]).msg, /^312 Chicago: 25 roads[\s\S]*Granary Row/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["312"]).msg, /^312 Chicago: 26 roads[\s\S]*Granary Row/);
     assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["GeePee"]).msg, /^770 GeePee: 12 roads/);
     const all = game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["all"]).msg;
     assert.match(all, /312 Chicago[\s\S]*770 GeePee[\s\S]*1017 Atlanta/);
     assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["mars"]).msg, /No city called mars/);
+});
+
+test("Halfway is a real town: district, roads, shops, fuel and a motel room", () => {
+    const places = require("./places");
+    const { SHOPS } = require("./shops");
+    const fuel = require("./fuel");
+    const { HOUSES } = require("./houses");
+    // standing on Main Street in the middle of town
+    assert.equal(places.describe({ x: 600, y: 1500, z: 0 }), "Main Street, Halfway, Atlanta");
+    // off the roads but inside the town, the district names it
+    assert.equal(places.describe({ x: 520, y: 1380, z: 0 }), "Halfway, Atlanta");
+    // its roads come after every older Atlanta road, so no existing code moved
+    const main = places.ROADS.find((r) => r.name === "Main Street");
+    assert.equal(main.code, "1017-A9");
+    assert.equal(places.ROADS.find((r) => r.name === "Kudzu Lane").code, "1017-B1");
+    assert.equal(SHOPS.hw_diner.label, "Halfway Diner");
+    assert.equal(SHOPS.hw_feedseed.city, "atlanta");
+    assert.ok(fuel.GAS_STATIONS.some((s) => s.label === "Halfway Fuel"));
+    assert.equal(HOUSES.halfway_motel.district, "Halfway");
 });
 
 test("/mark prints a paste-ready position", () => {
@@ -1464,8 +1483,10 @@ test("the most specific name wins: road, then park, then district, then city", (
     assert.equal(placeRules.describe({ x: -75, y: 6180, z: 30 }), "Lakeshore Drive, The Shoreline, Chicago");
 
     // Winterline Park sits inside Midway, and the smaller circle wins
-    assert.equal(placeRules.zoneAt({ x: -190, y: 6230 }).name, "Winterline Park");
-    assert.equal(placeRules.describe({ x: -190, y: 6230, z: 30 }), "Winterline Park, Chicago");
+    // (probed off the centre: Cut St. runs past the middle of the park)
+    assert.equal(placeRules.zoneAt({ x: -185, y: 6210 }).name, "Winterline Park");
+    assert.equal(placeRules.describe({ x: -185, y: 6210, z: 30 }), "Winterline Park, Chicago");
+    assert.equal(placeRules.describe({ x: -205, y: 6230, z: 30 }), "Cut St., Winterline Park, Chicago");
 
     // off the park and off every road, but still in the district — the
     // network is dense enough now that such a spot has to be looked for

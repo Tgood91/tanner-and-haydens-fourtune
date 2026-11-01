@@ -59,6 +59,7 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **The Westside** (district): centre `-1100, -1100`, radius `480`
 - [ ] **Peach Ridge Park** (park): centre `-860, -890`, radius `130`
 - [ ] **Groveland Park** (park): centre `-120, -1690`, radius `110`
+- [ ] **Halfway** (district): centre `600, 1500`, radius `330`
 
 ### 770 GeePee
 
@@ -77,9 +78,9 @@ Drive north across each line and mark where the city should change. Only the **y
 
 ## 3. Roads — `js-snippets/places.js` (`ROAD_DEFS`)
 
-65 roads. Each line shows the points it has now, in order from start to end.
+73 roads. Each line shows the points it has now, in order from start to end.
 
-### 1017 Atlanta — 28 roads
+### 1017 Atlanta — 35 roads
 
 - [ ] **The Connector** · 1017-H1 · highway · 4 points: (281, -620) → (60, -1100) → (20, -1560) → (-69, -1755)
 - [ ] **The Perimeter** · 1017-H2 · highway · 9 points: (348, -536) → (420, -900) → (300, -1400) → (0, -1800) → (-500, -1700) → (-800, -1300) → (-700, -800) → (-300, -520) → (348, -536)
@@ -93,6 +94,7 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Ridgeview Drive** · 1017-A6 · arterial · 3 points: (-918, -868) → (-760, -882) → (-620, -962)
 - [ ] **Mill Creek Road** · 1017-A7 · arterial · 3 points: (-1300, -1152) → (-1050, -1102) → (-812, -1120)
 - [ ] **Sweetwater Avenue** · 1017-A8 · arterial · 3 points: (-56, -1730) → (-62, -1620) → (-22, -1520)
+- [ ] **Main Street** · 1017-A9 · arterial · 2 points: (600, 1170) → (600, 1830)
 - [ ] **Pecan Street** · 1017-S1 · street · 3 points: (149, -684) → (150, -760) → (179, -867)
 - [ ] **Brickyard Street** · 1017-S2 · street · 3 points: (334, -705) → (240, -690) → (150, -683)
 - [ ] **Stovall Street** · 1017-S3 · street · 3 points: (-332, -1015) → (-220, -1060) → (-130, -1082)
@@ -105,10 +107,16 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Primrose Street** · 1017-S10 · street · 2 points: (262, -1180) → (262, -1300)
 - [ ] **Crystal Lake Drive** · 1017-S11 · street · 2 points: (120, -1305) → (262, -1300)
 - [ ] **Dunwood Street** · 1017-S12 · street · 3 points: (-620, -1320) → (-520, -1380) → (-420, -1420)
+- [ ] **Depot Street** · 1017-S13 · street · 2 points: (400, 1600) → (820, 1600)
+- [ ] **Gristmill Street** · 1017-S14 · street · 2 points: (420, 1450) → (790, 1450)
+- [ ] **Church Street** · 1017-S15 · street · 2 points: (470, 1310) → (720, 1310)
+- [ ] **Gin House Row** · 1017-S16 · street · 2 points: (470, 1310) → (470, 1600)
+- [ ] **Sorghum Lane** · 1017-S17 · street · 2 points: (730, 1450) → (730, 1700)
 - [ ] **Kudzu Lane** · 1017-B1 · backroad · 3 points: (-678, -1463) → (-620, -1540) → (-572, -1604)
 - [ ] **Red Clay Track** · 1017-B2 · backroad · 3 points: (299, -502) → (420, -560) → (432, -643)
 - [ ] **Pumphouse Road** · 1017-B3 · backroad · 3 points: (-1400, -1240) → (-1300, -1300) → (-1200, -1330)
 - [ ] **Switchyard Lane** · 1017-B4 · backroad · 3 points: (200, -1240) → (260, -1300) → (305, -1381)
+- [ ] **Old Rail Bed** · 1017-B5 · backroad · 3 points: (380, 1690) → (600, 1700) → (860, 1720)
 
 ### 770 GeePee — 12 roads
 
@@ -125,12 +133,12 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Hollow Road** · 770-B5 · backroad · 3 points: (1500, 4100) → (1620, 4060) → (1740, 4000)
 - [ ] **Fence Line Track** · 770-B6 · backroad · 3 points: (1808, 4183) → (2000, 4120) → (2080, 3990)
 
-### 312 Chicago — 25 roads
+### 312 Chicago — 26 roads
 
 - [ ] **Lakeshore Drive** · 312-H1 · highway · 3 points: (-60, 5990) → (-75, 6180) → (-93, 6400)
-- [ ] **The 312 Skyway** · 312-H2 · highway · 4 points: (-496, 6022) → (-360, 6180) → (-180, 6330) → (-70, 6404)
+- [ ] **The 312 Skyway** · 312-H2 · highway · 4 points: (-496, 6022) → (-360, 6180) → (-200, 6338) → (-70, 6404)
 - [ ] **Ironline Expressway** · 312-H3 · highway · 4 points: (-490, 5962) → (-510, 6160) → (-480, 6420) → (-416, 6489)
-- [ ] **Palisade Boulevard** · 312-A1 · arterial · 3 points: (-485, 6376) → (-230, 6378) → (-71, 6404)
+- [ ] **Palisade Boulevard** · 312-A1 · arterial · 5 points: (-490, 5962) → (-420, 5895) → (-199, 5880) → (-100, 5900) → (-60, 5990)
 - [ ] **Sheriff's Row** · 312-A2 · arterial · 3 points: (-447, 6010) → (-330, 6060) → (-249, 6174)
 - [ ] **The Causeway** · 312-A3 · arterial · 3 points: (-247, 6338) → (-150, 6395) → (-70, 6396)
 - [ ] **Midway Avenue** · 312-A4 · arterial · 4 points: (-412, 6195) → (-300, 6178) → (-180, 6168) → (-75, 6178)
@@ -143,11 +151,12 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Fenwick Street** · 312-S3 · street · 3 points: (-417, 6117) → (-330, 6128) → (-267, 6152)
 - [ ] **Mill Street** · 312-S4 · street · 2 points: (-383, 6212) → (-287, 6260)
 - [ ] **Bellmont Street** · 312-S5 · street · 3 points: (-416, 6205) → (-392, 6212) → (-318, 6215)
-- [ ] **Ketterling Avenue** · 312-S6 · street · 2 points: (-202, 6382) → (-185, 6488)
-- [ ] **Hoyt Street** · 312-S7 · street · 2 points: (-351, 6377) → (-269, 6377)
+- [ ] **Ketterling Avenue** · 312-S6 · street · 2 points: (-202, 6377) → (-185, 6488)
+- [ ] **Hoyt Street** · 312-S7 · street · 3 points: (-351, 6377) → (-269, 6377) → (-202, 6377)
 - [ ] **Granary Row** · 312-S8 · street · 3 points: (-454, 6448) → (-390, 6502) → (-194, 6511)
 - [ ] **Dock Street** · 312-S9 · street · 3 points: (-150, 6072) → (-118, 6082) → (-115, 6174)
 - [ ] **Shoreline Lane** · 312-S10 · street · 3 points: (-68, 6094) → (-24, 6212) → (-85, 6298)
+- [ ] **Cut St.** · 312-S35 · street · 7 points: (-200, 6338) → (-206, 6260) → (-204, 6177) → (-211, 6086) → (-209, 6004) → (-202, 5930) → (-199, 5880)
 - [ ] **Tannery Alley** · 312-B1 · backroad · 2 points: (-444, 6003) → (-416, 6017)
 - [ ] **Coal Chute Lane** · 312-B2 · backroad · 2 points: (-506, 6120) → (-510, 6155)
 - [ ] **Old Pier Road** · 312-B3 · backroad · 2 points: (-46, 5992) → (-47, 5995)
@@ -155,9 +164,9 @@ Drive north across each line and mark where the city should change. Only the **y
 
 ## 4. Places players use — pins
 
-50 spots. Stand where the player interacts.
+54 spots. Stand where the player interacts.
 
-### 1017 Atlanta — 20 spots
+### 1017 Atlanta — 24 spots
 
 - [ ] **Alder Street** · Spawn · now `-269.4, -955.3, 31.2` · `js-snippets/spawns.js (SPAWNS, also set heading)`
 - [ ] **Lantern Square** · Spawn · now `195.2, -933.8, 30.7` · `js-snippets/spawns.js (SPAWNS, also set heading)`
@@ -167,8 +176,11 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **BigBackin' Bell** · Shop · now `141, -673, 36.6` · `js-snippets/shops.js (SHOPS)`
 - [ ] **General Fools** · Shop · now `-707, -900, 19.2` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Shooters Armoury** · Gun shop · now `22, -1110, 29.8` · `js-snippets/shops.js (SHOPS)`
+- [ ] **Halfway Diner** · Shop · now `622, 1530, 0` · `js-snippets/shops.js (SHOPS)`
+- [ ] **Halfway Feed & Seed** · Shop · now `578, 1395, 0` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Gasco Groveland** · Fuel · now `-70.2, -1761.8, 29.5` · `js-snippets/fuel.js (GAS_STATIONS)`
 - [ ] **Koreatown Gas** · Fuel · now `-526, -1211, 18.2` · `js-snippets/fuel.js (GAS_STATIONS)`
+- [ ] **Halfway Fuel** · Fuel · now `628, 1220, 0` · `js-snippets/fuel.js (GAS_STATIONS)`
 - [ ] **Red Clay General** · Hospital · now `298, -584, 43.3` · `js-snippets/medical.js (HOSPITALS)`
 - [ ] **Peach Ridge Medical** · Hospital · now `-912, -870, 36` · `js-snippets/medical.js (HOSPITALS)`
 - [ ] **Pillbrooke Medical** · Hospital · now `307, -1441, 29.9` · `js-snippets/medical.js (HOSPITALS)`
@@ -176,6 +188,7 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Alder Bungalow** · Housing · now `-250, -970, 31.3` · `js-snippets/houses.js (HOUSES)`
 - [ ] **Southline Row** · Housing · now `30, -1540, 29.4` · `js-snippets/houses.js (HOUSES)`
 - [ ] **Westside House** · Housing · now `-1090, -1110, 26.2` · `js-snippets/houses.js (HOUSES)`
+- [ ] **Depot Motel Room** · Housing · now `760, 1620, 0` · `js-snippets/houses.js (HOUSES)`
 - [ ] **Atlanta Impound** · Impound · now `390, -1630, 29.3` · `js-snippets/impound.js (LOTS)`
 - [ ] **Southline Surplus** · Clothes · now `42, -1532, 29.4` · `js-snippets/appearance.js (SHOPS)`
 - [ ] **Alder Dry Goods** · Clothes · now `-238, -962, 31.3` · `js-snippets/appearance.js (SHOPS)`
@@ -198,7 +211,7 @@ Drive north across each line and mark where the city should change. Only the **y
 ### 312 Chicago — 18 spots
 
 - [ ] **Chicago Main** · Spawn · now `-450, 6015, 33` · `js-snippets/spawns.js (SPAWNS, also set heading)`
-- [ ] **Palisade Boulevard** · Spawn · now `-125, 6380, 31.5` · `js-snippets/spawns.js (SPAWNS, also set heading)`
+- [ ] **Palisade Boulevard** · Spawn · now `-150, 5890, 31.5` · `js-snippets/spawns.js (SPAWNS, also set heading)`
 - [ ] **Open 24 Chicago** · Shop · now `-440, 6005, 31.7` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Chicago Hardware** · Shop · now `-420, 6025, 31.5` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Gunworks Chicago** · Gun shop · now `-330.2, 6083.9, 31.5` · `js-snippets/shops.js (SHOPS)`
@@ -227,4 +240,4 @@ and they'll be added to the data so the game knows about them too.
 - [ ] The 1017 Harbor and the 312 Port: a point on each quay
 - [ ] The airport: the terminal door and the runway's two ends
 
-_Totals: 2 borders, 15 zones, 65 roads (199 points), 50 pins._
+_Totals: 2 borders, 16 zones, 73 roads (224 points), 54 pins._

@@ -54,7 +54,7 @@ const SUPPLY_SPOTS = [
 const DEMAND = {
     "The Knot": 1.25, "Midway": 1.0, "Northline": 0.9, "The Shoreline": 1.1,
     "Red Clay": 1.2, "Alder Heights": 1.0, "Southline": 1.15, "The Westside": 0.85,
-    "Harvest Flats": 0.7, "The Backroads": 0.6,
+    "Harvest Flats": 0.7, "The Backroads": 0.6, "Halfway": 0.65,
 };
 
 function isProduct(item) {

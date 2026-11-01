@@ -40,6 +40,7 @@ const HOUSES = {
     southline_row:  { label: "Southline Row",     district: "Southline",     price: 160000, storage: 55, pos: { x: 30,   y: -1540, z: 29.4 } },
     westside_house: { label: "Westside House",    district: "The Westside",  price: 125000, storage: 65, pos: { x: -1090, y: -1110, z: 26.2 } },
     backroads_trailer: { label: "Backroads Trailer", district: "The Backroads", price: 65000, storage: 40, pos: { x: 1770, y: 4410, z: 39.8 } },
+    halfway_motel:  { label: "Depot Motel Room",  district: "Halfway",       price: 55000,  storage: 35, pos: { x: 760, y: 1620, z: 0 } },   // z unknown: walk it
 };
 
 function findDoor(pos) {
