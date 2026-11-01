@@ -3,13 +3,13 @@
 ![preview](preview.png)
 
 `tools/gen-island-buildings.js` builds every building `island-map.html` draws, as 3D models standing on
-the terrain. There are **230 buildings in 41 tiles**:
+the terrain. There are **247 buildings in 42 tiles**:
 
 | type | count | height |
 |---|---|---|
 | West towers | 26 | the floors in their map title × 3.5 m (45–95 floors, up to 327 m) |
 | 1017 towers (south + north) | 22 | the floors in their map title × 3.5 m (25–64 floors) |
-| 312 offices | 63 | 3–12 floors × 4 m |
+| 312 high-rises | 80 | the floors in their map title × 3.5 m (19–57 floors, up to 200 m), tallest in the core |
 | 1017 houses / frontage | 93 | 1–2 floors, pitched roof |
 | 1017 apartment rows | 7 | 3–5 floors |
 | Airport terminals | 5 | 15 m |
@@ -60,4 +60,4 @@ These are the same steps as `island-terrain/`:
 - **Blocks:** buildings are plain blocks with flat or pitched roofs. Detail comes from the textures you choose.
 - **No interiors:** none of the buildings can be entered.
 - **No distant models:** tiles draw in full out to 1,500 m, the same as the terrain. The 300 m towers would benefit from simple distant versions later.
-- **Density:** the 312 is as sparse as the 2D map. Its generator dropped any building that landed on a road. To add more, add them to `tools/gen-island-map.py`, regenerate the map, and rerun this script.
+- **312 gaps:** about a quarter of the 312 blocks are still empty. A gameplay street crosses each of them on the 2D map, so a tower there would sit on a road. To fill them, move or remove those streets in `js-snippets/places.js` and rerun the map and this script.

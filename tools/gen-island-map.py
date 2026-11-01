@@ -123,6 +123,20 @@ forest(mx+90, my+70, 90, 40, 120)
 BUILDINGS = []    # (group, x, y, w, h, svg) — x, y, w, h is the footprint's bounding box
 def bld(group, x, y, w, h, svg): BUILDINGS.append((group, x, y, w, h, svg))
 
+# 312 high-rises: every block gets a tower, tallest in the core round the Connector and
+# B Avenue and stepping down to the waterfront. Candidates in order of preference: one big
+# tower, a pair of slender ones, four small ones, then six slim point towers; whichever clear the roads stay, and
+# the low-rise below fills what's left. Own random stream, so nothing else on the map moves.
+HR = random.Random(312)
+def highrise(x, y, s_w, s_h, core):
+    fl = int(18 + 52 * core + HR.uniform(0, 14))
+    sh = fl * .1
+    bld("312-towers", x, y, s_w, s_h,
+        f'  <g class="tower"><title>312 high-rise — {fl} floors</title>'
+        f'<rect x="{f(x + sh)}" y="{f(y + sh)}" width="{f(s_w)}" height="{f(s_h)}" fill="rgba(20,24,30,.4)"/>'
+        f'<rect x="{f(x)}" y="{f(y)}" width="{f(s_w)}" height="{f(s_h)}" fill="#aeb6bf" stroke="#353b42" stroke-width="1"/>'
+        f'<rect x="{f(x + s_w * .22)}" y="{f(y + s_h * .22)}" width="{f(s_w * .56)}" height="{f(s_h * .56)}" fill="none" stroke="#7a838c" stroke-width=".8"/></g>')
+
 a('<g id="city-312" clip-path="url(#clip-island)">')
 for gx in range(430, 1130, 34):
     for gy in range(140, 300, 30):
@@ -130,6 +144,15 @@ for gx in range(430, 1130, 34):
         if random.random() < .08: continue
         shade = random.choice(["#8f9499","#a2a6aa","#7d838a","#b2b0a8","#969a90"])
         a(f'  <rect x="{gx+3}" y="{gy+3}" width="26" height="22" fill="#6f7479"/>')      # the block's pavement stays
+        core = max(0.0, 1 - math.hypot((gx + 16 - 760) / 330, (gy + 14 - 205) / 120))
+        bx0, by0, bw_, bh_ = gx + 5, gy + 5, 22, 18                                     # the block, clear of its streets
+        highrise(bx0 + 2 + HR.uniform(0, 2), by0 + 1 + HR.uniform(0, 2), 16, 14, core)   # one big tower
+        for k in range(2):                                                               # or a slender pair
+            highrise(bx0 + k * 11.5, by0 + HR.uniform(0, 3), 10, 15, core * .9)
+        for k in range(4):                                                               # or up to four small ones
+            highrise(bx0 + (k % 2) * 12, by0 + (k // 2) * 9.5, 9.5, 8.5, core * .7)
+        for k in range(6):                                                               # or slim point towers in the corners a road left
+            highrise(bx0 + (k % 3) * 7.8, by0 + (k // 3) * 10, 6.4, 7.2, core * .6)
         for _ in range(8):          # candidates: the ones clear of roads and each other are kept
             bw, bh = random.uniform(7, 14), random.uniform(6, 10)
             bx, by = gx + 4 + random.uniform(0, 26 - bw - 2), gy + 4 + random.uniform(0, 22 - bh - 2)
@@ -528,7 +551,7 @@ def on_land(x, y):
         if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
     return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
 
-kept = {"city-312": [], "houses-1017": [], "towers": [], "west-towers": []}
+kept = {"312-towers": [], "city-312": [], "houses-1017": [], "towers": [], "west-towers": []}
 TAKEN = {}        # footprints already used, so frontage never lands on a building
 def take(x, y, w, h):
     for cx in range(int(x // CELL), int((x + w) // CELL) + 1):
@@ -541,7 +564,7 @@ def taken(x, y, w, h, gap=1.5):
     return False
 cleared = 0
 for group, x, y, w, h, svg in BUILDINGS:
-    if on_road(x, y, w, h) or (group in ("city-312", "west-towers") and taken(x, y, w, h, 1.5)): cleared += 1; continue
+    if on_road(x, y, w, h) or (group in ("312-towers", "city-312", "west-towers") and taken(x, y, w, h, 1.5)): cleared += 1; continue
     kept[group].append(svg); take(x, y, w, h)
 
 # Frontage: walk each city street and set a building on either side every few units,
@@ -580,7 +603,7 @@ for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the
     frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
 
 FILL = {"%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
-        "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"]), "%%frontage%%": "\n".join(frontage)}
+        "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"] + kept["312-towers"]), "%%frontage%%": "\n".join(frontage)}
 out = [FILL.get(line, line) for line in out]
 print(f"buildings: {len(BUILDINGS) - cleared} kept, {cleared} left out (on a road, or overlapping in a 312 block), {len(frontage)} added along streets", file=sys.stderr)
 

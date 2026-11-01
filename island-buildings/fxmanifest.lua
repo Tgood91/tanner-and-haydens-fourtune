@@ -1,4 +1,4 @@
--- island-buildings: every building on the island (230, in 41 tiles), with collision.
+-- island-buildings: every building on the island (247, in 42 tiles), with collision.
 -- Drop this folder into resources/ and add `ensure island-buildings` to server.cfg
 -- after `ensure island-terrain`. stream/ must hold the files Sollumz and CodeWalker
 -- make from obj/ and xml/ (see README.md).

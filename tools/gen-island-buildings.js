@@ -7,7 +7,7 @@
 //
 // Reads every building island-map.html draws, with its real footprint (turned
 // ones included), in the pre-installed Chromium:
-//   - the towers, with the floor count from their title (1017 south/north, west towers)
+//   - the towers, with the floor count from their title (1017 south/north, west towers, 312 high-rises)
 //   - the 312 city blocks' buildings and the 312 street frontage
 //   - the 1017 houses, the 1017 apartment rows and the 770 farmhouses
 //   - the airport terminals and control towers, the farm barns and silos
@@ -70,7 +70,7 @@ const MATS = {
     const out = [];
     for (const g of svg.querySelectorAll("g.tower")) {
       const t = g.querySelector("title").textContent, fl = +(t.match(/(\d+) floors/) || [0, 30])[1];
-      out.push({ type: t.startsWith("West") ? "west-tower" : "tower", floors: fl, label: t, poly: corners(g.querySelectorAll("rect")[1]) });
+      out.push({ type: t.startsWith("West") ? "west-tower" : t.startsWith("312") ? "highrise-312" : "tower", floors: fl, label: t, poly: corners(g.querySelectorAll("rect")[1]) });
     }
     for (const r of svg.querySelectorAll("#city-312 rect[filter]")) out.push({ type: "office-312", poly: corners(r) });
     for (const r of svg.querySelectorAll("#houses-1017 rect[filter]")) {
@@ -105,7 +105,7 @@ const MATS = {
     const R = rnd(cx, cy);
     let floors, fh, wall, roof, gable = false;
     switch (b.type) {
-      case "west-tower": case "tower": floors = b.floors; fh = 3.5; wall = "glass_tower"; roof = "roof_flat"; break;
+      case "west-tower": case "tower": case "highrise-312": floors = b.floors; fh = 3.5; wall = "glass_tower"; roof = "roof_flat"; break;
       case "office-312": floors = 3 + Math.floor(R * 10); fh = 4; wall = R < .5 ? "office" : "concrete"; roof = "roof_flat"; break;
       case "shop-312": floors = 2 + Math.floor(R * 5); fh = 4; wall = R < .5 ? "brick" : "office"; roof = "roof_flat"; break;
       case "apartments": floors = 3 + Math.floor(R * 3); fh = 3.2; wall = "brick"; roof = "roof_flat"; break;
