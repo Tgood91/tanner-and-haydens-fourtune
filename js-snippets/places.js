@@ -55,11 +55,12 @@ const ROAD_DEFS = [
     // ================= Chicago (312), the northern plate =================
     // ---- highways: the lines you cross the plate on ----
     { name: "Lakeshore Drive",         city: "chicago",  kind: "highway",   width: 30, points: [{ x: -60, y: 5990 }, { x: -75, y: 6180 }, { x: -93, y: 6400 }] },
-    { name: "The 312 Skyway",          city: "chicago",  kind: "highway",   points: [{ x: -496, y: 6022 }, { x: -360, y: 6180 }, { x: -180, y: 6330 }, { x: -70, y: 6404 }] },
+    { name: "The 312 Skyway",          city: "chicago",  kind: "highway",   points: [{ x: -496, y: 6022 }, { x: -360, y: 6180 }, { x: -200, y: 6338 }, { x: -70, y: 6404 }] },   // bends through Cut St.'s north end
     { name: "Ironline Expressway",     city: "chicago",  kind: "highway",   width: 32, points: [{ x: -490, y: 5962 }, { x: -510, y: 6160 }, { x: -480, y: 6420 }, { x: -416, y: 6489 }] },
 
     // ---- arterials: how you get between districts ----
-    { name: "Palisade Boulevard",      city: "chicago",  kind: "arterial",  points: [{ x: -485, y: 6376 }, { x: -230, y: 6378 }, { x: -71, y: 6404 }] },
+    // Palisade runs the 312's south edge, as the island map draws it: Ironline to Lakeshore, through Cut St.'s south end
+    { name: "Palisade Boulevard",      city: "chicago",  kind: "arterial",  points: [{ x: -490, y: 5962 }, { x: -420, y: 5895 }, { x: -199, y: 5880 }, { x: -100, y: 5900 }, { x: -60, y: 5990 }] },
     { name: "Sheriff's Row",           city: "chicago",  kind: "arterial",  width: 22, points: [{ x: -447, y: 6010 }, { x: -330, y: 6060 }, { x: -249, y: 6174 }] },
     { name: "The Causeway",            city: "chicago",  kind: "arterial",  width: 30, points: [{ x: -247, y: 6338 }, { x: -150, y: 6395 }, { x: -70, y: 6396 }] },
     { name: "Midway Avenue",           city: "chicago",  kind: "arterial",  points: [{ x: -412, y: 6195 }, { x: -300, y: 6178 }, { x: -180, y: 6168 }, { x: -75, y: 6178 }] },
@@ -74,8 +75,8 @@ const ROAD_DEFS = [
     { name: "Fenwick Street",          city: "chicago",  kind: "street",    points: [{ x: -417, y: 6117 }, { x: -330, y: 6128 }, { x: -267, y: 6152 }] },
     { name: "Mill Street",             city: "chicago",  kind: "street",    points: [{ x: -383, y: 6212 }, { x: -287, y: 6260 }] },
     { name: "Bellmont Street",         city: "chicago",  kind: "street",    points: [{ x: -416, y: 6205 }, { x: -392, y: 6212 }, { x: -318, y: 6215 }] },
-    { name: "Ketterling Avenue",       city: "chicago",  kind: "street",    points: [{ x: -202, y: 6382 }, { x: -185, y: 6488 }] },
-    { name: "Hoyt Street",             city: "chicago",  kind: "street",    points: [{ x: -351, y: 6377 }, { x: -269, y: 6377 }] },
+    { name: "Ketterling Avenue",       city: "chicago",  kind: "street",    points: [{ x: -202, y: 6377 }, { x: -185, y: 6488 }] },   // meets Hoyt Street by The Causeway
+    { name: "Hoyt Street",             city: "chicago",  kind: "street",    points: [{ x: -351, y: 6377 }, { x: -269, y: 6377 }, { x: -202, y: 6377 }] },
     { name: "Granary Row",             city: "chicago",  kind: "street",    points: [{ x: -454, y: 6448 }, { x: -390, y: 6502 }, { x: -194, y: 6511 }] },
     { name: "Dock Street",             city: "chicago",  kind: "street",    points: [{ x: -150, y: 6072 }, { x: -118, y: 6082 }, { x: -115, y: 6174 }] },
     { name: "Shoreline Lane",          city: "chicago",  kind: "street",    points: [{ x: -68, y: 6094 }, { x: -24, y: 6212 }, { x: -85, y: 6298 }] },

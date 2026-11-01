@@ -33,7 +33,7 @@ FourtuneWorldData = {
         },
         chicago = {
             { label = "Chicago Main", pos = { x = -450, y = 6015, z = 33 }, heading = 315 },
-            { label = "Palisade Boulevard", pos = { x = -125, y = 6380, z = 31.5 }, heading = 45 },
+            { label = "Palisade Boulevard", pos = { x = -150, y = 5890, z = 31.5 }, heading = 281.4 },
         },
     },
 
@@ -64,7 +64,7 @@ FourtuneWorldData = {
         { name = "The 312 Skyway", code = "312-H2", city = "chicago", kind = "highway", width = 34, points = {
             { x = -496, y = 6022 },
             { x = -360, y = 6180 },
-            { x = -180, y = 6330 },
+            { x = -200, y = 6338 },
             { x = -70, y = 6404 },
         } },
         { name = "Ironline Expressway", code = "312-H3", city = "chicago", kind = "highway", width = 32, points = {
@@ -74,9 +74,11 @@ FourtuneWorldData = {
             { x = -416, y = 6489 },
         } },
         { name = "Palisade Boulevard", code = "312-A1", city = "chicago", kind = "arterial", width = 26, points = {
-            { x = -485, y = 6376 },
-            { x = -230, y = 6378 },
-            { x = -71, y = 6404 },
+            { x = -490, y = 5962 },
+            { x = -420, y = 5895 },
+            { x = -199, y = 5880 },
+            { x = -100, y = 5900 },
+            { x = -60, y = 5990 },
         } },
         { name = "Sheriff's Row", code = "312-A2", city = "chicago", kind = "arterial", width = 22, points = {
             { x = -447, y = 6010 },
@@ -142,12 +144,13 @@ FourtuneWorldData = {
             { x = -318, y = 6215 },
         } },
         { name = "Ketterling Avenue", code = "312-S6", city = "chicago", kind = "street", width = 16, points = {
-            { x = -202, y = 6382 },
+            { x = -202, y = 6377 },
             { x = -185, y = 6488 },
         } },
         { name = "Hoyt Street", code = "312-S7", city = "chicago", kind = "street", width = 16, points = {
             { x = -351, y = 6377 },
             { x = -269, y = 6377 },
+            { x = -202, y = 6377 },
         } },
         { name = "Granary Row", code = "312-S8", city = "chicago", kind = "street", width = 16, points = {
             { x = -454, y = 6448 },

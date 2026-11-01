@@ -22,7 +22,7 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9291,
+ "totalPieces": 9305,
  "ymaps": [
   {
    "file": "island_roads_m10_m12.ymap.xml",
@@ -106,7 +106,7 @@
   },
   {
    "file": "island_roads_m11_m12.ymap.xml",
-   "pieces": 1360,
+   "pieces": 1374,
    "roads": [
     "312-S1",
     "312-S2",
@@ -507,7 +507,7 @@
    "name": "Hoyt Street",
    "kind": "street",
    "rows": 1,
-   "pieces": 18
+   "pieces": 32
   },
   {
    "code": "312-S8",
