@@ -151,6 +151,7 @@ dr, road_z = dist_to(rx, ry, FLAT_R + BLEND_R + 8, rz)
 k = smooth((dr - FLAT_R) / BLEND_R)
 on_ground = s > -30                            # past that a road is a bridge: the sea stays
 h = np.where(on_ground, (road_z - ROAD_SINK) * (1 - k) + h * k, h)
+(OUT / "ground.f32").write_bytes(h.astype("<f4").tobytes())     # final ground, same grid as road-guide.json (for the buildings)
 
 # ---------------------------------------------------------------- material per cell
 gy_, gx_ = np.gradient(h, SPACING)
