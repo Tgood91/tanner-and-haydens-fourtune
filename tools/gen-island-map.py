@@ -219,6 +219,8 @@ for n, gx in enumerate([g for g in range(430, 1140, 34) if abs(g - 760) > 15], 1
     road(f"st312-v{gx}", f"{ordinal(n)} Street", f"M{gx} {150 if 560<gx<1000 else 175} L{gx} 300", "street312")
 for n, gy in enumerate(range(170, 290, 30)):   # A-D: the ring road is the waterfront edge, Palisade the south one
     road(f"st312-h{gy}", f"{'ABCDEF'[n]} Avenue", f"M{440 if gy>200 else 520} {gy} L{1120 if gy>200 else 1030} {gy}", "street312")
+# Added after the grid so it takes the next 312 number and nothing else is renumbered.
+road("cut-st", "Cut St.", smooth([(821,189),(815,208),(817,228),(810,250),(812,270),(819,288),(822,300)], closed=False), "street")   # the 312: the Skyway down to Palisade
 
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
          "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
@@ -261,7 +263,8 @@ for r in GAME["roads"]:
 MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
             "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"),
             "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
-            "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S")}
+            "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S"),
+            "cut-st": ("chicago", "S")}
 def map_only_kind(rid):
     if rid in MAP_ONLY: return MAP_ONLY[rid]
     if rid.startswith("farm-"): return ("geepee", "B")

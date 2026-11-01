@@ -22,7 +22,7 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9267,
+ "totalPieces": 9291,
  "ymaps": [
   {
    "file": "island_roads_m10_m12.ymap.xml",
@@ -106,7 +106,7 @@
   },
   {
    "file": "island_roads_m11_m12.ymap.xml",
-   "pieces": 1336,
+   "pieces": 1360,
    "roads": [
     "312-S1",
     "312-S2",
@@ -132,6 +132,7 @@
     "312-S32",
     "312-S33",
     "312-S34",
+    "312-S35",
     "770-A1",
     "312-H2",
     "312-A1",
@@ -1018,6 +1019,13 @@
    "kind": "street",
    "rows": 1,
    "pieces": 17
+  },
+  {
+   "code": "312-S35",
+   "name": "Cut St.",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 24
   },
   {
    "code": "770-A1",
