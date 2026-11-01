@@ -1,0 +1,197 @@
+#!/usr/bin/env node
+// ============================================================
+// tools/gen-road-ymaps.js — builds the island's roads as CodeWalker ymap XML
+//
+//   node tools/gen-road-ymaps.js
+//
+// Reads every named road in island-map.html (the same 107 the street atlas
+// renders), walks each one's centre line in the pre-installed Chromium, and
+// lays road-piece props end to end along it: one row for a street, two for
+// an arterial, three for a highway. The pieces are grouped into 512 m grid
+// cells, one ymap per cell, written as CodeWalker XML to
+//   island-roads/xml/island_roads_<col>_<row>.ymap.xml
+// plus island-roads/xml/roads-index.json (which road went where).
+//
+// CodeWalker turns the XML into binary .ymap (see island-roads/README.md);
+// the binaries go in island-roads/stream/ and FiveM streams them.
+//
+// CHECK THESE IN CODEWALKER FIRST (search the model, read its bounding box):
+// the piece model and its length/width are not verified. Change CONFIG and
+// rerun; everything else follows.
+// ============================================================
+const fs = require("fs");
+const path = require("path");
+const { chromium } = require("playwright");
+
+const CONFIG = {
+  // The prop laid end to end. Its long side must run along the model's local +Y.
+  pieceModel: "stt_prop_track_straight_s",
+  pieceLength: 10.0,      // metres along the road (from the model's bounding box)
+  pieceWidth: 8.0,        // metres across, = spacing between rows on wide roads
+  overlap: 0.15,          // metres each piece overlaps the next, so no gaps open on curves
+
+  // Where the island sits in the GTA world. Map units: x 0..1500, y 0..1000 (y down).
+  metresPerUnit: 2.0,     // 1500 units -> a 3 km wide island
+  centre: { x: -5500.0, y: -6500.0 },   // world X/Y of map point (750, 500): open sea, away from Los Santos and Cayo Perico
+  z: 10.0,                // road surface height, flat; 10 m clears the sea
+
+  cell: 512,              // metres per ymap grid cell
+  lodDist: 400,           // how far away a piece still draws
+};
+const ROWS = { highway: 3, arterial: 2, street: 1, street312: 1, backroad: 1, track: 1 };
+
+const REPO = path.resolve(__dirname, "..");
+const OUT = path.join(REPO, "island-roads", "xml");
+
+const toWorld = (mx, my) => [CONFIG.centre.x + (mx - 750) * CONFIG.metresPerUnit,
+                             CONFIG.centre.y - (my - 500) * CONFIG.metresPerUnit];   // map y runs south, world y north
+const n6 = (v) => (Math.abs(v) < 5e-7 ? 0 : v).toFixed(6);
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+(async () => {
+  // ---- 1. every road's centre line, sampled finely from the SVG
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto("file://" + path.join(REPO, "island-map.html"));
+  const stepUnits = 1 / CONFIG.metresPerUnit;                       // a sample every metre
+  const roads = await page.evaluate((step) => {
+    const seen = new Set(), out = [];
+    for (const p of document.querySelectorAll("#island path.road")) {
+      const t = p.querySelector("title"); if (!t) continue;
+      const m = t.textContent.match(/^(.*?) · ([0-9]+-[A-Z]+[0-9]+)/); if (!m || seen.has(m[2])) continue;
+      seen.add(m[2]);
+      const kindM = t.textContent.match(/\((\w+)\)\s*$/);
+      const cls = [...p.classList].filter(c => c !== "road" && c !== "gp-street");
+      // A path can hold several sub-paths (EUPHORIA Lane's spur); walk each one on its own.
+      const subs = p.getAttribute("d").match(/M[^M]+/g), lines = [];
+      for (const d of subs) {
+        const s = document.createElementNS("http://www.w3.org/2000/svg", "path"); s.setAttribute("d", d);
+        p.parentNode.appendChild(s);
+        const L = s.getTotalLength(), n = Math.max(1, Math.ceil(L / step)), pts = [];
+        for (let i = 0; i <= n; i++) { const q = s.getPointAtLength(L * i / n); pts.push([q.x, q.y]); }
+        s.remove(); lines.push(pts);
+      }
+      out.push({ name: m[1].split(" — ")[0], code: m[2], kind: kindM ? kindM[1] : (cls[0] || "street"), lines });
+    }
+    return out;
+  }, stepUnits);
+  await browser.close();
+
+  // ---- 2. lay pieces along each line
+  const cells = new Map();     // "col_row" -> [entity]
+  const index = [];
+  const pitch = CONFIG.pieceLength - CONFIG.overlap;
+  for (const r of roads) {
+    const rows = ROWS[r.kind] || 1;
+    let count = 0;
+    for (const line of r.lines) {
+      const w = line.map(([x, y]) => toWorld(x, y));
+      const cum = [0];                                                  // distance along the line, in metres
+      for (let i = 1; i < w.length; i++) cum.push(cum[i - 1] + Math.hypot(w[i][0] - w[i - 1][0], w[i][1] - w[i - 1][1]));
+      const total = cum.at(-1); if (total < 1) continue;
+      const pieces = Math.max(1, Math.ceil((total - CONFIG.overlap) / pitch));
+      const step = total / pieces;                                      // stretch evenly so the last piece ends on the end
+      const at = (d) => {                                               // point + direction at distance d
+        let i = 1; while (i < cum.length - 1 && cum[i] < d) i++;
+        const t = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
+        return [w[i - 1][0] + (w[i][0] - w[i - 1][0]) * t, w[i - 1][1] + (w[i][1] - w[i - 1][1]) * t];
+      };
+      for (let k = 0; k < pieces; k++) {
+        const a = at(k * step), b = at(Math.min(total, (k + 1) * step)), mid = at((k + .5) * step);
+        const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+        const heading = Math.atan2(dy, dx) - Math.PI / 2;               // model's +Y along the road
+        const nx = -dy / len, ny = dx / len;                            // left of travel
+        for (let row = 0; row < rows; row++) {
+          const off = (row - (rows - 1) / 2) * CONFIG.pieceWidth;
+          const x = mid[0] + nx * off, y = mid[1] + ny * off;
+          const key = `${Math.floor(x / CONFIG.cell)}_${Math.floor(y / CONFIG.cell)}`;
+          if (!cells.has(key)) cells.set(key, []);
+          cells.get(key).push({ x, y, z: CONFIG.z, heading, road: r.code });
+          count++;
+        }
+      }
+    }
+    index.push({ code: r.code, name: r.name, kind: r.kind, rows, pieces: count });
+  }
+
+  // ---- 3. one ymap per cell
+  fs.mkdirSync(OUT, { recursive: true });
+  for (const f of fs.readdirSync(OUT)) if (f.endsWith(".ymap.xml")) fs.unlinkSync(path.join(OUT, f));
+  const half = Math.hypot(CONFIG.pieceLength, CONFIG.pieceWidth) / 2;   // a piece's reach from its centre
+  const files = [];
+  let total = 0;
+  for (const [key, ents] of [...cells].sort()) {
+    const name = `island_roads_${key.replace(/-/g, "m")}`;
+    const ex = (f, s) => ents.reduce((m, e) => f(m, e[s]), ents[0][s]);
+    const eMin = [ex(Math.min, "x") - half, ex(Math.min, "y") - half, CONFIG.z - 2];
+    const eMax = [ex(Math.max, "x") + half, ex(Math.max, "y") + half, CONFIG.z + 2];
+    const sMin = eMin.map((v, i) => i < 2 ? v - CONFIG.lodDist : v - CONFIG.lodDist);
+    const sMax = eMax.map((v) => v + CONFIG.lodDist);
+    const vec = (tag, v) => `  <${tag} x="${n6(v[0])}" y="${n6(v[1])}" z="${n6(v[2])}" />`;
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- GENERATED by tools/gen-road-ymaps.js — do not edit; change CONFIG and rerun. ${ents.length} road pieces. -->
+<CMapData>
+  <name>${name}</name>
+  <parent />
+  <flags value="0" />
+  <contentFlags value="1" />
+${vec("streamingExtentsMin", sMin)}
+${vec("streamingExtentsMax", sMax)}
+${vec("entitiesExtentsMin", eMin)}
+${vec("entitiesExtentsMax", eMax)}
+  <entities>
+`;
+    for (const e of ents) {
+      // ymaps store the inverse rotation: a yaw of h is written as z = -sin(h/2), w = cos(h/2)
+      const qz = -Math.sin(e.heading / 2), qw = Math.cos(e.heading / 2);
+      xml += `    <Item type="CEntityDef">
+      <archetypeName>${esc(CONFIG.pieceModel)}</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="${n6(e.x)}" y="${n6(e.y)}" z="${n6(e.z)}" />
+      <rotation x="0" y="0" z="${n6(qz)}" w="${n6(qw)}" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="${CONFIG.lodDist}" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+`;
+    }
+    xml += `  </entities>
+  <containerLods />
+  <boxOccluders />
+  <occludeModels />
+  <physicsDictionaries />
+  <instancedData>
+    <ImapLink />
+    <PropInstanceList />
+    <GrassInstanceList />
+  </instancedData>
+  <timeCycleModifiers />
+  <carGenerators />
+  <block>
+    <version value="0" />
+    <flags value="0" />
+    <name>${name}</name>
+    <exportedBy>tools/gen-road-ymaps.js</exportedBy>
+    <owner />
+    <time />
+  </block>
+</CMapData>
+`;
+    fs.writeFileSync(path.join(OUT, `${name}.ymap.xml`), xml);
+    files.push({ file: `${name}.ymap.xml`, pieces: ents.length, roads: [...new Set(ents.map(e => e.road))] });
+    total += ents.length;
+  }
+  fs.writeFileSync(path.join(OUT, "roads-index.json"),
+    JSON.stringify({ config: CONFIG, rows: ROWS, totalPieces: total, ymaps: files, roads: index }, null, 1) + "\n");
+  console.log(`${roads.length} roads -> ${total} pieces in ${files.length} ymaps (island-roads/xml/)`);
+})().catch(e => { console.error(e); process.exit(1); });
