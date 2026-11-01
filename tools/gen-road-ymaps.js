@@ -6,7 +6,8 @@
 //
 // Reads every named road in island-map.html (the same 107 the street atlas
 // renders), walks each one's centre line in the pre-installed Chromium, and
-// lays road-piece props end to end along it: one row for a street, two for
+// lays road-piece props end to end along it, climbing the island's hills
+// (island-terrain/road-guide.*, from tools/gen-island-terrain.py) at no more than 12%: one row for a street, two for
 // an arterial, three for a highway. The pieces are grouped into 512 m grid
 // cells, one ymap per cell, written as CodeWalker XML to
 //   island-roads/xml/island_roads_<col>_<row>.ymap.xml
@@ -35,6 +36,7 @@ const CONFIG = {
   centre: { x: -5500.0, y: -6500.0 },   // world X/Y of map point (750, 500): open sea, away from Los Santos and Cayo Perico
   z: 10.0,                // road surface height, flat; 10 m clears the sea
 
+  maxGrade: 0.12,         // steepest a road may climb (12%); steeper ground gets cut
   cell: 512,              // metres per ymap grid cell
   lodDist: 400,           // how far away a piece still draws
 };
@@ -43,6 +45,24 @@ const ROWS = { highway: 3, arterial: 2, street: 1, street312: 1, backroad: 1, tr
 const REPO = path.resolve(__dirname, "..");
 const OUT = path.join(REPO, "island-roads", "xml");
 
+// Hill heights from tools/gen-island-terrain.py (island-terrain/road-guide.*): roads climb them.
+// Without that file every road is flat at CONFIG.z.
+const GUIDE = (() => {
+  const dir = path.join(REPO, "island-terrain");
+  try {
+    const meta = JSON.parse(fs.readFileSync(path.join(dir, "road-guide.json"), "utf8"));
+    const buf = fs.readFileSync(path.join(dir, "road-guide.f32"));
+    meta.z = new Float32Array(buf.buffer, buf.byteOffset, buf.length / 4);
+    return meta;
+  } catch { return null; }
+})();
+const groundZ = (x, y) => {
+  if (!GUIDE) return CONFIG.z;
+  const gx = Math.min(Math.max((x - GUIDE.x0) / GUIDE.spacing, 0), GUIDE.cols - 1.001);
+  const gy = Math.min(Math.max((y - GUIDE.y0) / GUIDE.spacing, 0), GUIDE.rows - 1.001);
+  const i = Math.floor(gx), j = Math.floor(gy), fx = gx - i, fy = gy - j, Z = (c, r) => GUIDE.z[r * GUIDE.cols + c];
+  return Math.max(CONFIG.z, (Z(i, j) * (1 - fx) + Z(i + 1, j) * fx) * (1 - fy) + (Z(i, j + 1) * (1 - fx) + Z(i + 1, j + 1) * fx) * fy);
+};
 const toWorld = (mx, my) => [CONFIG.centre.x + (mx - 750) * CONFIG.metresPerUnit,
                              CONFIG.centre.y - (my - 500) * CONFIG.metresPerUnit];   // map y runs south, world y north
 const n6 = (v) => (Math.abs(v) < 5e-7 ? 0 : v).toFixed(6);
@@ -96,17 +116,28 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
         const t = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
         return [w[i - 1][0] + (w[i][0] - w[i - 1][0]) * t, w[i - 1][1] + (w[i][1] - w[i - 1][1]) * t];
       };
+      // Heights at every piece joint: the hills, smoothed, then held to maxGrade both ways.
+      let zj = [];
+      for (let k = 0; k <= pieces; k++) { const q = at(Math.min(total, k * step)); zj.push(groundZ(q[0], q[1])); }
+      for (let pass = 0; pass < 3; pass++)
+        zj = zj.map((_, k) => { let sum = 0, n = 0; for (let o = -3; o <= 3; o++) if (zj[k + o] !== undefined) { sum += zj[k + o]; n++; } return sum / n; });
+      const rise = CONFIG.maxGrade * step;
+      for (let k = 1; k <= pieces; k++) zj[k] = Math.min(zj[k], zj[k - 1] + rise);
+      for (let k = pieces - 1; k >= 0; k--) zj[k] = Math.min(zj[k], zj[k + 1] + rise);
+      zj = zj.map(z => Math.max(CONFIG.z, z));
       for (let k = 0; k < pieces; k++) {
         const a = at(k * step), b = at(Math.min(total, (k + 1) * step)), mid = at((k + .5) * step);
         const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
         const heading = Math.atan2(dy, dx) - Math.PI / 2;               // model's +Y along the road
+        const pitch = Math.atan2(zj[k + 1] - zj[k], len);               // nose up when climbing
+        const zMid = (zj[k] + zj[k + 1]) / 2;
         const nx = -dy / len, ny = dx / len;                            // left of travel
         for (let row = 0; row < rows; row++) {
           const off = (row - (rows - 1) / 2) * CONFIG.pieceWidth;
           const x = mid[0] + nx * off, y = mid[1] + ny * off;
           const key = `${Math.floor(x / CONFIG.cell)}_${Math.floor(y / CONFIG.cell)}`;
           if (!cells.has(key)) cells.set(key, []);
-          cells.get(key).push({ x, y, z: CONFIG.z, heading, road: r.code });
+          cells.get(key).push({ x, y, z: zMid, heading, pitch, road: r.code });
           count++;
         }
       }
@@ -123,8 +154,8 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
   for (const [key, ents] of [...cells].sort()) {
     const name = `island_roads_${key.replace(/-/g, "m")}`;
     const ex = (f, s) => ents.reduce((m, e) => f(m, e[s]), ents[0][s]);
-    const eMin = [ex(Math.min, "x") - half, ex(Math.min, "y") - half, CONFIG.z - 2];
-    const eMax = [ex(Math.max, "x") + half, ex(Math.max, "y") + half, CONFIG.z + 2];
+    const eMin = [ex(Math.min, "x") - half, ex(Math.min, "y") - half, ex(Math.min, "z") - 2];
+    const eMax = [ex(Math.max, "x") + half, ex(Math.max, "y") + half, ex(Math.max, "z") + 2];
     const sMin = eMin.map((v, i) => i < 2 ? v - CONFIG.lodDist : v - CONFIG.lodDist);
     const sMax = eMax.map((v) => v + CONFIG.lodDist);
     const vec = (tag, v) => `  <${tag} x="${n6(v[0])}" y="${n6(v[1])}" z="${n6(v[2])}" />`;
@@ -142,14 +173,16 @@ ${vec("entitiesExtentsMax", eMax)}
   <entities>
 `;
     for (const e of ents) {
-      // ymaps store the inverse rotation: a yaw of h is written as z = -sin(h/2), w = cos(h/2)
-      const qz = -Math.sin(e.heading / 2), qw = Math.cos(e.heading / 2);
+      // Yaw (about Z) then pitch (about the piece's own X): q = qz(yaw) * qx(pitch).
+      // ymaps store the inverse rotation, so x, y, z are written negated.
+      const cy = Math.cos(e.heading / 2), sy = Math.sin(e.heading / 2), cp = Math.cos(e.pitch / 2), sp = Math.sin(e.pitch / 2);
+      const qx = -(cy * sp), qy = -(sy * sp), qz = -(sy * cp), qw = cy * cp;
       xml += `    <Item type="CEntityDef">
       <archetypeName>${esc(CONFIG.pieceModel)}</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
       <position x="${n6(e.x)}" y="${n6(e.y)}" z="${n6(e.z)}" />
-      <rotation x="0" y="0" z="${n6(qz)}" w="${n6(qw)}" />
+      <rotation x="${n6(qx)}" y="${n6(qy)}" z="${n6(qz)}" w="${n6(qw)}" />
       <scaleXY value="1" />
       <scaleZ value="1" />
       <parentIndex value="-1" />

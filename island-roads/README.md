@@ -6,8 +6,11 @@ That is **9,267 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as Code
 `xml/roads-index.json` lists which roads are in which ymap and how many pieces each road has.
 
 ```
-node tools/gen-road-ymaps.js        # rebuilds xml/ (needs island-map.html)
+python3 tools/gen-island-terrain.py   # rebuilds the ground AND these roads (it runs the road script)
+node tools/gen-road-ymaps.js          # roads only, on the last terrain's hills
 ```
+
+Roads climb the island's hills (from `island-terrain/`) at no more than 12%, each piece tilted to its slope.
 
 ## 1. Check the piece model first (once)
 
@@ -42,7 +45,7 @@ Then teleport to the island's centre, X -5500, Y -6500, Z 15.
 
 - **It is:** a drivable road surface along every street, at the right place, length and heading.
 - **It isn't:**
-  - Ground: there's no terrain or collision under the island yet, so the roads stand on the sea at Z 10.
+  - Ground: that's `island-terrain/`.
   - Traffic paths: AI cars and peds need paths built for these roads, which this doesn't include.
   - Lane markings: the pieces look like whatever model you choose.
   - Joins: at junctions the pieces just overlap.
