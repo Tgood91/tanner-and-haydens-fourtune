@@ -29,7 +29,19 @@ cp -r ~/fourtune-src/crew        <server>/resources/crew
 cp -r ~/fourtune-src/js-snippets <server>/resources/fourtune
 ```
 
-On Windows, copy the folders in Explorer and rename `js-snippets` to `fourtune`.
+**On Windows, one command does all of it** (from the folder you saved `install.ps1` in):
+
+```powershell
+Invoke-WebRequest https://raw.githubusercontent.com/Tgood91/tanner-and-haydens-fourtune/main/install.ps1 -OutFile install.ps1
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -ServerPath C:\FXServer\server-data
+```
+
+It downloads the repo (git, or the zip if git isn't installed) to `%USERPROFILE%\fourtune-src`, copies
+`world`, `crew`, `world-map` and `fourtune` into `resources\`, and adds the missing `ensure` lines to
+`server.cfg` (backed up first, never duplicated). Add `-Engine JS` to ensure `fourtune` instead of
+`world` + `crew`. Run it again to update.
+
+Or by hand: copy the folders in Explorer and rename `js-snippets` to `fourtune`.
 
 To update later, pull in `~/fourtune-src` and copy again. A symlink works too and saves the
 copy step, if your OS and FXServer are happy with one.
