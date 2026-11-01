@@ -171,7 +171,11 @@ function world(m) {
         { name: "Chicago starts", y: m.cities.CHICAGO_STARTS_AT_Y },
         { name: "GeePee starts", y: m.cities.GEEPEE_STARTS_AT_Y },
     ] : [];
-    return { zones, roads, pois, borders };
+    // Towns drawn on the map but not in the game yet (docs/planned-towns.json)
+    let planned = [];
+    const pt = read("docs/planned-towns.json");
+    if (pt) try { planned = JSON.parse(pt).towns || []; } catch (e) { console.error(`atlas: skipped planned-towns.json (${e.message})`); }
+    return { zones, roads, pois, borders, planned };
 }
 
 // ------------------------------------------------------------ the island

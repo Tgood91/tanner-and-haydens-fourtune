@@ -130,6 +130,12 @@ aside h2 { margin: 0 0 8px; font: 600 11px var(--font-body); letter-spacing: .08
 .m-ship { fill: var(--hull); }
 .m-wake { stroke: var(--paper); stroke-opacity: .6; stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; }
 .m-scenery { pointer-events: none; }
+.m-plan-zone { fill: var(--accent); fill-opacity: .06; stroke: var(--accent); stroke-dasharray: 8 5; stroke-width: 1.5; vector-effect: non-scaling-stroke; cursor: pointer; }
+.m-plan-zone.sel { stroke: var(--select); stroke-width: 3; }
+.m-plan-b { fill: var(--bldg); stroke: var(--ink); stroke-opacity: .35; stroke-width: .6; vector-effect: non-scaling-stroke; pointer-events: none; }
+.m-plan-b.shop { fill: var(--tower); }
+.m-poi.plan { stroke: var(--accent); stroke-dasharray: 2 2; stroke-width: 2; }
+.m-label.plan { fill: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .m-peak { fill: var(--muted); fill-opacity: .18; }
 
 @media (max-width: 760px) {
@@ -288,6 +294,50 @@ const DATA = /*__DATA__*/null;
       }
     }
 
+    // planned towns: drawn in full, marked as not in the game yet
+    for (const town of W.planned || []) {
+      const g = addLayer(v, "plan-" + town.name, `${town.name} (planned)`, css("--accent"), town.roads.length + town.places.length);
+      const [tx, ty] = P(town.center.x, town.center.y);
+      const ring = el("circle", { class: "m-plan-zone", cx: tx, cy: ty, r: town.radius }, g);
+      hook(ring, { type: "zone", title: town.name, kind: "Planned town, not in the game yet", city: CITY[town.city], extra: [["Population", town.pop], ["Radius", town.radius + " m"], ["Centre", `${fmt(town.center.x)}, ${fmt(town.center.y)}`], ["About", town.about]], source: "planned-towns.json" }, "world", { x0: tx - town.radius, y0: ty - town.radius, x1: tx + town.radius, y1: ty + town.radius });
+      // buildings along every street, seeded so they stay put; shopfronts on the main road
+      let seed = 212;
+      const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+      const placesXY = town.places.map((p) => P(p.pos.x, p.pos.y));
+      const roadsXY = town.roads.map((r) => r.points.map((p) => P(p.x, p.y)));
+      const onRoad = (x, y) => roadsXY.some((pts) => pts.some((a, i) => i && (() => { const b = pts[i - 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L)); return Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy) < 14; })()));
+      const blds = el("g", {}, g);
+      town.roads.forEach((r, ri) => {
+        if (r.kind === "backroad") return;
+        const pts = roadsXY[ri], main = r.kind === "arterial";
+        for (let i = 1; i < pts.length; i++) {
+          const [a, b] = [pts[i - 1], pts[i]], len = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / len, uy = (b[1] - a[1]) / len;
+          const step = main ? 30 : 38;
+          for (let d = 20; d < len - 20; d += step) for (const side of [-1, 1]) {
+            if (rnd() < (main ? 0.12 : 0.3)) continue;
+            const off = main ? 24 : 22, w = main ? 22 : 14 + rnd() * 6, h = main ? 18 : 12 + rnd() * 5;
+            const cx = a[0] + ux * d - uy * off * side, cy = a[1] + uy * d + ux * off * side;
+            if (onRoad(cx, cy) || placesXY.some(([px, py]) => Math.hypot(cx - px, cy - py) < 22)) continue;
+            el("rect", { class: "m-plan-b" + (main ? " shop" : ""), x: cx - w / 2, y: cy - h / 2, width: w, height: h }, blds);
+          }
+        }
+      });
+      town.roads.forEach((r, ri) => {
+        const d = pathOf(roadsXY[ri]);
+        const line = el("path", { class: "m-road " + r.kind, d }, g);
+        const hit = el("path", { class: "m-hit", d }, g);
+        hook(hit, { type: "road", title: r.name, kind: (KIND[r.kind] || r.kind) + ", planned", city: CITY[town.city], extra: [["Town", town.name], ["From", `${fmt(r.points[0].x)}, ${fmt(r.points[0].y)}`], ["To", `${fmt(r.points.at(-1).x)}, ${fmt(r.points.at(-1).y)}`]], source: "planned-towns.json" }, "world", bbox(roadsXY[ri]), line);
+      });
+      const color = { store: POI.store.color, fuel: POI.fuel.color, house: POI.house.color, civic: "#1f7f8f", landmark: "#6b767c" };
+      town.places.forEach((p, i) => {
+        const [cx, cy] = placesXY[i];
+        const c = el("circle", { class: "m-poi plan", cx, cy, r: 6, fill: color[p.kind] || "#6b767c", "data-pin": 1 }, g);
+        hook(c, { type: "pin", title: p.name, kind: "Planned " + p.kind + ", not in the game yet", city: CITY[town.city], extra: [["Town", town.name], ["Coords", `${fmt(p.pos.x)}, ${fmt(p.pos.y)}, ${fmt(p.pos.z || 0)}`]], source: "planned-towns.json", coords: `vector3(${p.pos.x}, ${p.pos.y}, ${p.pos.z || 0})` }, "world", { x0: cx - 40, y0: cy - 40, x1: cx + 40, y1: cy + 40 });
+      });
+      const t = el("text", { class: "m-label plan", x: tx, y: ty - town.radius - 30, "data-size": 14 }, g);
+      t.textContent = `${town.name} · pop. ${town.pop}`; v.labels.push(t);
+    }
+
     // pins, one layer per kind
     for (const [cat, meta] of Object.entries(POI)) {
       const list = W.pois.filter((p) => p.cat === cat);
@@ -310,8 +360,10 @@ const DATA = /*__DATA__*/null;
     let seed = 1017312;
     const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>>  0) / 4294967296);
     const B = v.bounds;
-    const zones = W.zones.map((z) => { const [x, y] = P(z.x, z.y); return { x, y, r: z.r }; });
-    const anchors = zones.concat(W.pois.map((p) => { const [x, y] = P(p.x, p.y); return { x, y, r: 0 }; }));
+    const real = W.zones.map((z) => { const [x, y] = P(z.x, z.y); return { x, y, r: z.r }; });
+    // planned towns are kept clear, but don't grow a city round themselves: they're small
+    const zones = real.concat((W.planned || []).map((t) => { const [x, y] = P(t.center.x, t.center.y); return { x, y, r: t.radius + 40 }; }));
+    const anchors = real.concat(W.pois.map((p) => { const [x, y] = P(p.x, p.y); return { x, y, r: 0 }; }));
     const segs = [];
     for (const r of W.roads) for (let i = 1; i < r.pts.length; i++) segs.push([P(...r.pts[i - 1]), P(...r.pts[i])]);
     const segDist = (x, y, [a, b]) => {
