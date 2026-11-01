@@ -135,6 +135,9 @@ foreach ($name in $map.Keys) {
     $to = Join-Path $Resources $name
     if (-not (Test-Path (Join-Path $from 'fxmanifest.lua'))) { Write-Warning "skipped ${name}: $from has no fxmanifest.lua"; continue }
     # /MIR keeps the server copy identical to the repo; tests and previews stay behind
+    # Linked to a dev repo by setup-dev.ps1? Then leave it: mirroring into the link would overwrite the repo
+    $existing = Get-Item $to -ErrorAction SilentlyContinue
+    if ($existing -and $existing.LinkType) { Ok ("{0,-10} is linked to {1}, left as it is" -f $name, (@($existing.Target) -join '')); continue }
     robocopy $from $to /MIR /NFL /NDL /NJH /NJS /NP /XF test.lua *.test.js preview*.png | Out-Null
     if ($LASTEXITCODE -ge 8) { throw "copying $name failed (robocopy exit $LASTEXITCODE)" }
     Ok ("{0,-10} <- {1}" -f $name, $map[$name])
