@@ -107,12 +107,20 @@ forest(1080, 340, 60, 26, 40)
 # ---------------------------------------------------------------- the mountain
 mx, my = MOUNTAIN
 forest(mx, my + 40, 235, 150, 520, title="The mountain's forest")
-peak = [(mx-200,my+95),(mx-150,my+20),(mx-95,my-55),(mx-40,my-120),(mx+5,my-150),(mx+55,my-110),(mx+120,my-40),
-        (mx+175,my+25),(mx+215,my+100),(mx+120,my+130),(mx,my+120),(mx-110,my+135)]
-a(f'<path d="{smooth(peak)}" fill="url(#rock)" opacity=".95"><title>The mountain</title></path>')
+# The rock face is drawn at 3/4 of its outline about (790, 470), so it sits inside County Line
+# Road with room to spare and clear of the Connector and the Inner Loop: no road climbs the rock.
+ROCK_K, ROCK_C = 0.75, (mx + 10, my + 15)
+def rk(x, y): return (ROCK_C[0] + (x - ROCK_C[0]) * ROCK_K, ROCK_C[1] + (y - ROCK_C[1]) * ROCK_K)
+ROCK = (788, 453, 158, 109)        # an ellipse round the drawn rock, for routing streets clear of it
+peak = [rk(x, y) for x, y in [(mx-200,my+95),(mx-150,my+20),(mx-95,my-55),(mx-40,my-120),(mx+5,my-150),(mx+55,my-110),(mx+120,my-40),
+        (mx+175,my+25),(mx+215,my+100),(mx+120,my+130),(mx,my+120),(mx-110,my+135)]]
+a(f'<path id="mountain-rock" d="{smooth(peak)}" fill="url(#rock)" opacity=".95"><title>The mountain</title></path>')
+top = rk(mx+5, my-150)
 for dx, dy in [(-130,90),(-70,95),(-20,100),(40,95),(100,100),(160,90)]:
-    a(f'<path d="M{mx+5} {my-150} Q{mx+dx*.5} {my-30} {mx+dx} {my+dy}" stroke="rgba(60,52,40,.45)" stroke-width="3" fill="none"/>')
-a(f'<path d="M{mx-35} {my-125} L{mx+5} {my-152} L{mx+50} {my-112} Q{mx+5} {my-120} {mx-35} {my-125}Z" fill="#f1f0ea"/>')
+    c, e = rk(mx+dx*.5, my-30), rk(mx+dx, my+dy)
+    a(f'<path d="M{f(top[0])} {f(top[1])} Q{f(c[0])} {f(c[1])} {f(e[0])} {f(e[1])}" stroke="rgba(60,52,40,.45)" stroke-width="2.4" fill="none"/>')
+snow = [rk(x, y) for x, y in [(mx-35,my-125),(mx+5,my-152),(mx+50,my-112),(mx+5,my-120)]]
+a(f'<path d="M{f(snow[0][0])} {f(snow[0][1])} L{f(snow[1][0])} {f(snow[1][1])} L{f(snow[2][0])} {f(snow[2][1])} Q{f(snow[3][0])} {f(snow[3][1])} {f(snow[0][0])} {f(snow[0][1])}Z" fill="#f1f0ea"/>')
 forest(mx-60, my+80, 90, 40, 120)
 forest(mx+90, my+70, 90, 40, 120)
 
@@ -134,7 +142,6 @@ for gx in range(430, 1130, 34):
             bw, bh = random.uniform(7, 14), random.uniform(6, 10)
             bx, by = gx + 4 + random.uniform(0, 26 - bw - 2), gy + 4 + random.uniform(0, 22 - bh - 2)
             bld("city-312", bx, by, bw, bh, f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
-a('%%city-312%%')          # after the pavement, so the buildings sit on top of it
 a('</g>')
 
 # ---------------------------------------------------------------- 1017 houses (east and west of downtown)
@@ -151,8 +158,6 @@ for gx in range(330, 560, 26):
         if not inside_ellipse(gx, gy, *RING[:2], RING[2]-20, RING[3]-20): continue
         if random.random() < .3: continue
         bld("houses-1017", gx - 1, gy - 4, 20, 20, f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
-a('%%houses-1017%%')
-a('%%frontage%%')
 a('</g>')
 
 # ---------------------------------------------------------------- roads
@@ -170,7 +175,7 @@ road("skyway", "The 312 Skyway", "M470 230 L1060 160", "arterial")
 road("ironline", "Ironline Expressway", smooth([(330,210),(420,250),(480,320),(470,420)], closed=False), "arterial")
 road("palisade", "Palisade Boulevard", "M440 300 L1120 300", "arterial")
 road("causeway", "The Causeway — to the 312 docks", "M1120 230 L1300 150", "arterial")
-road("backroads", "The Backroads", smooth([(420,560),(470,470),(560,420),(615,410)], closed=False), "street")
+road("backroads", "Backroads Lane", smooth([(420,560),(470,470),(560,420),(615,410)], closed=False), "street")
 road("backroads-hwy", "Backroads Highway", smooth([(1105,460),(1180,520),(1240,620),(1280,700)], closed=False), "arterial")
 road("red-clay", "Red Clay Expressway", "M560 680 L960 690", "arterial")
 road("westside-run", "Westside Run", smooth([(150,700),(260,690),(390,680)], closed=False), "arterial")
@@ -229,6 +234,21 @@ def fitter(city):
 FIT_PARAMS = {}   # the same fit, handed to the page: "you are here" and click-to-waypoint use it
 FIT = {c: fitter(c) for c in CITY_BOX}
 
+def around_rock(pts, margin=12):
+    """Bend a street round the mountain's rock: add points every 6 units, then move any that
+    fall on the rock out to just past its edge, so the street goes round the foot of it."""
+    dense = [pts[0]]
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        n = max(1, int(math.dist((x1, y1), (x2, y2)) / 6))
+        dense += [(x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n) for k in range(1, n + 1)]
+    cx, cy, rx, ry = ROCK
+    out = []
+    for x, y in dense:
+        d = math.hypot((x - cx) / (rx + margin), (y - cy) / (ry + margin))
+        if d < 1: x, y = cx + (x - cx) / max(d, 1e-6), cy + (y - cy) / max(d, 1e-6)
+        out.append((x, y))
+    return out
+
 # Every road on the island gets a name and a number. Roads the game knows keep their
 # places.js number (1017-H1 ...); the map-only ones carry on each city's sequence.
 CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
@@ -260,7 +280,7 @@ a('<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">')
 for kind in ["backroad", "street", "arterial", "highway"]:
     for i, r in enumerate(GAME["roads"]):
         if r["kind"] != kind or r["name"] in ON_ISLAND: continue
-        pts = [FIT[r["city"]](x, y) for x, y in r["points"]]
+        pts = around_rock([FIT[r["city"]](x, y) for x, y in r["points"]])
         if pts[-1][0] < pts[0][0]: pts.reverse()                    # so the label reads left to right
         d = "M" + " L".join(f"{f(x)} {f(y)}" for x, y in pts)
         w, fill, casing, dash = STREET_STYLE[kind]
@@ -288,6 +308,13 @@ for x, y, name in [(760,655,"The central interchange"),(760,798,"The south stack
     a(f'<circle cx="{x}" cy="{y}" r="22" fill="none" stroke="#cfd0cc" stroke-width="7"><title>{name}</title></circle>')
 
 # ---------------------------------------------------------------- 1017 towers (25+ floors)
+# Everything with height is drawn above the roads, so a building's shadow falls across
+# the street the way it would, and nothing flat is ever painted over something standing.
+a('<g id="buildings">')
+a('%%city-312%%')
+a('%%houses-1017%%')
+a('%%frontage%%')
+a('</g>')
 a('<g id="towers">')
 def towers(x0, x1, y0, y1, step, label):
     for gx in range(x0, x1, step):

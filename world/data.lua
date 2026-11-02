@@ -141,7 +141,7 @@ FourtuneWorldData = {
             { x = -392, y = 6212 },
             { x = -318, y = 6215 },
         } },
-        { name = "Ketterling Avenue", code = "312-S6", city = "chicago", kind = "street", width = 16, points = {
+        { name = "Ketterling Street", code = "312-S6", city = "chicago", kind = "street", width = 16, points = {
             { x = -202, y = 6382 },
             { x = -185, y = 6488 },
         } },
@@ -272,7 +272,7 @@ FourtuneWorldData = {
             { x = -270, y = -955 },
             { x = -530, y = -1205 },
         } },
-        { name = "Groveland Street", code = "1017-A2", city = "atlanta", kind = "arterial", width = 22, points = {
+        { name = "Groveland Avenue", code = "1017-A2", city = "atlanta", kind = "arterial", width = 22, points = {
             { x = -67, y = -1756 },
             { x = 45, y = -1748 },
             { x = 113, y = -1650 },
@@ -287,7 +287,7 @@ FourtuneWorldData = {
             { x = 0, y = -1522 },
             { x = 186, y = -1552 },
         } },
-        { name = "Clay Street", code = "1017-A5", city = "atlanta", kind = "arterial", width = 22, points = {
+        { name = "Clay Avenue", code = "1017-A5", city = "atlanta", kind = "arterial", width = 22, points = {
             { x = 301, y = -630 },
             { x = 252, y = -762 },
             { x = 155, y = -915 },
@@ -322,7 +322,7 @@ FourtuneWorldData = {
             { x = -220, y = -1060 },
             { x = -130, y = -1082 },
         } },
-        { name = "Hollis Avenue", code = "1017-S4", city = "atlanta", kind = "street", width = 16, points = {
+        { name = "Hollis Street", code = "1017-S4", city = "atlanta", kind = "street", width = 16, points = {
             { x = -348, y = -878 },
             { x = -340, y = -950 },
             { x = -315, y = -1025 },

@@ -67,18 +67,77 @@ const check = (name, ok, detail = "") => results.push({ name, ok, detail });
                     return [c[0] - r, c[1] - r, 2 * r, 2 * r]; };
                 const onRoad = ([x, y, w, h]) => pts.some(([px, py, hw]) => px > x - hw && px < x + w + hw && py > y - hw && py < y + h + hw);
                 const bad = [];
-                for (const el of document.querySelectorAll("#city-312 rect[filter], #houses-1017 rect, .tower rect:nth-child(3)")) {
+                for (const el of document.querySelectorAll("#buildings rect, .tower rect:nth-child(3)")) {
                     const b = box(el); if (onRoad(b)) bad.push(b.map((v) => Math.round(v)).join(","));
                 }
                 // ---- stations never on a road or a building -----------------
                 const stations = [...document.querySelectorAll("#stations .station")].map((g) => { const r = g.getBoundingClientRect(); return r; });
-                const buildingRects = [...document.querySelectorAll("#city-312 rect[filter], #houses-1017 rect, .tower rect:nth-child(2)")].map((e) => e.getBoundingClientRect());
+                const buildingRects = [...document.querySelectorAll("#buildings rect, .tower rect:nth-child(3)")].map((e) => e.getBoundingClientRect());
                 const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
                 const stationOnBuilding = stations.filter((s) => buildingRects.some((b) => hit(s, b))).length;
                 return { buildingsOnRoads: bad, stationOnBuilding };
             });
             check("no building sits on a road", geo.buildingsOnRoads.length === 0, geo.buildingsOnRoads.slice(0, 5).join(" | "));
             check("no job station sits on a building", geo.stationOnBuilding === 0, `${geo.stationOnBuilding} overlapping`);
+
+            // ---- depth: layers, shadows, footing ------------------------------
+            const depth = await page.evaluate(() => {
+                const svg = document.getElementById("island"), coast = document.getElementById("coast"), rock = document.getElementById("mountain-rock");
+                const pt = svg.createSVGPoint();
+                const inFill = (el, x, y) => { pt.x = x; pt.y = y; return el.isPointInFill(pt); };
+                // 1. paint order: ground, then roads, then anything standing, then markings
+                const order = ["fields", "streets", "roads", "buildings", "towers", "on-road", "stations", "names", "you"];
+                const all = [...svg.querySelectorAll("*")];
+                const idx = order.map((id) => all.indexOf(document.getElementById(id)));
+                const orderOk = idx.every((v, i) => v >= 0 && (i === 0 || v > idx[i - 1]));
+                // 2. tower shadows: all fall south-east, length set by floors, same scale within each district
+                const scale = {}; let wrongWay = 0, offScale = 0;
+                for (const g of document.querySelectorAll(".tower")) {
+                    const [sh, body] = g.querySelectorAll("rect");
+                    const dx = +sh.getAttribute("x") - +body.getAttribute("x"), dy = +sh.getAttribute("y") - +body.getAttribute("y");
+                    const floors = +(g.querySelector("title").textContent.match(/(\d+) floors/) || [])[1];
+                    const district = g.querySelector("title").textContent.split(" — ")[0];
+                    if (!(dx > 0 && Math.abs(dx - dy) < 0.15)) wrongWay++;
+                    const k = dx / floors; scale[district] = scale[district] || k;
+                    if (Math.abs(k - scale[district]) > 0.002) offScale++;
+                }
+                // 3. every building stands on land, off the mountain's rock
+                let offLand = 0, onRock = 0, n = 0;
+                for (const el of document.querySelectorAll("#buildings rect, .tower rect:nth-child(2)")) {
+                    const b = el.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2; n++;
+                    if (!inFill(coast, cx, cy)) offLand++;
+                    if (inFill(rock, cx, cy)) onRock++;
+                }
+                // 4. ships float, planes sit on the airport
+                let shipsAground = 0, planesOff = 0;
+                for (const g of document.querySelectorAll("#docks > g")) {
+                    const t = g.querySelector("title"); if (!t || !/ship|Tanker|Ferry|Boat/.test(t.textContent)) continue;
+                    const b = g.getBBox(); pt.x = b.x + b.width / 2; pt.y = b.y + b.height / 2;
+                    const c = pt.matrixTransform(g.getCTM()).matrixTransform(svg.getCTM().inverse());   // into map units
+                    if (inFill(coast, c.x, c.y)) shipsAground++;
+                }
+                const ap = [...document.querySelectorAll("#airport path, #airport rect")].filter((e) => !e.closest("[transform]") && e.tagName === "path" && !e.getAttribute("transform"));
+                for (const pl of document.querySelectorAll("#airport path[transform]")) {
+                    const m = pl.getAttribute("transform").match(/translate\(([-\d.]+) ([-\d.]+)\)/);
+                    if (!ap.some((a) => inFill(a, +m[1], +m[2]))) planesOff++;
+                }
+                // 5. no road runs over the rock face
+                const overRock = [];
+                for (const r of document.querySelectorAll("#roads path.road, #streets path.road")) {
+                    const L = r.getTotalLength(); let hits = 0;
+                    for (let t = 0; t <= L; t += 3) { const q = r.getPointAtLength(t); if (inFill(rock, q.x, q.y)) hits++; }
+                    if (hits > 1) overRock.push(r.querySelector("title").textContent.split(" · ")[0]);
+                }
+                return { orderOk, idx, wrongWay, offScale, offLand, onRock, n, shipsAground, planesOff, overRock };
+            });
+            check("layers stack right: ground, roads, buildings, traffic, stations, names, you", depth.orderOk, depth.idx.join(" < "));
+            check("every tower's shadow falls the same way (south-east)", depth.wrongWay === 0, `${depth.wrongWay} off`);
+            check("tower shadows match their height (same scale in each district)", depth.offScale === 0, `${depth.offScale} off`);
+            check(`every building stands on land (${depth.n} checked)`, depth.offLand === 0, `${depth.offLand} in the water`);
+            check("no building stands on the mountain's rock", depth.onRock === 0, `${depth.onRock}`);
+            check("every ship floats, none on land", depth.shipsAground === 0, `${depth.shipsAground} aground`);
+            check("every plane is on the airport", depth.planesOff === 0, `${depth.planesOff} off`);
+            check("no road runs over the mountain's rock face", depth.overRock.length === 0, depth.overRock.join(", "));
 
             // ---- on-road items: on land, not on each other ------------------
             for (let round = 0; round < 5; round++) {
