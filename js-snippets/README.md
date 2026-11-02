@@ -15,6 +15,7 @@ node tools/gen-map-detail-layer.js            # redraw the big map's gameplay ro
 node tools/gen-walk-list.js > docs/WALK-LIST.md  # the in-game checklist of every coordinate to walk (/mark)
 node tools/print-streets.js [city]                # print every street the game knows, by city and kind
 node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, fuel stop and clothing store, by city
+node tools/audit-map.js                         # glitch audit of the in-game map (needs Playwright + Chromium)
 ```
 
 ## What's in here

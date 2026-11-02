@@ -39,6 +39,8 @@ function DoesBlipExist(b) return b ~= 0 end
 function GetBlipInfoIdCoord() return game.waypoint end
 function SetNewWaypoint(x, y) game.waypoint = { x = x, y = y } end
 function SetWaypointOff() game.waypoint = nil end
+local disabled = {}
+function DisableControlAction(_, control) disabled[control] = (disabled[control] or 0) + 1 end
 function BeginTextCommandThefeedPost() end
 function AddTextComponentSubstringPlayerName(t) feed[#feed + 1] = t end
 function EndTextCommandThefeedPostTicker() end
@@ -114,7 +116,40 @@ commands.map()
 w = last('map:waypoint')
 ok(w and w.payload.x == 10 and w.payload.y == 20, 'reopening shows the current waypoint')
 
+-- ---- hardening ---------------------------------------------------------------
+-- closing holds the pause menu off for a moment, so the Esc doesn't open it
+for _ = 1, 30 do stepThreads() end   -- let the earlier closes' guards finish
+threads, disabled = {}, {}
+call('close')
+for _ = 1, 20 do stepThreads() end
+ok((disabled[200] or 0) > 0 and (disabled[199] or 0) > 0, 'closing holds Esc / P off the pause menu briefly')
+ok((disabled[200] or 0) <= 15, 'and only briefly')
+
+-- a quick close-and-reopen leaves exactly one position loop running
+threads = {}
+commands.map(); call('close'); commands.map()
+local before = #sent
+stepThreads(); stepThreads()                 -- each live loop waits once, then sends once
+local players = 0
+for i = before + 1, #sent do if sent[i].type == 'map:player' then players = players + 1 end end
+ok(players == 1, 'a quick close-and-reopen keeps one position loop, not two (got ' .. players .. ')')
+
+-- the pause menu coming up over the open map closes it and releases focus
+game.pause = true
+stepThreads()
+ok(focus[1] == false and last('map:visibility').payload.visible == false, 'the pause menu opening closes the map')
+game.pause = false
+
+-- opening twice or closing twice does nothing extra
+commands.map()
+local n = #sent
+callbacks.close(nil, function() end); callbacks.close(nil, function() end)
+local hides = 0
+for i = n + 1, #sent do if sent[i].type == 'map:visibility' then hides = hides + 1 end end
+ok(hides == 1, 'closing twice hides the map once')
+
 -- ---- resource stop while open releases focus --------------------------------
+commands.map()
 handlers.onResourceStop('world-map')
 ok(focus[1] == false, 'resource stop while open releases focus')
 

@@ -411,7 +411,9 @@ for rid, t in [("perimeter",.27),("connector",.57),("county-line",.25),("inner-l
 a('<g id="on-road"></g>')
 
 # ---------------------------------------------------------------- stations (fixed)
+STATION_SPOTS = []    # every job station's centre: buildings keep off them, carts too
 def station(x, y, kind, title):
+    STATION_SPOTS.append((x, y))
     if kind == "glizzy":
         a(f'<g class="station" transform="translate({x} {y})"><title>{title} — /apply glizzys</title>'
           '<rect x="-12" y="-12" width="24" height="24" rx="5" fill="#f7c948" stroke="#d62828" stroke-width="3"/>'
@@ -449,7 +451,7 @@ for rid, name, d, k in ROADS:
     else:
         a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 6)}</textPath></text>')
 for rid, name, kind, code in LABELS:
-    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}{num(code, 3.8)}</textPath></text>')
+    a(f'  <text class="name street-name game-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}{num(code, 3.8)}</textPath></text>')
 for z in GAME["zones"]:
     x, y = FIT[z["city"]](z["x"], z["y"])
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
@@ -542,6 +544,7 @@ def taken(x, y, w, h, gap=1.5):
 cleared = 0
 for group, x, y, w, h, svg in BUILDINGS:
     if on_road(x, y, w, h) or (group in ("city-312", "west-towers") and taken(x, y, w, h, 1.5)): cleared += 1; continue
+    if any(x - 15 < sx < x + w + 15 and y - 15 < sy < y + h + 15 for sx, sy in STATION_SPOTS): cleared += 1; continue
     kept[group].append(svg); take(x, y, w, h)
 
 # Frontage: walk each city street and set a building on either side every few units,
@@ -568,6 +571,7 @@ def frontage_along(pts, w, city):
                 r = math.hypot(bw, bh) / 2          # the turned footprint's bounding box
                 bx, by, bs = cx - r, cy - r, 2 * r
                 if not on_land(cx, cy) or on_road(bx + 2, by + 2, bs - 4, bs - 4, 0.5) or taken(bx + 1, by + 1, bs - 2, bs - 2, 0.5): continue
+                if any(math.dist((cx, cy), sp) < 22 for sp in STATION_SPOTS): continue
                 take(bx + 1, by + 1, bs - 2, bs - 2)
                 frontage.append(f'  <rect x="{f(cx - bw / 2)}" y="{f(cy - bh / 2)}" width="{bw}" height="{bh}" fill="{random.choice(colours)}" '
                                 f'transform="rotate({f(ang)} {f(cx)} {f(cy)})" filter="url(#shadow)"/>')
@@ -649,6 +653,7 @@ print(f'''<!DOCTYPE html>
   #island {{ touch-action: none; cursor: grab; }}
   #island.dragging {{ cursor: grabbing; }}
   #island .name {{ display: none; pointer-events: none; }}
+  #island .name.culled {{ visibility: hidden; }}
   #island .marker {{ pointer-events: none; }}
   #island .pulse {{ animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }}
   @keyframes pulse {{ from {{ transform: scale(.6); opacity: 1; }} to {{ transform: scale(1.6); opacity: 0; }} }}
@@ -695,10 +700,31 @@ window.placeOnRoad = function () {{
   const ON = {json.dumps(ON)};
   const el = (tag, attrs, parent) => {{ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; }};
   const tip = (g, text) => {{ const t = document.createElementNS(NS, "title"); t.textContent = text; g.appendChild(t); }};
+  // Carts get a random spot each time, but only on the island (not the airport, the bridge or
+  // the sea), at least 26 units from any job station and 18 from another cart; 40 tries each.
+  const coast = document.getElementById("coast");
+  const svgEl = document.getElementById("island");
+  const onIsland = (x, y) => {{ const pt = svgEl.createSVGPoint(); pt.x = x; pt.y = y; return coast.isPointInFill(pt); }};
+  const stations = [...document.querySelectorAll("#stations .station")].map((s) => {{
+    const m = s.getAttribute("transform").match(/translate\\(([-\\d.]+)[ ,]+([-\\d.]+)\\)/); return [+m[1], +m[2]]; }});
+  const carts = [];
+  const cartSpot = (L, path) => {{
+    for (let k = 0; k < 40; k++) {{
+      const t = 0.04 + Math.random() * 0.92, p = path.getPointAtLength(L * t);
+      if (!onIsland(p.x, p.y)) continue;
+      if (stations.some(([sx, sy]) => Math.hypot(p.x - sx, p.y - sy) < 26)) continue;
+      if (carts.some(([cx, cy]) => Math.hypot(p.x - cx, p.y - cy) < 18)) continue;
+      return t;
+    }}
+    return null;
+  }};
   for (const [cls, rid, t0, lane, extra] of ON) {{
     const path = document.getElementById(rid); if (!path) continue;
-    const t = extra.includes('data-random') ? 0.04 + Math.random() * 0.92 : t0;
-    const L = path.getTotalLength(), p = path.getPointAtLength(L * t), q = path.getPointAtLength(Math.min(L, L * t + 1));
+    const L = path.getTotalLength();
+    const t = extra.includes('data-random') ? cartSpot(L, path) : t0;
+    if (t === null) continue;                      // no good spot on this road this time: leave the cart out
+    const p = path.getPointAtLength(L * t), q = path.getPointAtLength(Math.min(L, L * t + 1));
+    if (cls === "cart") carts.push([p.x, p.y]);
     let ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
     const nx = -(q.y - p.y), ny = q.x - p.x, nl = Math.hypot(nx, ny) || 1;
     const x = p.x + nx / nl * lane, y = p.y + ny / nl * lane;
@@ -731,6 +757,7 @@ window.placeOnRoad();
     const z = W / vb.w;
     svg.classList.toggle("z-main", z >= 1.6);
     svg.classList.toggle("z-street", z >= 2.6);
+    cullLabels();
     drawMarkers(z);
   }};
 
@@ -803,6 +830,73 @@ window.placeOnRoad();
     if (e.key === "-" || e.key === "_") window.mapZoom("out");
     if (e.key === "0") window.mapZoom("reset");
   }});
+  // ---- label culling. Text size is in map units, so whether two labels collide doesn't
+  // depend on the zoom: measure every glyph once (when the map is first on screen), keep
+  // labels greedily by rank, and hide the ones that would sit on a kept label.
+  let culled = false;
+  function cullLabels() {{
+    if (culled || svg.getBoundingClientRect().width === 0) return;      // not on screen yet
+    const all = [...svg.querySelectorAll("#names text")];
+    // main roads, then districts, then the game's own streets (the names /whereami says), then map-only streets
+    const rank = (t) => t.classList.contains("main-name") ? 0 : t.classList.contains("zone-name") ? 1 : t.classList.contains("game-name") ? 2 : 3;
+    const was = all.map((t) => t.style.display);
+    const kept = [];
+    const PAD = 1;      // a little air round every name, so near-touches don't count as clear
+    const hits = (a, b) => a[0] - PAD < b[2] && b[0] - PAD < a[2] && a[1] - PAD < b[3] && b[1] - PAD < a[3];
+    const measure = (t) => {{ const g = []; let shown = 0, n = 0;
+      try {{ n = t.getNumberOfChars(); for (let i = 0; i < n; i++) {{ const e = t.getExtentOfChar(i); if (e.width > 0) {{ shown++; g.push([e.x, e.y, e.x + e.width, e.y + e.height]); }} }} }} catch (_) {{}}
+      return {{ g, whole: n > 0 && shown === n }};      // whole: no letter ran off the end of its street
+    }};
+    all.forEach((t) => {{ t.style.display = "inline"; }});
+    for (const t of all.sort((a, b) => rank(a) - rank(b))) {{
+      // Try the label where it is, then further along its own road, then a little smaller;
+      // keep the first spot where every letter shows and none lands on a label already kept.
+      const tp = t.querySelector("textPath");
+      const size0 = parseFloat(t.getAttribute("font-size")), off0 = tp ? tp.getAttribute("startOffset") : null;
+      const offsets = tp ? [off0, "50%", "30%", "70%", "18%", "82%"] : [null];
+      let placed = null;
+      for (const scale of [1, 0.85, 0.7]) {{
+        t.setAttribute("font-size", size0 * scale);
+        for (const off of offsets) {{
+          if (tp) tp.setAttribute("startOffset", off);
+          const m = measure(t);
+          if (m.whole && !m.g.some((g) => kept.some((k) => hits(g, k)))) {{ placed = m.g; break; }}
+        }}
+        if (placed) break;
+      }}
+      if (!placed && tp) {{
+        // Too short or too crowded to follow its road: write the name straight, beside the
+        // road's middle (above, below, either side), as long as it lands on nothing.
+        t.setAttribute("font-size", size0); tp.setAttribute("startOffset", off0);
+        const road = document.querySelector(tp.getAttribute("href"));
+        const L = road.getTotalLength(), mid = road.getPointAtLength(L / 2);
+        const flat = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        for (const at of ["class", "fill", "stroke-width", "font-weight"]) if (t.getAttribute(at)) flat.setAttribute(at, t.getAttribute(at));
+        flat.classList.add("flat-name"); flat.setAttribute("text-anchor", "middle");
+        flat.innerHTML = tp.innerHTML;
+        flat.style.display = "inline";               // measurable now; the zoom rules take over after
+        t.parentNode.appendChild(flat);
+        for (const scale of [1, 0.85, 0.7, 0.6]) {{
+          flat.setAttribute("font-size", size0 * scale);
+          for (const [dx, dy] of [[0, -6], [0, 9], [0, 0], [-18, 0], [18, 0], [0, -14], [0, 16], [-30, -8], [30, -8], [-30, 10], [30, 10], [0, -22], [0, 24]]) {{
+            flat.setAttribute("x", mid.x + dx); flat.setAttribute("y", mid.y + dy);
+            const m = measure(flat);
+            if (m.whole && !m.g.some((g) => kept.some((k) => hits(g, k)))) {{ placed = m.g; break; }}
+          }}
+          if (placed) break;
+        }}
+        if (placed) {{ flat.style.display = ""; t.classList.add("culled"); kept.push(...placed); continue; }}   // the flat copy shows instead
+        flat.remove();
+      }}
+      if (!placed) {{ t.setAttribute("font-size", size0); if (tp) tp.setAttribute("startOffset", off0); t.classList.add("culled"); continue; }}
+      kept.push(...placed);
+    }}
+    all.forEach((t, i) => {{ t.style.display = was[i]; }});
+    culled = true;
+  }}
+  window.mapRefreshLabels = () => {{ culled = false; svg.querySelectorAll(".flat-name").forEach((t) => t.remove());
+    svg.querySelectorAll(".culled").forEach((t) => t.classList.remove("culled")); cullLabels(); }};
+
   apply();
 }})();
 </script>
