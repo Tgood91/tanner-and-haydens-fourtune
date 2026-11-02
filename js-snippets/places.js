@@ -55,11 +55,12 @@ const ROAD_DEFS = [
     // ================= Chicago (312), the northern plate =================
     // ---- highways: the lines you cross the plate on ----
     { name: "Lakeshore Drive",         city: "chicago",  kind: "highway",   width: 30, points: [{ x: -60, y: 5990 }, { x: -75, y: 6180 }, { x: -93, y: 6400 }] },
-    { name: "The 312 Skyway",          city: "chicago",  kind: "highway",   points: [{ x: -496, y: 6022 }, { x: -360, y: 6180 }, { x: -180, y: 6330 }, { x: -70, y: 6404 }] },
+    { name: "The 312 Skyway",          city: "chicago",  kind: "highway",   points: [{ x: -496, y: 6022 }, { x: -360, y: 6180 }, { x: -200, y: 6338 }, { x: -70, y: 6404 }] },   // bends through Cut St.'s north end
     { name: "Ironline Expressway",     city: "chicago",  kind: "highway",   width: 32, points: [{ x: -490, y: 5962 }, { x: -510, y: 6160 }, { x: -480, y: 6420 }, { x: -416, y: 6489 }] },
 
     // ---- arterials: how you get between districts ----
-    { name: "Palisade Boulevard",      city: "chicago",  kind: "arterial",  points: [{ x: -485, y: 6376 }, { x: -230, y: 6378 }, { x: -71, y: 6404 }] },
+    // Palisade runs the 312's south edge, as the island map draws it: Ironline to Lakeshore, through Cut St.'s south end
+    { name: "Palisade Boulevard",      city: "chicago",  kind: "arterial",  points: [{ x: -490, y: 5962 }, { x: -420, y: 5895 }, { x: -199, y: 5880 }, { x: -100, y: 5900 }, { x: -60, y: 5990 }] },
     { name: "Sheriff's Row",           city: "chicago",  kind: "arterial",  width: 22, points: [{ x: -447, y: 6010 }, { x: -330, y: 6060 }, { x: -249, y: 6174 }] },
     { name: "The Causeway",            city: "chicago",  kind: "arterial",  width: 30, points: [{ x: -247, y: 6338 }, { x: -150, y: 6395 }, { x: -70, y: 6396 }] },
     { name: "Midway Avenue",           city: "chicago",  kind: "arterial",  points: [{ x: -412, y: 6195 }, { x: -300, y: 6178 }, { x: -180, y: 6168 }, { x: -75, y: 6178 }] },
@@ -74,8 +75,8 @@ const ROAD_DEFS = [
     { name: "Fenwick Street",          city: "chicago",  kind: "street",    points: [{ x: -417, y: 6117 }, { x: -330, y: 6128 }, { x: -267, y: 6152 }] },
     { name: "Mill Street",             city: "chicago",  kind: "street",    points: [{ x: -383, y: 6212 }, { x: -287, y: 6260 }] },
     { name: "Bellmont Street",         city: "chicago",  kind: "street",    points: [{ x: -416, y: 6205 }, { x: -392, y: 6212 }, { x: -318, y: 6215 }] },
-    { name: "Ketterling Avenue",       city: "chicago",  kind: "street",    points: [{ x: -202, y: 6382 }, { x: -185, y: 6488 }] },
-    { name: "Hoyt Street",             city: "chicago",  kind: "street",    points: [{ x: -351, y: 6377 }, { x: -269, y: 6377 }] },
+    { name: "Ketterling Avenue",       city: "chicago",  kind: "street",    points: [{ x: -202, y: 6377 }, { x: -185, y: 6488 }] },   // meets Hoyt Street by The Causeway
+    { name: "Hoyt Street",             city: "chicago",  kind: "street",    points: [{ x: -351, y: 6377 }, { x: -269, y: 6377 }, { x: -202, y: 6377 }] },
     { name: "Granary Row",             city: "chicago",  kind: "street",    points: [{ x: -454, y: 6448 }, { x: -390, y: 6502 }, { x: -194, y: 6511 }] },
     { name: "Dock Street",             city: "chicago",  kind: "street",    points: [{ x: -150, y: 6072 }, { x: -118, y: 6082 }, { x: -115, y: 6174 }] },
     { name: "Shoreline Lane",          city: "chicago",  kind: "street",    points: [{ x: -68, y: 6094 }, { x: -24, y: 6212 }, { x: -85, y: 6298 }] },
@@ -85,6 +86,9 @@ const ROAD_DEFS = [
     { name: "Coal Chute Lane",         city: "chicago",  kind: "backroad",  points: [{ x: -506, y: 6120 }, { x: -510, y: 6155 }] },
     { name: "Old Pier Road",           city: "chicago",  kind: "backroad",  points: [{ x: -46, y: 5992 }, { x: -47, y: 5995 }] },
     { name: "Dunes Track",             city: "chicago",  kind: "backroad",  points: [{ x: -70, y: 6396 }, { x: 2, y: 6480 }, { x: 22, y: 6562 }] },
+    // Cut St. was laid on the island map first (312-S35, after the map's own grid streets), so
+    // its number is pinned: given here in sequence it would be 312-S11 and renumber 1st Street on.
+    { name: "Cut St.",                 city: "chicago",  kind: "street",    code: "312-S35", points: [{ x: -200, y: 6338 }, { x: -206, y: 6260 }, { x: -204, y: 6177 }, { x: -211, y: 6086 }, { x: -209, y: 6004 }, { x: -202, y: 5930 }, { x: -199, y: 5880 }] },
 
     // ================= GeePee (770), the middle =================
     // ---- highways: the lines you cross the plate on ----
@@ -159,11 +163,13 @@ const ROADS = ROAD_DEFS.map((r) => ({
 // list of that kind — 1017-H1 is the Connector, 1017-S10 Primrose Street. Given out
 // here once, so the game, the Lua layer, /streets and every map print the same code.
 // Adding a road at the END of its city's kind keeps the others' numbers.
+// A road given its own code (pinned) keeps it and doesn't take a place in the sequence.
 const CITY_CODE = { chicago: "312", geepee: "770", atlanta: "1017" };
 const KIND_LETTER = { highway: "H", arterial: "A", street: "S", backroad: "B" };
 {
     const seen = {};
     for (const r of ROADS) {
+        if (r.code) { r.pinned = true; continue; }
         const key = `${r.city}/${r.kind}`;
         seen[key] = (seen[key] || 0) + 1;
         r.code = `${CITY_CODE[r.city]}-${KIND_LETTER[r.kind]}${seen[key]}`;

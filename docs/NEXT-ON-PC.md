@@ -70,7 +70,7 @@ not hand-edited: `python3 tools/gen-island-map.py > island-map.html` then `pytho
 ## 2d. Walk the map
 
 `docs/WALK-LIST.md` is the checklist of every coordinate the game and both maps read (2 borders,
-15 zones, 63 roads, 50 pins), with the placeholder each has now and the file it lives in. In game,
+15 zones, 66 roads, 50 pins), with the placeholder each has now and the file it lives in. In game,
 stand on each spot and type `/mark <name>`: it prints the position ready to paste. When it's done,
 run the regenerate commands at the top of the list, and the big map gets rebuilt on the walked roads.
 

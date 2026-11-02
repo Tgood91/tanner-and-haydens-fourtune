@@ -483,7 +483,7 @@ test("/streets lists every street in your city, another city, or all", () => {
     const codes = ROADS.map((r) => r.code);
     assert.equal(new Set(codes).size, ROADS.length);
     for (const r of ROADS) assert.match(r.code, /^(312|770|1017)-[HASB]\d+$/);
-    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["312"]).msg, /^312 Chicago: 25 roads[\s\S]*Granary Row/);
+    assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["312"]).msg, /^312 Chicago: 26 roads[\s\S]*Granary Row/);
     assert.match(game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["GeePee"]).msg, /^770 GeePee: 12 roads/);
     const all = game.command(at({ x: 262, y: -1240, z: 30 }), "streets", ["all"]).msg;
     assert.match(all, /312 Chicago[\s\S]*770 GeePee[\s\S]*1017 Atlanta/);
@@ -1464,8 +1464,10 @@ test("the most specific name wins: road, then park, then district, then city", (
     assert.equal(placeRules.describe({ x: -75, y: 6180, z: 30 }), "Lakeshore Drive, The Shoreline, Chicago");
 
     // Winterline Park sits inside Midway, and the smaller circle wins
-    assert.equal(placeRules.zoneAt({ x: -190, y: 6230 }).name, "Winterline Park");
-    assert.equal(placeRules.describe({ x: -190, y: 6230, z: 30 }), "Winterline Park, Chicago");
+    // (probed off the centre: Cut St. runs past the middle of the park)
+    assert.equal(placeRules.zoneAt({ x: -185, y: 6210 }).name, "Winterline Park");
+    assert.equal(placeRules.describe({ x: -185, y: 6210, z: 30 }), "Winterline Park, Chicago");
+    assert.equal(placeRules.describe({ x: -205, y: 6230, z: 30 }), "Cut St., Winterline Park, Chicago");
 
     // off the park and off every road, but still in the district — the
     // network is dense enough now that such a spot has to be looked for

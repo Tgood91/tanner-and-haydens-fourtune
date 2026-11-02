@@ -66,8 +66,10 @@ end
 
 -- ---------- most specific name wins ----------
 same(W.Describe({ x = -75, y = 6180, z = 30 }), 'Lakeshore Drive, The Shoreline, Chicago', 'a road beats the district around it')
-same(W.ZoneAt({ x = -190, y = 6230 }).name, 'Winterline Park', 'the smaller circle wins')
-same(W.Describe({ x = -190, y = 6230, z = 30 }), 'Winterline Park, Chicago', 'a park beats its district')
+-- (probed off the park's centre: Cut St. runs past the middle of it)
+same(W.ZoneAt({ x = -185, y = 6210 }).name, 'Winterline Park', 'the smaller circle wins')
+same(W.Describe({ x = -185, y = 6210, z = 30 }), 'Winterline Park, Chicago', 'a park beats its district')
+same(W.Describe({ x = -205, y = 6230, z = 30 }), 'Cut St., Winterline Park, Chicago', 'a road beats the park around it')
 same(W.Describe({ x = -405, y = 6245, z = 30 }), 'Midway, Chicago', 'off the park and off every road, still in the district')
 same(W.Describe({ x = 0, y = 4000, z = 30 }), 'GeePee', 'open country falls back to the city alone')
 same(W.Label({ x = -75, y = 6180, z = 30 }), 'Lakeshore Drive', 'the short label is the best name')
