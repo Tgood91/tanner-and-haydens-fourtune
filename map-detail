@@ -441,7 +441,7 @@
       <polyline class="gp-casing" points="453.2,262 466.8,258 508.8,256.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="453.2,262 466.8,258 508.8,256.3" stroke="#cfccc2" stroke-width="4.5"><title>Bellmont Street · 312-S5 (street, 312)</title></polyline>
       <polyline class="gp-casing" points="574.5,161.7 584.2,101.6" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="574.5,161.7 584.2,101.6" stroke="#cfccc2" stroke-width="4.5"><title>Ketterling Avenue · 312-S6 (street, 312)</title></polyline>
+      <polyline class="gp-road gp-street" points="574.5,161.7 584.2,101.6" stroke="#cfccc2" stroke-width="4.5"><title>Ketterling Street · 312-S6 (street, 312)</title></polyline>
       <polyline class="gp-casing" points="490.1,164.5 536.6,164.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="490.1,164.5 536.6,164.5" stroke="#cfccc2" stroke-width="4.5"><title>Hoyt Street · 312-S7 (street, 312)</title></polyline>
       <polyline class="gp-casing" points="431.7,124.3 468,93.6 579.1,88.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
@@ -485,7 +485,7 @@
       <polyline class="gp-casing" points="690.6,1295.9 735,1313.7 770.8,1322.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="690.6,1295.9 735,1313.7 770.8,1322.5" stroke="#cfccc2" stroke-width="4.5"><title>Stovall Street · 1017-S3 (street, 1017)</title></polyline>
       <polyline class="gp-casing" points="684.2,1241.5 687.4,1270.1 697.3,1299.8" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="684.2,1241.5 687.4,1270.1 697.3,1299.8" stroke="#cfccc2" stroke-width="4.5"><title>Hollis Avenue · 1017-S4 (street, 1017)</title></polyline>
+      <polyline class="gp-road gp-street" points="684.2,1241.5 687.4,1270.1 697.3,1299.8" stroke="#cfccc2" stroke-width="4.5"><title>Hollis Street · 1017-S4 (street, 1017)</title></polyline>
       <polyline class="gp-casing" points="766.8,1449.6 806.5,1457.5 834.7,1464.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="766.8,1449.6 806.5,1457.5 834.7,1464.3" stroke="#cfccc2" stroke-width="4.5"><title>Fairline Street · 1017-S5 (street, 1017)</title></polyline>
       <polyline class="gp-casing" points="734.3,1536.2 774.8,1529 818.5,1538.1" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
@@ -499,13 +499,13 @@
       <polyline class="gp-casing" points="576.2,1417 615.9,1440.8 655.6,1456.7" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="576.2,1417 615.9,1440.8 655.6,1456.7" stroke="#cfccc2" stroke-width="4.5"><title>Dunwood Street · 1017-S12 (street, 1017)</title></polyline>
       <polyline class="gp-casing" points="795.8,1590.2 840.3,1587 867.3,1548.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="795.8,1590.2 840.3,1587 867.3,1548.1" stroke="#d9d9d4" stroke-width="7"><title>Groveland Street · 1017-A2 (arterial, 1017)</title></polyline>
+      <polyline class="gp-road gp-arterial" points="795.8,1590.2 840.3,1587 867.3,1548.1" stroke="#d9d9d4" stroke-width="7"><title>Groveland Avenue · 1017-A2 (arterial, 1017)</title></polyline>
       <polyline class="gp-casing" points="676.3,1245 723.1,1262.9 774,1266.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="676.3,1245 723.1,1262.9 774,1266.1" stroke="#d9d9d4" stroke-width="7"><title>Alder Avenue · 1017-A3 (arterial, 1017)</title></polyline>
       <polyline class="gp-casing" points="743,1489.3 822.4,1497.2 896.3,1509.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="743,1489.3 822.4,1497.2 896.3,1509.1" stroke="#d9d9d4" stroke-width="7"><title>Southline Boulevard · 1017-A4 (arterial, 1017)</title></polyline>
       <polyline class="gp-casing" points="942,1143 922.5,1195.4 884,1256.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="942,1143 922.5,1195.4 884,1256.2" stroke="#d9d9d4" stroke-width="7"><title>Clay Street · 1017-A5 (arterial, 1017)</title></polyline>
+      <polyline class="gp-road gp-arterial" points="942,1143 922.5,1195.4 884,1256.2" stroke="#d9d9d4" stroke-width="7"><title>Clay Avenue · 1017-A5 (arterial, 1017)</title></polyline>
       <polyline class="gp-casing" points="457.8,1237.5 520.6,1243 576.2,1274.8" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="457.8,1237.5 520.6,1243 576.2,1274.8" stroke="#d9d9d4" stroke-width="7"><title>Ridgeview Drive · 1017-A6 (arterial, 1017)</title></polyline>
       <polyline class="gp-casing" points="306.1,1350.3 405.4,1330.4 499.9,1337.6" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
