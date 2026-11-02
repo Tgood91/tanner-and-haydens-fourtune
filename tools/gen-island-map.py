@@ -41,6 +41,7 @@ def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2
 ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
           (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
 MOUNTAIN = (780, 455)
+YARD = (1212, 398, 1328, 562)       # the East Shipping Yard's paved footprint: x0, y0, x1, y1
 WEST_TOWERS = (370, 510, 128, 102)  # the west tower district (FAFO ST ... EUPHORIA Lane): no trees or farms in it
 RING = (760, 470, 620, 345)        # The Perimeter: round the 312 waterfront, shares the south run with the Inner Loop
 INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
@@ -95,6 +96,7 @@ def forest(cx, cy, rx, ry, n, dark="#2f5a2c", light="#3f7036", title=""):
         t = random.uniform(0, 2*math.pi); r = math.sqrt(random.random())
         x = cx + rx*r*math.cos(t); y = cy + ry*r*math.sin(t)
         if inside_ellipse(x, y, *WEST_TOWERS): continue          # cleared for the west towers
+        if YARD[0] - 8 < x < YARD[2] + 8 and YARD[1] - 8 < y < YARD[3] + 8: continue   # and for the shipping yard
         s = random.uniform(4, 7.5)
         a(f'  <circle cx="{f(x)}" cy="{f(y)}" r="{f(s)}" fill="{random.choice([dark, light])}"/>')
     a('</g>')
@@ -191,6 +193,9 @@ road("fomo-st", "FOMO ST", "M250 505 L490 505", "street")
 road("fud-st", "FUD ST", "M262 555 L478 555", "street")
 road("cope-st", "COPE ST", "M368 418 L368 600", "street")
 road("euphoria-ln", "EUPHORIA Lane", smooth([(285,590),(340,575),(400,540),(440,500),(470,450)], closed=False) + " M400 540 L420 560", "street")
+# The East Shipping Yard's two ways in: from Backroads Highway, and out to the Perimeter.
+road("freight-way", "Freight Way", "M1152 500 L1212 500", "street")
+road("container-rd", "Container Road", "M1328 470 L1379 470", "street")
 road("hodl-st", "HODL ST", smooth([(286,505),(289,530),(291,555),(296,572),(302,586)], closed=False), "street")   # FOMO ST down to EUPHORIA Lane
 FARM_NAMES = ["Orchard Track", "Millpond Lane", "Windmill Lane", "Sawmill Track", "Pasture Way", "Haybale Lane", "Ridge Track"]
 for i, (x1, y1, x2, y2) in enumerate([(500,640,575,610),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
@@ -256,7 +261,7 @@ NEXT = {}
 for r in GAME["roads"]:
     key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
 MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
-            "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"),
+            "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"), "freight-way": ("geepee", "S"), "container-rd": ("geepee", "S"),
             "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
             "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S")}
 def map_only_kind(rid):
@@ -276,6 +281,13 @@ STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
 LABELS = []   # (path id, name, kind)
 STREET_LINES = []   # (points, width, kind, city) of every game street drawn, for the buildings
+# ---------------------------------------------------------------- the East Shipping Yard (ground)
+yx0, yy0, yx1, yy1 = YARD
+a(f'<g id="yard-ground"><title>East Shipping Yard</title>'
+  f'<rect x="{yx0}" y="{yy0}" width="{yx1 - yx0}" height="{yy1 - yy0}" rx="4" fill="#a4a09a" stroke="#6f6c67" stroke-width="2"/>'
+  + "".join(f'<line x1="{yx0 + 4}" y1="{y}" x2="{yx1 - 4}" y2="{y}" stroke="#f2f0ea" stroke-width=".6" stroke-dasharray="4 3" opacity=".7"/>' for y in (430, 526))
+  + f'<rect x="{yx0 + 54}" y="{yy0 + 30}" width="8" height="{yy1 - yy0 - 60}" fill="#8f8b85"/></g>')   # the centre lane
+
 a('<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">')
 for kind in ["backroad", "street", "arterial", "highway"]:
     for i, r in enumerate(GAME["roads"]):
@@ -314,6 +326,7 @@ a('<g id="buildings">')
 a('%%city-312%%')
 a('%%houses-1017%%')
 a('%%frontage%%')
+a('%%yard%%')
 a('</g>')
 a('<g id="towers">')
 def towers(x0, x1, y0, y1, step, label):
@@ -346,6 +359,25 @@ for _ in range(260):
         f'<rect x="{f(x_ + sz * .4)}" y="{f(y_ + sz * .4)}" width="{f(sz * .2)}" height="{f(sz * .2)}" fill="#8d959d"/></g>')
 a('%%towers%%')
 a('</g>')
+
+# ---------------------------------------------------------------- the East Shipping Yard (standing)
+# Two warehouses along the top; container stacks in rows either side of the centre lane,
+# gantry cranes straddling them; trucks waiting in the loading lane along the bottom.
+for x, w in ((1218, 46), (1272, 50)):
+    bld("yard", x, 404, w, 20, f'  <g><title>Warehouse — East Shipping Yard</title><rect x="{x + 2}" y="406" width="{w}" height="20" fill="rgba(20,24,30,.38)"/>'
+        f'<rect x="{x}" y="404" width="{w}" height="20" rx="1" fill="#c9c2b6" stroke="#5b564e" stroke-width="1"/>'
+        + "".join(f'<line x1="{x + k}" y1="404" x2="{x + k}" y2="424" stroke="#a69e90" stroke-width=".8"/>' for k in range(6, w, 6)) + '</g>')
+for row, y in enumerate(range(436, 520, 14)):
+    for x0, x1 in ((1222, 1264), (1276, 1318)):
+        L = x1 - x0 - random.choice((0, 6, 10))
+        bld("yard", x0, y, L, 9, f'  <g><title>Container stack</title><rect x="{x0 + 1.4}" y="{y + 1.4}" width="{L}" height="9" fill="rgba(20,24,30,.35)"/>'
+            f'<rect x="{x0}" y="{y}" width="{L}" height="9" fill="url(#containers)" stroke="#3a3f45" stroke-width=".6"/></g>')
+for x in (1240, 1296):                      # gantry cranes: legs either side of a row block, beam across
+    bld("yard", x - 9, 430, 18, 98, f'  <g><title>Gantry crane</title><rect x="{x - 9}" y="430" width="18" height="98" fill="none" stroke="#f2c230" stroke-width="2.2"/>'
+        f'<rect x="{x - 9}" y="{470 + (x % 7)}" width="18" height="4" fill="#f2c230" stroke="#7a5d0a" stroke-width=".6"/></g>')
+for x, flip in ((1228, 0), (1252, 0), (1284, 180)):
+    bld("yard", x - 1, 535, 20, 8, f'  <g transform="rotate({flip} {x + 9} 539)"><title>Truck</title><rect x="{x}" y="535" width="14" height="8" fill="url(#containers)" stroke="#333" stroke-width=".5"/>'
+        f'<rect x="{x + 14.5}" y="536" width="4.5" height="6" rx="1" fill="#e8e6df" stroke="#333" stroke-width=".5"/></g>')
 
 # ---------------------------------------------------------------- the airport
 a('<g id="airport">')
@@ -455,6 +487,7 @@ for x, y, t in [(705,705,"Glizzys-2-Go, south towers"),(890,630,"Glizzys-2-Go, n
     station(x, y, "glizzy", t)
 station(1290, 745, "dock", "Dockhand, 1017 Harbor")
 station(1150, 255, "dock", "Dockhand, 312 Port")
+station(1300, 546, "dock", "Dockhand, East Shipping Yard")
 a('</g>')
 
 # casings
@@ -483,6 +516,7 @@ for z in GAME["zones"]:
     x, y = FIT[z["city"]](z["x"], z["y"])
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
       f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
+a(f'  <text class="name zone-name" x="1270" y="393" text-anchor="middle" font-size="7" font-style="italic" fill="#ffe9a8" stroke-width="2.4">East Shipping Yard</text>')
 a('</g>')
 
 # ---------------------------------------------------------------- you-are-here and the waypoint (placed by script)
@@ -557,7 +591,7 @@ def on_land(x, y):
         if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
     return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
 
-kept = {"city-312": [], "houses-1017": [], "towers": [], "west-towers": []}
+kept = {"city-312": [], "houses-1017": [], "towers": [], "west-towers": [], "yard": []}
 TAKEN = {}        # footprints already used, so frontage never lands on a building
 def take(x, y, w, h):
     for cx in range(int(x // CELL), int((x + w) // CELL) + 1):
@@ -610,7 +644,7 @@ for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the
     d = next(d for r, n, d, k in ROADS if r == rid)
     frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
 
-FILL = {"%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
+FILL = {"%%yard%%": "\n".join(kept["yard"]), "%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
         "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"]), "%%frontage%%": "\n".join(frontage)}
 out = [FILL.get(line, line) for line in out]
 print(f"buildings: {len(BUILDINGS) - cleared} kept, {cleared} left out (on a road, or overlapping in a 312 block), {len(frontage)} added along streets", file=sys.stderr)
