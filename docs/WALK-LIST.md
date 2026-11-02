@@ -77,7 +77,7 @@ Drive north across each line and mark where the city should change. Only the **y
 
 ## 3. Roads — `js-snippets/places.js` (`ROAD_DEFS`)
 
-65 roads. Each line shows the points it has now, in order from start to end.
+66 roads. Each line shows the points it has now, in order from start to end.
 
 ### 1017 Atlanta — 28 roads
 
@@ -125,12 +125,12 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Hollow Road** · 770-B5 · backroad · 3 points: (1500, 4100) → (1620, 4060) → (1740, 4000)
 - [ ] **Fence Line Track** · 770-B6 · backroad · 3 points: (1808, 4183) → (2000, 4120) → (2080, 3990)
 
-### 312 Chicago — 25 roads
+### 312 Chicago — 26 roads
 
 - [ ] **Lakeshore Drive** · 312-H1 · highway · 3 points: (-60, 5990) → (-75, 6180) → (-93, 6400)
-- [ ] **The 312 Skyway** · 312-H2 · highway · 4 points: (-496, 6022) → (-360, 6180) → (-180, 6330) → (-70, 6404)
+- [ ] **The 312 Skyway** · 312-H2 · highway · 4 points: (-496, 6022) → (-360, 6180) → (-200, 6338) → (-70, 6404)
 - [ ] **Ironline Expressway** · 312-H3 · highway · 4 points: (-490, 5962) → (-510, 6160) → (-480, 6420) → (-416, 6489)
-- [ ] **Palisade Boulevard** · 312-A1 · arterial · 3 points: (-485, 6376) → (-230, 6378) → (-71, 6404)
+- [ ] **Palisade Boulevard** · 312-A1 · arterial · 5 points: (-490, 5962) → (-420, 5895) → (-199, 5880) → (-100, 5900) → (-60, 5990)
 - [ ] **Sheriff's Row** · 312-A2 · arterial · 3 points: (-447, 6010) → (-330, 6060) → (-249, 6174)
 - [ ] **The Causeway** · 312-A3 · arterial · 3 points: (-247, 6338) → (-150, 6395) → (-70, 6396)
 - [ ] **Midway Avenue** · 312-A4 · arterial · 4 points: (-412, 6195) → (-300, 6178) → (-180, 6168) → (-75, 6178)
@@ -143,11 +143,12 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Fenwick Street** · 312-S3 · street · 3 points: (-417, 6117) → (-330, 6128) → (-267, 6152)
 - [ ] **Mill Street** · 312-S4 · street · 2 points: (-383, 6212) → (-287, 6260)
 - [ ] **Bellmont Street** · 312-S5 · street · 3 points: (-416, 6205) → (-392, 6212) → (-318, 6215)
-- [ ] **Ketterling Avenue** · 312-S6 · street · 2 points: (-202, 6382) → (-185, 6488)
-- [ ] **Hoyt Street** · 312-S7 · street · 2 points: (-351, 6377) → (-269, 6377)
+- [ ] **Ketterling Avenue** · 312-S6 · street · 2 points: (-202, 6377) → (-185, 6488)
+- [ ] **Hoyt Street** · 312-S7 · street · 3 points: (-351, 6377) → (-269, 6377) → (-202, 6377)
 - [ ] **Granary Row** · 312-S8 · street · 3 points: (-454, 6448) → (-390, 6502) → (-194, 6511)
 - [ ] **Dock Street** · 312-S9 · street · 3 points: (-150, 6072) → (-118, 6082) → (-115, 6174)
 - [ ] **Shoreline Lane** · 312-S10 · street · 3 points: (-68, 6094) → (-24, 6212) → (-85, 6298)
+- [ ] **Cut St.** · 312-S35 · street · 7 points: (-200, 6338) → (-206, 6260) → (-204, 6177) → (-211, 6086) → (-209, 6004) → (-202, 5930) → (-199, 5880)
 - [ ] **Tannery Alley** · 312-B1 · backroad · 2 points: (-444, 6003) → (-416, 6017)
 - [ ] **Coal Chute Lane** · 312-B2 · backroad · 2 points: (-506, 6120) → (-510, 6155)
 - [ ] **Old Pier Road** · 312-B3 · backroad · 2 points: (-46, 5992) → (-47, 5995)
@@ -198,7 +199,7 @@ Drive north across each line and mark where the city should change. Only the **y
 ### 312 Chicago — 18 spots
 
 - [ ] **Chicago Main** · Spawn · now `-450, 6015, 33` · `js-snippets/spawns.js (SPAWNS, also set heading)`
-- [ ] **Palisade Boulevard** · Spawn · now `-125, 6380, 31.5` · `js-snippets/spawns.js (SPAWNS, also set heading)`
+- [ ] **Palisade Boulevard** · Spawn · now `-150, 5890, 31.5` · `js-snippets/spawns.js (SPAWNS, also set heading)`
 - [ ] **Open 24 Chicago** · Shop · now `-440, 6005, 31.7` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Chicago Hardware** · Shop · now `-420, 6025, 31.5` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Gunworks Chicago** · Gun shop · now `-330.2, 6083.9, 31.5` · `js-snippets/shops.js (SHOPS)`
@@ -227,4 +228,4 @@ and they'll be added to the data so the game knows about them too.
 - [ ] The 1017 Harbor and the 312 Port: a point on each quay
 - [ ] The airport: the terminal door and the runway's two ends
 
-_Totals: 2 borders, 15 zones, 65 roads (199 points), 50 pins._
+_Totals: 2 borders, 15 zones, 66 roads (209 points), 50 pins._
