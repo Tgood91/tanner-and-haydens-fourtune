@@ -3608,8 +3608,8 @@
   "city": "312"
  },
  {
-  "name": "East Reach Expressway",
-  "note": "off the Perimeter, across the East Reach to the east shore",
+  "name": "Grande P Expressway",
+  "note": "off the Perimeter, across Grande P to the east shore",
   "code": "312-H4",
   "kind": "highway",
   "length": 1282.2,
@@ -3881,7 +3881,7 @@
     600
    ]
   ],
-  "image": "312-H4-east-reach-expressway.png",
+  "image": "312-H4-grande-p-expressway.png",
   "city": "312"
  },
  {

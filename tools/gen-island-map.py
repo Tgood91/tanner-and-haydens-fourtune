@@ -286,7 +286,7 @@ road("cut-st", "Cut St.", smooth([(821,189),(815,208),(817,228),(810,250),(812,2
 def straight(*pts): return "M" + " L".join(f"{x} {y}" for x, y in pts)
 def curve(*pts): return smooth(list(pts), closed=False)
 # East Reach: the trunk roads
-road("e312-east-reach", "East Reach Expressway — off the Perimeter, across the East Reach to the east shore",
+road("e312-east-reach", "Grande P Expressway — off the Perimeter, across Grande P to the east shore",
      curve((1380,470),(1600,480),(1900,520),(2250,560),(2655,600)))
 road("e312-bayfront", "Bayfront Drive — the East Reach's north shore", curve((1560,330),(1700,290),(1900,235),(2150,190),(2400,182),(2590,250)), "arterial")
 road("e312-eastline", "Eastline Avenue — north to south through the East Reach", curve((1960,222),(1985,480),(2000,700),(1990,1000),(1965,1165)), "arterial")
