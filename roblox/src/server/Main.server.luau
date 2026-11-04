@@ -30,6 +30,11 @@ PlayerActions.Init()
 Admin.Init()
 DataService.Start()
 
+-- Build the island if this place doesn't have it saved yet (spawns go in first).
+if Config.BUILD_MAP_IF_MISSING and not workspace:FindFirstChild("Map") then
+	task.spawn(require(script.Parent.Map.MapBuilder).Build)
+end
+
 local KICK_MESSAGES = {
 	locked = "Your data is still saving from another server. Please rejoin in a minute.",
 	error = "We couldn't load your data. Please rejoin.",

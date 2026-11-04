@@ -40,6 +40,43 @@ Not carried over:
 - **Hunger and thirst.** Food is consumed but doesn't do anything yet,
   until `needs.js` is ported.
 
+## The map
+
+![the island](map/layout-labeled.png)
+
+The whole island from the GTA project, at Roblox scale. It's about
+**8,300 x 4,700 studs** (2.8 x 1.6 km), and every one of the island's **108
+roads** carries its real name.
+
+| Built by `src/server/Map/MapBuilder.luau` | Count |
+|---|---|
+| Named roads (asphalt, with centre lines on highways and arterials) | 108 |
+| Junctions | 276 |
+| Street signs: a green blade per road at every junction, plus one every ~900 studs on long stretches | 345 |
+| Floating road names (`MAP_FLOATING_ROAD_NAMES`) and city and district names | 108 + 11 |
+| Spawns: 312 at C Ave & Midway Ave; 770 at Grain Elevator Rd; 1017 at The Connector & The Flyover | 3 |
+| Terrain: sea, beach, grass, a 700-stud mountain with a snow cap, the airport apron and runway | |
+
+That comes to about 2,600 parts plus terrain, which is light enough for phones.
+`StreamingEnabled` is turned on for big maps.
+
+**Building it**
+- **Quick test:** press Play. If the place has no `workspace.Map`, Main
+  builds it, which takes a few seconds. It isn't saved.
+- **Keep it:** in Edit mode, paste this into the command bar, then save:
+  ```lua
+  require(game.ServerScriptService.Server.Map.MapBuilder).Build()
+  ```
+  Running it again wipes and rebuilds `workspace.Map` and the terrain.
+
+**Changing roads:** edit the island (`tools/gen-island-map.py` →
+`tools/render-streets.js`), then run `python3 tools/gen-roblox-map.py`. That
+regenerates `MapData.luau` and everything in `map/`.
+
+**For Kimi:** `map/KIMI-BRIEF.md` explains what to render and which files to
+give it: `map/layout-labeled.png`, `map/layout-clean.png` and
+`map/layout.json`.
+
 ## Getting it into Roblox Studio
 
 **Option A: Rojo (recommended, keeps files and Studio in sync)**

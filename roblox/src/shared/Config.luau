@@ -34,6 +34,12 @@ local Config = {
 	RATE_REFILL = 4,
 	PAY_COOLDOWN = 3, -- seconds between /pay-style transfers
 
+	-- The map (src/server/Map). See MapBuilder.luau for building it into the place.
+	BUILD_MAP_IF_MISSING = true, -- on Play, build workspace.Map if the place doesn't have one
+	MAP_CENTRE_LINES = true, -- yellow centre lines on highways and arterials
+	MAP_FLOATING_ROAD_NAMES = true, -- road names floating above each road (for finding your way while building)
+	MAP_REMOVE_TEMPLATE_BASEPLATE = true, -- the Baseplate template's floor sits inside the mountain
+
 	-- Run the logic checks in Server output when you press Play in Studio.
 	RUN_TESTS_IN_STUDIO = true,
 }

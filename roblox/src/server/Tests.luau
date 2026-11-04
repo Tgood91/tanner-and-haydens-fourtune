@@ -186,6 +186,39 @@ function Tests.run()
 		check("refill caps at capacity", not limiter:allow("p"))
 	end
 
+	-- ---------------- Map data ----------------
+	do
+		local MapData = require(script.Parent.Map.MapData)
+		check("map has 108 roads", #MapData.roads == 108)
+		local roadsOk, junctionsOk, signsOk = true, true, true
+		for _, r in MapData.roads do
+			if #r.points < 2 or type(r.name) ~= "string" or r.width <= 0 then
+				roadsOk = false
+			end
+		end
+		for _, j in MapData.junctions do
+			if #j.roads < 2 then
+				junctionsOk = false
+			end
+			for _, k in j.roads do
+				if not MapData.roads[k] then
+					junctionsOk = false
+				end
+			end
+		end
+		for _, s in MapData.signs do
+			for _, b in s.blades do
+				if not MapData.roads[b.road] then
+					signsOk = false
+				end
+			end
+		end
+		check("every road has a name and 2+ points", roadsOk)
+		check("every junction joins 2+ real roads", junctionsOk)
+		check("every sign names a real road", signsOk)
+		check("one spawn per city", #MapData.cities == 3)
+	end
+
 	local total = passed + failed
 	if failed == 0 then
 		print(string.format("[Tests] %d/%d passed", passed, total))
