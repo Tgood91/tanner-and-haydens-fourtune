@@ -183,7 +183,7 @@ for i in range(5):                # log piles: rows of log ends
       + "".join(f'<circle cx="{gx + 4 + k * 5.3}" cy="{gy + 8}" r="2.3" fill="#d9b382" stroke="#6b4423" stroke-width=".6"/>' for k in range(4)) + '</g>')
 for gx, gy in [(-35, 600), (-20, 600), (-5, 600), (-35, 615), (-20, 615)]:   # plank stacks
     a(f'<rect x="{gx}" y="{gy}" width="12" height="9" fill="#e3c58f" stroke="#8a6a3a"><title>Plank stack</title></rect>')
-a('<circle cx="-20" cy="640" r="9" fill="#c9a66b" opacity=".9"><title>Sawdust pile</title></circle>')
+a('<circle cx="86" cy="644" r="9" fill="#c9a66b" opacity=".9"><title>Sawdust pile</title></circle>')   # the empty south-east corner, clear of Timber Yard Lane
 for x, y in LOGGING_SPOTS:        # Copper Hills felling spots (lumbermill.js FELL_SPOTS)
     a(f'<g transform="translate({x} {y})"><title>Felling spot — /fell</title><circle r="3.4" fill="#d9b382" stroke="#6b4423" stroke-width="1"/>'
       f'<circle r="1.4" fill="none" stroke="#6b4423" stroke-width=".6"/></g>')

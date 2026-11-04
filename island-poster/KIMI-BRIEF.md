@@ -10,6 +10,7 @@ remove or add a road, and never put anything on one.
 |---|---|
 | `overview.png` | The whole island, with main roads, districts and area names |
 | `overview-clean.png` | The same island with no text, as a base to paint over |
+| `renders/lumber-yard.png`, `lumber-yard-top.png` | A 3D render of Hollow Creek Lumber Yard built from the game's own terrain, buildings and roads (`node tools/render-lumber-yard.js`). Use it as the layout to match when restyling the yard. |
 | `regions/01` … `08` | Close-ups where every street's name and number is readable. Use these for street-level detail. |
 
 Road numbers read like `312-A11`: area code · **H** highway / **A** avenue / **S** street / **B** back road · number.
