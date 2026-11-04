@@ -26,8 +26,9 @@
 //   pickupRemoved { id }
 //   spawnAnimal { id, model, pos, heading }   a networked deer/boar in the hunting grounds
 //   despawnAnimal { id }                      skinned or rotted away
-// The platform also reports animals: animalKilled(id, killerId, pos) when one
-// dies (killerId = the player the game says killed it, or null), animalLost(id)
+// The platform also reports animals: animalKilled(id, killerId, pos, now, weapon)
+// when one dies (killerId = the player the game says killed it, or null; weapon =
+// the inventory item, "vehicle", or null), animalLost(id)
 // when its entity is gone without dying.
 // ============================================================
 
@@ -1325,9 +1326,9 @@ function createGame(opts = {}) {
     // The server saw a hunting-grounds animal die. killerId: the player the
     // game says did it, or null. The hunter hears how it counts; a poached
     // kill tips off on-duty police with the place, never the name.
-    function animalKilled(animalId, killerId, pos, now = Date.now()) {
+    function animalKilled(animalId, killerId, pos, now = Date.now(), weapon = null) {
         const hunter = killerId === null || killerId === undefined ? null : characters.get(killerId) || null;
-        const res = hunt.killed(animalId, hunter, pos, now);
+        const res = hunt.killed(animalId, hunter, pos, now, weapon);
         const notify = [];
         if (res.msg) notify.push({ id: hunter.id, msg: res.msg });
         if (res.poached) {

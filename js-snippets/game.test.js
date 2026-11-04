@@ -2381,7 +2381,7 @@ test("a clean kill skins into meat and a hide, sells at the lodge, and is replac
     const { game, a, as, herd } = huntSetup();
     licensed(game, as, a);
     const deer = herd.find((h) => h.model === "a_c_deer");
-    const kill = game.animalKilled(deer.id, 1, deer.pos, 1000);
+    const kill = game.animalKilled(deer.id, 1, deer.pos, 1000, "huntingrifle");
     assert.match(kill.notify[0].msg, /Clean kill: Deer\. .*\/skin.*5 left in your bag limit/);
 
     assert.match(game.command(as(1, { pos: NOWHERE, now: 2000 }), "skin").msg, /no carcass close enough/);
@@ -2410,7 +2410,7 @@ test("poaching: no license, or outside the grounds — can't skin it, and police
     const { game, a, b, as, herd } = huntSetup();
     game.command(CONSOLE, "setjob", ["2", "police"]);
     game.command(as(2), "duty");
-    const res = game.animalKilled(herd[0].id, 1, herd[0].pos, 1000);
+    const res = game.animalKilled(herd[0].id, 1, herd[0].pos, 1000, "huntingrifle");
     assert.match(res.notify.find((n) => n.id === 1).msg, /poached: you don't have a hunting license/);
     const tip = res.notify.find((n) => n.id === 2).msg;
     assert.equal(tip, "Poaching reported: shots in the West Woods Hunting Grounds.");
@@ -2419,10 +2419,10 @@ test("poaching: no license, or outside the grounds — can't skin it, and police
 
     // licensed now, but the deer ran out of the grounds before it dropped
     licensed(game, as, a);
-    const out = game.animalKilled(herd[1].id, 1, { x: -7000, y: -6000, z: 20 }, 2000);
+    const out = game.animalKilled(herd[1].id, 1, { x: -7000, y: -6000, z: 20 }, 2000, "huntingrifle");
     assert.match(out.notify[0].msg, /poached: it was outside the West Woods Hunting Grounds/);
     assert.match(game.command(as(1, { pos: { x: -7000, y: -6000, z: 20 } }), "skin").msg, /was poached\. It stays where it fell/);
-    assert.equal(game.animalKilled(herd[1].id, 1, herd[1].pos, 3000).notify.length, 0, "a carcass can't be killed twice");
+    assert.equal(game.animalKilled(herd[1].id, 1, herd[1].pos, 3000, "huntingrifle").notify.length, 0, "a carcass can't be killed twice");
     void b;
 });
 
@@ -2431,15 +2431,15 @@ test("the bag limit: six clean kills an hour, the seventh is poaching; relogging
     licensed(game, as, a);
     const ids = herd.map((h) => h.id);   // the 8 animals out at the start
     for (let k = 0; k < 6; k++) {
-        const r = game.animalKilled(ids[k], 1, huntRules.SPOTS[0], 1000 + k);
+        const r = game.animalKilled(ids[k], 1, huntRules.SPOTS[0], 1000 + k, "huntingrifle");
         assert.match(r.notify[0].msg, /Clean kill/, `kill ${k + 1} is clean`);
     }
     game.leave(1);
     game.join(1, "Tanner", { licenses: { hunting: { issuedAt: 0 } } });
-    const seventh = game.animalKilled(ids[6], 1, huntRules.SPOTS[0], 2000);
+    const seventh = game.animalKilled(ids[6], 1, huntRules.SPOTS[0], 2000, "huntingrifle");
     assert.match(seventh.notify[0].msg, /over your bag limit \(6 an hour\)/);
     // an hour after the first kills, the limit is back
-    const later = game.animalKilled(ids[7], 1, huntRules.SPOTS[0], 1000 + 60 * 60000 + 6);
+    const later = game.animalKilled(ids[7], 1, huntRules.SPOTS[0], 1000 + 60 * 60000 + 6, "huntingrifle");
     assert.match(later.notify[0].msg, /Clean kill/);
 });
 
@@ -2448,12 +2448,12 @@ test("a carcass is the killer's for 5 minutes, a full bag takes nothing, and car
     licensed(game, as, a);
     licensed(game, as, b);
     const [first, second] = herd;
-    game.animalKilled(first.id, 1, first.pos, 0);
+    game.animalKilled(first.id, 1, first.pos, 0, "huntingrifle");
     assert.match(game.command(as(2, { pos: first.pos, now: 60000 }), "skin").msg, /someone else's .* theirs for 5 minutes/);
     assert.match(game.command(as(2, { pos: first.pos, now: 5 * 60000 }), "skin").msg, /You dress the/, "fair game after 5 minutes");
 
     // a bag that can't take the whole animal takes none of it
-    game.animalKilled(second.id, 1, second.pos, 0);
+    game.animalKilled(second.id, 1, second.pos, 0, "huntingrifle");
     a.inventory.toolbox = 7;   // 28 kg + the starters
     const before = JSON.stringify(a.inventory);
     assert.match(game.command(as(1, { pos: second.pos, now: 1000 }), "skin").msg, /Your bag can't take the/);
@@ -2463,7 +2463,7 @@ test("a carcass is the killer's for 5 minutes, a full bag takes nothing, and car
     const rot = game.tick(1, 15 * 60000).actions.filter((x) => x.type === "despawnAnimal");
     assert.deepEqual(rot, [{ type: "despawnAnimal", id: second.id }]);
     // something that killed it that isn't a player: still a carcass, nobody's claim
-    game.animalKilled(herd[2].id, null, herd[2].pos, 20 * 60000);
+    game.animalKilled(herd[2].id, null, herd[2].pos, 20 * 60000, "huntingrifle");
     a.inventory = {};
     assert.match(game.command(as(1, { pos: herd[2].pos, now: 20 * 60000 }), "skin").msg, /You dress the/);
 });
@@ -2475,12 +2475,29 @@ test("/hunting tells you where you stand", () => {
     assert.match(away, /Hunting license: none/);
     assert.match(away, /Game in the woods right now: 8/);
     licensed(game, as, a);
-    game.animalKilled(herd[0].id, 1, herd[0].pos, 0);
+    game.animalKilled(herd[0].id, 1, herd[0].pos, 0, "huntingrifle");
     const here = game.command(as(1, { pos: herd[1].pos, now: 0 }), "hunting").msg;
     assert.match(here, /You're in the hunting grounds/);
     assert.match(here, /Bag limit: 1\/6/);
     assert.match(here, /Game in the woods right now: 7/);
     assert.match(here, /Venison \$90/);
+});
+
+test("only a rifle or a shotgun is hunting: running one over, an SMG or a knife is poaching", () => {
+    const { game, a, as, herd } = huntSetup();
+    licensed(game, as, a);
+    const cases = [
+        ["vehicle", /running it over isn't hunting/],
+        ["uzi", /a Compact SMG isn't a hunting weapon/],
+        [null, /wasn't shot with a hunting weapon/],
+    ];
+    cases.forEach(([weapon, why], k) => {
+        const res = game.animalKilled(herd[k].id, 1, herd[k].pos, 1000, weapon);
+        assert.match(res.notify[0].msg, why);
+        assert.match(game.command(as(1, { pos: herd[k].pos, now: 1000 }), "skin").msg, /was poached/);
+    });
+    assert.match(game.animalKilled(herd[3].id, 1, herd[3].pos, 1000, "pumpshotgun").notify[0].msg, /Clean kill/, "a Pump 12 is fine");
+    assert.match(game.command(as(1, { now: 1000 }), "hunting").msg, /Bag limit: 1\/6/, "poached kills don't use up the bag limit");
 });
 
 // ---------------- Hollow Creek Lumber Yard (/apply lumbermill) ----------------
@@ -2562,4 +2579,29 @@ test("lumber yard spots sit in the right places", () => {
     // the lumberMill-jobs client resource uses the same spots
     const lua = require("fs").readFileSync(require("path").join(__dirname, "../lumberMill-jobs/config.lua"), "utf8");
     for (const s of [SAW, OFFICE, ...TREE]) assert.ok(lua.includes(`x = ${s.x.toFixed(1)}, y = ${s.y.toFixed(1)}, z = ${s.z.toFixed(1)}`), `config.lua has ${s.x}, ${s.y}`);
+});
+
+test("lumber yard: 12 logs an hour each, and relogging doesn't reset it", () => {
+    const { game, a, as } = logger();
+    let now = 0;
+    for (let k = 0; k < 6; k++) {   // six on spot 0, waiting out the 8-min regrow each time
+        a.inventory = {};
+        now += 9 * 60000;
+        assert.match(game.command(as(1, { pos: TREE[0], now }), "fell").msg, /Timber!/, `log ${k + 1}`);
+    }
+    // 54 minutes in: six more on other spots straight away makes twelve
+    for (let k = 1; k <= 6; k++) {
+        a.inventory = {};
+        assert.match(game.command(as(1, { pos: TREE[k], now }), "fell").msg, /Timber!/);
+    }
+    a.inventory = {};
+    assert.match(game.command(as(1, { pos: TREE[7], now }), "fell").msg, /felled 12 logs this hour — that's your limit\. Next one in \d+ min/);
+    assert.match(game.command(as(1, { now }), "lumber").msg, /Felled this hour: 12\/12/);
+    game.leave(1);
+    const back = game.join(1, "Tanner", { job: { name: "lumbermill", grade: 0 } });
+    back.onDuty = true;
+    back.inventory = {};
+    assert.match(game.command(as(1, { pos: TREE[7], now }), "fell").msg, /that's your limit/, "relogging doesn't reset it");
+    // the first log was felled at 9 min: an hour after that, one more is allowed
+    assert.match(game.command(as(1, { pos: TREE[7], now: 9 * 60000 + 60 * 60000 }), "fell").msg, /Timber!/);
 });

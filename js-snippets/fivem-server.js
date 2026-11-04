@@ -296,6 +296,13 @@ function playerFromEntity(ent) {
     for (const id of getPlayers()) if (GetPlayerPed(Number(id)) === ent) return Number(id);
     return null;
 }
+// What killed it, as the game's own item name: "huntingrifle", "vehicle", or null.
+const { WEAPONS } = require(`${resourcePath}/ammo.js`);
+const WEAPON_BY_HASH = new Map(Object.entries(WEAPONS).map(([item, w]) => [GetHashKey(w.gta) >>> 0, item]));
+function weaponOf(ped, killer) {
+    if (killer && GetEntityType(killer) === 2) return "vehicle";
+    return WEAPON_BY_HASH.get(GetPedCauseOfDeath(ped) >>> 0) || null;   // >>> 0: hashes can come back signed
+}
 setInterval(() => {
     for (const [id, ped] of animals) {
         if (!DoesEntityExist(ped)) {
@@ -311,7 +318,7 @@ setInterval(() => {
         if (GetEntityHealth(ped) > 0 && !killer) continue;
         carcasses.add(id);
         const [x, y, z] = GetEntityCoords(ped);
-        perform(game.animalKilled(id, playerFromEntity(killer), { x, y, z }, Date.now()));
+        perform(game.animalKilled(id, playerFromEntity(killer), { x, y, z }, Date.now(), weaponOf(ped, killer)));
     }
 }, 2000);
 on("onResourceStop", (name) => {

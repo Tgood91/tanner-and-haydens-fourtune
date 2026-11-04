@@ -13,7 +13,10 @@
 //   4. /sellgame at the lodge: everything you carry, for cash.
 //
 // The rules:
-//   - No hunting licence, or past your bag limit, or outside the grounds:
+//   - Only a rifle or a shotgun makes a clean kill (HUNTING_WEAPONS). The
+//     server reads the weapon GTA records as the cause of death, so running
+//     one over, a knife or an SMG doesn't count.
+//   - No hunting licence, the wrong weapon, past your bag limit, or outside the grounds:
 //     that's POACHING. You can't skin it, and on-duty police get a tip
 //     that says where, never who.
 //   - A carcass is yours to skin for 5 minutes; after that any licensed
@@ -42,6 +45,7 @@ const CLAIM_MIN = 5;         // the killer's carcass, before anyone may skin it
 const ROT_MIN = 15;
 const BAG_LIMIT = 6;         // clean kills per rolling hour
 const BOAR_CHANCE = 0.35;
+const HUNTING_WEAPONS = ["huntingrifle", "pumpshotgun"];   // inventory items (ammo.js WEAPONS)
 
 const SPECIES = {
     deer: { label: "Deer", model: "a_c_deer", yields: { venison: 2, deerhide: 1 } },
@@ -138,9 +142,11 @@ function createHunting(rng = Math.random) {
     }
 
     // The server saw animal `id` die at `pos`. hunter = the killer's character,
-    // or null (run over, fell, killed by something that isn't a player).
+    // or null (fell, killed by something that isn't a player). weapon = the
+    // inventory item that killed it ("huntingrifle"), "vehicle" if it was run
+    // over, or null for anything else (fists, a knife, a fall).
     // Returns { ok, msg (for the hunter), poached, where }.
-    function killed(id, hunter, pos, now) {
+    function killed(id, hunter, pos, now, weapon = null) {
         const a = animals.get(id);
         if (!a || a.state !== "alive") return { ok: false, msg: "" };
         a.state = "carcass";
@@ -153,7 +159,11 @@ function createHunting(rng = Math.random) {
         const label = SPECIES[a.species].label;
         let why = null;
         if (!hunter.licenses.hunting) why = "you don't have a hunting license";
-        else if (!inGrounds(a.pos)) why = `it was outside the ${GROUNDS.label}`;
+        else if (!HUNTING_WEAPONS.includes(weapon)) {
+            why = weapon === "vehicle" ? "running it over isn't hunting"
+                : weapon && inventory.ITEMS[weapon] ? `a ${inventory.ITEMS[weapon].label} isn't a hunting weapon (use the Bolt Rifle or a Pump 12)`
+                : "it wasn't shot with a hunting weapon (use the Bolt Rifle or a Pump 12)";
+        } else if (!inGrounds(a.pos)) why = `it was outside the ${GROUNDS.label}`;
         else if (recentKills(hunter.id, now) >= BAG_LIMIT) why = `you're over your bag limit (${BAG_LIMIT} an hour)`;
         if (why) {
             a.poached = true;
@@ -241,6 +251,6 @@ function createHunting(rng = Math.random) {
 }
 
 module.exports = {
-    GROUNDS, LODGE, SPECIES, PRICES, SPOTS, HERD_SIZE, BAG_LIMIT, RESPAWN_MIN, CLAIM_MIN, ROT_MIN,
+    GROUNDS, LODGE, SPECIES, PRICES, SPOTS, HERD_SIZE, BAG_LIMIT, HUNTING_WEAPONS, RESPAWN_MIN, CLAIM_MIN, ROT_MIN,
     inGrounds, atLodge, isGame, createHunting,
 };

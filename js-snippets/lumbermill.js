@@ -7,7 +7,9 @@
 //
 //   1. /fell at a felling spot in the Copper Hills woods -> 1 log.
 //      Logs are 12 kg, so two fill a bag; a truck's trunk (/trunkput)
-//      hauls more. A felled spot regrows in FELL_REGROW_MIN, for everyone.
+//      hauls more. A felled spot regrows in FELL_REGROW_MIN, for everyone,
+//      and each player fells at most LOG_LIMIT logs an hour, so one person
+//      can't strip every spot (relogging doesn't reset it).
 //   2. /mill at the mill shed's saw: every log you carry -> 4 planks,
 //      and piece pay a log, cash, on the spot. Hauled a truckload? Park
 //      by the shed, /trunktake log, /mill, repeat.
@@ -32,6 +34,7 @@ const YARD = {
 };
 const RANGE = 5.0;               // metres from the saw, the office or a felling spot
 const FELL_REGROW_MIN = 8;
+const LOG_LIMIT = 12;            // logs a player may fell in a rolling hour
 const PLANKS_PER_LOG = 4;
 const MILL_PAY = [25, 30, 40];   // cash a log milled, by grade (Logger, Sawyer, Yard Boss)
 const PLANK_PRICE = 30;          // the office pays, each
@@ -61,6 +64,13 @@ function onShift(c) {
 
 function createLumberMill() {
     const regrows = new Map();   // spot index -> time it can be felled again
+    const felled = new Map();    // character id -> [times they felled a log], last hour only
+
+    function recent(id, now) {
+        const list = (felled.get(id) || []).filter((t) => now - t < 60 * 60000);
+        felled.set(id, list);
+        return list;
+    }
 
     const minutesLeft = (until, now) => (until && until > now ? Math.ceil((until - now) / 60000) : 0);
 
@@ -69,12 +79,17 @@ function createLumberMill() {
         if (!shift.ok) return shift;
         const i = FELL_SPOTS.findIndex((s) => near(c.pos, s));
         if (i < 0) return { ok: false, msg: "No marked tree here. Felling spots are in the Copper Hills woods" };
+        const mine = recent(c.id, now);
+        if (mine.length >= LOG_LIMIT) {
+            return { ok: false, msg: `You've felled ${LOG_LIMIT} logs this hour — that's your limit. Next one in ${minutesLeft(mine[0] + 60 * 60000, now)} min` };
+        }
         const wait = minutesLeft(regrows.get(i), now);
         if (wait) return { ok: false, msg: `This spot's been cut. It's ready again in ${wait} min — try another` };
         const fits = inventory.canAddItem(c.inventory, "log", 1);
         if (!fits.ok) return { ok: false, msg: `No room for the log: ${fits.msg}. Put logs in a truck (/trunkput log)` };
         inventory.addItem(c.inventory, "log", 1);
         regrows.set(i, now + FELL_REGROW_MIN * 60000);
+        mine.push(now);
         return { ok: true, msg: `Timber! 1x Log (${c.inventory.log} carried). Mill them at ${YARD.label}.` };
     }
 
@@ -116,6 +131,7 @@ function createLumberMill() {
             working ? `You work here${c.onDuty ? " (on duty)" : " (off duty — /duty)"}` : `Not your job — /apply ${JOB} to start`,
             `Felling spots ready in the Copper Hills: ${ready}/${FELL_SPOTS.length}`,
             `Carrying: ${c.inventory.log || 0} logs, ${c.inventory.plank || 0} planks`,
+            `Felled this hour: ${recent(c.id, now).length}/${LOG_LIMIT}`,
             `Pay: ${economy.money(payFor(c))} a log milled${working ? "" : " (as a Logger)"}, ${economy.money(PLANK_PRICE)} a plank sold (${economy.money(payFor(c) + PLANKS_PER_LOG * PLANK_PRICE)} a log in all)`,
         ].join("\n");
     }
@@ -123,4 +139,4 @@ function createLumberMill() {
     return { fell, mill, sellPlanks, status };
 }
 
-module.exports = { JOB, YARD, FELL_SPOTS, RANGE, FELL_REGROW_MIN, PLANKS_PER_LOG, MILL_PAY, PLANK_PRICE, createLumberMill };
+module.exports = { JOB, YARD, FELL_SPOTS, RANGE, FELL_REGROW_MIN, LOG_LIMIT, PLANKS_PER_LOG, MILL_PAY, PLANK_PRICE, createLumberMill };

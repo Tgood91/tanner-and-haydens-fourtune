@@ -22,7 +22,7 @@ ensure lumberMill-jobs
 | Step | Where | What |
 |---|---|---|
 | `/apply lumbermill`, `/duty` | anywhere | Open hire. Grades are Logger, Sawyer and Yard Boss. On duty pays $180 / $260 / $380 per paycheck plus 13 gold an hour. |
-| `/fell` | a Copper Hills felling spot | 1 log (12 kg). Two fill a bag, so `/trunkput log` into a truck to haul more. A cut spot regrows in 8 min, for everyone. |
+| `/fell` | a Copper Hills felling spot | 1 log (12 kg). Two fill a bag, so `/trunkput log` into a truck to haul more. A cut spot regrows in 8 min, for everyone. Each player can fell 12 logs an hour, and relogging doesn't reset it. |
 | `/mill` | the saw, the mill shed's east door | Every log you carry becomes 4 planks, plus piece pay of $25 / $30 / $40 a log by grade |
 | `/sellplanks` | the yard office | $30 a plank, cash. Anyone can sell; only on-duty workers can make them. |
 | `/lumber` | anywhere | Your shift, felling spots ready, and the pay |
