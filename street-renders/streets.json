@@ -1525,7 +1525,7 @@
  },
  {
   "name": "Bayfront Drive",
-  "note": "the East Reach's north shore",
+  "note": "Grande P's north shore",
   "code": "312-A9",
   "kind": "arterial",
   "length": 1060.4,
@@ -1802,7 +1802,7 @@
  },
  {
   "name": "Eastline Avenue",
-  "note": "north to south through the East Reach",
+  "note": "north to south through Grande P",
   "code": "312-A10",
   "kind": "arterial",
   "length": 947,

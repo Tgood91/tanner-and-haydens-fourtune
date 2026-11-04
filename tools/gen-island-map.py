@@ -41,7 +41,7 @@ def ellipse_path(cx, cy, rx, ry):
 def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2 <= 1
 
 # The coast. The north (the 312 ports) and the 1017 harbour bay are the original coast;
-# the East Reach joins on east of the 312 port, and the west woods grow out past the old
+# Grande P joins on east of the 312 port, and the west woods grow out past the old
 # west shore. Everything stays inside world X/Y -8192..8192 (GTA's path-node grid), and
 # well clear of Los Santos (north) and Cayo Perico (far east).
 ISLAND = [(-540,700),(-560,520),(-500,380),(-380,290),(-200,250),(-20,280),(150,330),(240,205),(420,150),(640,105),
@@ -56,7 +56,7 @@ INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
 MLOOP = (820, 470, 285, 150)       # County Line Road, round the mountain (clear of the 312)
 
 # ---------------------------------------------------------------- defs
-a(f'''<svg id="island" viewBox="{VX0} {VY0} {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south, the East Reach and the west woods">
+a(f'''<svg id="island" viewBox="{VX0} {VY0} {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south, Grande P and the west woods">
 <defs>
   <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a6f9a"/><stop offset="1" stop-color="#174f78"/></linearGradient>
   <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa36f"/><stop offset=".5" stop-color="#8f9a5e"/><stop offset="1" stop-color="#a49c70"/></linearGradient>
@@ -282,14 +282,14 @@ road("cut-st", "Cut St.", smooth([(821,189),(815,208),(817,228),(810,250),(812,2
 
 # ---------------------------------------------------------------- the expansion (added after everything above,
 # so every existing road keeps its number). Prefix = whose numbers it takes:
-# e312- the 312's (East Reach, north half), e1017- the 1017's (East Reach, south half), w770- the 770's (west woods).
+# e312- the 312's (Grande P, north half), e1017- the 1017's (Grande P, south half), w770- the 770's (west woods).
 def straight(*pts): return "M" + " L".join(f"{x} {y}" for x, y in pts)
 def curve(*pts): return smooth(list(pts), closed=False)
-# East Reach: the trunk roads
+# Grande P: the trunk roads
 road("e312-east-reach", "Grande P Expressway — off the Perimeter, across Grande P to the east shore",
      curve((1380,470),(1600,480),(1900,520),(2250,560),(2655,600)))
-road("e312-bayfront", "Bayfront Drive — the East Reach's north shore", curve((1560,330),(1700,290),(1900,235),(2150,190),(2400,182),(2590,250)), "arterial")
-road("e312-eastline", "Eastline Avenue — north to south through the East Reach", curve((1960,222),(1985,480),(2000,700),(1990,1000),(1965,1165)), "arterial")
+road("e312-bayfront", "Bayfront Drive — Grande P's north shore", curve((1560,330),(1700,290),(1900,235),(2150,190),(2400,182),(2590,250)), "arterial")
+road("e312-eastline", "Eastline Avenue — north to south through Grande P", curve((1960,222),(1985,480),(2000,700),(1990,1000),(1965,1165)), "arterial")
 road("e312-east-shore", "East Shore Drive — down the east coast", curve((2590,250),(2650,380),(2662,560),(2620,760),(2560,900)), "street")
 road("e1017-channel-bridge", "Channel Bridge — over the harbour channel, 1017 to Eastgate", curve((1320,790),(1450,762),(1560,748),(1680,740)), "arterial")
 road("e1017-strand", "Strand Boulevard — the Saltwater Strand seafront", curve((1700,1120),(1950,1170),(2200,1140),(2420,1060),(2560,900)), "arterial")
@@ -832,7 +832,7 @@ print(f'''<!DOCTYPE html>
 </head>
 <body>
   <h1>THE ISLAND — 312 TO 1017</h1>
-  <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south, the East Reach and the west woods.<br>
+  <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south, Grande P and the west woods.<br>
   Scroll or + / − to zoom in for every street name, drag to move around. Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
   <div class="frame">
 {SVG}

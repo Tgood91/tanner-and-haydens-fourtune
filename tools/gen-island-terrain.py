@@ -131,7 +131,7 @@ ang = np.arctan2(MY - MOUNTAIN[1], MX - MOUNTAIN[0])
 mountain = 320 * np.clip(1 - mr, 0, 1) ** 1.45 * (1 + .12 * np.sin(ang * 7 + mr * 5)) * (1 + .08 * value_noise(60, 3))
 west = 70 * np.clip(1 - ell(250, 470, 190, 215) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(90, 4))
 east = 32 * np.clip(1 - ell(1360, 560, 90, 150) ** 2, 0, 1) ** 2
-# The expansion: Harrow Heights (East Reach, north-east), the Copper Hills (south-west), the west woods' rolls
+# The expansion: Harrow Heights (Grande P, north-east), the Copper Hills (south-west), the west woods' rolls
 harrow = 90 * np.clip(1 - ell(2450, 370, 230, 130) ** 2, 0, 1) ** 2 * (1 + .2 * value_noise(80, 5))
 copper = 60 * np.clip(1 - ell(-280, 990, 210, 130) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(70, 6))
 woods = 18 * np.clip(1 - ell(-300, 430, 260, 140) ** 2, 0, 1) * (1 + .5 * value_noise(60, 7))

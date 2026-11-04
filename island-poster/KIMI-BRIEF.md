@@ -44,17 +44,17 @@ Road numbers read like `312-A11`: area code · **H** highway / **A** avenue / **
    houses to the east and west and a harbour on the east side.
 5. **The airport.** Reclaimed land along the south shore, with one long
    runway, terminals and a control tower. A small marina sits just west of it.
-6. **Grande P (the middle of the east land).** Open farmland around
-   **Kestrel Park**, a large oval park with a ring road. The East Reach
-   Expressway crosses it.
-7. **Foundry Flats.** An industrial grid of warehouses, yards and freight sidings.
-8. **Bayfront.** The north shore of the east land, with offices along Bayfront Drive.
-9. **Harrow Heights.** Forested hills about 90 m high, with winding roads.
-   **Lighthouse Point** is at the east tip.
-10. **Eastgate.** A suburb of houses with yards on a tree-named grid (Aspen to
-    Sycamore Street, Maple to Hawthorn Avenue).
-11. **Saltwater Strand.** A beach resort along Strand Boulevard, with
-    beach streets (Coral, Gull, Pelican, Tidewater), a boardwalk and a marina.
+6. **Grande P (the whole east land).** It joins on east of the 312 port.
+   - **The middle:** open farmland around **Kestrel Park**, a large oval park
+     with a ring road. The Grande P Expressway crosses it.
+   - **Foundry Flats:** an industrial grid of warehouses, yards and freight sidings.
+   - **Bayfront:** the north shore, with offices along Bayfront Drive.
+   - **Harrow Heights:** forested hills about 90 m high, with winding roads.
+     **Lighthouse Point** is at the east tip.
+   - **Eastgate:** a suburb of houses with yards on a tree-named grid (Aspen to
+     Sycamore Street, Maple to Hawthorn Avenue).
+   - **Saltwater Strand:** a beach resort along Strand Boulevard, with beach
+     streets (Coral, Gull, Pelican, Tidewater), a boardwalk and a marina.
 
 ## Style
 

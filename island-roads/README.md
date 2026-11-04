@@ -22,7 +22,7 @@ The road prop and its size are settings at the top of `tools/gen-road-ymaps.js` 
 | `pieceModel` | `stt_prop_track_straight_s` | Search the name in the model browser. If it isn't there, pick any flat, drivable prop. |
 | `pieceLength` / `pieceWidth` | 10 m / 8 m | The model's bounding box. Its length must run along the model's own +Y axis. |
 | `centre`, `z` | X -5500, Y -6500, Z 10 | Where the island sits: open sea south-west of Los Santos. Move it if it clashes with anything. |
-| `metresPerUnit` | 2 | The original 1500 map units are 3 km. With the East Reach and the west woods, the island is about 6.6 km wide. |
+| `metresPerUnit` | 2 | The original 1500 map units are 3 km. With Grande P and the west woods, the island is about 6.6 km wide. |
 
 Change them, rerun the script, and every ymap is rebuilt.
 
