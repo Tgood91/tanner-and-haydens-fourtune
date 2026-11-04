@@ -598,7 +598,7 @@ for z in GAME["zones"]:
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
       f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
 for x, y, name, kind in [(1715, 316, "Foundry Flats", "district"), (2450, 470, "Harrow Heights", "district"), (2000, 250, "Bayfront", "district"),
-                         (2250, 704, "Kestrel Park", "park"), (1800, 870, "Eastgate", "district"), (2130, 1085, "Saltwater Strand", "district"),
+                         (2250, 704, "Kestrel Park", "park"), (2010, 455, "Grande P", "district"), (1800, 870, "Eastgate", "district"), (2130, 1085, "Saltwater Strand", "district"),
                          (2690, 448, "Lighthouse Point", "park"), (-210, 610, "Pine Hollow", "district"), (-300, 430, "The west woods", "district"),
                          (-280, 960, "Copper Hills", "district"), (-330, 455, "Hunting Grounds", "park"), (-505, 760, "Sundown Beach", "park")]:
     a(f'  <text class="name zone-name" x="{x}" y="{y}" text-anchor="middle" font-size="{9 if kind == "district" else 7}" font-style="italic" '

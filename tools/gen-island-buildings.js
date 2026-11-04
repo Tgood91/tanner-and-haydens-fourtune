@@ -54,11 +54,11 @@ const MATS = {
 (async () => {
   // ---- 1. footprints from the map (svg sized 1:1 to its viewBox so getCTM is in map units)
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1500, height: 1000 } });
+  const page = await browser.newPage({ viewport: { width: 3400, height: 1300 } });   // the map canvas 1:1 (gen-island-map.py VX0, VY0, W, H)
   await page.goto("file://" + path.join(REPO, "island-map.html"));
   const raw = await page.evaluate(() => {
     const svg = document.getElementById("island");
-    svg.setAttribute("viewBox", "0 0 1500 1000"); svg.style.cssText = "width:1500px;height:1000px;position:fixed;left:0;top:0";
+    svg.setAttribute("viewBox", "-620 0 3400 1300"); svg.style.cssText = "width:3400px;height:1300px;position:fixed;left:0;top:0";
     const base = svg.getScreenCTM().inverse();
     const corners = (el) => {
       const b = el.getBBox(), m = base.multiply(el.getScreenCTM());

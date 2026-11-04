@@ -2,12 +2,13 @@
 
 ![preview](preview.png)
 
-`tools/gen-island-terrain.py` builds the ground the roads sit on, as **99 tiles of 256 m**
+`tools/gen-island-terrain.py` builds the ground the roads sit on, as **227 tiles of 256 m**
 (33 × 33 height samples, 8 m apart):
 
 - **Land:** at road level (Z 10), with gentle farm swells.
 - **Coast:** a 45 m beach down to the waterline, then a seabed falling to −20 m.
 - **The mountain:** about 300 m above road level. The west hills rise 70 m and the east ridge 32 m.
+- **The expansion:** Harrow Heights (East Reach) rises about 90 m, the Copper Hills about 60 m, and the West Woods roll about 18 m. Foundry Flats is a flat paved yard. Eastgate, Saltwater Strand and Pine Hollow are level ground.
 - **Flat pads:** the 312 grid, the 1017 towers, the west tower district and the airport. The airport is a raised pad with a sea wall.
 - **Under every road:** the ground is flat at the road's height and blends back to the land within 28 m. Where a road climbs a hill, the ground is cut or filled to match it.
 
