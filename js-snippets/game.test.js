@@ -2328,3 +2328,157 @@ test("a slot the model can't draw goes back to the default, and only the paid ch
     assert.equal(a.cash, paidFor);
     assert.equal(game.lookRejected(99, ["top"]).msg, "", "an unknown player is ignored");
 });
+
+// ---------------- hunting (the island's West Woods) ----------------
+const huntRules = require("./hunting");
+const LODGE = huntRules.LODGE.pos;
+
+// A game whose herd is out: returns the spawned animals too
+function huntSetup() {
+    let seed = 7;
+    const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const game = createGame({ rng });
+    const a = game.join(1, "Tanner");
+    const b = game.join(2, "Hayden");
+    const as = (id, extra = {}) => ({ id, pos: NOWHERE, now: 0, ...extra });
+    const herd = game.tick(1, 0).actions.filter((x) => x.type === "spawnAnimal");
+    return { game, a, b, as, herd };
+}
+
+function licensed(game, as, c) {
+    c.bank = 10000;
+    assert.match(game.command(as(c.id, { pos: LODGE }), "buylicense", ["hunting", "bank"]).msg, /Hunting license issued for \$750/);
+}
+
+test("the herd: 8 deer and boar, each at its own spot inside the hunting grounds", () => {
+    const { herd } = huntSetup();
+    assert.equal(herd.length, huntRules.HERD_SIZE);
+    assert.equal(new Set(herd.map((h) => h.id)).size, herd.length, "every animal has its own id");
+    assert.equal(new Set(herd.map((h) => `${h.pos.x},${h.pos.y}`)).size, herd.length, "no two share a spot");
+    for (const h of herd) {
+        assert.ok(huntRules.inGrounds(h.pos), `${h.id} is in the grounds`);
+        assert.ok(["a_c_deer", "a_c_boar"].includes(h.model));
+    }
+    assert.ok(!huntRules.inGrounds({ x: 200, y: -900, z: 30 }), "Los Santos isn't the hunting grounds");
+});
+
+test("Antler Lodge sells the hunting license; Gunworks doesn't", () => {
+    const { game, a, as } = huntSetup();
+    a.bank = 10000;
+    assert.match(game.command(as(1, { pos: SHOPS.chi_ammu.pos }), "buylicense", ["hunting", "bank"]).msg, /at Antler Lodge/);
+    assert.match(game.command(as(1, { pos: LODGE }), "buylicense", ["weapon", "bank"]).msg, /at Gunworks/);
+    licensed(game, as, a);
+    assert.match(game.command(as(1), "licenses").msg, /Hunting license: VALID/);
+    // the lodge's rifle wants the hunting license, not a weapon license
+    a.gold = 5000;
+    assert.match(game.command(as(1, { pos: LODGE }), "buy", ["huntingrifle"]).msg, /Bought 1x Bolt Rifle for 1200 gold/);
+    const fresh = game.join(3, "NoLicense");
+    fresh.gold = 5000;
+    assert.match(game.command(as(3, { pos: LODGE }), "buy", ["huntingrifle"]).msg, /need a hunting license first/);
+});
+
+test("a clean kill skins into meat and a hide, sells at the lodge, and is replaced 5 minutes later", () => {
+    const { game, a, as, herd } = huntSetup();
+    licensed(game, as, a);
+    const deer = herd.find((h) => h.model === "a_c_deer");
+    const kill = game.animalKilled(deer.id, 1, deer.pos, 1000);
+    assert.match(kill.notify[0].msg, /Clean kill: Deer\. .*\/skin.*5 left in your bag limit/);
+
+    assert.match(game.command(as(1, { pos: NOWHERE, now: 2000 }), "skin").msg, /no carcass close enough/);
+    const skinned = game.command(as(1, { pos: deer.pos, now: 2000 }), "skin");
+    assert.match(skinned.msg, /You dress the deer: 2x Venison, 1x Deer Hide/);
+    assert.deepEqual(skinned.actions, [{ type: "despawnAnimal", id: deer.id }]);
+    assert.equal(a.inventory.venison, 2);
+    assert.equal(a.inventory.deerhide, 1);
+    assert.match(game.command(as(1, { pos: deer.pos, now: 2000 }), "skin").msg, /no carcass/, "it's gone once skinned");
+
+    assert.match(game.command(as(1), "sellgame").msg, /Sell game at the Antler Lodge counter/);
+    const cash = a.cash;
+    assert.match(game.command(as(1, { pos: LODGE }), "sellgame").msg, /buys 2x Venison, 1x Deer Hide for \$320 cash/);
+    assert.equal(a.cash, cash + 320);
+    assert.equal(a.inventory.venison, undefined);
+    assert.match(game.command(as(1, { pos: LODGE }), "sellgame").msg, /no game to sell/);
+
+    // a replacement 5 minutes after the kill, not before
+    assert.equal(game.tick(1, 1000 + 4 * 60000).actions.filter((x) => x.type === "spawnAnimal").length, 0);
+    const back = game.tick(1, 1000 + 5 * 60000).actions.filter((x) => x.type === "spawnAnimal");
+    assert.equal(back.length, 1);
+    assert.ok(!herd.some((h) => h.id === back[0].id), "a new animal, a new id");
+});
+
+test("poaching: no license, or outside the grounds — can't skin it, and police hear about the place, not the name", () => {
+    const { game, a, b, as, herd } = huntSetup();
+    game.command(CONSOLE, "setjob", ["2", "police"]);
+    game.command(as(2), "duty");
+    const res = game.animalKilled(herd[0].id, 1, herd[0].pos, 1000);
+    assert.match(res.notify.find((n) => n.id === 1).msg, /poached: you don't have a hunting license/);
+    const tip = res.notify.find((n) => n.id === 2).msg;
+    assert.equal(tip, "Poaching reported: shots in the West Woods Hunting Grounds.");
+    assert.ok(!tip.includes(a.name), "the tip never names the hunter");
+    assert.match(game.command(as(1, { pos: herd[0].pos }), "skin").msg, /need a hunting license/);
+
+    // licensed now, but the deer ran out of the grounds before it dropped
+    licensed(game, as, a);
+    const out = game.animalKilled(herd[1].id, 1, { x: -7000, y: -6000, z: 20 }, 2000);
+    assert.match(out.notify[0].msg, /poached: it was outside the West Woods Hunting Grounds/);
+    assert.match(game.command(as(1, { pos: { x: -7000, y: -6000, z: 20 } }), "skin").msg, /was poached\. It stays where it fell/);
+    assert.equal(game.animalKilled(herd[1].id, 1, herd[1].pos, 3000).notify.length, 0, "a carcass can't be killed twice");
+    void b;
+});
+
+test("the bag limit: six clean kills an hour, the seventh is poaching; relogging doesn't reset it", () => {
+    const { game, a, as, herd } = huntSetup();
+    licensed(game, as, a);
+    const ids = herd.map((h) => h.id);   // the 8 animals out at the start
+    for (let k = 0; k < 6; k++) {
+        const r = game.animalKilled(ids[k], 1, huntRules.SPOTS[0], 1000 + k);
+        assert.match(r.notify[0].msg, /Clean kill/, `kill ${k + 1} is clean`);
+    }
+    game.leave(1);
+    game.join(1, "Tanner", { licenses: { hunting: { issuedAt: 0 } } });
+    const seventh = game.animalKilled(ids[6], 1, huntRules.SPOTS[0], 2000);
+    assert.match(seventh.notify[0].msg, /over your bag limit \(6 an hour\)/);
+    // an hour after the first kills, the limit is back
+    const later = game.animalKilled(ids[7], 1, huntRules.SPOTS[0], 1000 + 60 * 60000 + 6);
+    assert.match(later.notify[0].msg, /Clean kill/);
+});
+
+test("a carcass is the killer's for 5 minutes, a full bag takes nothing, and carcasses rot after 15", () => {
+    const { game, a, b, as, herd } = huntSetup();
+    licensed(game, as, a);
+    licensed(game, as, b);
+    const [first, second] = herd;
+    game.animalKilled(first.id, 1, first.pos, 0);
+    assert.match(game.command(as(2, { pos: first.pos, now: 60000 }), "skin").msg, /someone else's .* theirs for 5 minutes/);
+    assert.match(game.command(as(2, { pos: first.pos, now: 5 * 60000 }), "skin").msg, /You dress the/, "fair game after 5 minutes");
+
+    // a bag that can't take the whole animal takes none of it
+    game.animalKilled(second.id, 1, second.pos, 0);
+    a.inventory.toolbox = 7;   // 28 kg + the starters
+    const before = JSON.stringify(a.inventory);
+    assert.match(game.command(as(1, { pos: second.pos, now: 1000 }), "skin").msg, /Your bag can't take the/);
+    assert.equal(JSON.stringify(a.inventory), before);
+
+    // left there, it rots
+    const rot = game.tick(1, 15 * 60000).actions.filter((x) => x.type === "despawnAnimal");
+    assert.deepEqual(rot, [{ type: "despawnAnimal", id: second.id }]);
+    // something that killed it that isn't a player: still a carcass, nobody's claim
+    game.animalKilled(herd[2].id, null, herd[2].pos, 20 * 60000);
+    a.inventory = {};
+    assert.match(game.command(as(1, { pos: herd[2].pos, now: 20 * 60000 }), "skin").msg, /You dress the/);
+});
+
+test("/hunting tells you where you stand", () => {
+    const { game, a, as, herd } = huntSetup();
+    const away = game.command(as(1), "hunting").msg;
+    assert.match(away, /not in the hunting grounds/);
+    assert.match(away, /Hunting license: none/);
+    assert.match(away, /Game in the woods right now: 8/);
+    licensed(game, as, a);
+    game.animalKilled(herd[0].id, 1, herd[0].pos, 0);
+    const here = game.command(as(1, { pos: herd[1].pos, now: 0 }), "hunting").msg;
+    assert.match(here, /You're in the hunting grounds/);
+    assert.match(here, /Bag limit: 1\/6/);
+    assert.match(here, /Game in the woods right now: 7/);
+    assert.match(here, /Venison \$90/);
+});

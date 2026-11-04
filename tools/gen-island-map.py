@@ -155,7 +155,7 @@ HUNT = (-290, 425, 245, 112)      # centre x, y, radius x, y (map units)
 a('<g id="hunting">')
 a(f'<ellipse cx="{HUNT[0]}" cy="{HUNT[1]}" rx="{HUNT[2]}" ry="{HUNT[3]}" fill="rgba(217,119,6,.08)" stroke="#f59e0b" stroke-width="2.5" '
   f'stroke-dasharray="9 6"><title>West Woods Hunting Grounds — deer and boar, licence needed</title></ellipse>')
-a('<g transform="translate(-255 392)" filter="url(#shadow)"><title>Antler Lodge — hunting licences, rifle hire, meat and hides bought</title>'
+a('<g transform="translate(-255 392)" filter="url(#shadow)"><title>Antler Lodge — hunting licenses, .308 ammo and rifles; meat and hides bought (/sellgame)</title>'
   '<rect x="-11" y="-7" width="22" height="14" fill="#6b4a2e" stroke="#3b2716" stroke-width="1.2"/>'
   '<path d="M-6 -2 L-3 -6 M-3 -2 L-3 -6 L0 -2 M0 -2 L3 -6 L6 -2 M3 -6 L3 -2" stroke="#f3e2b8" stroke-width="1.2" fill="none"/></g>')
 for x, y in [(-470, 410), (-420, 360), (-360, 480), (-300, 360), (-200, 470), (-140, 400), (-90, 450), (-330, 420), (-240, 440)]:

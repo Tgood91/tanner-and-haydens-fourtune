@@ -24,6 +24,11 @@
 //   setVehicleLocked { plate, locked }
 //   pickupCreated { id, item, pos }         visual prop only
 //   pickupRemoved { id }
+//   spawnAnimal { id, model, pos, heading }   a networked deer/boar in the hunting grounds
+//   despawnAnimal { id }                      skinned or rotted away
+// The platform also reports animals: animalKilled(id, killerId, pos) when one
+// dies (killerId = the player the game says killed it, or null), animalLost(id)
+// when its entity is gone without dying.
 // ============================================================
 
 const inventory = require("./inventory");
@@ -48,6 +53,7 @@ const { createTurf, CLAIM_MS } = require("./turf");
 const { createEnvironment } = require("./environment");
 const hud = require("./hud");
 const { createDrugs } = require("./drugs");
+const hunting = require("./hunting");
 const houses = require("./houses");
 const shifts = require("./shifts");
 const impound = require("./impound");
@@ -86,6 +92,7 @@ function createGame(opts = {}) {
     const turf = createTurf();
     const env = createEnvironment(rng);
     const trade = createDrugs(rng);
+    const hunt = hunting.createHunting(rng);
     const homes = houses.createHouses();
     const crewShifts = shifts.createShifts();
     const lot = impound.createImpound();
@@ -698,6 +705,17 @@ function createGame(opts = {}) {
         },
 
         // ----- the trade -----
+        // ----- hunting (the island's West Woods) -----
+        hunting: { help: "the hunting grounds: your license, bag limit, what the lodge pays", run: ({ c, ctx }) => reply(hunt.status(c, ctx.pos, ctx.now)) },
+        skin: {
+            help: "dress the carcass you're standing over (needs a hunting license)",
+            run: ({ c, ctx }) => {
+                const res = hunt.skin(c, ctx.now);
+                return reply(res.msg, { actions: res.despawn ? [{ type: "despawnAnimal", id: res.despawn }] : [] });
+            },
+        },
+        sellgame: { help: "sell your meat and hides at Antler Lodge", run: ({ c, ctx }) => reply(hunt.sell(c, ctx.pos).msg) },
+
         harvest: {
             help: "pick what's growing where you're standing",
             run: ({ c, ctx }) => reply(trade.harvest(c, ctx.now).msg),
@@ -967,7 +985,7 @@ function createGame(opts = {}) {
         // ----- licenses -----
         licenses: { help: "your licenses", run: ({ c, ctx }) => reply(licenses.listLicenses(c, ctx.now)) },
         buylicense: {
-            help: "weapon [cash|bank] — at Gunworks",
+            help: "<weapon|hunting> [cash|bank] — weapon at Gunworks, hunting at Antler Lodge",
             run: ({ c, args, ctx }) => {
                 const found = shops.findShopNear(ctx.pos);
                 return reply(licenses.buyLicense(c, found?.shop, args[0], lower(args[1]) || "cash", ctx.now).msg);
@@ -1257,6 +1275,7 @@ function createGame(opts = {}) {
         }
 
         for (const id of pickups.expire(now)) out.actions.push({ type: "pickupRemoved", id });
+        out.actions.push(...hunt.tick(now));   // the first tick fills the herd
         return out;
     }
 
@@ -1295,6 +1314,24 @@ function createGame(opts = {}) {
         lot.importAll(saved);
     }
 
+    // The server saw a hunting-grounds animal die. killerId: the player the
+    // game says did it, or null. The hunter hears how it counts; a poached
+    // kill tips off on-duty police with the place, never the name.
+    function animalKilled(animalId, killerId, pos, now = Date.now()) {
+        const hunter = killerId === null || killerId === undefined ? null : characters.get(killerId) || null;
+        const res = hunt.killed(animalId, hunter, pos, now);
+        const notify = [];
+        if (res.msg) notify.push({ id: hunter.id, msg: res.msg });
+        if (res.poached) {
+            for (const cop of onDutyPolice(hunter)) notify.push({ id: cop.id, msg: `Poaching reported: shots in the ${res.where}.` });
+        }
+        return reply("", { notify });
+    }
+
+    function animalLost(animalId, now = Date.now()) {
+        hunt.lost(animalId, now);
+    }
+
     // The client couldn't draw some of what they're wearing: put those
     // slots back and redraw, so nobody is left with invisible legs.
     function lookRejected(id, slots) {
@@ -1327,6 +1364,7 @@ function createGame(opts = {}) {
         join, leave, get, loginSpawn, syncHealth, syncAmmo, updatePosition, updateVehicle,
         vehiclePlates: () => [...worldVehicles.keys()],
         command, commandNames: Object.keys(commands),
+        animalKilled, animalLost,
         lookRejected, tick, saveAll, loadTrunks, loadGangs, loadTurf, loadEnvironment, loadHouses, loadImpound, worldState, hudFor,
     };
 }

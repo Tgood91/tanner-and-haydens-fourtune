@@ -21,6 +21,8 @@ const inventory = require("./inventory");
 
 const LICENSES = {
     weapon: { label: "Weapon license", price: 2500, banHours: 24 },
+    // Antler Lodge, for the West Woods Hunting Grounds (hunting.js)
+    hunting: { label: "Hunting license", price: 750, banHours: 24 },
 };
 
 function findLicense(text) {
@@ -49,7 +51,7 @@ function buyLicense(c, shop, typeText, payWith, now) {
     const type = findLicense(typeText);
     if (!type) return { ok: false, msg: `No license called "${typeText}". Licenses: ${Object.keys(LICENSES).join(", ")}` };
     const lic = LICENSES[type];
-    if (!shop || !shop.sellsLicenses?.includes(type)) return { ok: false, msg: `Buy a ${lic.label.toLowerCase()} at Gunworks` };
+    if (!shop || !shop.sellsLicenses?.includes(type)) return { ok: false, msg: `Buy a ${lic.label.toLowerCase()} at ${type === "hunting" ? "Antler Lodge" : "Gunworks"}` };
     if (c.licenses[type]) return { ok: false, msg: `You already have a ${lic.label.toLowerCase()}` };
     const banned = hoursLeft(c, type, now);
     if (banned) return { ok: false, msg: `Your ${lic.label.toLowerCase()} was revoked — ${banned}h until you can apply again` };

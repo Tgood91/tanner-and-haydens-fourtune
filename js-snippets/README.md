@@ -9,7 +9,7 @@ adapter files, and the rules stay the same.
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 131 checks across every system
+node --test js-snippets/game.test.js  # 142 checks across every system
 node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
 node tools/gen-map-detail-layer.js            # redraw the big map's gameplay roads, pins and legend rows
 node tools/gen-walk-list.js > docs/WALK-LIST.md  # the in-game checklist of every coordinate to walk (/mark)
@@ -39,6 +39,7 @@ node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, 
 | `ammo.js` | Five ammo types, which gun takes which, `/loadammo` boxes into rounds (capped), `/unloadammo` full boxes back, `/equip` / `/holster`. Client ammo reports can only lower the count |
 | `robbery.js` | `/rob` a shop counter: needs a loaded gun in your hands and at least one officer on duty. Every cop gets the call, you must stand at the till 90s, and walking off, getting cuffed or going down ends it with nothing. Pays out as cash, with a cooldown on the shop and on you |
 | `police.js` | Sheriff's Office tools: `/cuff`, `/search`, `/seize`, `/fine`, `/jail`. Seized items are destroyed and fines go to the city, so cops can't farm them. Jail time is saved, so logging out doesn't skip it |
+| `hunting.js` | The West Woods Hunting Grounds on the island. `/buylicense hunting` at **Antler Lodge** ($750). The lodge also sells .308 boxes, and the Bolt Rifle for gold with the hunting license. Eight deer and boar roam the grounds. The **server** sees each one die and who killed it, so kills can't be faked. `/skin` the carcass for meat and a hide (about four animals fill a bag), then `/sellgame` at the lodge for cash. No license, outside the grounds, or past the bag limit (6 clean kills an hour, and relogging doesn't reset it) counts as **poaching**: it can't be skinned, and on-duty police get a tip naming the place, never the hunter. A carcass is the killer's for 5 min, and rots after 15. Every animal is replaced 5 min after it dies |
 | `licenses.js` | Weapon license: $2,500 at Ammu-Nation, required before Ammu-Nation sells a gun for gold. Police `/checklicense` on a stop (no cuffs; also shows a gun that's out) and `/revokelicense` (24h before a new one can be bought) |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
 | `places.js` | Named ground: 10 districts, 5 parks and **66 roads** — highways, arterials, streets and back roads — as real coordinates, with endpoints snapped so the network actually joins up. The most specific name wins (road, then park, then district, then city), so dispatch reads "Lakeshore Drive, The Shoreline, Chicago". Walking into a park announces it; teleports stay quiet |
@@ -55,7 +56,7 @@ node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, 
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /streets /mark /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /hunting /skin /sellgame /cities /whereami /streets /mark /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`, `settime <hour> [min]`, `setweather <kind>`, `freeze <time|weather> <on|off>`
 
@@ -77,7 +78,8 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - World clock: 30 world-minutes a tick (a day in ~48 real min), weather rolls every 2 world-hours, night is 21:00-06:00 (`environment.js`)
 - Robbery: 90s at the till, $400-$1,200 payout, 1 officer minimum, 30-min shop and 15-min robber cooldowns (`robbery.js`)
 - Taxi flag drop ($30), $8 per 100 units, $5 driver gold, 5-min call timeout (`taxi.js`)
-- Weapon license price ($2,500) and revoke ban (24h) (`licenses.js`)
+- Weapon license price ($2,500) and revoke ban (24h); hunting license $750 (`licenses.js`)
+- Hunting: herd of 8 (35% boar), 5-min respawn, 6 clean kills an hour, 5-min claim, 15-min rot, lodge prices (venison $90, deer hide $140, boar meat $70, boar hide $110), the 16 spawn spots and the lodge counter at X -7510, Y -6301 (`hunting.js`)
 - Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
 - Gold: per-paycheck gold by job, Glizzys-2-Go 11/hr, Dockhand 14/hr (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
