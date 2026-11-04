@@ -151,6 +151,7 @@ a('<ellipse cx="2250" cy="700" rx="126" ry="68" fill="#4f8a44" stroke="#2f5a2c" 
 woods(2250, 700, 100, 50, 90)
 a('</g>')
 # The West Woods hunting grounds: inside the dashed line, between Timberline Road and the West Reach Parkway
+LOGGING_SPOTS = [(-390, 950), (-350, 1035), (-300, 925), (-250, 1050), (-205, 960), (-170, 1010), (-345, 975), (-225, 905)]
 HUNT = (-290, 425, 245, 112)      # centre x, y, radius x, y (map units)
 a('<g id="hunting">')
 a(f'<ellipse cx="{HUNT[0]}" cy="{HUNT[1]}" rx="{HUNT[2]}" ry="{HUNT[3]}" fill="rgba(217,119,6,.08)" stroke="#f59e0b" stroke-width="2.5" '
@@ -170,6 +171,24 @@ for _ in range(16):
       f'<circle cx="3.6" cy="0" r="1.3" fill="{"#4a3b31" if boar else "#b07d4f"}"/></g>')
 a('</g>')
 
+# Hollow Creek Lumber Yard (lumbermill.js): a dirt yard behind a fence, the mill shed west of
+# Millyard Road, the office and log piles east of it. Logging is in the Copper Hills woods.
+LUMBER = (-45, 505, 150, 150)     # yard x, y, w, h (map units)
+a('<g id="lumber-yard">')
+a(f'<rect x="{LUMBER[0]}" y="{LUMBER[1]}" width="{LUMBER[2]}" height="{LUMBER[3]}" rx="4" fill="#9c8a63" stroke="#5b4a2e" stroke-width="2" '
+  f'stroke-dasharray="5 3"><title>Hollow Creek Lumber Yard — /apply lumbermill</title></rect>')
+for i in range(5):                # log piles: rows of log ends
+    gx, gy = 42 + (i % 2) * 30, 555 + (i // 2) * 30
+    a(f'<g><title>Log pile</title><rect x="{gx}" y="{gy}" width="24" height="16" rx="3" fill="#7a5230" stroke="#3b2716"/>'
+      + "".join(f'<circle cx="{gx + 4 + k * 5.3}" cy="{gy + 8}" r="2.3" fill="#d9b382" stroke="#6b4423" stroke-width=".6"/>' for k in range(4)) + '</g>')
+for gx, gy in [(-35, 600), (-20, 600), (-5, 600), (-35, 615), (-20, 615)]:   # plank stacks
+    a(f'<rect x="{gx}" y="{gy}" width="12" height="9" fill="#e3c58f" stroke="#8a6a3a"><title>Plank stack</title></rect>')
+a('<circle cx="-20" cy="640" r="9" fill="#c9a66b" opacity=".9"><title>Sawdust pile</title></circle>')
+for x, y in LOGGING_SPOTS:        # Copper Hills felling spots (lumbermill.js FELL_SPOTS)
+    a(f'<g transform="translate({x} {y})"><title>Felling spot — /fell</title><circle r="3.4" fill="#d9b382" stroke="#6b4423" stroke-width="1"/>'
+      f'<circle r="1.4" fill="none" stroke="#6b4423" stroke-width=".6"/></g>')
+a('</g>')
+
 a('<g transform="translate(2716 470)"><title>Lighthouse Point</title><circle r="6" fill="#f4f4f0" stroke="#b03a2e" stroke-width="3"/></g>')
 
 # ---------------------------------------------------------------- 312 city blocks (grid)
@@ -178,6 +197,9 @@ a('<g transform="translate(2716 470)"><title>Lighthouse Point</title><circle r="
 # streets get buildings along both sides, facing the street.
 BUILDINGS = []    # (group, x, y, w, h, svg) — x, y, w, h is the footprint's bounding box
 def bld(group, x, y, w, h, svg): BUILDINGS.append((group, x, y, w, h, svg))
+# the lumber yard's mill shed (grey: a works building) and office
+bld("houses-1017", -32, 560, 50, 30, '  <rect x="-32" y="560" width="50" height="30" fill="#8f9499" filter="url(#shadow)"><title>Hollow Creek mill shed — /mill</title></rect>')
+bld("houses-1017", 45, 518, 16, 12, '  <rect x="45" y="518" width="16" height="12" fill="#a8674c" filter="url(#shadow)"><title>Hollow Creek yard office — /sellplanks</title></rect>')
 # the lodge as a building (gen-island-buildings turns it into a 3D model)
 bld("houses-1017", -266, 385, 22, 14, '  <rect x="-266" y="385" width="22" height="14" fill="#6b4a2e" filter="url(#shadow)"/>')
 
@@ -330,6 +352,9 @@ road("w770-quarry", "Quarry Road — from the Copper Hills to Westside Run", cur
 road("w770-sundown", "Sundown Beach Road — along the west beach", curve((-420,600),(-480,700),(-470,850),(-400,950)), "street")
 road("w770-lumber-mill", "Lumber Mill Lane", curve((-250,520),(-200,600),(-180,640)), "track")
 road("w770-antler-lodge", "Antler Lodge Track — off Timberline Road to the hunting lodge", curve((-265,326),(-262,355),(-255,382)), "track")
+# Hollow Creek Lumber Yard: in off the West Reach Parkway, and a lane from Pine Hollow
+road("w770-millyard", "Millyard Road — off the West Reach Parkway into Hollow Creek Lumber Yard", straight((30, 478), (30, 640)), "street")
+road("w770-timber-yard", "Timber Yard Lane — Pine Hollow Road to the lumber yard", curve((-100, 660), (-40, 652), (30, 640)), "street")
 
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
          "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
@@ -600,7 +625,7 @@ for z in GAME["zones"]:
 for x, y, name, kind in [(1715, 316, "Foundry Flats", "district"), (2450, 470, "Harrow Heights", "district"), (2000, 250, "Bayfront", "district"),
                          (2250, 704, "Kestrel Park", "park"), (2010, 455, "Grande P", "district"), (1800, 870, "Eastgate", "district"), (2130, 1085, "Saltwater Strand", "district"),
                          (2690, 448, "Lighthouse Point", "park"), (-210, 610, "Pine Hollow", "district"), (-300, 430, "The west woods", "district"),
-                         (-280, 960, "Copper Hills", "district"), (-330, 455, "Hunting Grounds", "park"), (-505, 760, "Sundown Beach", "park")]:
+                         (-280, 960, "Copper Hills", "district"), (-330, 455, "Hunting Grounds", "park"), (30, 500, "Hollow Creek Lumber Yard", "district"), (-290, 1062, "Copper Hills logging", "park"), (-505, 760, "Sundown Beach", "park")]:
     a(f'  <text class="name zone-name" x="{x}" y="{y}" text-anchor="middle" font-size="{9 if kind == "district" else 7}" font-style="italic" '
       f'fill="{"#ffe9a8" if kind == "district" else "#c9f2b8"}" stroke-width="2.4">{name}</text>')
 a('</g>')
@@ -732,7 +757,7 @@ for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the
 # The expansion: warehouses in Foundry Flats, offices on Bayfront, houses in Eastgate, the Strand and Pine Hollow,
 # the odd farmhouse along the west woods roads.
 for rid, name, d, k in ROADS:
-    if not rid.startswith(("e312-", "e1017-", "w770-")) or k not in ("street", "arterial") or "kestrel" in rid: continue   # the park stays a park
+    if not rid.startswith(("e312-", "e1017-", "w770-")) or k not in ("street", "arterial") or any(k_ in rid for k_ in ("kestrel", "millyard", "timber-yard")): continue   # the park and the lumber yard keep their own buildings
     style = ("industrial" if "foundry" in rid else "chicago" if rid in ("e312-bayfront",) else
              "atlanta" if rid.startswith("e1017-") or "hollow" in rid else "geepee" if rid.startswith("w770-") else None)
     # width + casing + a pavement, so each building clears the road it faces
@@ -761,6 +786,10 @@ LEGEND = [
  ('<circle cx="26" cy="17" r="11" fill="#4f8a44" stroke="#2f5a2c" stroke-width="2"/>', "Park"),
  ('<rect x="4" y="5" width="44" height="24" rx="10" fill="rgba(217,119,6,.15)" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 3"/>', "Hunting grounds (licence needed)"),
  ('<rect x="15" y="10" width="22" height="14" fill="#6b4a2e" stroke="#3b2716"/>', "Hunting lodge"),
+ ('<rect x="4" y="5" width="44" height="24" rx="3" fill="#9c8a63" stroke="#5b4a2e" stroke-width="2" stroke-dasharray="5 3"/>', "Lumber yard (/apply lumbermill)"),
+ ('<rect x="10" y="9" width="32" height="16" rx="3" fill="#7a5230" stroke="#3b2716"/><circle cx="17" cy="17" r="3" fill="#d9b382"/><circle cx="26" cy="17" r="3" fill="#d9b382"/><circle cx="35" cy="17" r="3" fill="#d9b382"/>', "Log pile"),
+ ('<rect x="14" y="11" width="24" height="12" fill="#e3c58f" stroke="#8a6a3a"/>', "Plank stack"),
+ ('<circle cx="26" cy="17" r="7" fill="#d9b382" stroke="#6b4423" stroke-width="2"/><circle cx="26" cy="17" r="3" fill="none" stroke="#6b4423"/>', "Felling spot (/fell)"),
  ('<rect x="20" y="11" width="12" height="12" fill="#8b5a2b" stroke="#3b2716"/><rect x="23" y="14" width="6" height="6" fill="#d4a373"/>', "Hunting stand"),
  ('<ellipse cx="22" cy="17" rx="9" ry="5" fill="#b07d4f" stroke="#2b1d12"/><circle cx="32" cy="17" r="3.2" fill="#b07d4f"/>', "Deer"),
  ('<ellipse cx="22" cy="17" rx="9" ry="5" fill="#4a3b31" stroke="#2b1d12"/><circle cx="32" cy="17" r="3.2" fill="#4a3b31"/>', "Boar"),

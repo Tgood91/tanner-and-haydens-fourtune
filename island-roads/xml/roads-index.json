@@ -22,7 +22,7 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 14336,
+ "totalPieces": 14396,
  "ymaps": [
   {
    "file": "island_roads_m10_m12.ymap.xml",
@@ -311,18 +311,21 @@
   },
   {
    "file": "island_roads_m14_m13.ymap.xml",
-   "pieces": 327,
+   "pieces": 347,
    "roads": [
     "770-S17",
+    "770-S20",
     "1017-H2",
     "770-H2"
    ]
   },
   {
    "file": "island_roads_m14_m14.ymap.xml",
-   "pieces": 41,
+   "pieces": 78,
    "roads": [
     "770-B14",
+    "770-S20",
+    "770-S21",
     "1017-H3",
     "1017-H2"
    ]
@@ -353,7 +356,7 @@
   },
   {
    "file": "island_roads_m15_m14.ymap.xml",
-   "pieces": 290,
+   "pieces": 293,
    "roads": [
     "770-B15",
     "770-S10",
@@ -363,7 +366,8 @@
     "770-S14",
     "770-S15",
     "770-S16",
-    "770-S18"
+    "770-S18",
+    "770-S21"
    ]
   },
   {
@@ -1651,6 +1655,20 @@
    "kind": "street",
    "rows": 1,
    "pieces": 80
+  },
+  {
+   "code": "770-S20",
+   "name": "Millyard Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 33
+  },
+  {
+   "code": "770-S21",
+   "name": "Timber Yard Lane",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 27
   },
   {
    "code": "770-A1",

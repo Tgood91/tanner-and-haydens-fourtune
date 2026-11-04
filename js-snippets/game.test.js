@@ -445,7 +445,7 @@ test("gold is earned on duty and by reviving — never by civilians, never trade
 
 test("Glizzys-2-Go: anyone can apply, 11 gold an hour on duty", () => {
     const { game, a, as } = setup();
-    assert.match(game.command(as(1), "apply", ["police"]).msg, /isn't hiring. Open jobs: glizzys, dockhand/);
+    assert.match(game.command(as(1), "apply", ["police"]).msg, /isn't hiring. Open jobs: glizzys, dockhand, lumbermill/);
     assert.match(game.command(as(1), "apply", ["glizzys"]).msg, /Glizzys-2-Go — Cart Hand/);
     assert.match(game.command(as(1), "apply", ["glizzys"]).msg, /already work for Glizzys-2-Go/);
     game.tick(PAY_INTERVAL_MIN, 0);
@@ -2481,4 +2481,85 @@ test("/hunting tells you where you stand", () => {
     assert.match(here, /Bag limit: 1\/6/);
     assert.match(here, /Game in the woods right now: 7/);
     assert.match(here, /Venison \$90/);
+});
+
+// ---------------- Hollow Creek Lumber Yard (/apply lumbermill) ----------------
+const lumberRules = require("./lumbermill");
+const SAW = lumberRules.YARD.saw;
+const OFFICE = lumberRules.YARD.office;
+const TREE = lumberRules.FELL_SPOTS;
+
+function logger() {
+    const { game, a, as } = setup();
+    a.inventory = {};
+    assert.match(game.command(as(1), "apply", ["lumbermill"]).msg, /Hollow Creek Lumber — Logger/);
+    game.command(as(1), "duty");
+    return { game, a, as };
+}
+
+test("lumber yard: open hire, and nothing works off the clock or for anyone else", () => {
+    const { game, a, as } = setup();
+    assert.match(game.command(as(1, { pos: TREE[0] }), "fell").msg, /work for the lumber yard — \/apply lumbermill/);
+    game.command(as(1), "apply", ["lumbermill"]);
+    assert.match(game.command(as(1, { pos: TREE[0] }), "fell").msg, /Clock in first/);
+    game.command(as(1), "duty");
+    assert.equal(a.onDuty, true);
+    assert.match(game.command(as(1), "fell").msg, /No marked tree here/);
+});
+
+test("fell -> mill -> sell: a log is worth $145, and two logs fill a bag", () => {
+    const { game, a, as } = logger();
+    const startCash = a.cash;
+    assert.match(game.command(as(1, { pos: TREE[0], now: 0 }), "fell").msg, /Timber! 1x Log \(1 carried\)/);
+    assert.match(game.command(as(1, { pos: TREE[0], now: 60000 }), "fell").msg, /been cut\. It's ready again in 7 min/);
+    assert.match(game.command(as(1, { pos: TREE[1], now: 60000 }), "fell").msg, /2 carried/);
+    a.inventory.water = 2;   // 24 kg of logs + 1 kg: no room for a third 12 kg log
+    assert.match(game.command(as(1, { pos: TREE[2], now: 60000 }), "fell").msg, /No room for the log.*\/trunkput log/);
+    delete a.inventory.water;
+    // regrows for everyone after 8 minutes (with room in the bag)
+    a.inventory.log = 1;
+    assert.match(game.command(as(1, { pos: TREE[0], now: 8 * 60000 }), "fell").msg, /Timber!.*2 carried/);
+
+    assert.match(game.command(as(1), "mill").msg, /at the saw/);
+    assert.match(game.command(as(1, { pos: SAW }), "mill").msg, /Milled 2x Log into 8x Plank, \+\$50 cash/);
+    assert.equal(a.inventory.log, undefined);
+    assert.equal(a.inventory.plank, 8);
+    assert.match(game.command(as(1, { pos: SAW }), "mill").msg, /no logs to mill/);
+
+    assert.match(game.command(as(1, { pos: SAW }), "sellplanks").msg, /at the Hollow Creek Lumber Yard office/);
+    assert.match(game.command(as(1, { pos: OFFICE }), "sellplanks").msg, /buys 8x Plank for \$240 cash/);
+    assert.equal(a.cash, startCash + 50 + 240);
+    assert.match(game.command(as(1, { pos: OFFICE }), "sellplanks").msg, /no planks to sell/);
+});
+
+test("lumber yard: a Yard Boss earns more a log; on-duty pay and gold come from jobs.js", () => {
+    const { game, a, as } = logger();
+    game.command(CONSOLE, "setjob", ["1", "lumbermill", "2"]);
+    game.command(as(1), "duty");
+    a.inventory = { log: 2 };
+    assert.match(game.command(as(1, { pos: SAW }), "mill").msg, /Milled 2x Log into 8x Plank, \+\$80 cash/);
+    const bank = a.bank, gold = a.gold;
+    game.tick(PAY_INTERVAL_MIN, 0);
+    assert.equal(a.bank, bank + 380, "Yard Boss paycheck");
+    assert.equal(a.gold, gold + 6, "13 gold an hour, whole coins a check");
+});
+
+test("/lumber shows your shift, spots ready and the pay", () => {
+    const { game, as } = logger();
+    game.command(as(1, { pos: TREE[3], now: 0 }), "fell");
+    const msg = game.command(as(1, { now: 60000 }), "lumber").msg;
+    assert.match(msg, /You work here \(on duty\)/);
+    assert.match(msg, /Felling spots ready in the Copper Hills: 7\/8/);
+    assert.match(msg, /Carrying: 1 logs, 0 planks/);
+    assert.match(msg, /\$145 a log in all/);
+});
+
+test("lumber yard spots sit in the right places", () => {
+    const huntGrounds = require("./hunting");
+    for (const s of TREE) assert.ok(!huntGrounds.inGrounds(s), "no logging in the hunting grounds");
+    // the yard is on the island, well away from Los Santos
+    assert.ok(SAW.x < -6000 && SAW.y < -6000 && OFFICE.x < -6000);
+    // the lumberMill-jobs client resource uses the same spots
+    const lua = require("fs").readFileSync(require("path").join(__dirname, "../lumberMill-jobs/config.lua"), "utf8");
+    for (const s of [SAW, OFFICE, ...TREE]) assert.ok(lua.includes(`x = ${s.x.toFixed(1)}, y = ${s.y.toFixed(1)}, z = ${s.z.toFixed(1)}`), `config.lua has ${s.x}, ${s.y}`);
 });

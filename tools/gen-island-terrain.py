@@ -124,7 +124,8 @@ flat = np.maximum.reduce([smooth((1.08 - ell(770, 190, 360, 120)) / .15),   # th
 # Level ground for the new suburbs (no farm swells), but grass, not pavement
 level = np.maximum.reduce([flat, smooth((1.1 - ell(1820, 865, 200, 150)) / .15),     # Eastgate
                            smooth((1.1 - ell(2130, 1080, 330, 110)) / .15),           # Saltwater Strand
-                           smooth((1.1 - ell(-210, 720, 140, 110)) / .15)])           # Pine Hollow
+                           smooth((1.1 - ell(-210, 720, 140, 110)) / .15),            # Pine Hollow
+                           smooth((1.12 - ell(30, 580, 95, 95)) / .15)])              # Hollow Creek Lumber Yard
 swell = (value_noise(220, 1) * 2.2 + value_noise(70, 2) * .8) * (1 - level)  # farm country rolls a little
 mr = ell(MOUNTAIN[0], MOUNTAIN[1], 210, 135)
 ang = np.arctan2(MY - MOUNTAIN[1], MX - MOUNTAIN[0])

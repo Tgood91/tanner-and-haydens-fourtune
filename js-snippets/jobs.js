@@ -78,6 +78,18 @@ const JOBS = {
             { label: "Foreman", pay: 420 },
         ],
     },
+    // Hollow Creek Lumber Yard (the island's West Woods): fell, mill, sell.
+    // Open hire: /apply lumbermill. Piece pay on top lives in lumbermill.js.
+    lumbermill: {
+        label: "Hollow Creek Lumber",
+        openHire: true,
+        goldPerHour: 13,
+        grades: [
+            { label: "Logger", pay: 180 },
+            { label: "Sawyer", pay: 260 },
+            { label: "Yard Boss", pay: 380 },
+        ],
+    },
 };
 
 function jobInfo(c) {

@@ -54,6 +54,7 @@ const { createEnvironment } = require("./environment");
 const hud = require("./hud");
 const { createDrugs } = require("./drugs");
 const hunting = require("./hunting");
+const { createLumberMill } = require("./lumbermill");
 const houses = require("./houses");
 const shifts = require("./shifts");
 const impound = require("./impound");
@@ -93,6 +94,7 @@ function createGame(opts = {}) {
     const env = createEnvironment(rng);
     const trade = createDrugs(rng);
     const hunt = hunting.createHunting(rng);
+    const lumber = createLumberMill();
     const homes = houses.createHouses();
     const crewShifts = shifts.createShifts();
     const lot = impound.createImpound();
@@ -715,6 +717,12 @@ function createGame(opts = {}) {
             },
         },
         sellgame: { help: "sell your meat and hides at Antler Lodge", run: ({ c, ctx }) => reply(hunt.sell(c, ctx.pos).msg) },
+
+        // ----- Hollow Creek Lumber Yard (/apply lumbermill) -----
+        lumber: { help: "the lumber yard: your shift, felling spots ready, pay", run: ({ c, ctx }) => reply(lumber.status(c, ctx.now)) },
+        fell: { help: "(lumber yard, on duty) fell the marked tree you're at -> a log", run: ({ c, ctx }) => reply(lumber.fell(c, ctx.now).msg) },
+        mill: { help: "(lumber yard, on duty) mill your logs into planks at the saw", run: ({ c, ctx }) => reply(lumber.mill(c, ctx.now).msg) },
+        sellplanks: { help: "sell your planks at the lumber yard office", run: ({ c }) => reply(lumber.sellPlanks(c).msg) },
 
         harvest: {
             help: "pick what's growing where you're standing",
