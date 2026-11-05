@@ -46,32 +46,9 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9276,
- "junctions": 356,
- "unlevelJunctions": [
-  {
-   "gap": 4.1,
-   "roads": [
-    "770-B5",
-    "770-A1"
-   ],
-   "at": [
-    -5930,
-    -6438
-   ]
-  },
-  {
-   "gap": 4.1,
-   "roads": [
-    "770-A1",
-    "770-B5"
-   ],
-   "at": [
-    -5930,
-    -6440
-   ]
-  }
- ],
+ "totalPieces": 9259,
+ "junctions": 354,
+ "unlevelJunctions": [],
  "ymaps": [
   {
    "file": "island_roads_m10_m12.ymap.xml",
@@ -268,7 +245,7 @@
   },
   {
    "file": "island_roads_m12_m13.ymap.xml",
-   "pieces": 585,
+   "pieces": 568,
    "roads": [
     "1017-H1",
     "312-H3",
@@ -472,7 +449,7 @@
    "name": "Hollow Road",
    "kind": "backroad",
    "rows": 1,
-   "pieces": 49
+   "pieces": 32
   },
   {
    "code": "770-B6",

@@ -944,9 +944,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="20.830000" />
-      <bbMax x="128.000000" y="128.000000" z="34.060000" />
-      <bsCentre x="0.000000" y="0.000000" z="27.445000" />
-      <bsRadius value="181.140162" />
+      <bbMax x="128.000000" y="128.000000" z="29.620000" />
+      <bsCentre x="0.000000" y="0.000000" z="25.225000" />
+      <bsRadius value="181.072682" />
       <hdTextureDist value="750" />
       <name>island_terrain_04_04</name>
       <textureDictionary>island_terrain</textureDictionary>

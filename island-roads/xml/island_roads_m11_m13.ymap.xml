@@ -5,9 +5,9 @@
   <parent />
   <flags value="0" />
   <contentFlags value="1" />
-  <streamingExtentsMin x="-6038.095431" y="-6983.903128" z="-377.000000" />
+  <streamingExtentsMin x="-6038.048631" y="-6983.903128" z="-377.000000" />
   <streamingExtentsMax x="-4715.110612" y="-5737.601036" z="956.845442" />
-  <entitiesExtentsMin x="-5638.095431" y="-6583.903128" z="23.000000" />
+  <entitiesExtentsMin x="-5638.048631" y="-6583.903128" z="23.000000" />
   <entitiesExtentsMax x="-5115.110612" y="-6137.601036" z="556.845442" />
   <entities>
     <Item type="CEntityDef">
@@ -5258,8 +5258,8 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5631.692307" y="-6457.358984" z="58.266514" />
-      <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675903" />
+      <position x="-5631.058106" y="-6457.411823" z="63.742702" />
+      <rotation x="-0.040409" y="0.043917" z="0.734572" w="0.675902" />
       <scaleXY value="1" />
       <scaleZ value="1" />
       <parentIndex value="-1" />
@@ -5277,7 +5277,26 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5621.905705" y="-6458.174515" z="59.444977" />
+      <position x="-5621.312423" y="-6458.223982" z="64.916238" />
+      <rotation x="-0.040409" y="0.043917" z="0.734569" w="0.675904" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5611.566736" y="-6459.036086" z="66.089773" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5296,121 +5315,7 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5612.119104" y="-6458.990060" z="60.623439" />
-      <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5602.332505" y="-6459.805633" z="61.801902" />
-      <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5592.545906" y="-6460.621190" z="62.980365" />
-      <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5582.759303" y="-6461.436710" z="64.158828" />
-      <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675904" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5572.972703" y="-6462.252274" z="65.337290" />
-      <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5563.186102" y="-6463.067810" z="66.515753" />
-      <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675903" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5553.399502" y="-6463.883364" z="67.694216" />
+      <position x="-5601.821053" y="-6459.848251" z="67.263309" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675903" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5429,7 +5334,7 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5543.612902" y="-6464.698924" z="68.872679" />
+      <position x="-5592.075369" y="-6460.660387" z="68.436845" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5448,7 +5353,7 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5533.826303" y="-6465.514482" z="70.051141" />
+      <position x="-5582.329684" y="-6461.472520" z="69.610381" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675903" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5467,26 +5372,7 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5524.039703" y="-6466.330044" z="71.229604" />
-      <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675904" />
-      <scaleXY value="1" />
-      <scaleZ value="1" />
-      <parentIndex value="-1" />
-      <lodDist value="400" />
-      <childLodDist value="0" />
-      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
-      <numChildren value="0" />
-      <priorityLevel>PRI_REQUIRED</priorityLevel>
-      <extensions />
-      <ambientOcclusionMultiplier value="255" />
-      <artificialAmbientOcclusion value="255" />
-      <tintValue value="0" />
-    </Item>
-    <Item type="CEntityDef">
-      <archetypeName>stt_prop_track_straight_s</archetypeName>
-      <flags value="1572864" />
-      <guid value="0" />
-      <position x="-5514.253101" y="-6467.145568" z="72.408067" />
+      <position x="-5572.584002" y="-6462.284685" z="70.783917" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5505,7 +5391,45 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5504.466502" y="-6467.961137" z="73.586529" />
+      <position x="-5562.838315" y="-6463.096790" z="71.957452" />
+      <rotation x="-0.040409" y="0.043917" z="0.734569" w="0.675904" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5553.092632" y="-6463.908955" z="73.130988" />
+      <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5543.346947" y="-6464.721080" z="74.304524" />
       <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675903" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5524,7 +5448,26 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5494.679899" y="-6468.776662" z="74.764992" />
+      <position x="-5533.601262" y="-6465.533214" z="75.478060" />
+      <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675903" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5523.855580" y="-6466.345378" z="76.651596" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
       <scaleXY value="1" />
       <scaleZ value="1" />
@@ -5543,7 +5486,64 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-5484.893299" y="-6469.592213" z="75.943455" />
+      <position x="-5514.109893" y="-6467.157486" z="77.825131" />
+      <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675904" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5504.364211" y="-6467.969648" z="78.998667" />
+      <rotation x="-0.040409" y="0.043917" z="0.734572" w="0.675902" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5494.618525" y="-6468.781772" z="80.172203" />
+      <rotation x="-0.040409" y="0.043917" z="0.734570" w="0.675903" />
+      <scaleXY value="1" />
+      <scaleZ value="1" />
+      <parentIndex value="-1" />
+      <lodDist value="400" />
+      <childLodDist value="0" />
+      <lodLevel>LODTYPES_DEPTH_ORPHANHD</lodLevel>
+      <numChildren value="0" />
+      <priorityLevel>PRI_REQUIRED</priorityLevel>
+      <extensions />
+      <ambientOcclusionMultiplier value="255" />
+      <artificialAmbientOcclusion value="255" />
+      <tintValue value="0" />
+    </Item>
+    <Item type="CEntityDef">
+      <archetypeName>stt_prop_track_straight_s</archetypeName>
+      <flags value="1572864" />
+      <guid value="0" />
+      <position x="-5484.872842" y="-6469.593924" z="81.345739" />
       <rotation x="-0.040409" y="0.043917" z="0.734571" w="0.675902" />
       <scaleXY value="1" />
       <scaleZ value="1" />

@@ -242,7 +242,7 @@ FourtuneWorldData = {
             { x = 2050, y = 4420 },
         } },
         { name = "Hollow Road", code = "770-B5", city = "geepee", kind = "backroad", width = 11, points = {
-            { x = 1500, y = 4100 },
+            { x = 1584, y = 4072 },
             { x = 1620, y = 4060 },
             { x = 1740, y = 4000 },
         } },
