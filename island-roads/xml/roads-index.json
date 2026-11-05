@@ -46,8 +46,8 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9263,
- "junctions": 355,
+ "totalPieces": 9266,
+ "junctions": 356,
  "unlevelJunctions": [],
  "ymaps": [
   {
@@ -300,7 +300,7 @@
   },
   {
    "file": "island_roads_m13_m13.ymap.xml",
-   "pieces": 223,
+   "pieces": 226,
    "roads": [
     "1017-H2",
     "770-S10",
@@ -1052,7 +1052,7 @@
    "name": "Patience Lane",
    "kind": "street",
    "rows": 1,
-   "pieces": 4
+   "pieces": 7
   },
   {
    "code": "312-S35",
