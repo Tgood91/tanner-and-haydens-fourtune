@@ -3,14 +3,15 @@
 ![preview](preview.png)
 
 `tools/gen-island-buildings.js` builds every building `island-map.html` draws, as 3D models standing on
-the terrain. There are **247 buildings in 42 tiles**:
+the terrain. There are **970 buildings in 94 tiles**:
 
 | type | count | height |
 |---|---|---|
 | West towers | 26 | the floors in their map title × 3.5 m (45–95 floors, up to 327 m) |
 | 1017 towers (south + north) | 22 | the floors in their map title × 3.5 m (25–64 floors) |
 | 312 high-rises | 80 | the floors in their map title × 3.5 m (19–57 floors, up to 200 m), tallest in the core |
-| 1017 houses / frontage | 93 | 1–2 floors, pitched roof |
+| Houses / frontage (1017, Eastgate, Saltwater Strand, Pine Hollow, the West Woods' cabins, Antler Lodge) | 734 | 1–2 floors, pitched roof |
+| Shops, offices and warehouses (Foundry Flats, Bayfront) | 77 | 2–6 floors |
 | 1017 apartment rows | 7 | 3–5 floors |
 | Airport terminals | 5 | 15 m |
 | Control towers | 2 | 48 m, round |

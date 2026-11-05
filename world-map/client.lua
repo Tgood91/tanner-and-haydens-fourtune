@@ -4,6 +4,7 @@
 -- waypoint, and sets or clears the waypoint when you click the map.
 local open = false
 local ready = false   -- set when the page says it has loaded; until then never take focus
+local session = 0     -- bumped on every open, so a loop left over from an earlier open stops
 
 local function notify(text)
   BeginTextCommandThefeedPost('STRING')
@@ -27,23 +28,40 @@ local function sendWaypoint()
   end
 end
 
-local function setOpen(state)
+local setOpen
+function setOpen(state)
   if state then
     -- A page that never loaded can't send 'close', and chat is blocked while it has
     -- focus, so opening it then would leave the player stuck with a cursor.
     if not ready then return notify('The map is still loading. Try again in a moment.') end
     if IsPauseMenuActive() then return end
   end
+  if state == open then return end   -- already open / already closed: nothing to do twice
   open = state
   SetNuiFocus(state, state)
   if state then
+    session = session + 1
+    local mine = session
     sendPlayer()
     sendWaypoint()
     -- Keep "you are here" moving while the map is up (it's open while you drive).
+    -- Only this open's loop runs: a quick close-and-reopen ends the old one.
     CreateThread(function()
-      while open do
+      while open and session == mine do
         Wait(500)
-        if open then sendPlayer() end
+        if not (open and session == mine) then break end
+        if IsPauseMenuActive() then setOpen(false) break end   -- the pause menu came up over the map
+        sendPlayer()
+      end
+    end)
+  else
+    -- The Esc that closed the map is still on its way to the game: hold the pause
+    -- menu off for a moment so it doesn't open behind the map as it closes.
+    CreateThread(function()
+      for _ = 1, 15 do
+        DisableControlAction(0, 200, true)   -- INPUT_FRONTEND_PAUSE_ALTERNATE (Esc)
+        DisableControlAction(0, 199, true)   -- INPUT_FRONTEND_PAUSE (P)
+        Wait(0)
       end
     end)
   end

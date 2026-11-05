@@ -53,6 +53,7 @@ FourtuneWorldData = {
         { name = "The Westside", kind = "district", city = "atlanta", center = { x = -1100, y = -1100 }, radius = 480 },
         { name = "Peach Ridge Park", kind = "park", city = "atlanta", center = { x = -860, y = -890 }, radius = 130 },
         { name = "Groveland Park", kind = "park", city = "atlanta", center = { x = -120, y = -1690 }, radius = 110 },
+        { name = "Halfway", kind = "district", city = "atlanta", center = { x = 600, y = 1500 }, radius = 330 },
     },
 
     roads = {
@@ -143,7 +144,7 @@ FourtuneWorldData = {
             { x = -392, y = 6212 },
             { x = -318, y = 6215 },
         } },
-        { name = "Ketterling Avenue", code = "312-S6", city = "chicago", kind = "street", width = 16, points = {
+        { name = "Ketterling Street", code = "312-S6", city = "chicago", kind = "street", width = 16, points = {
             { x = -202, y = 6377 },
             { x = -185, y = 6488 },
         } },
@@ -284,7 +285,7 @@ FourtuneWorldData = {
             { x = -270, y = -955 },
             { x = -530, y = -1205 },
         } },
-        { name = "Groveland Street", code = "1017-A2", city = "atlanta", kind = "arterial", width = 22, points = {
+        { name = "Groveland Avenue", code = "1017-A2", city = "atlanta", kind = "arterial", width = 22, points = {
             { x = -67, y = -1756 },
             { x = 45, y = -1748 },
             { x = 113, y = -1650 },
@@ -299,7 +300,7 @@ FourtuneWorldData = {
             { x = 0, y = -1522 },
             { x = 186, y = -1552 },
         } },
-        { name = "Clay Street", code = "1017-A5", city = "atlanta", kind = "arterial", width = 22, points = {
+        { name = "Clay Avenue", code = "1017-A5", city = "atlanta", kind = "arterial", width = 22, points = {
             { x = 301, y = -630 },
             { x = 252, y = -762 },
             { x = 155, y = -915 },
@@ -334,7 +335,7 @@ FourtuneWorldData = {
             { x = -220, y = -1060 },
             { x = -130, y = -1082 },
         } },
-        { name = "Hollis Avenue", code = "1017-S4", city = "atlanta", kind = "street", width = 16, points = {
+        { name = "Hollis Street", code = "1017-S4", city = "atlanta", kind = "street", width = 16, points = {
             { x = -348, y = -878 },
             { x = -340, y = -950 },
             { x = -315, y = -1025 },
@@ -396,6 +397,35 @@ FourtuneWorldData = {
             { x = 200, y = -1240 },
             { x = 260, y = -1300 },
             { x = 305, y = -1381 },
+        } },
+        { name = "Main Street", code = "1017-A9", city = "atlanta", kind = "arterial", width = 26, points = {
+            { x = 600, y = 1170 },
+            { x = 600, y = 1830 },
+        } },
+        { name = "Depot Street", code = "1017-S13", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 400, y = 1600 },
+            { x = 820, y = 1600 },
+        } },
+        { name = "Gristmill Street", code = "1017-S14", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 420, y = 1450 },
+            { x = 790, y = 1450 },
+        } },
+        { name = "Church Street", code = "1017-S15", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 470, y = 1310 },
+            { x = 720, y = 1310 },
+        } },
+        { name = "Gin House Row", code = "1017-S16", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 470, y = 1310 },
+            { x = 470, y = 1600 },
+        } },
+        { name = "Sorghum Lane", code = "1017-S17", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 730, y = 1450 },
+            { x = 730, y = 1700 },
+        } },
+        { name = "Old Rail Bed", code = "1017-B5", city = "atlanta", kind = "backroad", width = 11, points = {
+            { x = 380, y = 1690 },
+            { x = 600, y = 1700 },
+            { x = 860, y = 1720 },
         } },
     },
 }

@@ -15,6 +15,8 @@ const { createGame } = require(`${resourcePath}/game.js`);
 
 const game = createGame();
 const spawned = new Map(); // plate -> entity handle
+const animals = new Map(); // hunting-grounds animal id -> ped handle (hunting.js)
+const carcasses = new Set(); // animal ids already reported dead
 
 // ---------------- helpers ----------------
 function tell(id, msg) {
@@ -96,6 +98,24 @@ function perform(result) {
                 if (veh && DoesEntityExist(veh)) {
                     Entity(veh).state.set("fourtune", { fuel: a.fuel, tank: a.tank, engine: a.engine, body: a.body }, true);
                 }
+                break;
+            }
+            case "spawnAnimal": {
+                // Networked, so every hunter sees the same deer. 28 = animal ped type.
+                const ped = CreatePed(28, GetHashKey(a.model), a.pos.x, a.pos.y, a.pos.z, a.heading, true, true);
+                // Keep it when nobody's near (OneSync would otherwise clean up an ownerless ped)
+                if (typeof SetEntityOrphanMode === "function") SetEntityOrphanMode(ped, 2);
+                animals.set(a.id, ped);
+                carcasses.delete(a.id);
+                // whoever owns it sets it wandering (tasks run on the owning client)
+                emitNet("fourtune:animalSpawned", -1, { id: a.id, netId: NetworkGetNetworkIdFromEntity(ped), pos: a.pos });
+                break;
+            }
+            case "despawnAnimal": {
+                const ped = animals.get(a.id);
+                if (ped && DoesEntityExist(ped)) DeleteEntity(ped);
+                animals.delete(a.id);
+                carcasses.delete(a.id);
                 break;
             }
             case "pickupCreated":
@@ -266,6 +286,47 @@ setInterval(() => {
         }));
     }
 }, 5 * 1000);
+
+// ---------------- hunting ----------------
+// The server, not a client, decides an animal died and who killed it:
+// a client can't report a kill it didn't make.
+function playerFromEntity(ent) {
+    if (!ent) return null;
+    if (GetEntityType(ent) === 2) ent = GetPedInVehicleSeat(ent, -1);   // run over: whoever was driving
+    for (const id of getPlayers()) if (GetPlayerPed(Number(id)) === ent) return Number(id);
+    return null;
+}
+// What killed it, as the game's own item name: "huntingrifle", "vehicle", or null.
+const { WEAPONS } = require(`${resourcePath}/ammo.js`);
+const WEAPON_BY_HASH = new Map(Object.entries(WEAPONS).map(([item, w]) => [GetHashKey(w.gta) >>> 0, item]));
+function weaponOf(ped, killer) {
+    if (killer && GetEntityType(killer) === 2) return "vehicle";
+    return WEAPON_BY_HASH.get(GetPedCauseOfDeath(ped) >>> 0) || null;   // >>> 0: hashes can come back signed
+}
+setInterval(() => {
+    for (const [id, ped] of animals) {
+        if (!DoesEntityExist(ped)) {
+            animals.delete(id);
+            carcasses.delete(id);
+            game.animalLost(id, Date.now());   // a replacement comes later
+            continue;
+        }
+        if (carcasses.has(id)) continue;
+        // Dead = no health left, or the game has recorded what killed it.
+        // NOT YET TESTED IN-GAME: if animals die above 0 health, add that threshold here.
+        const killer = GetPedSourceOfDeath(ped);
+        if (GetEntityHealth(ped) > 0 && !killer) continue;
+        carcasses.add(id);
+        const [x, y, z] = GetEntityCoords(ped);
+        perform(game.animalKilled(id, playerFromEntity(killer), { x, y, z }, Date.now(), weaponOf(ped, killer)));
+    }
+}, 2000);
+on("onResourceStop", (name) => {
+    if (name !== GetCurrentResourceName()) return;
+    for (const ped of animals.values()) if (DoesEntityExist(ped)) DeleteEntity(ped);
+});
+// Put the herd out now, not at the first minute tick
+setTimeout(() => perform(game.tick(0, Date.now())), 2000);
 
 // Autosave every 5 minutes.
 setInterval(() => {

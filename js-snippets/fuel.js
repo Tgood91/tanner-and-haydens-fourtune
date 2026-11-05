@@ -45,6 +45,7 @@ const GAS_STATIONS = [
     { label: "Dust Road Gas", city: "geepee",  pos: { x: 2005.0, y: 3774.0,  z: 32.4 } },
     { label: "Harvest Gas",    city: "geepee",  pos: { x: 1687.0, y: 4929.0,  z: 42.1 } },
     { label: "Chicago Gas",      city: "chicago", pos: { x: -94.0,  y: 6419.0,  z: 31.5 } },
+    { label: "Halfway Fuel",     city: "atlanta", pos: { x: 628.0,  y: 1220.0,  z: 0 } },   // z unknown: walk it
 ];
 
 function tankFor(model) {

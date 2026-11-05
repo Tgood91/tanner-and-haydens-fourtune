@@ -372,6 +372,18 @@ onNet("fourtune:pickupCreated", async (pickup) => {
     props.set(pickup.id, obj);
 });
 
+// ---------------- hunting ----------------
+// The server creates the animals (networked, so everyone sees the same
+// herd). Tasks run on whichever client owns the ped, so the owner sets it
+// wandering round its spot. Deer and boar flee gunfire on their own.
+onNet("fourtune:animalSpawned", async (animal) => {
+    for (let i = 0; i < 100 && !NetworkDoesNetworkIdExist(animal.netId); i++) await new Promise((r) => setTimeout(r, 100));
+    if (!NetworkDoesNetworkIdExist(animal.netId)) return;
+    const ped = NetToPed(animal.netId);
+    if (!DoesEntityExist(ped) || !NetworkHasControlOfEntity(ped)) return;
+    TaskWanderInArea(ped, animal.pos.x, animal.pos.y, animal.pos.z, 35.0, 2.0, 8.0);
+});
+
 onNet("fourtune:pickupRemoved", (pickup) => {
     const obj = props.get(pickup.id);
     if (obj && DoesEntityExist(obj)) DeleteObject(obj);

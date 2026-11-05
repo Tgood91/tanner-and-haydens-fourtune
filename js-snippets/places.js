@@ -41,6 +41,8 @@ const ZONES = [
     { name: "The Westside",    kind: "district", city: "atlanta", center: { x: -1100, y: -1100 }, radius: 480 },
     { name: "Peach Ridge Park", kind: "park",    city: "atlanta", center: { x: -860,  y: -890 },  radius: 130 },
     { name: "Groveland Park",      kind: "park",     city: "atlanta", center: { x: -120,  y: -1690 }, radius: 110 },
+    // Halfway: a small town on the open land between Atlanta and GeePee (still Atlanta, south of the border)
+    { name: "Halfway",         kind: "district", city: "atlanta", center: { x: 600,   y: 1500 },  radius: 330 },
 ];
 
 // Polylines. width is how far off the centre line still counts as the road,
@@ -75,7 +77,7 @@ const ROAD_DEFS = [
     { name: "Fenwick Street",          city: "chicago",  kind: "street",    points: [{ x: -417, y: 6117 }, { x: -330, y: 6128 }, { x: -267, y: 6152 }] },
     { name: "Mill Street",             city: "chicago",  kind: "street",    points: [{ x: -383, y: 6212 }, { x: -287, y: 6260 }] },
     { name: "Bellmont Street",         city: "chicago",  kind: "street",    points: [{ x: -416, y: 6205 }, { x: -392, y: 6212 }, { x: -318, y: 6215 }] },
-    { name: "Ketterling Avenue",       city: "chicago",  kind: "street",    points: [{ x: -202, y: 6377 }, { x: -185, y: 6488 }] },   // meets Hoyt Street by The Causeway
+    { name: "Ketterling Street",       city: "chicago",  kind: "street",    points: [{ x: -202, y: 6377 }, { x: -185, y: 6488 }] },   // meets Hoyt Street by The Causeway
     { name: "Hoyt Street",             city: "chicago",  kind: "street",    points: [{ x: -351, y: 6377 }, { x: -269, y: 6377 }, { x: -202, y: 6377 }] },
     { name: "Granary Row",             city: "chicago",  kind: "street",    points: [{ x: -454, y: 6448 }, { x: -390, y: 6502 }, { x: -194, y: 6511 }] },
     { name: "Dock Street",             city: "chicago",  kind: "street",    points: [{ x: -150, y: 6072 }, { x: -118, y: 6082 }, { x: -115, y: 6174 }] },
@@ -123,10 +125,10 @@ const ROAD_DEFS = [
 
     // ---- arterials: how you get between districts ----
     { name: "Peachline Road",          city: "atlanta",  kind: "arterial",  points: [{ x: 154, y: -917 }, { x: -270, y: -955 }, { x: -530, y: -1205 }] },
-    { name: "Groveland Street",        city: "atlanta",  kind: "arterial",  width: 22, points: [{ x: -67, y: -1756 }, { x: 45, y: -1748 }, { x: 113, y: -1650 }] },
+    { name: "Groveland Avenue",        city: "atlanta",  kind: "arterial",  width: 22, points: [{ x: -67, y: -1756 }, { x: 45, y: -1748 }, { x: 113, y: -1650 }] },
     { name: "Alder Avenue",            city: "atlanta",  kind: "arterial",  points: [{ x: -368, y: -887 }, { x: -250, y: -932 }, { x: -122, y: -940 }] },
     { name: "Southline Boulevard",     city: "atlanta",  kind: "arterial",  points: [{ x: -200, y: -1502 }, { x: 0, y: -1522 }, { x: 186, y: -1552 }] },
-    { name: "Clay Street",             city: "atlanta",  kind: "arterial",  width: 22, points: [{ x: 301, y: -630 }, { x: 252, y: -762 }, { x: 155, y: -915 }] },
+    { name: "Clay Avenue",             city: "atlanta",  kind: "arterial",  width: 22, points: [{ x: 301, y: -630 }, { x: 252, y: -762 }, { x: 155, y: -915 }] },
     { name: "Ridgeview Drive",         city: "atlanta",  kind: "arterial",  points: [{ x: -918, y: -868 }, { x: -760, y: -882 }, { x: -620, y: -962 }] },
     { name: "Mill Creek Road",         city: "atlanta",  kind: "arterial",  width: 22, points: [{ x: -1300, y: -1152 }, { x: -1050, y: -1102 }, { x: -812, y: -1120 }] },
     { name: "Sweetwater Avenue",       city: "atlanta",  kind: "arterial",  width: 22, points: [{ x: -56, y: -1730 }, { x: -62, y: -1620 }, { x: -22, y: -1520 }] },
@@ -135,7 +137,7 @@ const ROAD_DEFS = [
     { name: "Pecan Street",            city: "atlanta",  kind: "street",    points: [{ x: 149, y: -684 }, { x: 150, y: -760 }, { x: 179, y: -867 }] },
     { name: "Brickyard Street",        city: "atlanta",  kind: "street",    points: [{ x: 334, y: -705 }, { x: 240, y: -690 }, { x: 150, y: -683 }] },
     { name: "Stovall Street",          city: "atlanta",  kind: "street",    points: [{ x: -332, y: -1015 }, { x: -220, y: -1060 }, { x: -130, y: -1082 }] },
-    { name: "Hollis Avenue",           city: "atlanta",  kind: "street",    points: [{ x: -348, y: -878 }, { x: -340, y: -950 }, { x: -315, y: -1025 }] },
+    { name: "Hollis Street",           city: "atlanta",  kind: "street",    points: [{ x: -348, y: -878 }, { x: -340, y: -950 }, { x: -315, y: -1025 }] },
     { name: "Fairline Street",         city: "atlanta",  kind: "street",    points: [{ x: -140, y: -1402 }, { x: -40, y: -1422 }, { x: 31, y: -1439 }] },
     { name: "Cotton Row",              city: "atlanta",  kind: "street",    points: [{ x: -222, y: -1620 }, { x: -120, y: -1602 }, { x: -10, y: -1625 }] },
     { name: "Bellwood Street",         city: "atlanta",  kind: "street",    points: [{ x: -965, y: -1108 }, { x: -960, y: -980 }, { x: -905, y: -864 }] },
@@ -152,6 +154,17 @@ const ROAD_DEFS = [
     { name: "Red Clay Track",          city: "atlanta",  kind: "backroad",  points: [{ x: 299, y: -502 }, { x: 420, y: -560 }, { x: 432, y: -643 }] },
     { name: "Pumphouse Road",          city: "atlanta",  kind: "backroad",  points: [{ x: -1400, y: -1240 }, { x: -1300, y: -1300 }, { x: -1200, y: -1330 }] },
     { name: "Switchyard Lane",         city: "atlanta",  kind: "backroad",  points: [{ x: 200, y: -1240 }, { x: 260, y: -1300 }, { x: 305, y: -1381 }] },
+
+    // ================= Halfway (1017), the small town between Atlanta and GeePee =================
+    // Added at the END so every existing road keeps its number. Laid out on the atlas first
+    // (docs/atlas.html); placeholders like the rest: walk them (docs/WALK-LIST.md).
+    { name: "Main Street",             city: "atlanta",  kind: "arterial",  points: [{ x: 600, y: 1170 }, { x: 600, y: 1830 }] },
+    { name: "Depot Street",            city: "atlanta",  kind: "street",    points: [{ x: 400, y: 1600 }, { x: 820, y: 1600 }] },
+    { name: "Gristmill Street",        city: "atlanta",  kind: "street",    points: [{ x: 420, y: 1450 }, { x: 790, y: 1450 }] },
+    { name: "Church Street",           city: "atlanta",  kind: "street",    points: [{ x: 470, y: 1310 }, { x: 720, y: 1310 }] },
+    { name: "Gin House Row",           city: "atlanta",  kind: "street",    points: [{ x: 470, y: 1310 }, { x: 470, y: 1600 }] },
+    { name: "Sorghum Lane",            city: "atlanta",  kind: "street",    points: [{ x: 730, y: 1450 }, { x: 730, y: 1700 }] },
+    { name: "Old Rail Bed",            city: "atlanta",  kind: "backroad",  points: [{ x: 380, y: 1690 }, { x: 600, y: 1700 }, { x: 860, y: 1720 }] },
 ];
 
 // Resolve the kind default once, so everything downstream — roadAt, the Lua

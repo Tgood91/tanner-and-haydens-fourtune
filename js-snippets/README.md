@@ -6,15 +6,30 @@ adapter files, and the rules stay the same.
 
 ## Run it
 
+With npm (Node 20 or newer, nothing to install — `npm ci` just checks the lockfile):
+
+```
+npm test                       # every check: the game core and the knowledge base tool
+npm run kb -- search <words>   # find where anything is written down: docs, notes, lessons, code
+npm run kb -- list             # every note, doc, lesson and resource, by area
+npm run kb -- show TUNING      # print one entry (part of its path is enough)
+npm run kb -- where 120 -900   # name a coordinate the way the game does
+npm run lessons | demo | streets | stores
+npm run gen:map | gen:map-detail | gen:walk-list | gen:world
+```
+
+Or call the files directly:
+
 ```
 node js-snippets/01-lessons.js        # Lua lessons 3–5, in JS
 node js-snippets/02-demo.js           # inventory + cars walkthrough
-node --test js-snippets/game.test.js  # 131 checks across every system
+node --test js-snippets/game.test.js  # 149 checks across every system
 node tools/gen-map.js > docs/city-map.html   # redraw the atlas from places.js
 node tools/gen-map-detail-layer.js            # redraw the big map's gameplay roads, pins and legend rows
 node tools/gen-walk-list.js > docs/WALK-LIST.md  # the in-game checklist of every coordinate to walk (/mark)
 node tools/print-streets.js [city]                # print every street the game knows, by city and kind
 node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, fuel stop and clothing store, by city
+node tools/audit-map.js                         # glitch audit of the in-game map (needs Playwright + Chromium)
 ```
 
 ## What's in here
@@ -34,11 +49,13 @@ node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, 
 | `gangs.js` | Crews with Member/Officer/Leader ranks. Founding costs $25,000 and plants a base where you stand. Invite-and-accept only, `/g` radio chat that needs a **radio** in your bag, and a 120 kg shared stash that only opens at the base |
 | `phone.js` | A number per character, area code from the city you started in (7101 / 770 / 312). `/text` by number or player id, `/texts`, `/contacts`, `/save`. The phone **item** is required: no phone means no texts, no `/911` and no cab |
 | `taxi.js` | `/taxi` calls a cab, on-duty drivers get the ping, `/accept` claims it, `/startfare` starts the meter next to the passenger, `/endfare` bills them. The fare is $30 plus $8 per 100 units **actually driven**, teleports not counted |
-| `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi, Glizzys-2-Go hot dog carts, dockhands. Grades, duty, paychecks every 30 min. Glizzys-2-Go and Dockhand are open hire: players `/apply glizzys` (11 gold/hr) or `/apply dockhand` (14 gold/hr) themselves |
+| `jobs.js` | Sheriff, EMS, Beeker's mechanic, taxi, Glizzys-2-Go hot dog carts, dockhands. Grades, duty, paychecks every 30 min. Glizzys-2-Go, Dockhand and the lumber yard are open hire: players `/apply glizzys` (11 gold/hr), `/apply dockhand` (14 gold/hr) or `/apply lumbermill` (13 gold/hr) themselves |
 | `medical.js` | At 0 health you're down and on-duty EMS get the call. EMS `/revive` (uses their medkit, earns a bonus), or `/respawn` after 5 min for a bill at whichever of the city's two hospitals is closer to where you dropped |
 | `ammo.js` | Five ammo types, which gun takes which, `/loadammo` boxes into rounds (capped), `/unloadammo` full boxes back, `/equip` / `/holster`. Client ammo reports can only lower the count |
 | `robbery.js` | `/rob` a shop counter: needs a loaded gun in your hands and at least one officer on duty. Every cop gets the call, you must stand at the till 90s, and walking off, getting cuffed or going down ends it with nothing. Pays out as cash, with a cooldown on the shop and on you |
 | `police.js` | Sheriff's Office tools: `/cuff`, `/search`, `/seize`, `/fine`, `/jail`. Seized items are destroyed and fines go to the city, so cops can't farm them. Jail time is saved, so logging out doesn't skip it |
+| `hunting.js` | The West Woods Hunting Grounds on the island. `/buylicense hunting` at **Antler Lodge** ($750). The lodge also sells .308 boxes, and the Bolt Rifle for gold with the hunting license. Eight deer and boar roam the grounds. The **server** sees each one die and who killed it, so kills can't be faked. `/skin` the carcass for meat and a hide (about four animals fill a bag), then `/sellgame` at the lodge for cash. Only a rifle or shotgun is a clean kill (running one over, an SMG or a knife isn't). No license, the wrong weapon, outside the grounds, or past the bag limit (6 clean kills an hour, and relogging doesn't reset it) counts as **poaching**: it can't be skinned, and on-duty police get a tip naming the place, never the hunter. A carcass is the killer's for 5 min, and rots after 15. Every animal is replaced 5 min after it dies |
+| `lumbermill.js` | **Hollow Creek Lumber Yard** on the island (West Woods). Open hire: `/apply lumbermill` (Logger / Sawyer / Yard Boss, 13 gold an hour on duty). `/fell` at a Copper Hills felling spot for a 12 kg log (each spot regrows in 8 min; 12 logs an hour per player), `/mill` at the saw (4 planks a log, plus $25 / $30 / $40 a log by grade), and `/sellplanks` at the office ($30 a plank). A truck's trunk hauls more than the two logs a bag holds. The `lumberMill-jobs` resource draws the markers, press-E prompts and blips |
 | `licenses.js` | Weapon license: $2,500 at Ammu-Nation, required before Ammu-Nation sells a gun for gold. Police `/checklicense` on a stop (no cuffs; also shows a gun that's out) and `/revokelicense` (24h before a new one can be bought) |
 | `needs.js` | Hunger and thirst drain over time. Running empty costs health |
 | `places.js` | Named ground: 10 districts, 5 parks and **66 roads** — highways, arterials, streets and back roads — as real coordinates, with endpoints snapped so the network actually joins up. The most specific name wins (road, then park, then district, then city), so dispatch reads "Lakeshore Drive, The Shoreline, Chicago". Walking into a park announces it; teleports stay quiet |
@@ -55,7 +72,7 @@ node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, 
 
 ## Commands
 
-Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /cities /whereami /streets /mark /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
+Players: `/help /inventory /useitem /dropitem /pickup /balance /deposit /withdraw /pay /job /apply /duty /time /weather /places /status /ammo /loadammo /unloadammo /equip /holster /revive /respawn /911 /cuff /search /seize /fine /jail /jailtime /houses /home /buyhouse /sellhouse /lockhome /givekey /takekey /wardrobe /storehome /takehome /harvest /process /deal /turf /claim /abandon /gangs /gang /gangcreate /ganginvite /gangaccept /gangleave /gangkick /gangpromote /gangdemote /gangdisband /gangbase /g /stash /stashput /stashtake /phone /text /texts /contacts /save /rob /taxi /cancelcab /calls /accept /startfare /endfare /fare /licenses /buylicense /checklicense /revokelicense /hunting /skin /sellgame /lumber /fell /mill /sellplanks /cities /whereami /streets /mark /shop /buy /cars /garage /buyveh /spawnveh /storeveh /lock /carstatus /refuel /repair /trunk /trunkput /trunktake /roster /callsign /impound /releaseveh /towveh /clothes /look /dress /outfits /saveoutfit /outfit /dropoutfit`
 
 Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank> <amount>`, `setjob <id> <job> [grade]`, `forcerevive <id>`, `givegold <id> <amount>`, `unjail <id>`, `givelicense <id> [weapon]`, `settime <hour> [min]`, `setweather <kind>`, `freeze <time|weather> <on|off>`
 
@@ -77,7 +94,9 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
 - World clock: 30 world-minutes a tick (a day in ~48 real min), weather rolls every 2 world-hours, night is 21:00-06:00 (`environment.js`)
 - Robbery: 90s at the till, $400-$1,200 payout, 1 officer minimum, 30-min shop and 15-min robber cooldowns (`robbery.js`)
 - Taxi flag drop ($30), $8 per 100 units, $5 driver gold, 5-min call timeout (`taxi.js`)
-- Weapon license price ($2,500) and revoke ban (24h) (`licenses.js`)
+- Weapon license price ($2,500) and revoke ban (24h); hunting license $750 (`licenses.js`)
+- Lumber yard: 8 felling spots, 8-min regrow, 12 kg logs, 4 planks a log, $25/$30/$40 milling pay by grade, $30 a plank, the saw and office spots (`lumbermill.js`, and the same spots in `lumberMill-jobs/config.lua`)
+- Hunting: herd of 8 (35% boar), 5-min respawn, 6 clean kills an hour, 5-min claim, 15-min rot, lodge prices (venison $90, deer hide $140, boar meat $70, boar hide $110), the 16 spawn spots and the lodge counter at X -7510, Y -6301 (`hunting.js`)
 - Police: $5,000 max fine, 30-min max jail, jail cell coords (`police.js`)
 - Gold: per-paycheck gold by job, Glizzys-2-Go 11/hr, Dockhand 14/hr (`jobs.js`), revive gold (`medical.js`), gun prices in gold (`shops.js`)
 - Ammo: rounds per box and caps (`ammo.js`), box weights (`inventory.js`), box prices and Ammu-Nation spots (`shops.js`)
@@ -98,3 +117,17 @@ Server console only: `giveitem <id> <item> [count]`, `givemoney <id> <cash|bank>
    both at once would give you two of every command. Pick one per system before enabling it.
 5. **Gold is never for sale.** FiveM's license bans selling in-game currency for real money, so a Tebex package must
    never grant gold or guns. Keep Tebex for cosmetics only.
+
+## The atlas: every plot on one map
+
+`npm run gen:atlas` (or `node tools/gen-atlas.js > docs/atlas.html`) draws `docs/atlas.html`, one map
+of everything with a coordinate. It checks this branch **and every `origin/*` branch** and uses the
+newest version of each file, so plots made in other sessions show up before they're merged. Run
+`git fetch origin` first. `node tools/gen-atlas.js --sources` lists where each file came from.
+
+- **Game world**: districts, parks, all roads by kind, the city borders, and every pin: 24/7s, gun shops,
+  fuel, clothing, hospitals, spawns, houses, impound lots, job stations, supply spots, the jail
+- **The island**: the coastline, every street from `street-renders/streets.json` and every building
+  from `island-buildings/buildings.json`
+
+Search by name or road code (`312-S35`), toggle layers, and tap a pin to copy its `vector3`.

@@ -24,14 +24,14 @@ shell_css = """<style>
   #app h1, #app p.note { text-shadow: 0 2px 6px rgba(0,0,0,.8); }
   /* map and legend side by side; the map takes what's left after the header, hint and legend */
   .stage { display: flex; gap: 14px; align-items: flex-start; justify-content: center; }
-  .frame { width: min(calc(100vw - 32px), calc((100vh - 190px) * 1.5)); flex: 0 0 auto; }
-  .stage.with-legend .frame { width: min(calc(100vw - 32px - 314px), calc((100vh - 190px) * 1.5)); }
+  .frame { width: min(calc(100vw - 32px), calc((100vh - 190px) * 2.615)); flex: 0 0 auto; }
+  .stage.with-legend .frame { width: min(calc(100vw - 32px - 314px), calc((100vh - 190px) * 2.615)); }
   .legend { display: none; width: 300px; margin-top: 0; padding: 12px 12px 14px;
             max-height: calc(100vh - 190px); overflow-y: auto; flex: 0 0 300px; }
   .stage.with-legend .legend { display: block; }
   .legend ul { grid-template-columns: 1fr; gap: 2px; }
-  .legend li { min-height: 24px; font-size: 12px; gap: 8px; }
-  .legend .sw { flex-basis: 38px; height: 23px; }
+  .legend li { min-height: 20px; font-size: 11.5px; gap: 8px; line-height: 1.15; }
+  .legend .sw { flex-basis: 34px; height: 19px; }
   .zoombar { margin-top: 8px; }
   .hint { margin: 8px auto 0; width: fit-content; padding: 6px 14px; border-radius: 999px;
           background: rgba(6,12,22,.78); color: #cfe0f2; font-size: 13px; letter-spacing: 1px; }
@@ -57,7 +57,11 @@ shell_js = """<script>
     if (d.type === 'map:visibility') {
       const visible = !!(d.payload && d.payload.visible);
       app.classList.toggle('open', visible);
-      if (visible && window.placeOnRoad) window.placeOnRoad();   // new hot dog cart spots each time
+      if (visible) {
+        window.mapZoom && window.mapZoom('reset');               // every open starts on the whole island
+        window.placeOnRoad && window.placeOnRoad();              // new hot dog cart spots each time
+        requestAnimationFrame(() => window.mapRefreshLabels && window.mapRefreshLabels());   // now it's on screen
+      }
     }
     if (d.type === 'map:player') window.mapSetPlayer && window.mapSetPlayer(d.payload);
     if (d.type === 'map:waypoint') window.mapSetWaypoint && window.mapSetWaypoint(d.payload || null);
