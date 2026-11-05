@@ -41,6 +41,8 @@ const ZONES = [
     { name: "The Westside",    kind: "district", city: "atlanta", center: { x: -1100, y: -1100 }, radius: 480 },
     { name: "Peach Ridge Park", kind: "park",    city: "atlanta", center: { x: -860,  y: -890 },  radius: 130 },
     { name: "Groveland Park",      kind: "park",     city: "atlanta", center: { x: -120,  y: -1690 }, radius: 110 },
+    // Halfway: a small town on the open land between Atlanta and GeePee (still Atlanta, south of the border)
+    { name: "Halfway",         kind: "district", city: "atlanta", center: { x: 600,   y: 1500 },  radius: 330 },
 ];
 
 // Polylines. width is how far off the centre line still counts as the road,
@@ -152,6 +154,17 @@ const ROAD_DEFS = [
     { name: "Red Clay Track",          city: "atlanta",  kind: "backroad",  points: [{ x: 299, y: -502 }, { x: 420, y: -560 }, { x: 432, y: -643 }] },
     { name: "Pumphouse Road",          city: "atlanta",  kind: "backroad",  points: [{ x: -1400, y: -1240 }, { x: -1300, y: -1300 }, { x: -1200, y: -1330 }] },
     { name: "Switchyard Lane",         city: "atlanta",  kind: "backroad",  points: [{ x: 200, y: -1240 }, { x: 260, y: -1300 }, { x: 305, y: -1381 }] },
+
+    // ================= Halfway (1017), the small town between Atlanta and GeePee =================
+    // Added at the END so every existing road keeps its number. Laid out on the atlas first
+    // (docs/atlas.html); placeholders like the rest: walk them (docs/WALK-LIST.md).
+    { name: "Main Street",             city: "atlanta",  kind: "arterial",  points: [{ x: 600, y: 1170 }, { x: 600, y: 1830 }] },
+    { name: "Depot Street",            city: "atlanta",  kind: "street",    points: [{ x: 400, y: 1600 }, { x: 820, y: 1600 }] },
+    { name: "Gristmill Street",        city: "atlanta",  kind: "street",    points: [{ x: 420, y: 1450 }, { x: 790, y: 1450 }] },
+    { name: "Church Street",           city: "atlanta",  kind: "street",    points: [{ x: 470, y: 1310 }, { x: 720, y: 1310 }] },
+    { name: "Gin House Row",           city: "atlanta",  kind: "street",    points: [{ x: 470, y: 1310 }, { x: 470, y: 1600 }] },
+    { name: "Sorghum Lane",            city: "atlanta",  kind: "street",    points: [{ x: 730, y: 1450 }, { x: 730, y: 1700 }] },
+    { name: "Old Rail Bed",            city: "atlanta",  kind: "backroad",  points: [{ x: 380, y: 1690 }, { x: 600, y: 1700 }, { x: 860, y: 1720 }] },
 ];
 
 // Resolve the kind default once, so everything downstream — roadAt, the Lua

@@ -15,6 +15,8 @@ const { distance } = require("./cities");
 const SHOP_RANGE = 3.0; // metres from the counter
 
 const STOCK_247 = { water: 5, sandwich: 8, coffee: 4, donut: 3, halfhalf: 6, bandage: 25 };
+// Halfway Diner: food and coffee, nothing else
+const STOCK_DINER = { coffee: 3, sandwich: 7, donut: 2, halfhalf: 5, water: 4 };
 const STOCK_HARDWARE = { repairkit: 350, toolbox: 200, lockpick: 75, fuelcan: 60, radio: 150, phone: 300 };
 // Ammo: dollars per box.
 const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12ga: 90, ammo_308: 250 };
@@ -34,6 +36,10 @@ const SHOPS = {
     // Sat near the stock gun-shop counters in the base game — walk them and tune
     atl_ammu:     { label: "Shooters Armoury", city: "atlanta", pos: { x: 22.0,   y: -1110.0, z: 29.8 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
     gp_ammu:      { label: "Gunworks GeePee",  city: "geepee",  pos: { x: 1693.4, y: 3759.5,  z: 34.7 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
+    // Halfway. HEIGHT (z) IS UNKNOWN: nobody has stood here yet, so these can't be used
+    // until someone walks them and sets z (/mark, docs/WALK-LIST.md)
+    hw_diner:     { label: "Halfway Diner",     city: "atlanta", pos: { x: 622.0,  y: 1530.0,  z: 0 }, items: STOCK_DINER },
+    hw_feedseed:  { label: "Halfway Feed & Seed", city: "atlanta", pos: { x: 578.0, y: 1395.0, z: 0 }, items: STOCK_HARDWARE },
     chi_ammu:     { label: "Gunworks Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
 };
 

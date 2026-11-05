@@ -476,44 +476,57 @@
       <polyline class="gp-road gp-arterial" points="627.1,643.1 631.3,643.1 663.4,664.2 685.2,675.2" stroke="#d9d9d4" stroke-width="7"><title>Grain Elevator Road · 770-A2 (arterial, 770)</title></polyline>
       <polyline class="gp-casing" points="633.2,906.6 686,891.5 730.9,888.8" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="633.2,906.6 686,891.5 730.9,888.8" stroke="#d9d9d4" stroke-width="7"><title>Harvest Flats Road · 770-A3 (arterial, 770)</title></polyline>
-      <polyline class="gp-road gp-backroad" points="553.1,1473.8 576.2,1504.4 595.2,1529.8" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Kudzu Lane · 1017-B1 (backroad, 1017)</title></polyline>
-      <polyline class="gp-road gp-backroad" points="941.2,1092.1 989.2,1115.2 994,1148.1" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Red Clay Track · 1017-B2 (backroad, 1017)</title></polyline>
-      <polyline class="gp-road gp-backroad" points="266.4,1385.2 306.1,1409.1 345.8,1421" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Pumphouse Road · 1017-B3 (backroad, 1017)</title></polyline>
-      <polyline class="gp-road gp-backroad" points="901.9,1385.2 925.7,1409.1 943.6,1441.2" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Switchyard Lane · 1017-B4 (backroad, 1017)</title></polyline>
-      <polyline class="gp-casing" points="881.6,1164.4 882,1194.6 893.5,1237.1" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="881.6,1164.4 882,1194.6 893.5,1237.1" stroke="#cfccc2" stroke-width="4.5"><title>Pecan Street · 1017-S1 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="955.1,1172.7 917.7,1166.8 882,1164" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="955.1,1172.7 917.7,1166.8 882,1164" stroke="#cfccc2" stroke-width="4.5"><title>Brickyard Street · 1017-S2 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="690.6,1295.9 735,1313.7 770.8,1322.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="690.6,1295.9 735,1313.7 770.8,1322.5" stroke="#cfccc2" stroke-width="4.5"><title>Stovall Street · 1017-S3 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="684.2,1241.5 687.4,1270.1 697.3,1299.8" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="684.2,1241.5 687.4,1270.1 697.3,1299.8" stroke="#cfccc2" stroke-width="4.5"><title>Hollis Avenue · 1017-S4 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="766.8,1449.6 806.5,1457.5 834.7,1464.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="766.8,1449.6 806.5,1457.5 834.7,1464.3" stroke="#cfccc2" stroke-width="4.5"><title>Fairline Street · 1017-S5 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="734.3,1536.2 774.8,1529 818.5,1538.1" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="734.3,1536.2 774.8,1529 818.5,1538.1" stroke="#cfccc2" stroke-width="4.5"><title>Cotton Row · 1017-S6 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="439.2,1332.8 441.1,1282 463,1235.9" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="439.2,1332.8 441.1,1282 463,1235.9" stroke="#cfccc2" stroke-width="4.5"><title>Bellwood Street · 1017-S7 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="328.8,1309 377.6,1266.1 448.3,1262.9" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="328.8,1309 377.6,1266.1 448.3,1262.9" stroke="#cfccc2" stroke-width="4.5"><title>Terrace Street · 1017-S8 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="850.2,1570.7 866.1,1536.2 877.6,1506" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="850.2,1570.7 866.1,1536.2 877.6,1506" stroke="#cfccc2" stroke-width="4.5"><title>Quarry Street · 1017-S9 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="576.2,1417 615.9,1440.8 655.6,1456.7" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
-      <polyline class="gp-road gp-street" points="576.2,1417 615.9,1440.8 655.6,1456.7" stroke="#cfccc2" stroke-width="4.5"><title>Dunwood Street · 1017-S12 (street, 1017)</title></polyline>
-      <polyline class="gp-casing" points="795.8,1590.2 840.3,1587 867.3,1548.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="795.8,1590.2 840.3,1587 867.3,1548.1" stroke="#d9d9d4" stroke-width="7"><title>Groveland Street · 1017-A2 (arterial, 1017)</title></polyline>
-      <polyline class="gp-casing" points="676.3,1245 723.1,1262.9 774,1266.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="676.3,1245 723.1,1262.9 774,1266.1" stroke="#d9d9d4" stroke-width="7"><title>Alder Avenue · 1017-A3 (arterial, 1017)</title></polyline>
-      <polyline class="gp-casing" points="743,1489.3 822.4,1497.2 896.3,1509.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="743,1489.3 822.4,1497.2 896.3,1509.1" stroke="#d9d9d4" stroke-width="7"><title>Southline Boulevard · 1017-A4 (arterial, 1017)</title></polyline>
-      <polyline class="gp-casing" points="942,1143 922.5,1195.4 884,1256.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="942,1143 922.5,1195.4 884,1256.2" stroke="#d9d9d4" stroke-width="7"><title>Clay Street · 1017-A5 (arterial, 1017)</title></polyline>
-      <polyline class="gp-casing" points="457.8,1237.5 520.6,1243 576.2,1274.8" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="457.8,1237.5 520.6,1243 576.2,1274.8" stroke="#d9d9d4" stroke-width="7"><title>Ridgeview Drive · 1017-A6 (arterial, 1017)</title></polyline>
-      <polyline class="gp-casing" points="306.1,1350.3 405.4,1330.4 499.9,1337.6" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="306.1,1350.3 405.4,1330.4 499.9,1337.6" stroke="#d9d9d4" stroke-width="7"><title>Mill Creek Road · 1017-A7 (arterial, 1017)</title></polyline>
-      <polyline class="gp-casing" points="800.2,1579.8 797.8,1536.2 813.7,1496.4" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="800.2,1579.8 797.8,1536.2 813.7,1496.4" stroke="#d9d9d4" stroke-width="7"><title>Sweetwater Avenue · 1017-A8 (arterial, 1017)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="549.8,1568.6 558.6,1580.3 565.9,1590.1" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Kudzu Lane · 1017-B1 (backroad, 1017)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="698.5,1422.4 716.9,1431.2 718.7,1443.8" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Red Clay Track · 1017-B2 (backroad, 1017)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="439.9,1534.7 455.2,1543.8 470.4,1548.4" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Pumphouse Road · 1017-B3 (backroad, 1017)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="683.4,1534.7 692.5,1543.8 699.4,1556.1" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Switchyard Lane · 1017-B4 (backroad, 1017)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="710.8,1088.8 744.3,1087.3 783.8,1084.2" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Old Rail Bed · 1017-B5 (backroad, 1017)</title></polyline>
+      <polyline class="gp-casing" points="675.7,1450.1 675.8,1461.6 680.2,1477.9" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="675.7,1450.1 675.8,1461.6 680.2,1477.9" stroke="#cfccc2" stroke-width="4.5"><title>Pecan Street · 1017-S1 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="703.8,1453.3 689.5,1451 675.8,1449.9" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="703.8,1453.3 689.5,1451 675.8,1449.9" stroke="#cfccc2" stroke-width="4.5"><title>Brickyard Street · 1017-S2 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="602.5,1500.4 619.5,1507.3 633.2,1510.6" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="602.5,1500.4 619.5,1507.3 633.2,1510.6" stroke="#cfccc2" stroke-width="4.5"><title>Stovall Street · 1017-S3 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="600,1479.6 601.2,1490.5 605,1502" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="600,1479.6 601.2,1490.5 605,1502" stroke="#cfccc2" stroke-width="4.5"><title>Hollis Avenue · 1017-S4 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="631.7,1559.3 646.9,1562.4 657.7,1565" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="631.7,1559.3 646.9,1562.4 657.7,1565" stroke="#cfccc2" stroke-width="4.5"><title>Fairline Street · 1017-S5 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="619.2,1592.5 634.7,1589.8 651.5,1593.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="619.2,1592.5 634.7,1589.8 651.5,1593.3" stroke="#cfccc2" stroke-width="4.5"><title>Cotton Row · 1017-S6 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="506.1,1514.6 506.9,1495.1 515.3,1477.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="506.1,1514.6 506.9,1495.1 515.3,1477.5" stroke="#cfccc2" stroke-width="4.5"><title>Bellwood Street · 1017-S7 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="463.8,1505.5 482.5,1489 509.6,1487.8" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="463.8,1505.5 482.5,1489 509.6,1487.8" stroke="#cfccc2" stroke-width="4.5"><title>Terrace Street · 1017-S8 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="663.6,1605.7 669.7,1592.5 674.1,1580.9" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="663.6,1605.7 669.7,1592.5 674.1,1580.9" stroke="#cfccc2" stroke-width="4.5"><title>Quarry Street · 1017-S9 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="558.6,1546.8 573.8,1556 589.1,1562.1" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="558.6,1546.8 573.8,1556 589.1,1562.1" stroke="#cfccc2" stroke-width="4.5"><title>Dunwood Street · 1017-S12 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="713.8,1102.5 777.8,1102.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="713.8,1102.5 777.8,1102.5" stroke="#cfccc2" stroke-width="4.5"><title>Depot Street · 1017-S13 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="716.9,1125.3 773.2,1125.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="716.9,1125.3 773.2,1125.3" stroke="#cfccc2" stroke-width="4.5"><title>Gristmill Street · 1017-S14 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="724.5,1146.6 762.5,1146.6" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="724.5,1146.6 762.5,1146.6" stroke="#cfccc2" stroke-width="4.5"><title>Church Street · 1017-S15 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="724.5,1146.6 724.5,1102.5" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="724.5,1146.6 724.5,1102.5" stroke="#cfccc2" stroke-width="4.5"><title>Gin House Row · 1017-S16 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="764.1,1125.3 764.1,1087.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
+      <polyline class="gp-road gp-street" points="764.1,1125.3 764.1,1087.3" stroke="#cfccc2" stroke-width="4.5"><title>Sorghum Lane · 1017-S17 (street, 1017)</title></polyline>
+      <polyline class="gp-casing" points="642.8,1613.2 659.8,1612 670.2,1597.1" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="642.8,1613.2 659.8,1612 670.2,1597.1" stroke="#d9d9d4" stroke-width="7"><title>Groveland Street · 1017-A2 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="597,1481 614.9,1487.8 634.4,1489" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="597,1481 614.9,1487.8 634.4,1489" stroke="#d9d9d4" stroke-width="7"><title>Alder Avenue · 1017-A3 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="622.5,1574.5 653,1577.6 681.3,1582.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="622.5,1574.5 653,1577.6 681.3,1582.2" stroke="#d9d9d4" stroke-width="7"><title>Southline Boulevard · 1017-A4 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="698.8,1441.8 691.3,1461.9 676.6,1485.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="698.8,1441.8 691.3,1461.9 676.6,1485.2" stroke="#d9d9d4" stroke-width="7"><title>Clay Street · 1017-A5 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="513.3,1478.1 537.3,1480.2 558.6,1492.4" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="513.3,1478.1 537.3,1480.2 558.6,1492.4" stroke="#d9d9d4" stroke-width="7"><title>Ridgeview Drive · 1017-A6 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="455.2,1521.3 493.2,1513.7 529.4,1516.4" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="455.2,1521.3 493.2,1513.7 529.4,1516.4" stroke="#d9d9d4" stroke-width="7"><title>Mill Creek Road · 1017-A7 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="644.5,1609.2 643.5,1592.5 649.6,1577.3" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="644.5,1609.2 643.5,1592.5 649.6,1577.3" stroke="#d9d9d4" stroke-width="7"><title>Sweetwater Avenue · 1017-A8 (arterial, 1017)</title></polyline>
+      <polyline class="gp-casing" points="744.3,1167.9 744.3,1067.5" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="744.3,1167.9 744.3,1067.5" stroke="#d9d9d4" stroke-width="7"><title>Main Street · 1017-A9 (arterial, 1017)</title></polyline>
     </svg>
     <!-- /GAMEPLAY ROADS -->
 
@@ -769,26 +782,30 @@
       <circle class="gp-pin" cx="693.5" cy="687.6" r="8" fill="#9acc60"><title>Backroads Field — Supply drop (supply drop)</title></circle>
       <circle class="gp-pin" cx="740.7" cy="925.4" r="8" fill="#9acc60"><title>Harvest Barn — Supply drop (supply drop)</title></circle>
       <circle class="gp-pin" cx="659.6" cy="548" r="8" fill="#9acc60"><title>Dust Road Shack — Supply drop (supply drop)</title></circle>
-      <circle class="gp-pin" cx="715.4" cy="1272.2" r="8" fill="#c8d3d8"><title>Alder Street — Spawn point (spawn, atlanta)</title></circle>
-      <circle class="gp-pin" cx="900" cy="1263.6" r="8" fill="#c8d3d8"><title>Lantern Square — Spawn point (spawn, atlanta)</title></circle>
-      <circle class="gp-pin" cx="184.2" cy="1301.7" r="8" fill="#c8d3d8"><title>Delmar Pier — Spawn point (spawn, atlanta)</title></circle>
-      <circle class="gp-pin" cx="832.6" cy="1427.8" r="8" fill="#e0b83c"><title>Open 24 Atlanta — Shop (general goods)</title></circle>
-      <circle class="gp-pin" cx="840.3" cy="1587" r="8" fill="#e0b83c"><title>Atlanta Hardware — Shop (general goods)</title></circle>
-      <circle class="gp-pin" cx="878.4" cy="1160" r="8" fill="#e0b83c"><title>BigBackin' Bell — Shop (general goods)</title></circle>
-      <circle class="gp-pin" cx="541.6" cy="1250.2" r="8" fill="#e0b83c"><title>General Fools — Shop (general goods)</title></circle>
-      <circle class="gp-pin" cx="831.2" cy="1333.6" r="8" fill="#e06040"><title>Shooters Armoury — Gun shop (weapons + ammo for gold)</title></circle>
-      <circle class="gp-pin" cx="794.5" cy="1592.5" r="8" fill="#59cae6"><title>Gasco Groveland — Fuel (/refuel)</title></circle>
-      <circle class="gp-pin" cx="613.5" cy="1373.7" r="8" fill="#59cae6"><title>Koreatown Gas — Fuel (/refuel)</title></circle>
-      <circle class="gp-pin" cx="940.8" cy="1124.7" r="8" fill="#f06080"><title>Red Clay General — Hospital (respawn point)</title></circle>
-      <circle class="gp-pin" cx="460.2" cy="1238.3" r="8" fill="#f06080"><title>Peach Ridge Medical — Hospital (respawn point)</title></circle>
-      <circle class="gp-pin" cx="944.4" cy="1465.1" r="8" fill="#f06080"><title>Pillbrooke Medical — Hospital (respawn point)</title></circle>
+      <circle class="gp-pin" cx="612" cy="1491.4" r="8" fill="#c8d3d8"><title>Alder Street — Spawn point (spawn, atlanta)</title></circle>
+      <circle class="gp-pin" cx="682.7" cy="1488.1" r="8" fill="#c8d3d8"><title>Lantern Square — Spawn point (spawn, atlanta)</title></circle>
+      <circle class="gp-pin" cx="408.5" cy="1502.7" r="8" fill="#c8d3d8"><title>Delmar Pier — Spawn point (spawn, atlanta)</title></circle>
+      <circle class="gp-pin" cx="656.9" cy="1551" r="8" fill="#e0b83c"><title>Open 24 Atlanta — Shop (general goods)</title></circle>
+      <circle class="gp-pin" cx="659.8" cy="1612" r="8" fill="#e0b83c"><title>Atlanta Hardware — Shop (general goods)</title></circle>
+      <circle class="gp-pin" cx="674.4" cy="1448.4" r="8" fill="#e0b83c"><title>BigBackin' Bell — Shop (general goods)</title></circle>
+      <circle class="gp-pin" cx="545.4" cy="1482.9" r="8" fill="#e0b83c"><title>General Fools — Shop (general goods)</title></circle>
+      <circle class="gp-pin" cx="656.3" cy="1514.9" r="8" fill="#e06040"><title>Shooters Armoury — Gun shop (weapons + ammo for gold)</title></circle>
+      <circle class="gp-pin" cx="747.6" cy="1113.2" r="8" fill="#e0b83c"><title>Halfway Diner — Shop (general goods)</title></circle>
+      <circle class="gp-pin" cx="740.9" cy="1133.7" r="8" fill="#e0b83c"><title>Halfway Feed &amp; Seed — Shop (general goods)</title></circle>
+      <circle class="gp-pin" cx="642.3" cy="1614.1" r="8" fill="#59cae6"><title>Gasco Groveland — Fuel (/refuel)</title></circle>
+      <circle class="gp-pin" cx="572.9" cy="1530.3" r="8" fill="#59cae6"><title>Koreatown Gas — Fuel (/refuel)</title></circle>
+      <circle class="gp-pin" cx="748.5" cy="1160.3" r="8" fill="#59cae6"><title>Halfway Fuel — Fuel (/refuel)</title></circle>
+      <circle class="gp-pin" cx="698.3" cy="1434.8" r="8" fill="#f06080"><title>Red Clay General — Hospital (respawn point)</title></circle>
+      <circle class="gp-pin" cx="514.2" cy="1478.4" r="8" fill="#f06080"><title>Peach Ridge Medical — Hospital (respawn point)</title></circle>
+      <circle class="gp-pin" cx="699.7" cy="1565.3" r="8" fill="#f06080"><title>Pillbrooke Medical — Hospital (respawn point)</title></circle>
       <circle class="gp-pin" cx="994" cy="1058.8" r="8" fill="#7aabf0"><title>County Lockup — Jail (jail cell, off the drawn area)</title></circle>
-      <circle class="gp-pin" cx="723.1" cy="1278" r="8" fill="#c090e0"><title>Alder Bungalow — Housing (housing, Alder Heights)</title></circle>
-      <circle class="gp-pin" cx="834.3" cy="1504.4" r="8" fill="#c090e0"><title>Southline Row — Housing (housing, Southline)</title></circle>
-      <circle class="gp-pin" cx="389.5" cy="1333.6" r="8" fill="#c090e0"><title>Westside House — Housing (housing, The Westside)</title></circle>
-      <circle class="gp-pin" cx="977.3" cy="1540.1" r="8" fill="#b8a88a"><title>Atlanta Impound — Impound lot (impound lot)</title></circle>
-      <circle class="gp-pin" cx="839.1" cy="1501.2" r="8" fill="#e88ec0"><title>Southline Surplus — Clothing store (clothing store)</title></circle>
-      <circle class="gp-pin" cx="727.9" cy="1274.8" r="8" fill="#e88ec0"><title>Alder Dry Goods — Clothing store (clothing store)</title></circle>
+      <circle class="gp-pin" cx="614.9" cy="1493.6" r="8" fill="#c090e0"><title>Alder Bungalow — Housing (housing, Alder Heights)</title></circle>
+      <circle class="gp-pin" cx="657.5" cy="1580.3" r="8" fill="#c090e0"><title>Southline Row — Housing (housing, Southline)</title></circle>
+      <circle class="gp-pin" cx="487.1" cy="1514.9" r="8" fill="#c090e0"><title>Westside House — Housing (housing, The Westside)</title></circle>
+      <circle class="gp-pin" cx="768.6" cy="1099.5" r="8" fill="#c090e0"><title>Depot Motel Room — Housing (housing, Halfway)</title></circle>
+      <circle class="gp-pin" cx="712.3" cy="1594" r="8" fill="#b8a88a"><title>Atlanta Impound — Impound lot (impound lot)</title></circle>
+      <circle class="gp-pin" cx="659.4" cy="1579.1" r="8" fill="#e88ec0"><title>Southline Surplus — Clothing store (clothing store)</title></circle>
+      <circle class="gp-pin" cx="616.8" cy="1492.4" r="8" fill="#e88ec0"><title>Alder Dry Goods — Clothing store (clothing store)</title></circle>
     </svg>
     <!-- /GAMEPLAY PINS -->
     <div class="code code-north">312</div>

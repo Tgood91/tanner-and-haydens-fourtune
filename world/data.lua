@@ -53,6 +53,7 @@ FourtuneWorldData = {
         { name = "The Westside", kind = "district", city = "atlanta", center = { x = -1100, y = -1100 }, radius = 480 },
         { name = "Peach Ridge Park", kind = "park", city = "atlanta", center = { x = -860, y = -890 }, radius = 130 },
         { name = "Groveland Park", kind = "park", city = "atlanta", center = { x = -120, y = -1690 }, radius = 110 },
+        { name = "Halfway", kind = "district", city = "atlanta", center = { x = 600, y = 1500 }, radius = 330 },
     },
 
     roads = {
@@ -396,6 +397,35 @@ FourtuneWorldData = {
             { x = 200, y = -1240 },
             { x = 260, y = -1300 },
             { x = 305, y = -1381 },
+        } },
+        { name = "Main Street", code = "1017-A9", city = "atlanta", kind = "arterial", width = 26, points = {
+            { x = 600, y = 1170 },
+            { x = 600, y = 1830 },
+        } },
+        { name = "Depot Street", code = "1017-S13", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 400, y = 1600 },
+            { x = 820, y = 1600 },
+        } },
+        { name = "Gristmill Street", code = "1017-S14", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 420, y = 1450 },
+            { x = 790, y = 1450 },
+        } },
+        { name = "Church Street", code = "1017-S15", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 470, y = 1310 },
+            { x = 720, y = 1310 },
+        } },
+        { name = "Gin House Row", code = "1017-S16", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 470, y = 1310 },
+            { x = 470, y = 1600 },
+        } },
+        { name = "Sorghum Lane", code = "1017-S17", city = "atlanta", kind = "street", width = 16, points = {
+            { x = 730, y = 1450 },
+            { x = 730, y = 1700 },
+        } },
+        { name = "Old Rail Bed", code = "1017-B5", city = "atlanta", kind = "backroad", width = 11, points = {
+            { x = 380, y = 1690 },
+            { x = 600, y = 1700 },
+            { x = 860, y = 1720 },
         } },
     },
 }

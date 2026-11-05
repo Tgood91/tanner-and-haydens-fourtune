@@ -238,6 +238,17 @@ console.log(JSON.stringify({
   zones: p.ZONES.map(z => ({ name: z.name, kind: z.kind, city: z.city, x: z.center.x, y: z.center.y, r: z.radius })),
   borders: { chicago: c.CHICAGO_STARTS_AT_Y, geepee: c.GEEPEE_STARTS_AT_Y },
 }));"""], cwd=REPO, capture_output=True, text=True, check=True).stdout)
+# Towns in the game data that aren't laid out on the island (Halfway sits between Atlanta and
+# GeePee on the mainland map; fitted in here it would squeeze every Atlanta street). Their roads
+# still count towards the numbering, so island-only roads never reuse one of their numbers.
+OFF_ISLAND_TOWNS = {"Halfway"}
+_towns = [z for z in GAME["zones"] if z["name"] in OFF_ISLAND_TOWNS]
+def _off_island(r):
+    cx = sum(q[0] for q in r["points"]) / len(r["points"]); cy = sum(q[1] for q in r["points"]) / len(r["points"])
+    return any(math.hypot(cx - z["x"], cy - z["y"]) <= z["r"] * 1.05 for z in _towns)
+ALL_GAME_ROADS = GAME["roads"]
+GAME["roads"] = [r for r in GAME["roads"] if not _off_island(r)]
+GAME["zones"] = [z for z in GAME["zones"] if z["name"] not in OFF_ISLAND_TOWNS]
 ON_ISLAND = {"Cut St.", "Primrose Street", "Crystal Lake Drive", "The Perimeter", "County Line Road", "The Connector", "Lakeshore Drive", "The 312 Skyway", "Ironline Expressway",
              "Palisade Boulevard", "The Causeway", "Backroads Highway", "Red Clay Expressway", "Westside Run", "Peachline Road"}
 CITY_BOX = {"chicago": (440, 1120, 128, 300), "geepee": (360, 1200, 320, 575), "atlanta": (300, 1260, 590, 860)}
@@ -260,7 +271,7 @@ FIT = {c: fitter(c) for c in CITY_BOX}
 # places.js number (1017-H1 ...); the map-only ones carry on each city's sequence.
 CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
 NEXT = {}
-for r in GAME["roads"]:
+for r in ALL_GAME_ROADS:
     if r["pinned"]: continue                  # its own number, not a place in the sequence
     key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
 MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),

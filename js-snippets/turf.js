@@ -1,7 +1,7 @@
 // ============================================================
 // turf.js — claiming districts, and getting paid to hold them
 //
-// The ten districts in places.js are the board. A crew takes one by
+// The districts in places.js (eleven, with Halfway) are the board. A crew takes one by
 // STANDING IN IT, together: MIN_CLAIMERS members inside the zone for
 // CLAIM_MS, checked off the position sweep. If anyone wanders off or
 // logs out, the claim dies with nothing taken. Turf should cost you an

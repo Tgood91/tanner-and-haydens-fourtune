@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "sumneko.lua",
+    "overextended.cfxlua-vscode",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens"
+  ]
+}

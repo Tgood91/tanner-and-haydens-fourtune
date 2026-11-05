@@ -106,3 +106,12 @@ Turf (claimable zones per crew), drugs, housing, a HUD, hunger/thirst UI.
 
 Claude desktop app -> Settings -> Claude Code -> Remote Control -> add the `gta-rp-server`
 folder (it has to be a git repo). Then a session can work in it directly.
+
+## The knowledge base, with Node
+
+The whole repo is now an npm package (`package.json`, Node 20+, no dependencies).
+`npm test` runs every check. `npm run kb -- search <words>` searches every doc, note,
+Lua lesson, workspace note and game file at once, and `npm run kb -- list` shows them all
+by area. Creating a GitHub release publishes the package to GitHub Packages
+(`.github/workflows/npm-publish-github-packages.yml`); every push runs the tests
+(`.github/workflows/test.yml`).

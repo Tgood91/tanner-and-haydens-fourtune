@@ -11431,7 +11431,7 @@
  {
   "name": "The Flyover",
   "note": "off the Perimeter into the 1017 interchange",
-  "code": "1017-A9",
+  "code": "1017-A10",
   "kind": "arterial",
   "length": 465.2,
   "bbox": [
@@ -11702,7 +11702,7 @@
     655
    ]
   ],
-  "image": "1017-A9-the-flyover.png",
+  "image": "1017-A10-the-flyover.png",
   "city": "1017"
  },
  {
@@ -14261,7 +14261,7 @@
  {
   "name": "Highfield Park Drive",
   "note": "down to the 1017 harbor",
-  "code": "1017-S13",
+  "code": "1017-S18",
   "kind": "street",
   "length": 240.5,
   "bbox": [
@@ -14440,13 +14440,13 @@
     790
    ]
   ],
-  "image": "1017-S13-highfield-park-drive.png",
+  "image": "1017-S18-highfield-park-drive.png",
   "city": "1017"
  },
  {
   "name": "Airport Road",
   "note": "",
-  "code": "1017-S14",
+  "code": "1017-S19",
   "kind": "street",
   "length": 990,
   "bbox": [
@@ -14717,7 +14717,7 @@
     860
    ]
   ],
-  "image": "1017-S14-airport-road.png",
+  "image": "1017-S19-airport-road.png",
   "city": "1017"
  }
 ]
