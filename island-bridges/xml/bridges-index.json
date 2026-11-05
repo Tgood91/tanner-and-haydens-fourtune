@@ -1,0 +1,116 @@
+{
+ "config": {
+  "pieceModel": "stt_prop_track_straight_s",
+  "pieceLength": 10,
+  "pieceWidth": 8,
+  "bridgeGrade": 0.05
+ },
+ "bridges": [
+  {
+   "name": "The Island Bridge",
+   "from": {
+    "road": "312-H1",
+    "x": -4230,
+    "y": -6160,
+    "z": 25
+   },
+   "to": {
+    "x": -1600,
+    "y": -3300,
+    "z": 6
+   },
+   "toVerified": false,
+   "length": 3885,
+   "deck": 40,
+   "rows": 2,
+   "pieces": 790
+  }
+ ],
+ "totalPieces": 790,
+ "ymaps": [
+  {
+   "file": "island_bridge_m4_m7.ymap.xml",
+   "pieces": 79,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m4_m8.ymap.xml",
+   "pieces": 56,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m5_m8.ymap.xml",
+   "pieces": 85,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m5_m9.ymap.xml",
+   "pieces": 69,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m6_m10.ymap.xml",
+   "pieces": 82,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m6_m9.ymap.xml",
+   "pieces": 72,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m7_m10.ymap.xml",
+   "pieces": 60,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m7_m11.ymap.xml",
+   "pieces": 93,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m8_m11.ymap.xml",
+   "pieces": 48,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m8_m12.ymap.xml",
+   "pieces": 105,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m9_m12.ymap.xml",
+   "pieces": 36,
+   "roads": [
+    "The Island Bridge"
+   ]
+  },
+  {
+   "file": "island_bridge_m9_m13.ymap.xml",
+   "pieces": 5,
+   "roads": [
+    "The Island Bridge"
+   ]
+  }
+ ]
+}

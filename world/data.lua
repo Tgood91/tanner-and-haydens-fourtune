@@ -205,6 +205,7 @@ FourtuneWorldData = {
             { x = 1900, y = 4802 },
         } },
         { name = "Grain Elevator Road", code = "770-A2", city = "geepee", kind = "arterial", width = 22, points = {
+            { x = 1604, y = 4538 },
             { x = 1615, y = 4538 },
             { x = 1700, y = 4482 },
             { x = 1758, y = 4453 },
@@ -234,7 +235,6 @@ FourtuneWorldData = {
         { name = "Old Mill Track", code = "770-B3", city = "geepee", kind = "backroad", width = 11, points = {
             { x = 1430, y = 4600 },
             { x = 1560, y = 4560 },
-            { x = 1655, y = 4490 },
         } },
         { name = "Creekbed Lane", code = "770-B4", city = "geepee", kind = "backroad", width = 11, points = {
             { x = 1840, y = 4640 },
@@ -242,7 +242,7 @@ FourtuneWorldData = {
             { x = 2050, y = 4420 },
         } },
         { name = "Hollow Road", code = "770-B5", city = "geepee", kind = "backroad", width = 11, points = {
-            { x = 1500, y = 4100 },
+            { x = 1584, y = 4072 },
             { x = 1620, y = 4060 },
             { x = 1740, y = 4000 },
         } },

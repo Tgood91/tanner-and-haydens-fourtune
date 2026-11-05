@@ -114,15 +114,15 @@ Drive north across each line and mark where the city should change. Only the **y
 
 - [ ] **Backroads Highway** · 770-H1 · highway · 4 points: (1690, 4930) → (1780, 4300) → (1900, 3800) → (1960, 3740)
 - [ ] **County Line Road** · 770-A1 · arterial · 3 points: (1500, 4700) → (1700, 4762) → (1900, 4802)
-- [ ] **Grain Elevator Road** · 770-A2 · arterial · 3 points: (1615, 4538) → (1700, 4482) → (1758, 4453)
+- [ ] **Grain Elevator Road** · 770-A2 · arterial · 4 points: (1604, 4538) → (1615, 4538) → (1700, 4482) → (1758, 4453)
 - [ ] **Harvest Flats Road** · 770-A3 · arterial · 3 points: (1620, 3840) → (1760, 3880) → (1879, 3887)
 - [ ] **Harvest Lane** · 770-S1 · street · 2 points: (1877, 3693) → (1944, 3756)
 - [ ] **Thresher Lane** · 770-S2 · street · 2 points: (1912, 3674) → (1960, 3740)
 - [ ] **Silo Track** · 770-B1 · backroad · 3 points: (1700, 4200) → (1762, 4122) → (1839, 4054)
 - [ ] **Dust Road** · 770-B2 · backroad · 2 points: (1550, 4352) → (1652, 4302)
-- [ ] **Old Mill Track** · 770-B3 · backroad · 3 points: (1430, 4600) → (1560, 4560) → (1655, 4490)
+- [ ] **Old Mill Track** · 770-B3 · backroad · 2 points: (1430, 4600) → (1560, 4560)
 - [ ] **Creekbed Lane** · 770-B4 · backroad · 3 points: (1840, 4640) → (1960, 4540) → (2050, 4420)
-- [ ] **Hollow Road** · 770-B5 · backroad · 3 points: (1500, 4100) → (1620, 4060) → (1740, 4000)
+- [ ] **Hollow Road** · 770-B5 · backroad · 3 points: (1584, 4072) → (1620, 4060) → (1740, 4000)
 - [ ] **Fence Line Track** · 770-B6 · backroad · 3 points: (1808, 4183) → (2000, 4120) → (2080, 3990)
 
 ### 312 Chicago — 26 roads

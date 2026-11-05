@@ -96,7 +96,8 @@ const ROAD_DEFS = [
 
     // ---- arterials: how you get between districts ----
     { name: "County Line Road",        city: "geepee",   kind: "arterial",  points: [{ x: 1500, y: 4700 }, { x: 1700, y: 4762 }, { x: 1900, y: 4802 }] },
-    { name: "Grain Elevator Road",     city: "geepee",   kind: "arterial",  width: 22, points: [{ x: 1615, y: 4538 }, { x: 1700, y: 4482 }, { x: 1758, y: 4453 }] },
+    // starts on The Connector (on the island it stopped 22 m short of it)
+    { name: "Grain Elevator Road",     city: "geepee",   kind: "arterial",  width: 22, points: [{ x: 1604, y: 4538 }, { x: 1615, y: 4538 }, { x: 1700, y: 4482 }, { x: 1758, y: 4453 }] },
     { name: "Harvest Flats Road",      city: "geepee",   kind: "arterial",  points: [{ x: 1620, y: 3840 }, { x: 1760, y: 3880 }, { x: 1879, y: 3887 }] },
 
     // ---- streets: the ones you give as an address ----
@@ -106,9 +107,11 @@ const ROAD_DEFS = [
     // ---- back roads: unlit, unsigned, useful ----
     { name: "Silo Track",              city: "geepee",   kind: "backroad",  points: [{ x: 1700, y: 4200 }, { x: 1762, y: 4122 }, { x: 1839, y: 4054 }] },
     { name: "Dust Road",               city: "geepee",   kind: "backroad",  points: [{ x: 1550, y: 4352 }, { x: 1652, y: 4302 }] },
-    { name: "Old Mill Track",          city: "geepee",   kind: "backroad",  points: [{ x: 1430, y: 4600 }, { x: 1560, y: 4560 }, { x: 1655, y: 4490 }] },
+    // ends at County Line Road: it used to run on along Grain Elevator Road, and over The Connector 20 m below it
+    { name: "Old Mill Track",          city: "geepee",   kind: "backroad",  points: [{ x: 1430, y: 4600 }, { x: 1560, y: 4560 }] },
     { name: "Creekbed Lane",           city: "geepee",   kind: "backroad",  points: [{ x: 1840, y: 4640 }, { x: 1960, y: 4540 }, { x: 2050, y: 4420 }] },
-    { name: "Hollow Road",             city: "geepee",   kind: "backroad",  points: [{ x: 1500, y: 4100 }, { x: 1620, y: 4060 }, { x: 1740, y: 4000 }] },
+    // starts on The Connector: its old first stretch also crossed County Line Road, too far below to join both
+    { name: "Hollow Road",             city: "geepee",   kind: "backroad",  points: [{ x: 1584, y: 4072 }, { x: 1620, y: 4060 }, { x: 1740, y: 4000 }] },
     { name: "Fence Line Track",        city: "geepee",   kind: "backroad",  points: [{ x: 1808, y: 4183 }, { x: 2000, y: 4120 }, { x: 2080, y: 3990 }] },
 
     // ================= Atlanta (7101), the southern plate =================

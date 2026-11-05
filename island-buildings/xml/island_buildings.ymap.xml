@@ -6,9 +6,9 @@
   <flags value="0" />
   <contentFlags value="1" />
   <streamingExtentsMin x="-7988.799988" y="-8820.000000" z="-1500.012543" />
-  <streamingExtentsMax x="-2716.000000" y="-4290.000000" z="1835.525327" />
+  <streamingExtentsMax x="-2716.000000" y="-4290.000000" z="1862.017957" />
   <entitiesExtentsMin x="-6488.799988" y="-7320.000000" z="-0.012543" />
-  <entitiesExtentsMax x="-4216.000000" y="-5790.000000" z="335.525327" />
+  <entitiesExtentsMax x="-4216.000000" y="-5790.000000" z="362.017957" />
   <entities>
     <Item type="CEntityDef">
       <archetypeName>island_bldg_02_04</archetypeName>

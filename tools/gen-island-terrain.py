@@ -35,6 +35,7 @@ Z0 = CFG["z"]            # road level
 ROAD_SINK = 0.3          # ground sits this far under the road pieces' origin
 FLAT_R, BLEND_R = 9.0, 28.0      # road corridor: flat out to 9 m from a piece's centre, blended back by 28 m
 BEACH = 45.0             # metres of beach slope inland from the waterline
+BRIDGE_AT = -30.0        # a road further out to sea than this is on a bridge: the sea stays under it
 MTL = {"grass": ("GRASS", (0.42, 0.52, 0.27)), "sand": ("SAND_COMPACT", (0.86, 0.79, 0.58)),
        "rock": ("ROCK", (0.52, 0.49, 0.44)), "pavement": ("CONCRETE", (0.45, 0.46, 0.47))}
 
@@ -120,12 +121,13 @@ flat = np.maximum.reduce([smooth((1.08 - ell(770, 190, 360, 120)) / .15),   # th
                           smooth((1.05 - ell(760, 700, 380, 115)) / .15),   # the 1017 towers
                           smooth((1.15 - ell(*WEST_TOWERS)) / .2),           # the west towers
                           in_air.astype(float)])
-swell = (value_noise(220, 1) * 2.2 + value_noise(70, 2) * .8) * (1 - flat)  # farm country rolls a little
+swell = (value_noise(220, 1) * 6.0 + value_noise(70, 2) * 2.2) * (1 - flat)  # farm country rolls, up to ~8 m
 mr = ell(MOUNTAIN[0], MOUNTAIN[1], 210, 135)
 ang = np.arctan2(MY - MOUNTAIN[1], MX - MOUNTAIN[0])
-mountain = 320 * np.clip(1 - mr, 0, 1) ** 1.45 * (1 + .12 * np.sin(ang * 7 + mr * 5)) * (1 + .08 * value_noise(60, 3))
-west = 70 * np.clip(1 - ell(250, 470, 190, 215) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(90, 4))
-east = 32 * np.clip(1 - ell(1360, 560, 90, 150) ** 2, 0, 1) ** 2
+# seven soft ridges, fading out towards the peak (where they bunch up), plus a little roughness
+mountain = 910 * np.clip(1 - mr, 0, 1) ** 1.45 * (1 + .05 * np.clip(mr, 0, 1) * np.sin(ang * 7 + mr * 5)) * (1 + .03 * value_noise(60, 3))
+west = 140 * np.clip(1 - ell(250, 470, 190, 215) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(90, 4))
+east = 65 * np.clip(1 - ell(1360, 560, 90, 150) ** 2, 0, 1) ** 2
 hills = (mountain + (west + east) * (1 - flat)) * smooth(s / 150)           # hills never reach the beach
 
 h = Z0 - ROAD_SINK + swell + hills
@@ -139,8 +141,10 @@ h = np.where(in_air, Z0 - ROAD_SINK, h)        # the airport is a built-up pad w
 OUT.mkdir(exist_ok=True)
 road_guide = np.where(s >= 0, Z0 + hills * beach, Z0)
 (OUT / "road-guide.f32").write_bytes(road_guide.astype("<f4").tobytes())
+(OUT / "coast.f32").write_bytes(s.astype("<f4").tobytes())        # signed distance to the waterline, for the bridges
 (OUT / "road-guide.json").write_text(json.dumps({"x0": x0, "y0": y0, "spacing": SPACING,
-                                                 "cols": int(h.shape[1]), "rows": int(h.shape[0])}) + "\n")
+                                                 "cols": int(h.shape[1]), "rows": int(h.shape[0]),
+                                                 "coast": "coast.f32", "bridgeAt": BRIDGE_AT}) + "\n")
 subprocess.run(["node", str(REPO / "tools/gen-road-ymaps.js")], check=True)
 rx, ry, rz = [], [], []
 for f in sorted((REPO / "island-roads/xml").glob("*.ymap.xml")):
@@ -149,7 +153,7 @@ for f in sorted((REPO / "island-roads/xml").glob("*.ymap.xml")):
 rx, ry, rz = np.array(rx), np.array(ry), np.array(rz)
 dr, road_z = dist_to(rx, ry, FLAT_R + BLEND_R + 8, rz)
 k = smooth((dr - FLAT_R) / BLEND_R)
-on_ground = s > -30                            # past that a road is a bridge: the sea stays
+on_ground = s > BRIDGE_AT                      # past that a road is a bridge: the sea stays
 h = np.where(on_ground, (road_z - ROAD_SINK) * (1 - k) + h * k, h)
 (OUT / "ground.f32").write_bytes(h.astype("<f4").tobytes())     # final ground, same grid as road-guide.json (for the buildings)
 

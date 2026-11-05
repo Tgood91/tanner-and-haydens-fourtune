@@ -11,7 +11,7 @@
   "barn": 6,
   "silo": 6
  },
- "tallest": 327,
+ "tallest": 338,
  "materials": {
   "bldg_glass_tower": "CONCRETE",
   "bldg_concrete": "CONCRETE",
@@ -35,12 +35,12 @@
    "bbMin": [
     39.20001220703125,
     -125.4000244140625,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     116.5999755859375,
     93.5999755859375,
-    330.98670643695226
+    362.01795653613397
    ]
   },
   {
@@ -54,12 +54,12 @@
    "bbMin": [
     111.5999755859375,
     -118.5999755859375,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     139.5999755859375,
     -90.5999755859375,
-    258.9981741835303
+    278.18942431388973
    ]
   },
   {
@@ -73,12 +73,12 @@
    "bbMin": [
     -128,
     -24,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     92,
     20,
-    24.699999809265137
+    39.70000076293945
    ]
   },
   {
@@ -92,12 +92,12 @@
    "bbMin": [
     -53.20001220703125,
     -119.04585924445382,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     127.52671542489134,
     125.800048828125,
-    331.701934177333
+    346.7051779221463
    ]
   },
   {
@@ -111,12 +111,12 @@
    "bbMin": [
     -127,
     -125.4000244140625,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     125.20001220703125,
     84.5999755859375,
-    310.69999980926514
+    325.70000076293945
    ]
   },
   {
@@ -130,12 +130,12 @@
    "bbMin": [
     -93.79998779296875,
     -109.4000244140625,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     133.79998779296875,
     36,
-    230.4585231965137
+    245.82526286049202
    ]
   },
   {
@@ -149,12 +149,12 @@
    "bbMin": [
     -104,
     -24,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     76,
     20,
-    24.699999809265137
+    39.70000076293945
    ]
   },
   {
@@ -168,12 +168,12 @@
    "bbMin": [
     -103.75770000534612,
     4.954140755546177,
-    8.699880357030407
+    23.699666581092295
    ],
    "bbMax": [
     131.52671542489134,
     129.84482395786836,
-    25.699999809265137
+    40.70000076293945
    ]
   },
   {
@@ -187,12 +187,12 @@
    "bbMin": [
     -139.20001220703125,
     -108.55231394138355,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     131.52671542489134,
     121,
-    237.28483817814413
+    252.4297183069084
    ]
   },
   {
@@ -206,12 +206,12 @@
    "bbMin": [
     -86.79998779296875,
     -135.5999755859375,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     -53.20001220703125,
     -19.199951171875,
-    293.19999980926514
+    308.20000076293945
    ]
   },
   {
@@ -225,12 +225,12 @@
    "bbMin": [
     -102.79998779296875,
     -118.5999755859375,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     -74.79998779296875,
     -90.5999755859375,
-    335.52532703010417
+    351.0881404678547
    ]
   },
   {
@@ -244,12 +244,12 @@
    "bbMin": [
     -114,
     -46.4000244140625,
-    8.162850350141525
+    22.230792850255966
    ],
    "bbMax": [
     133,
     106,
-    142.69999980926514
+    157.70000076293945
    ]
   },
   {
@@ -268,7 +268,7 @@
    "bbMax": [
     127.4000244140625,
     -30,
-    177.69999980926514
+    192.70000076293945
    ]
   },
   {
@@ -282,12 +282,12 @@
    "bbMin": [
     -136,
     -12,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     -104,
     20,
-    57.69999980926514
+    72.70000076293945
    ]
   },
   {
@@ -301,12 +301,12 @@
    "bbMin": [
     -121.0159766189845,
     -14,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     142,
     129.0478808168391,
-    191.69999980926514
+    206.70000076293945
    ]
   },
   {
@@ -320,12 +320,12 @@
    "bbMin": [
     -123.33285896849429,
     -138,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     142,
     8,
-    230.19999980926514
+    245.20000076293945
    ]
   },
   {
@@ -339,12 +339,12 @@
    "bbMin": [
     -120,
     -34,
-    7.08941742737626
+    19.30662530930016
    ],
    "bbMax": [
     -66,
     -8,
-    30.356581263802276
+    43.01329393954461
    ]
   },
   {
@@ -358,12 +358,12 @@
    "bbMin": [
     -98,
     29,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     -55,
     46,
-    149.69999980926514
+    164.70000076293945
    ]
   },
   {
@@ -377,12 +377,12 @@
    "bbMin": [
     -98,
     -120.39999389648438,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     125,
     -49,
-    198.69999980926514
+    213.70000076293945
    ]
   },
   {
@@ -396,12 +396,12 @@
    "bbMin": [
     -102,
     -24.424331229521158,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     116.04561805332287,
     106,
-    149.69999980926514
+    164.70000076293945
    ]
   },
   {
@@ -415,12 +415,12 @@
    "bbMin": [
     -58,
     -138,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     98,
     18,
-    230.19999980926514
+    245.20000076293945
    ]
   },
   {
@@ -434,12 +434,12 @@
    "bbMin": [
     -142,
     -48.39999961853027,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     97,
     87,
-    209.19999980926514
+    224.20000076293945
    ]
   },
   {
@@ -453,12 +453,12 @@
    "bbMin": [
     -126,
     -66,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     97,
     -49,
-    177.69999980926514
+    192.70000076293945
    ]
   },
   {
@@ -472,12 +472,12 @@
    "bbMin": [
     -32,
     -24,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     168,
     20,
-    24.699999809265137
+    39.70000076293945
    ]
   },
   {
@@ -491,12 +491,12 @@
    "bbMin": [
     -138,
     -112.7670580646136,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     135.49118317639932,
     115.77261536340575,
-    226.69999980926514
+    241.70000076293945
    ]
   },
   {
@@ -510,12 +510,12 @@
    "bbMin": [
     -106,
     -127.37259094934234,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     129.46648859952802,
     18,
-    167.19999980926514
+    182.20000076293945
    ]
   },
   {
@@ -529,12 +529,12 @@
    "bbMin": [
     -66,
     -47.20001220703125,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     113,
     103.20001220703125,
-    209.19999980926514
+    224.20000076293945
    ]
   },
   {
@@ -548,12 +548,12 @@
    "bbMin": [
     -134,
     -66,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     -115,
     -49,
-    181.19999980926514
+    196.20000076293945
    ]
   },
   {
@@ -567,12 +567,12 @@
    "bbMin": [
     4.595906232948437,
     -24,
-    8.669231120583301
+    23.615146030583276
    ],
    "bbMax": [
     232,
     105.83422456593598,
-    24.699999809265137
+    39.70000076293945
    ]
   },
   {
@@ -586,12 +586,12 @@
    "bbMin": [
     -122.86639094327802,
     -134.23424897999848,
-    8.699623986583504
+    23.6989212228084
    ],
    "bbMax": [
     115.44632904376522,
     113.37259094934325,
-    20.817175478998493
+    36.19383110861119
    ]
   },
   {
@@ -605,12 +605,12 @@
    "bbMin": [
     -129.38044840983457,
     -134.77261536340575,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     -54.93353581453448,
     -62.39295872464572,
-    20.599999809265306
+    35.60000076293962
    ]
   },
   {
@@ -624,12 +624,12 @@
    "bbMin": [
     -106.58662717838524,
     -114,
-    8.699999809265137
+    23.718780517578125
    ],
    "bbMax": [
     46,
     -3.6466467227546673,
-    31.705051902410336
+    48.25005912780762
    ]
   },
   {
@@ -643,12 +643,12 @@
    "bbMin": [
     -118,
     -50,
-    8.647815130650997
+    23.5578635558486
    ],
    "bbMax": [
     129,
     103.60000610351562,
-    146.19999980926514
+    161.20000076293945
    ]
   },
   {
@@ -662,12 +662,12 @@
    "bbMin": [
     -118,
     -126,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     105,
     -93.39999389648438,
-    156.69999980926514
+    171.70000076293945
    ]
   },
   {
@@ -681,12 +681,12 @@
    "bbMin": [
     -133.64628021564022,
     -56.91482588905001,
-    8.562357117388135
+    23.326086855416925
    ],
    "bbMax": [
     -20.953573299985692,
     -35.48519852501249,
-    20.732331540999137
+    35.96297196830249
    ]
   },
   {
@@ -700,12 +700,12 @@
    "bbMin": [
     -104,
     -120,
-    7.537196636199951
+    20.517173767089844
    ],
    "bbMax": [
     124,
     64,
-    21.96113476753235
+    38.106153106689455
    ]
   },
   {
@@ -719,12 +719,12 @@
    "bbMin": [
     36,
     -90,
-    8.069967031478882
+    21.97198247909546
    ],
    "bbMax": [
     90,
     -64,
-    31.66973725425466
+    49.53379489851213
    ]
   },
   {
@@ -738,12 +738,12 @@
    "bbMin": [
     -97.39990234375,
     -44.5999755859375,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     9,
     102,
-    115.51967809546179
+    131.9379105438252
    ]
   },
   {
@@ -757,12 +757,12 @@
    "bbMin": [
     -95,
     -60.399993896484375,
-    8.112745700392884
+    22.08385939438571
    ],
    "bbMax": [
     2.800048828125,
     -32.20001220703125,
-    118.35742323007132
+    133.62975359709952
    ]
   },
   {
@@ -776,12 +776,12 @@
    "bbMin": [
     -120,
     -92,
-    8.8821702003479
+    24.539644241333008
    ],
    "bbMax": [
     -72,
     36,
-    22.727944946289064
+    41.47412643432617
    ]
   },
   {
@@ -795,12 +795,12 @@
    "bbMin": [
     -60,
     110,
-    8.794011488422704
+    25.90596079826355
    ],
    "bbMax": [
     -6,
     136,
-    32.945987386604834
+    50.435573754724004
    ]
   },
   {
@@ -814,12 +814,12 @@
    "bbMin": [
     -176,
     12,
-    8.699999809265137
+    23.700000762939453
    ],
    "bbMax": [
     8,
     56,
-    57.69999980926514
+    72.70000076293945
    ]
   }
  ],
@@ -828,8 +828,8 @@
    "type": "tower",
    "label": "1017 south towers — 36 floors",
    "floors": 36,
-   "base": 8.7,
-   "top": 135.7,
+   "base": 23.7,
+   "top": 150.7,
    "footprint": [
     [
      -5694,
@@ -853,8 +853,8 @@
    "type": "tower",
    "label": "1017 south towers — 49 floors",
    "floors": 49,
-   "base": 8.7,
-   "top": 181.2,
+   "base": 23.7,
+   "top": 196.2,
    "footprint": [
     [
      -5694,
@@ -878,8 +878,8 @@
    "type": "tower",
    "label": "1017 south towers — 30 floors",
    "floors": 30,
-   "base": 8.7,
-   "top": 114.7,
+   "base": 23.7,
+   "top": 129.7,
    "footprint": [
     [
      -5694,
@@ -903,8 +903,8 @@
    "type": "tower",
    "label": "1017 south towers — 63 floors",
    "floors": 63,
-   "base": 8.7,
-   "top": 230.2,
+   "base": 23.7,
+   "top": 245.2,
    "footprint": [
     [
      -5650,
@@ -928,8 +928,8 @@
    "type": "tower",
    "label": "1017 south towers — 52 floors",
    "floors": 52,
-   "base": 8.7,
-   "top": 191.7,
+   "base": 23.7,
+   "top": 206.7,
    "footprint": [
     [
      -5650,
@@ -953,8 +953,8 @@
    "type": "tower",
    "label": "1017 south towers — 46 floors",
    "floors": 46,
-   "base": 8.7,
-   "top": 170.7,
+   "base": 23.7,
+   "top": 185.7,
    "footprint": [
     [
      -5650,
@@ -978,8 +978,8 @@
    "type": "tower",
    "label": "1017 south towers — 33 floors",
    "floors": 33,
-   "base": 8.7,
-   "top": 125.2,
+   "base": 23.7,
+   "top": 140.2,
    "footprint": [
     [
      -5606,
@@ -1003,8 +1003,8 @@
    "type": "tower",
    "label": "1017 south towers — 29 floors",
    "floors": 29,
-   "base": 8.7,
-   "top": 111.2,
+   "base": 23.7,
+   "top": 126.6,
    "footprint": [
     [
      -5606,
@@ -1028,8 +1028,8 @@
    "type": "tower",
    "label": "1017 south towers — 63 floors",
    "floors": 63,
-   "base": 8.7,
-   "top": 230.2,
+   "base": 23.7,
+   "top": 245.2,
    "footprint": [
     [
      -5562,
@@ -1053,8 +1053,8 @@
    "type": "tower",
    "label": "1017 south towers — 40 floors",
    "floors": 40,
-   "base": 8.7,
-   "top": 149.7,
+   "base": 23.7,
+   "top": 164.7,
    "footprint": [
     [
      -5562,
@@ -1078,8 +1078,8 @@
    "type": "tower",
    "label": "1017 south towers — 33 floors",
    "floors": 33,
-   "base": 8.7,
-   "top": 125.2,
+   "base": 23.7,
+   "top": 141.89,
    "footprint": [
     [
      -5562,
@@ -1103,8 +1103,8 @@
    "type": "tower",
    "label": "1017 south towers — 31 floors",
    "floors": 31,
-   "base": 8.7,
-   "top": 118.2,
+   "base": 23.7,
+   "top": 133.2,
    "footprint": [
     [
      -5430,
@@ -1128,8 +1128,8 @@
    "type": "tower",
    "label": "1017 south towers — 54 floors",
    "floors": 54,
-   "base": 8.7,
-   "top": 198.7,
+   "base": 23.7,
+   "top": 213.7,
    "footprint": [
     [
      -5386,
@@ -1153,8 +1153,8 @@
    "type": "tower",
    "label": "1017 south towers — 62 floors",
    "floors": 62,
-   "base": 8.7,
-   "top": 226.7,
+   "base": 23.7,
+   "top": 241.7,
    "footprint": [
     [
      -5386,
@@ -1178,8 +1178,8 @@
    "type": "tower",
    "label": "1017 south towers — 43 floors",
    "floors": 43,
-   "base": 8.7,
-   "top": 160.2,
+   "base": 23.7,
+   "top": 175.2,
    "footprint": [
     [
      -5342,
@@ -1203,8 +1203,8 @@
    "type": "tower",
    "label": "1017 south towers — 47 floors",
    "floors": 47,
-   "base": 8.7,
-   "top": 174.2,
+   "base": 23.7,
+   "top": 189.2,
    "footprint": [
     [
      -5342,
@@ -1228,8 +1228,8 @@
    "type": "tower",
    "label": "1017 south towers — 44 floors",
    "floors": 44,
-   "base": 8.7,
-   "top": 163.7,
+   "base": 23.7,
+   "top": 178.7,
    "footprint": [
     [
      -5298,
@@ -1253,8 +1253,8 @@
    "type": "tower",
    "label": "1017 south towers — 34 floors",
    "floors": 34,
-   "base": 8.7,
-   "top": 128.7,
+   "base": 23.7,
+   "top": 143.7,
    "footprint": [
     [
      -5298,
@@ -1278,8 +1278,8 @@
    "type": "tower",
    "label": "1017 south towers — 62 floors",
    "floors": 62,
-   "base": 8.7,
-   "top": 226.7,
+   "base": 23.7,
+   "top": 241.7,
    "footprint": [
     [
      -5254,
@@ -1303,8 +1303,8 @@
    "type": "tower",
    "label": "1017 south towers — 43 floors",
    "floors": 43,
-   "base": 8.7,
-   "top": 160.2,
+   "base": 23.7,
+   "top": 175.2,
    "footprint": [
     [
      -5254,
@@ -1328,8 +1328,8 @@
    "type": "tower",
    "label": "1017 north towers — 29 floors",
    "floors": 29,
-   "base": 8.7,
-   "top": 111.2,
+   "base": 23.7,
+   "top": 126.2,
    "footprint": [
     [
      -5434,
@@ -1353,8 +1353,8 @@
    "type": "tower",
    "label": "1017 north towers — 45 floors",
    "floors": 45,
-   "base": 8.7,
-   "top": 167.2,
+   "base": 23.7,
+   "top": 182.2,
    "footprint": [
     [
      -5354,
@@ -1378,8 +1378,8 @@
    "type": "west-tower",
    "label": "West towers — 49 floors",
    "floors": 49,
-   "base": 8.7,
-   "top": 181.36,
+   "base": 23.7,
+   "top": 196.53,
    "footprint": [
     [
      -6365.8,
@@ -1403,8 +1403,8 @@
    "type": "west-tower",
    "label": "West towers — 81 floors",
    "floors": 81,
-   "base": 8.7,
-   "top": 293.2,
+   "base": 23.7,
+   "top": 308.2,
    "footprint": [
     [
      -6097.2,
@@ -1428,8 +1428,8 @@
    "type": "west-tower",
    "label": "West towers — 65 floors",
    "floors": 65,
-   "base": 8.7,
-   "top": 237.28,
+   "base": 23.7,
+   "top": 252.43,
    "footprint": [
     [
      -6155.2,
@@ -1453,8 +1453,8 @@
    "type": "west-tower",
    "label": "West towers — 70 floors",
    "floors": 70,
-   "base": 8.7,
-   "top": 259,
+   "base": 23.7,
+   "top": 278.19,
    "footprint": [
     [
      -6416.4,
@@ -1478,8 +1478,8 @@
    "type": "west-tower",
    "label": "West towers — 45 floors",
    "floors": 45,
-   "base": 8.7,
-   "top": 167.2,
+   "base": 23.7,
+   "top": 182.2,
    "footprint": [
     [
      -6356.8,
@@ -1503,8 +1503,8 @@
    "type": "west-tower",
    "label": "West towers — 93 floors",
    "floors": 93,
-   "base": 8.7,
-   "top": 335.53,
+   "base": 23.7,
+   "top": 351.09,
    "footprint": [
     [
      -6118.8,
@@ -1528,8 +1528,8 @@
    "type": "west-tower",
    "label": "West towers — 52 floors",
    "floors": 52,
-   "base": 8.7,
-   "top": 191.7,
+   "base": 23.7,
+   "top": 206.7,
    "footprint": [
     [
      -6399,
@@ -1553,8 +1553,8 @@
    "type": "west-tower",
    "label": "West towers — 56 floors",
    "floors": 56,
-   "base": 8.7,
-   "top": 205.71,
+   "base": 23.7,
+   "top": 220.71,
    "footprint": [
     [
      -6439.4,
@@ -1578,8 +1578,8 @@
    "type": "west-tower",
    "label": "West towers — 69 floors",
    "floors": 69,
-   "base": 8.7,
-   "top": 251.5,
+   "base": 23.7,
+   "top": 266.78,
    "footprint": [
     [
      -6325.2,
@@ -1603,8 +1603,8 @@
    "type": "west-tower",
    "label": "West towers — 77 floors",
    "floors": 77,
-   "base": 8.7,
-   "top": 279.2,
+   "base": 23.7,
+   "top": 294.2,
    "footprint": [
     [
      -6221.2,
@@ -1628,8 +1628,8 @@
    "type": "west-tower",
    "label": "West towers — 92 floors",
    "floors": 92,
-   "base": 8.7,
-   "top": 331.7,
+   "base": 23.7,
+   "top": 346.71,
    "footprint": [
     [
      -6196.8,
@@ -1653,8 +1653,8 @@
    "type": "west-tower",
    "label": "West towers — 82 floors",
    "floors": 82,
-   "base": 8.7,
-   "top": 296.76,
+   "base": 23.7,
+   "top": 311.82,
    "footprint": [
     [
      -6468,
@@ -1678,8 +1678,8 @@
    "type": "west-tower",
    "label": "West towers — 49 floors",
    "floors": 49,
-   "base": 8.7,
-   "top": 186.87,
+   "base": 23.7,
+   "top": 207.42,
    "footprint": [
     [
      -6488.8,
@@ -1703,8 +1703,8 @@
    "type": "west-tower",
    "label": "West towers — 64 floors",
    "floors": 64,
-   "base": 8.7,
-   "top": 233.76,
+   "base": 23.7,
+   "top": 248.85,
    "footprint": [
     [
      -6102.8,
@@ -1728,8 +1728,8 @@
    "type": "west-tower",
    "label": "West towers — 79 floors",
    "floors": 79,
-   "base": 8.7,
-   "top": 286.2,
+   "base": 23.7,
+   "top": 301.2,
    "footprint": [
     [
      -6170.8,
@@ -1753,8 +1753,8 @@
    "type": "west-tower",
    "label": "West towers — 74 floors",
    "floors": 74,
-   "base": 8.7,
-   "top": 268.7,
+   "base": 23.7,
+   "top": 283.7,
    "footprint": [
     [
      -6222,
@@ -1778,8 +1778,8 @@
    "type": "west-tower",
    "label": "West towers — 46 floors",
    "floors": 46,
-   "base": 8.7,
-   "top": 170.72,
+   "base": 23.7,
+   "top": 185.74,
    "footprint": [
     [
      -6336.6,
@@ -1803,8 +1803,8 @@
    "type": "west-tower",
    "label": "West towers — 76 floors",
    "floors": 76,
-   "base": 8.7,
-   "top": 275.7,
+   "base": 23.7,
+   "top": 290.7,
    "footprint": [
     [
      -6246.4,
@@ -1828,8 +1828,8 @@
    "type": "west-tower",
    "label": "West towers — 46 floors",
    "floors": 46,
-   "base": 8.7,
-   "top": 170.7,
+   "base": 23.7,
+   "top": 185.7,
    "footprint": [
     [
      -6208.8,
@@ -1853,8 +1853,8 @@
    "type": "west-tower",
    "label": "West towers — 87 floors",
    "floors": 87,
-   "base": 8.74,
-   "top": 330.99,
+   "base": 23.77,
+   "top": 362.02,
    "footprint": [
     [
      -6465.6,
@@ -1878,8 +1878,8 @@
    "type": "west-tower",
    "label": "West towers — 63 floors",
    "floors": 63,
-   "base": 8.7,
-   "top": 230.46,
+   "base": 23.7,
+   "top": 245.83,
    "footprint": [
     [
      -6162.2,
@@ -1903,8 +1903,8 @@
    "type": "west-tower",
    "label": "West towers — 62 floors",
    "floors": 62,
-   "base": 8.7,
-   "top": 226.7,
+   "base": 23.7,
+   "top": 241.7,
    "footprint": [
     [
      -6372.6,
@@ -1928,8 +1928,8 @@
    "type": "west-tower",
    "label": "West towers — 86 floors",
    "floors": 86,
-   "base": 8.7,
-   "top": 310.7,
+   "base": 23.7,
+   "top": 325.7,
    "footprint": [
     [
      -6316,
@@ -1953,8 +1953,8 @@
    "type": "west-tower",
    "label": "West towers — 74 floors",
    "floors": 74,
-   "base": 8.7,
-   "top": 268.7,
+   "base": 23.7,
+   "top": 283.7,
    "footprint": [
     [
      -6325.4,
@@ -1978,8 +1978,8 @@
    "type": "west-tower",
    "label": "West towers — 56 floors",
    "floors": 56,
-   "base": 8.7,
-   "top": 205.7,
+   "base": 23.7,
+   "top": 220.7,
    "footprint": [
     [
      -6360.6,
@@ -2003,8 +2003,8 @@
    "type": "west-tower",
    "label": "West towers — 68 floors",
    "floors": 68,
-   "base": 8.7,
-   "top": 247.7,
+   "base": 23.7,
+   "top": 262.7,
    "footprint": [
     [
      -6233.6,
@@ -2029,7 +2029,7 @@
    "label": "312 high-rise — 24 floors",
    "floors": 24,
    "base": -0.01,
-   "top": 90.08,
+   "top": 98.83,
    "footprint": [
     [
      -6130,
@@ -2053,8 +2053,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 0.55,
-   "top": 116.29,
+   "base": 1.5,
+   "top": 128,
    "footprint": [
     [
      -6106,
@@ -2078,8 +2078,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 8.69,
-   "top": 107.7,
+   "base": 23.67,
+   "top": 122.7,
    "footprint": [
     [
      -6125.4,
@@ -2103,8 +2103,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 8.35,
-   "top": 107.69,
+   "base": 22.73,
+   "top": 122.68,
    "footprint": [
     [
      -6107,
@@ -2128,8 +2128,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 8.16,
-   "top": 114.68,
+   "base": 22.23,
+   "top": 129.65,
    "footprint": [
     [
      -6130,
@@ -2153,8 +2153,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 8.7,
-   "top": 118.2,
+   "base": 23.7,
+   "top": 133.2,
    "footprint": [
     [
      -6039,
@@ -2178,8 +2178,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 8.7,
-   "top": 114.7,
+   "base": 23.7,
+   "top": 129.7,
    "footprint": [
     [
      -6062,
@@ -2203,8 +2203,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 23 floors",
    "floors": 23,
-   "base": 8.69,
-   "top": 90.2,
+   "base": 23.66,
+   "top": 105.2,
    "footprint": [
     [
      -6062,
@@ -2228,8 +2228,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 26 floors",
    "floors": 26,
-   "base": 8.7,
-   "top": 100.7,
+   "base": 23.69,
+   "top": 115.7,
    "footprint": [
     [
      -6038,
@@ -2253,8 +2253,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 19 floors",
    "floors": 19,
-   "base": 8.65,
-   "top": 76.22,
+   "base": 23.57,
+   "top": 91.25,
    "footprint": [
     [
      -6039,
@@ -2278,8 +2278,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 29 floors",
    "floors": 29,
-   "base": 8.58,
-   "top": 111.2,
+   "base": 23.38,
+   "top": 126.19,
    "footprint": [
     [
      -6062,
@@ -2303,8 +2303,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 8.7,
-   "top": 114.7,
+   "base": 23.7,
+   "top": 129.7,
    "footprint": [
     [
      -5988.4,
@@ -2328,8 +2328,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 38 floors",
    "floors": 38,
-   "base": 8.7,
-   "top": 142.7,
+   "base": 23.7,
+   "top": 157.7,
    "footprint": [
     [
      -5994,
@@ -2353,8 +2353,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 36 floors",
    "floors": 36,
-   "base": 8.7,
-   "top": 135.7,
+   "base": 23.7,
+   "top": 150.7,
    "footprint": [
     [
      -5970,
@@ -2378,8 +2378,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 34 floors",
    "floors": 34,
-   "base": 8.7,
-   "top": 128.7,
+   "base": 23.7,
+   "top": 143.7,
    "footprint": [
     [
      -5971,
@@ -2403,8 +2403,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 8.7,
-   "top": 115,
+   "base": 23.7,
+   "top": 130.51,
    "footprint": [
     [
      -5994,
@@ -2428,8 +2428,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 48 floors",
    "floors": 48,
-   "base": 8.7,
-   "top": 177.7,
+   "base": 23.7,
+   "top": 192.7,
    "footprint": [
     [
      -5920.6,
@@ -2453,8 +2453,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 32 floors",
    "floors": 32,
-   "base": 8.7,
-   "top": 121.7,
+   "base": 23.7,
+   "top": 136.7,
    "footprint": [
     [
      -5926,
@@ -2478,8 +2478,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 32 floors",
    "floors": 32,
-   "base": 8.7,
-   "top": 121.7,
+   "base": 23.7,
+   "top": 136.7,
    "footprint": [
     [
      -5902,
@@ -2503,8 +2503,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 32 floors",
    "floors": 32,
-   "base": 8.7,
-   "top": 121.7,
+   "base": 23.7,
+   "top": 136.7,
    "footprint": [
     [
      -5902,
@@ -2528,8 +2528,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 47 floors",
    "floors": 47,
-   "base": 8.7,
-   "top": 174.2,
+   "base": 23.7,
+   "top": 189.2,
    "footprint": [
     [
      -5858,
@@ -2553,8 +2553,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 37 floors",
    "floors": 37,
-   "base": 8.7,
-   "top": 139.2,
+   "base": 23.7,
+   "top": 154.2,
    "footprint": [
     [
      -5834,
@@ -2578,8 +2578,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 37 floors",
    "floors": 37,
-   "base": 8.7,
-   "top": 139.2,
+   "base": 23.7,
+   "top": 154.2,
    "footprint": [
     [
      -5858,
@@ -2603,8 +2603,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 40 floors",
    "floors": 40,
-   "base": 8.7,
-   "top": 149.7,
+   "base": 23.7,
+   "top": 164.7,
    "footprint": [
     [
      -5834,
@@ -2628,8 +2628,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 44 floors",
    "floors": 44,
-   "base": 8.7,
-   "top": 163.7,
+   "base": 23.7,
+   "top": 178.7,
    "footprint": [
     [
      -5790,
@@ -2653,8 +2653,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 44 floors",
    "floors": 44,
-   "base": 8.7,
-   "top": 163.7,
+   "base": 23.7,
+   "top": 178.7,
    "footprint": [
     [
      -5766,
@@ -2678,8 +2678,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 41 floors",
    "floors": 41,
-   "base": 8.7,
-   "top": 153.2,
+   "base": 23.7,
+   "top": 168.2,
    "footprint": [
     [
      -5722,
@@ -2703,8 +2703,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 37 floors",
    "floors": 37,
-   "base": 8.7,
-   "top": 139.2,
+   "base": 23.7,
+   "top": 154.2,
    "footprint": [
     [
      -5698,
@@ -2728,8 +2728,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 54 floors",
    "floors": 54,
-   "base": 8.7,
-   "top": 198.7,
+   "base": 23.7,
+   "top": 213.7,
    "footprint": [
     [
      -5722,
@@ -2753,8 +2753,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 48 floors",
    "floors": 48,
-   "base": 8.7,
-   "top": 177.7,
+   "base": 23.7,
+   "top": 192.7,
    "footprint": [
     [
      -5698,
@@ -2778,8 +2778,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 47 floors",
    "floors": 47,
-   "base": 8.7,
-   "top": 174.2,
+   "base": 23.7,
+   "top": 189.2,
    "footprint": [
     [
      -5654,
@@ -2803,8 +2803,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 39 floors",
    "floors": 39,
-   "base": 8.7,
-   "top": 146.2,
+   "base": 23.7,
+   "top": 161.2,
    "footprint": [
     [
      -5630,
@@ -2828,8 +2828,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 41 floors",
    "floors": 41,
-   "base": 8.7,
-   "top": 153.2,
+   "base": 23.7,
+   "top": 168.2,
    "footprint": [
     [
      -5646,
@@ -2853,8 +2853,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 57 floors",
    "floors": 57,
-   "base": 8.7,
-   "top": 209.2,
+   "base": 23.7,
+   "top": 224.2,
    "footprint": [
     [
      -5570.4,
@@ -2878,8 +2878,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 43 floors",
    "floors": 43,
-   "base": 8.7,
-   "top": 160.2,
+   "base": 23.7,
+   "top": 175.2,
    "footprint": [
     [
      -5586,
@@ -2903,8 +2903,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 48 floors",
    "floors": 48,
-   "base": 8.7,
-   "top": 177.7,
+   "base": 23.7,
+   "top": 192.7,
    "footprint": [
     [
      -5518,
@@ -2928,8 +2928,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 33 floors",
    "floors": 33,
-   "base": 8.7,
-   "top": 125.2,
+   "base": 23.7,
+   "top": 140.2,
    "footprint": [
     [
      -5486.8,
@@ -2953,8 +2953,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 41 floors",
    "floors": 41,
-   "base": 8.7,
-   "top": 153.2,
+   "base": 23.7,
+   "top": 168.2,
    "footprint": [
     [
      -5426,
@@ -2978,8 +2978,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 56 floors",
    "floors": 56,
-   "base": 8.7,
-   "top": 205.7,
+   "base": 23.7,
+   "top": 220.7,
    "footprint": [
     [
      -5426,
@@ -3003,8 +3003,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 55 floors",
    "floors": 55,
-   "base": 8.7,
-   "top": 202.2,
+   "base": 23.7,
+   "top": 217.2,
    "footprint": [
     [
      -5444,
@@ -3028,8 +3028,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 46 floors",
    "floors": 46,
-   "base": 8.7,
-   "top": 170.7,
+   "base": 23.7,
+   "top": 185.7,
    "footprint": [
     [
      -5442.2,
@@ -3053,8 +3053,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 49 floors",
    "floors": 49,
-   "base": 8.7,
-   "top": 181.2,
+   "base": 23.7,
+   "top": 196.2,
    "footprint": [
     [
      -5382,
@@ -3078,8 +3078,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 46 floors",
    "floors": 46,
-   "base": 8.7,
-   "top": 170.7,
+   "base": 23.7,
+   "top": 185.7,
    "footprint": [
     [
      -5314,
@@ -3103,8 +3103,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 53 floors",
    "floors": 53,
-   "base": 8.7,
-   "top": 195.2,
+   "base": 23.7,
+   "top": 210.2,
    "footprint": [
     [
      -5290,
@@ -3128,8 +3128,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 57 floors",
    "floors": 57,
-   "base": 8.7,
-   "top": 209.2,
+   "base": 23.7,
+   "top": 224.2,
    "footprint": [
     [
      -5308,
@@ -3153,8 +3153,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 40 floors",
    "floors": 40,
-   "base": 8.7,
-   "top": 149.7,
+   "base": 23.7,
+   "top": 164.7,
    "footprint": [
     [
      -5309.6,
@@ -3178,8 +3178,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 43 floors",
    "floors": 43,
-   "base": 8.7,
-   "top": 160.2,
+   "base": 23.7,
+   "top": 175.2,
    "footprint": [
     [
      -5246,
@@ -3203,8 +3203,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 44 floors",
    "floors": 44,
-   "base": 8.7,
-   "top": 163.7,
+   "base": 23.7,
+   "top": 178.7,
    "footprint": [
     [
      -5246,
@@ -3228,8 +3228,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 42 floors",
    "floors": 42,
-   "base": 8.7,
-   "top": 156.7,
+   "base": 23.7,
+   "top": 171.7,
    "footprint": [
     [
      -5222,
@@ -3253,8 +3253,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 37 floors",
    "floors": 37,
-   "base": 8.7,
-   "top": 139.2,
+   "base": 23.7,
+   "top": 154.2,
    "footprint": [
     [
      -5239.2,
@@ -3278,8 +3278,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 50 floors",
    "floors": 50,
-   "base": 8.7,
-   "top": 184.7,
+   "base": 23.7,
+   "top": 199.7,
    "footprint": [
     [
      -5172.8,
@@ -3303,8 +3303,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 38 floors",
    "floors": 38,
-   "base": 8.7,
-   "top": 142.7,
+   "base": 23.7,
+   "top": 157.7,
    "footprint": [
     [
      -5154,
@@ -3328,8 +3328,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 43 floors",
    "floors": 43,
-   "base": 8.7,
-   "top": 160.2,
+   "base": 23.7,
+   "top": 175.2,
    "footprint": [
     [
      -5170.6,
@@ -3353,8 +3353,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 37 floors",
    "floors": 37,
-   "base": 8.7,
-   "top": 139.2,
+   "base": 23.7,
+   "top": 154.2,
    "footprint": [
     [
      -5110,
@@ -3378,8 +3378,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 40 floors",
    "floors": 40,
-   "base": 8.7,
-   "top": 149.7,
+   "base": 23.7,
+   "top": 164.7,
    "footprint": [
     [
      -5086,
@@ -3403,8 +3403,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 38 floors",
    "floors": 38,
-   "base": 8.7,
-   "top": 142.7,
+   "base": 23.7,
+   "top": 157.7,
    "footprint": [
     [
      -5086,
@@ -3428,8 +3428,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 8.7,
-   "top": 118.2,
+   "base": 23.7,
+   "top": 133.2,
    "footprint": [
     [
      -5110,
@@ -3453,8 +3453,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 8.7,
-   "top": 118.2,
+   "base": 23.7,
+   "top": 133.2,
    "footprint": [
     [
      -5110,
@@ -3478,8 +3478,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 35 floors",
    "floors": 35,
-   "base": 8.7,
-   "top": 132.2,
+   "base": 23.7,
+   "top": 147.2,
    "footprint": [
     [
      -5103.6,
@@ -3503,8 +3503,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 41 floors",
    "floors": 41,
-   "base": 8.7,
-   "top": 153.2,
+   "base": 23.7,
+   "top": 168.2,
    "footprint": [
     [
      -5042,
@@ -3528,8 +3528,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 42 floors",
    "floors": 42,
-   "base": 8.7,
-   "top": 156.7,
+   "base": 23.7,
+   "top": 171.7,
    "footprint": [
     [
      -5018,
@@ -3553,8 +3553,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 8.7,
-   "top": 107.7,
+   "base": 23.7,
+   "top": 122.7,
    "footprint": [
     [
      -5018,
@@ -3578,8 +3578,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 36 floors",
    "floors": 36,
-   "base": 8.7,
-   "top": 135.7,
+   "base": 23.7,
+   "top": 150.7,
    "footprint": [
     [
      -5042,
@@ -3603,8 +3603,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 8.7,
-   "top": 118.29,
+   "base": 23.7,
+   "top": 133.44,
    "footprint": [
     [
      -5019,
@@ -3628,8 +3628,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 8.7,
-   "top": 114.7,
+   "base": 23.7,
+   "top": 129.7,
    "footprint": [
     [
      -4967.8,
@@ -3653,8 +3653,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 36 floors",
    "floors": 36,
-   "base": 8.7,
-   "top": 135.7,
+   "base": 23.7,
+   "top": 150.7,
    "footprint": [
     [
      -4969,
@@ -3678,8 +3678,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 39 floors",
    "floors": 39,
-   "base": 8.7,
-   "top": 146.2,
+   "base": 23.7,
+   "top": 161.2,
    "footprint": [
     [
      -4969.2,
@@ -3703,8 +3703,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 8.69,
-   "top": 107.73,
+   "base": 23.67,
+   "top": 122.79,
    "footprint": [
     [
      -4974,
@@ -3728,8 +3728,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 20 floors",
    "floors": 20,
-   "base": 8.65,
-   "top": 79.72,
+   "base": 23.56,
+   "top": 94.75,
    "footprint": [
     [
      -4950,
@@ -3753,8 +3753,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 22 floors",
    "floors": 22,
-   "base": 8.7,
-   "top": 86.7,
+   "base": 23.7,
+   "top": 101.7,
    "footprint": [
     [
      -4906,
@@ -3778,8 +3778,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 24 floors",
    "floors": 24,
-   "base": 8.7,
-   "top": 93.7,
+   "base": 23.7,
+   "top": 108.7,
    "footprint": [
     [
      -4900.6,
@@ -3803,8 +3803,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 24 floors",
    "floors": 24,
-   "base": 8.7,
-   "top": 93.71,
+   "base": 23.7,
+   "top": 108.73,
    "footprint": [
     [
      -4898,
@@ -3828,8 +3828,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 25 floors",
    "floors": 25,
-   "base": 8.7,
-   "top": 97.24,
+   "base": 23.73,
+   "top": 112.32,
    "footprint": [
     [
      -4883,
@@ -3853,8 +3853,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 27 floors",
    "floors": 27,
-   "base": 8.7,
-   "top": 104.27,
+   "base": 23.7,
+   "top": 119.4,
    "footprint": [
     [
      -4831,
@@ -3878,8 +3878,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 8.7,
-   "top": 107.71,
+   "base": 23.7,
+   "top": 122.72,
    "footprint": [
     [
      -4832.8,
@@ -3903,8 +3903,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 21 floors",
    "floors": 21,
-   "base": 8.71,
-   "top": 83.64,
+   "base": 23.74,
+   "top": 99.39,
    "footprint": [
     [
      -4831.2,
@@ -3928,8 +3928,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 8.73,
-   "top": 115.52,
+   "base": 23.79,
+   "top": 131.94,
    "footprint": [
     [
      -4833.4,
@@ -3953,8 +3953,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 8.11,
-   "top": 118.36,
+   "base": 22.08,
+   "top": 133.63,
    "footprint": [
     [
      -4765.2,
@@ -3978,8 +3978,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 29 floors",
    "floors": 29,
-   "base": 8.74,
-   "top": 111.99,
+   "base": 23.81,
+   "top": 128.35,
    "footprint": [
     [
      -4770,
@@ -4003,8 +4003,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 23 floors",
    "floors": 23,
-   "base": 9.33,
-   "top": 91.09,
+   "base": 25.41,
+   "top": 107.63,
    "footprint": [
     [
      -4746,
@@ -4027,8 +4027,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.32,
-   "top": 15.81,
+   "base": 22.67,
+   "top": 31.01,
    "footprint": [
     [
      -4840,
@@ -4051,8 +4051,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.68,
-   "top": 15.7,
+   "base": 23.65,
+   "top": 30.7,
    "footprint": [
     [
      -4840,
@@ -4075,8 +4075,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -4840,
@@ -4099,8 +4099,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -4840,
@@ -4123,8 +4123,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 7.71,
-   "top": 12.49,
+   "base": 20.99,
+   "top": 28.97,
    "footprint": [
     [
      -4810,
@@ -4147,8 +4147,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.57,
-   "top": 12.68,
+   "base": 23.36,
+   "top": 27.65,
    "footprint": [
     [
      -4780,
@@ -4171,8 +4171,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 7.57,
-   "top": 11.86,
+   "base": 20.6,
+   "top": 25.41,
    "footprint": [
     [
      -4750,
@@ -4195,8 +4195,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 7.74,
-   "top": 12.02,
+   "base": 21.09,
+   "top": 25.85,
    "footprint": [
     [
      -4720,
@@ -4219,8 +4219,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 7.94,
-   "top": 15.62,
+   "base": 21.62,
+   "top": 30.48,
    "footprint": [
     [
      -4720,
@@ -4243,8 +4243,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.02,
-   "top": 12.48,
+   "base": 21.86,
+   "top": 27.11,
    "footprint": [
     [
      -4690,
@@ -4267,8 +4267,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.54,
-   "top": 12.68,
+   "base": 23.45,
+   "top": 28.13,
    "footprint": [
     [
      -4660,
@@ -4291,8 +4291,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.4,
-   "top": 15.74,
+   "base": 22.89,
+   "top": 30.82,
    "footprint": [
     [
      -4660,
@@ -4315,8 +4315,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.27,
-   "top": 12.65,
+   "base": 22.52,
+   "top": 27.58,
    "footprint": [
     [
      -4660,
@@ -4339,8 +4339,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 7.91,
-   "top": 12.39,
+   "base": 21.53,
+   "top": 26.85,
    "footprint": [
     [
      -4660,
@@ -4363,8 +4363,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 7.54,
-   "top": 14.86,
+   "base": 20.52,
+   "top": 28.41,
    "footprint": [
     [
      -4660,
@@ -4387,8 +4387,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.8,
-   "top": 16.32,
+   "base": 23.96,
+   "top": 32.5,
    "footprint": [
     [
      -4630,
@@ -4411,8 +4411,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.87,
-   "top": 16.36,
+   "base": 24.15,
+   "top": 32.51,
    "footprint": [
     [
      -4630,
@@ -4435,8 +4435,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.79,
-   "top": 16.31,
+   "base": 23.95,
+   "top": 32.36,
    "footprint": [
     [
      -4630,
@@ -4459,8 +4459,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 9.01,
-   "top": 16.58,
+   "base": 24.54,
+   "top": 33.09,
    "footprint": [
     [
      -4600,
@@ -4483,8 +4483,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.88,
-   "top": 16.98,
+   "base": 26.95,
+   "top": 35.87,
    "footprint": [
     [
      -4570,
@@ -4507,8 +4507,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 9.87,
-   "top": 17.13,
+   "base": 26.9,
+   "top": 34.6,
    "footprint": [
     [
      -4570,
@@ -4531,8 +4531,8 @@
   {
    "type": "apartments",
    "floors": 4,
-   "base": 8.7,
-   "top": 22.62,
+   "base": 23.7,
+   "top": 37.82,
    "footprint": [
     [
      -6176.26,
@@ -4555,8 +4555,8 @@
   {
    "type": "apartments",
    "floors": 4,
-   "base": 8.7,
-   "top": 22.51,
+   "base": 23.7,
+   "top": 37.52,
    "footprint": [
     [
      -6124.26,
@@ -4579,8 +4579,8 @@
   {
    "type": "apartments",
    "floors": 5,
-   "base": 8.7,
-   "top": 25.7,
+   "base": 23.7,
+   "top": 40.7,
    "footprint": [
     [
      -6072.26,
@@ -4603,8 +4603,8 @@
   {
    "type": "apartments",
    "floors": 3,
-   "base": 8.7,
-   "top": 19.3,
+   "base": 23.7,
+   "top": 34.3,
    "footprint": [
     [
      -6020.26,
@@ -4627,8 +4627,8 @@
   {
    "type": "apartments",
    "floors": 3,
-   "base": 8.7,
-   "top": 19.3,
+   "base": 23.7,
+   "top": 34.3,
    "footprint": [
     [
      -5968.26,
@@ -4651,8 +4651,8 @@
   {
    "type": "apartments",
    "floors": 4,
-   "base": 8.7,
-   "top": 22.5,
+   "base": 23.7,
+   "top": 37.5,
    "footprint": [
     [
      -5916.26,
@@ -4675,8 +4675,8 @@
   {
    "type": "apartments",
    "floors": 5,
-   "base": 8.7,
-   "top": 25.7,
+   "base": 23.7,
+   "top": 40.7,
    "footprint": [
     [
      -5916.26,
@@ -4699,8 +4699,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 11.86,
-   "top": 18.76,
+   "base": 31.82,
+   "top": 42.84,
    "footprint": [
     [
      -5096.42,
@@ -4723,8 +4723,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.09,
-   "top": 15.68,
+   "base": 22.02,
+   "top": 30.63,
    "footprint": [
     [
      -4788.03,
@@ -4747,8 +4747,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.09,
-   "top": 12.68,
+   "base": 22.03,
+   "top": 27.66,
    "footprint": [
     [
      -4764.23,
@@ -4771,8 +4771,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.24,
-   "top": 12.7,
+   "base": 22.43,
+   "top": 27.7,
    "footprint": [
     [
      -4741.03,
@@ -4795,8 +4795,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.13,
-   "top": 12.7,
+   "base": 22.14,
+   "top": 27.7,
    "footprint": [
     [
      -4740.23,
@@ -4819,8 +4819,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.64,
-   "top": 15.7,
+   "base": 23.55,
+   "top": 30.7,
    "footprint": [
     [
      -4669.85,
@@ -4843,8 +4843,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5138.67,
@@ -4867,8 +4867,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5135.87,
@@ -4891,8 +4891,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5114.87,
@@ -4915,8 +4915,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5111.87,
@@ -4939,8 +4939,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5090.87,
@@ -4963,8 +4963,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5088.07,
@@ -4987,8 +4987,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5067.07,
@@ -5011,8 +5011,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5064.27,
@@ -5035,8 +5035,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5054.16,
@@ -5059,8 +5059,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5030.36,
@@ -5083,8 +5083,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5006.36,
@@ -5107,8 +5107,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.92,
+   "base": 23.71,
+   "top": 28.29,
    "footprint": [
     [
      -5128.47,
@@ -5131,8 +5131,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.86,
+   "base": 23.7,
+   "top": 28.12,
    "footprint": [
     [
      -5104.67,
@@ -5155,8 +5155,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.8,
+   "base": 23.71,
+   "top": 27.97,
    "footprint": [
     [
      -4964.38,
@@ -5179,8 +5179,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5792.98,
@@ -5203,8 +5203,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5821.18,
@@ -5227,8 +5227,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5955.06,
@@ -5251,8 +5251,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5931.06,
@@ -5275,8 +5275,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5931.46,
@@ -5299,8 +5299,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5907.06,
@@ -5323,8 +5323,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5883.06,
@@ -5347,8 +5347,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5406.05,
@@ -5371,8 +5371,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.71,
+   "base": 23.7,
+   "top": 27.73,
    "footprint": [
     [
      -4986.99,
@@ -5395,8 +5395,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.67,
-   "top": 12.7,
+   "base": 23.62,
+   "top": 27.7,
    "footprint": [
     [
      -4962.99,
@@ -5419,8 +5419,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.76,
+   "base": 23.7,
+   "top": 27.86,
    "footprint": [
     [
      -4963.99,
@@ -5443,8 +5443,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.67,
-   "top": 12.7,
+   "base": 23.62,
+   "top": 27.7,
    "footprint": [
     [
      -4938.99,
@@ -5467,8 +5467,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.74,
+   "base": 23.7,
+   "top": 27.79,
    "footprint": [
     [
      -4939.99,
@@ -5491,8 +5491,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.67,
-   "top": 12.7,
+   "base": 23.62,
+   "top": 27.7,
    "footprint": [
     [
      -4914.99,
@@ -5515,8 +5515,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.78,
+   "base": 23.7,
+   "top": 30.91,
    "footprint": [
     [
      -4915.99,
@@ -5539,8 +5539,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5145.38,
@@ -5563,8 +5563,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5121.38,
@@ -5587,8 +5587,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5097.38,
@@ -5611,8 +5611,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5073.38,
@@ -5635,8 +5635,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.92,
+   "base": 23.7,
+   "top": 28.3,
    "footprint": [
     [
      -4893.45,
@@ -5659,8 +5659,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.93,
+   "base": 23.7,
+   "top": 28.33,
    "footprint": [
     [
      -4869.65,
@@ -5683,8 +5683,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.83,
+   "base": 23.7,
+   "top": 31.06,
    "footprint": [
     [
      -4845.65,
@@ -5707,8 +5707,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.68,
-   "top": 12.75,
+   "base": 23.66,
+   "top": 27.83,
    "footprint": [
     [
      -4821.65,
@@ -5731,8 +5731,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.61,
-   "top": 12.7,
+   "base": 23.47,
+   "top": 27.7,
    "footprint": [
     [
      -4797.65,
@@ -5755,8 +5755,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.56,
-   "top": 15.7,
+   "base": 23.33,
+   "top": 30.7,
    "footprint": [
     [
      -4773.85,
@@ -5779,8 +5779,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5769.05,
@@ -5803,8 +5803,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5745.25,
@@ -5827,8 +5827,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5721.25,
@@ -5851,8 +5851,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5697.25,
@@ -5875,8 +5875,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5673.25,
@@ -5899,8 +5899,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5649.25,
@@ -5923,8 +5923,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -6118.59,
@@ -5947,8 +5947,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -6049.39,
@@ -5971,8 +5971,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -6025.59,
@@ -5995,8 +5995,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -6001.59,
@@ -6019,8 +6019,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5977.59,
@@ -6043,8 +6043,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5953.79,
@@ -6067,8 +6067,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5929.79,
@@ -6091,8 +6091,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5905.99,
@@ -6115,8 +6115,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5881.02,
@@ -6139,8 +6139,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5857.02,
@@ -6163,8 +6163,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5809.02,
@@ -6187,8 +6187,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5786.02,
@@ -6211,8 +6211,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5785.02,
@@ -6235,8 +6235,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5762.02,
@@ -6259,8 +6259,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5761.02,
@@ -6283,8 +6283,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5738.02,
@@ -6307,8 +6307,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5737.02,
@@ -6331,8 +6331,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5714.02,
@@ -6355,8 +6355,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.7,
+   "base": 23.7,
+   "top": 30.7,
    "footprint": [
     [
      -5713.02,
@@ -6379,8 +6379,8 @@
   {
    "type": "house",
    "floors": 1,
-   "base": 8.7,
-   "top": 12.7,
+   "base": 23.7,
+   "top": 27.7,
    "footprint": [
     [
      -5690.02,
@@ -6403,8 +6403,8 @@
   {
    "type": "house",
    "floors": 2,
-   "base": 8.7,
-   "top": 15.92,
+   "base": 23.7,
+   "top": 31.29,
    "footprint": [
     [
      -4991.02,
@@ -6427,8 +6427,8 @@
   {
    "type": "terminal",
    "floors": 3,
-   "base": 8.7,
-   "top": 24.7,
+   "base": 23.7,
+   "top": 39.7,
    "footprint": [
     [
      -6400,
@@ -6451,8 +6451,8 @@
   {
    "type": "terminal",
    "floors": 3,
-   "base": 8.7,
-   "top": 24.7,
+   "base": 23.7,
+   "top": 39.7,
    "footprint": [
     [
      -6120,
@@ -6475,8 +6475,8 @@
   {
    "type": "terminal",
    "floors": 3,
-   "base": 8.7,
-   "top": 24.7,
+   "base": 23.7,
+   "top": 39.7,
    "footprint": [
     [
      -5280,
@@ -6499,8 +6499,8 @@
   {
    "type": "terminal",
    "floors": 3,
-   "base": 8.7,
-   "top": 24.7,
+   "base": 23.7,
+   "top": 39.7,
    "footprint": [
     [
      -4980,
@@ -6523,8 +6523,8 @@
   {
    "type": "terminal",
    "floors": 3,
-   "base": 8.7,
-   "top": 24.7,
+   "base": 23.7,
+   "top": 39.7,
    "footprint": [
     [
      -4400,
@@ -6547,8 +6547,8 @@
   {
    "type": "control-tower",
    "floors": 12,
-   "base": 8.7,
-   "top": 57.7,
+   "base": 23.7,
+   "top": 72.7,
    "footprint": [
     [
      -5866.14,
@@ -6603,8 +6603,8 @@
   {
    "type": "control-tower",
    "floors": 12,
-   "base": 8.7,
-   "top": 57.7,
+   "base": 23.7,
+   "top": 72.7,
    "footprint": [
     [
      -4217.88,
@@ -6659,8 +6659,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 25.44,
-   "top": 41.39,
+   "base": 56.35,
+   "top": 80.49,
    "footprint": [
     [
      -6340,
@@ -6683,8 +6683,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 23.04,
-   "top": 50.01,
+   "base": 51.68,
+   "top": 82.56,
    "footprint": [
     [
      -6287.34,
@@ -6739,8 +6739,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 8.07,
-   "top": 16.42,
+   "base": 21.97,
+   "top": 30.92,
    "footprint": [
     [
      -4700,
@@ -6763,8 +6763,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 8.12,
-   "top": 31.67,
+   "base": 22.44,
+   "top": 49.53,
    "footprint": [
     [
      -4647.34,
@@ -6819,8 +6819,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 8.7,
-   "top": 16.77,
+   "base": 23.72,
+   "top": 36.09,
    "footprint": [
     [
      -5000,
@@ -6843,8 +6843,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 8.7,
-   "top": 31.71,
+   "base": 23.73,
+   "top": 48.25,
    "footprint": [
     [
      -4947.34,
@@ -6899,8 +6899,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 8.7,
-   "top": 16.7,
+   "base": 23.7,
+   "top": 31.7,
    "footprint": [
     [
      -5880,
@@ -6923,8 +6923,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 8.7,
-   "top": 31.7,
+   "base": 23.7,
+   "top": 46.7,
    "footprint": [
     [
      -5827.34,
@@ -6979,8 +6979,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 9.17,
-   "top": 18.05,
+   "base": 25.91,
+   "top": 35.54,
    "footprint": [
     [
      -4540,
@@ -7003,8 +7003,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 8.79,
-   "top": 32.95,
+   "base": 26.3,
+   "top": 50.44,
    "footprint": [
     [
      -4487.34,
@@ -7059,8 +7059,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 7.3,
-   "top": 16.7,
+   "base": 19.89,
+   "top": 31.7,
    "footprint": [
     [
      -5880,
@@ -7083,8 +7083,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 7.09,
-   "top": 30.36,
+   "base": 19.31,
+   "top": 43.01,
    "footprint": [
     [
      -5827.34,

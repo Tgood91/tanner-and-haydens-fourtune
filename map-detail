@@ -464,16 +464,16 @@
       <polyline class="gp-road gp-arterial" points="577.9,105 604,93.6 659,142.4" stroke="#d9d9d4" stroke-width="7"><title>North Shore Avenue · 312-A7 (arterial, 312)</title></polyline>
       <polyline class="gp-road gp-backroad" points="663.4,770.7 686.8,800.1 715.8,825.8" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Silo Track · 770-B1 (backroad, 770)</title></polyline>
       <polyline class="gp-road gp-backroad" points="606.7,713.3 645.2,732.2" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Dust Road · 770-B2 (backroad, 770)</title></polyline>
-      <polyline class="gp-road gp-backroad" points="561.4,619.7 610.5,634.8 646.4,661.2" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Old Mill Track · 770-B3 (backroad, 770)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="561.4,619.7 610.5,634.8" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Old Mill Track · 770-B3 (backroad, 770)</title></polyline>
       <polyline class="gp-road gp-backroad" points="716.2,604.6 761.5,642.4 795.5,687.6" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Creekbed Lane · 770-B4 (backroad, 770)</title></polyline>
-      <polyline class="gp-road gp-backroad" points="587.9,808.4 633.2,823.5 678.5,846.2" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Hollow Road · 770-B5 (backroad, 770)</title></polyline>
+      <polyline class="gp-road gp-backroad" points="619.6,819 633.2,823.5 678.5,846.2" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Hollow Road · 770-B5 (backroad, 770)</title></polyline>
       <polyline class="gp-road gp-backroad" points="704.1,777.1 776.6,800.9 806.8,850" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Fence Line Track · 770-B6 (backroad, 770)</title></polyline>
       <polyline class="gp-casing" points="730.2,962.1 755.5,938.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="730.2,962.1 755.5,938.3" stroke="#cfccc2" stroke-width="4.5"><title>Harvest Lane · 770-S1 (street, 770)</title></polyline>
       <polyline class="gp-casing" points="743.4,969.2 761.5,944.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="743.4,969.2 761.5,944.3" stroke="#cfccc2" stroke-width="4.5"><title>Thresher Lane · 770-S2 (street, 770)</title></polyline>
-      <polyline class="gp-casing" points="631.3,643.1 663.4,664.2 685.2,675.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="631.3,643.1 663.4,664.2 685.2,675.2" stroke="#d9d9d4" stroke-width="7"><title>Grain Elevator Road · 770-A2 (arterial, 770)</title></polyline>
+      <polyline class="gp-casing" points="627.1,643.1 631.3,643.1 663.4,664.2 685.2,675.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="627.1,643.1 631.3,643.1 663.4,664.2 685.2,675.2" stroke="#d9d9d4" stroke-width="7"><title>Grain Elevator Road · 770-A2 (arterial, 770)</title></polyline>
       <polyline class="gp-casing" points="633.2,906.6 686,891.5 730.9,888.8" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="633.2,906.6 686,891.5 730.9,888.8" stroke="#d9d9d4" stroke-width="7"><title>Harvest Flats Road · 770-A3 (arterial, 770)</title></polyline>
       <polyline class="gp-road gp-backroad" points="553.1,1473.8 576.2,1504.4 595.2,1529.8" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Kudzu Lane · 1017-B1 (backroad, 1017)</title></polyline>

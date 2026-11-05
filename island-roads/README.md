@@ -2,7 +2,7 @@
 
 `tools/gen-road-ymaps.js` reads every named road on `island-map.html` and lays road-piece props
 end to end along each one: one row for a street, two for an arterial, three for a highway.
-That is **9,267 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as CodeWalker XML.
+That is **9,272 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as CodeWalker XML.
 `xml/roads-index.json` lists which roads are in which ymap and how many pieces each road has.
 
 ```
@@ -11,6 +11,23 @@ node tools/gen-road-ymaps.js          # roads only, on the last terrain's hills
 ```
 
 Roads climb the island's hills (from `island-terrain/`) at no more than 12%, each piece tilted to its slope.
+
+Back roads and tracks roll: each gets two gentle swells of its own on top of the hills (up to
+about 5.5 m, never steeper than 12%), levelling out within 60 m of a junction. The ground is
+shaped to match, since `island-terrain/` lays the land along the road pieces. Very short alleys
+sit entirely inside that 60 m, so they stay level.
+
+A road crossing open sea (at least 25 m past where `island-terrain/` stops filling land under
+roads) is a bridge: it climbs from the shore at 5% to a deck 40 m above the sea (15 m above road level). Today that is
+the south end of The Connector. All of these are `CONFIG` settings (`backroadHills`,
+`bridgeDeck`, `bridgeGrade`, `bridgeMinSpan`).
+
+Where two roads meet, they meet at the same height: the bigger road (highway > arterial > street >
+backroad > track) keeps its height and the smaller one is pinned to it, easing back to its own hills
+on either side, still at no more than 12%. The script prints any junction it can't level, and
+`roads-index.json` lists them under `unlevelJunctions`. A junction stays unlevel when two other
+junctions on the same road are too close together, at heights too far apart for a 12% grade. The fix
+for those is in the map (move a road, or drop a link), not here.
 
 ## 1. Check the piece model first (once)
 
@@ -21,7 +38,7 @@ The road prop and its size are settings at the top of `tools/gen-road-ymaps.js` 
 |---|---|---|
 | `pieceModel` | `stt_prop_track_straight_s` | Search the name in the model browser. If it isn't there, pick any flat, drivable prop. |
 | `pieceLength` / `pieceWidth` | 10 m / 8 m | The model's bounding box. Its length must run along the model's own +Y axis. |
-| `centre`, `z` | X -5500, Y -6500, Z 10 | Where the island sits: open sea south-west of Los Santos. Move it if it clashes with anything. |
+| `centre`, `z` | X -5500, Y -6500, Z 25 | Where the island sits: open sea south-west of Los Santos. Move it if it clashes with anything. |
 | `metresPerUnit` | 2 | 1500 map units → a 3 km wide island. |
 
 Change them, rerun the script, and every ymap is rebuilt.
@@ -39,7 +56,7 @@ Change them, rerun the script, and every ymap is rebuilt.
 ensure island-roads
 ```
 
-Then teleport to the island's centre, X -5500, Y -6500, Z 15.
+Then teleport to the island's centre, X -5500, Y -6500, Z 30.
 
 ## What this is and isn't
 
@@ -48,5 +65,5 @@ Then teleport to the island's centre, X -5500, Y -6500, Z 15.
   - Ground: that's `island-terrain/`.
   - Traffic paths: AI cars and peds need paths built for these roads, which this doesn't include.
   - Lane markings: the pieces look like whatever model you choose.
-  - Joins: at junctions the pieces just overlap.
+  - Joins: at junctions the pieces sit at the same height but just overlap.
 - The island itself (land, buildings, the mountain) needs custom models. These roads are the layout to build them around.
