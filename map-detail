@@ -472,8 +472,8 @@
       <polyline class="gp-road gp-street" points="730.2,962.1 755.5,938.3" stroke="#cfccc2" stroke-width="4.5"><title>Harvest Lane · 770-S1 (street, 770)</title></polyline>
       <polyline class="gp-casing" points="743.4,969.2 761.5,944.3" stroke="rgba(60,60,60,.35)" stroke-width="7"/>
       <polyline class="gp-road gp-street" points="743.4,969.2 761.5,944.3" stroke="#cfccc2" stroke-width="4.5"><title>Thresher Lane · 770-S2 (street, 770)</title></polyline>
-      <polyline class="gp-casing" points="631.3,643.1 663.4,664.2 685.2,675.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
-      <polyline class="gp-road gp-arterial" points="631.3,643.1 663.4,664.2 685.2,675.2" stroke="#d9d9d4" stroke-width="7"><title>Grain Elevator Road · 770-A2 (arterial, 770)</title></polyline>
+      <polyline class="gp-casing" points="627.1,643.1 631.3,643.1 663.4,664.2 685.2,675.2" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
+      <polyline class="gp-road gp-arterial" points="627.1,643.1 631.3,643.1 663.4,664.2 685.2,675.2" stroke="#d9d9d4" stroke-width="7"><title>Grain Elevator Road · 770-A2 (arterial, 770)</title></polyline>
       <polyline class="gp-casing" points="633.2,906.6 686,891.5 730.9,888.8" stroke="rgba(60,60,60,.45)" stroke-width="9.5"/>
       <polyline class="gp-road gp-arterial" points="633.2,906.6 686,891.5 730.9,888.8" stroke="#d9d9d4" stroke-width="7"><title>Harvest Flats Road · 770-A3 (arterial, 770)</title></polyline>
       <polyline class="gp-road gp-backroad" points="553.1,1473.8 576.2,1504.4 595.2,1529.8" stroke="#c9b48a" stroke-width="3" stroke-dasharray="7 5"><title>Kudzu Lane · 1017-B1 (backroad, 1017)</title></polyline>

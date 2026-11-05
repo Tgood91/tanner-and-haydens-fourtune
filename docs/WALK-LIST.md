@@ -114,7 +114,7 @@ Drive north across each line and mark where the city should change. Only the **y
 
 - [ ] **Backroads Highway** · 770-H1 · highway · 4 points: (1690, 4930) → (1780, 4300) → (1900, 3800) → (1960, 3740)
 - [ ] **County Line Road** · 770-A1 · arterial · 3 points: (1500, 4700) → (1700, 4762) → (1900, 4802)
-- [ ] **Grain Elevator Road** · 770-A2 · arterial · 3 points: (1615, 4538) → (1700, 4482) → (1758, 4453)
+- [ ] **Grain Elevator Road** · 770-A2 · arterial · 4 points: (1604, 4538) → (1615, 4538) → (1700, 4482) → (1758, 4453)
 - [ ] **Harvest Flats Road** · 770-A3 · arterial · 3 points: (1620, 3840) → (1760, 3880) → (1879, 3887)
 - [ ] **Harvest Lane** · 770-S1 · street · 2 points: (1877, 3693) → (1944, 3756)
 - [ ] **Thresher Lane** · 770-S2 · street · 2 points: (1912, 3674) → (1960, 3740)
@@ -228,4 +228,4 @@ and they'll be added to the data so the game knows about them too.
 - [ ] The 1017 Harbor and the 312 Port: a point on each quay
 - [ ] The airport: the terminal door and the runway's two ends
 
-_Totals: 2 borders, 15 zones, 66 roads (208 points), 50 pins._
+_Totals: 2 borders, 15 zones, 66 roads (209 points), 50 pins._

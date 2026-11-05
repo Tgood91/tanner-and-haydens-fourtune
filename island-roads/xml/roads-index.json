@@ -36,7 +36,7 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9272,
+ "totalPieces": 9276,
  "junctions": 356,
  "unlevelJunctions": [
   {
@@ -181,7 +181,7 @@
   },
   {
    "file": "island_roads_m11_m13.ymap.xml",
-   "pieces": 316,
+   "pieces": 315,
    "roads": [
     "1017-H1",
     "770-A1",
@@ -258,7 +258,7 @@
   },
   {
    "file": "island_roads_m12_m13.ymap.xml",
-   "pieces": 580,
+   "pieces": 585,
    "roads": [
     "1017-H1",
     "312-H3",
@@ -700,7 +700,7 @@
    "name": "Grain Elevator Road",
    "kind": "arterial",
    "rows": 2,
-   "pieces": 60
+   "pieces": 64
   },
   {
    "code": "770-A3",

@@ -96,7 +96,8 @@ const ROAD_DEFS = [
 
     // ---- arterials: how you get between districts ----
     { name: "County Line Road",        city: "geepee",   kind: "arterial",  points: [{ x: 1500, y: 4700 }, { x: 1700, y: 4762 }, { x: 1900, y: 4802 }] },
-    { name: "Grain Elevator Road",     city: "geepee",   kind: "arterial",  width: 22, points: [{ x: 1615, y: 4538 }, { x: 1700, y: 4482 }, { x: 1758, y: 4453 }] },
+    // starts on The Connector (on the island it stopped 22 m short of it)
+    { name: "Grain Elevator Road",     city: "geepee",   kind: "arterial",  width: 22, points: [{ x: 1604, y: 4538 }, { x: 1615, y: 4538 }, { x: 1700, y: 4482 }, { x: 1758, y: 4453 }] },
     { name: "Harvest Flats Road",      city: "geepee",   kind: "arterial",  points: [{ x: 1620, y: 3840 }, { x: 1760, y: 3880 }, { x: 1879, y: 3887 }] },
 
     // ---- streets: the ones you give as an address ----

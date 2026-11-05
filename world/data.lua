@@ -205,6 +205,7 @@ FourtuneWorldData = {
             { x = 1900, y = 4802 },
         } },
         { name = "Grain Elevator Road", code = "770-A2", city = "geepee", kind = "arterial", width = 22, points = {
+            { x = 1604, y = 4538 },
             { x = 1615, y = 4538 },
             { x = 1700, y = 4482 },
             { x = 1758, y = 4453 },
