@@ -46,6 +46,12 @@ const CONFIG = {
   bridgeDeck: 40.0,       // 15 m above road level
   bridgeGrade: 0.05,
   bridgeMinSpan: 25,      // metres of open sea before a road counts as a bridge (a road's tip touching a dock doesn't)
+
+  // The bridge to the mainland, written to its own resource (island-bridges/). It leaves the island
+  // from the nearer end of fromRoad, runs straight to `to`, and climbs/descends at bridgeGrade to
+  // bridgeDeck in between. `to` is NOT VERIFIED: stand where it should land in Los Santos, type
+  // /coords, put the X, Y and Z here, and rerun.
+  mainlandBridge: { name: "The Island Bridge", fromRoad: "312-H1", to: { x: -1600.0, y: -3300.0, z: 6.0 }, rows: 2 },
   cell: 512,              // metres per ymap grid cell
   lodDist: 400,           // how far away a piece still draws
 };
@@ -323,14 +329,62 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
   console.log(`${junctions.length} junctions, ${junctions.length - gaps.length} level`);
   for (const g of gaps) console.warn(`! ${g.roads.join(" x ")} still ${g.gap} m apart at X ${g.at[0]}, Y ${g.at[1]}: too close to another junction for a ${CONFIG.maxGrade * 100}% grade`);
 
+  // ---- 2d. the bridge to the mainland (its own resource: island-bridges/)
+  const MB = CONFIG.mainlandBridge, bridgeCells = new Map();
+  let bridge = null;
+  const fromLine = lines.find((L) => L.road.code === MB.fromRoad);
+  if (!fromLine) console.warn(`! mainland bridge: no road ${MB.fromRoad} to start from`);
+  else {
+    const far = (d) => { const q = pointAt(fromLine, d); return Math.hypot(q[0] - MB.to.x, q[1] - MB.to.y); };
+    const d0 = far(0) < far(fromLine.total) ? 0 : fromLine.total;     // the road's end nearer the mainland
+    const [x0, y0] = pointAt(fromLine, d0), z0 = zAt(fromLine, d0);
+    const dx = MB.to.x - x0, dy = MB.to.y - y0, len = Math.hypot(dx, dy);
+    const pieces = Math.max(1, Math.ceil((len - CONFIG.overlap) / pitch)), step = len / pieces;
+    const deckAt = (d) => Math.min(CONFIG.bridgeDeck, z0 + CONFIG.bridgeGrade * d, MB.to.z + CONFIG.bridgeGrade * (len - d));
+    const heading = Math.atan2(dy, dx) - Math.PI / 2, nx = -dy / len, ny = dx / len;
+    let count = 0;
+    for (let k = 0; k < pieces; k++) {
+      const za = deckAt(k * step), zb = deckAt((k + 1) * step), t = (k + 0.5) * step / len;
+      const tilt = Math.atan2(zb - za, step);
+      for (let row = 0; row < MB.rows; row++) {
+        const off = (row - (MB.rows - 1) / 2) * CONFIG.pieceWidth;
+        const x = x0 + dx * t + nx * off, y = y0 + dy * t + ny * off;
+        const key = `${Math.floor(x / CONFIG.cell)}_${Math.floor(y / CONFIG.cell)}`;
+        if (!bridgeCells.has(key)) bridgeCells.set(key, []);
+        bridgeCells.get(key).push({ x, y, z: (za + zb) / 2, heading, pitch: tilt, road: MB.name });
+        count++;
+      }
+    }
+    bridge = { name: MB.name, from: { road: MB.fromRoad, x: +x0.toFixed(1), y: +y0.toFixed(1), z: +z0.toFixed(1) },
+               to: MB.to, toVerified: false, length: Math.round(len), deck: CONFIG.bridgeDeck, rows: MB.rows, pieces: count };
+    console.log(`mainland bridge: ${MB.name}, ${(len / 1000).toFixed(1)} km from ${fromLine.road.name} to (${MB.to.x}, ${MB.to.y}), ${count} pieces (landing point not verified)`);
+  }
+
   // ---- 3. one ymap per cell
-  fs.mkdirSync(OUT, { recursive: true });
-  for (const f of fs.readdirSync(OUT)) if (f.endsWith(".ymap.xml")) fs.unlinkSync(path.join(OUT, f));
+  const roadYmaps = writeYmaps(cells, OUT, "island_roads");
+  const files = roadYmaps.files, total = roadYmaps.total;
+  const BOUT = path.join(REPO, "island-bridges", "xml");
+  if (bridge) {
+    const b = writeYmaps(bridgeCells, BOUT, "island_bridge");
+    fs.writeFileSync(path.join(BOUT, "bridges-index.json"),
+      JSON.stringify({ config: { pieceModel: CONFIG.pieceModel, pieceLength: CONFIG.pieceLength, pieceWidth: CONFIG.pieceWidth, bridgeGrade: CONFIG.bridgeGrade },
+                       bridges: [bridge], totalPieces: b.total, ymaps: b.files }, null, 1) + "\n");
+    console.log(`  -> ${b.total} pieces in ${b.files.length} ymaps (island-bridges/xml/)`);
+  }
+  fs.writeFileSync(path.join(OUT, "roads-index.json"),
+    JSON.stringify({ config: CONFIG, rows: ROWS, totalPieces: total, junctions: junctions.length, unlevelJunctions: gaps, ymaps: files, roads: index }, null, 1) + "\n");
+  console.log(`${roads.length} roads -> ${total} pieces in ${files.length} ymaps (island-roads/xml/)`);
+})().catch(e => { console.error(e); process.exit(1); });
+
+// One ymap per grid cell of entities, as CodeWalker XML, into outDir (its old ymaps cleared first).
+function writeYmaps(cells, outDir, prefix) {
+  fs.mkdirSync(outDir, { recursive: true });
+  for (const f of fs.readdirSync(outDir)) if (f.endsWith(".ymap.xml")) fs.unlinkSync(path.join(outDir, f));
   const half = Math.hypot(CONFIG.pieceLength, CONFIG.pieceWidth) / 2;   // a piece's reach from its centre
   const files = [];
   let total = 0;
   for (const [key, ents] of [...cells].sort()) {
-    const name = `island_roads_${key.replace(/-/g, "m")}`;
+    const name = `${prefix}_${key.replace(/-/g, "m")}`;
     const ex = (f, s) => ents.reduce((m, e) => f(m, e[s]), ents[0][s]);
     const eMin = [ex(Math.min, "x") - half, ex(Math.min, "y") - half, ex(Math.min, "z") - 2];
     const eMax = [ex(Math.max, "x") + half, ex(Math.max, "y") + half, ex(Math.max, "z") + 2];
@@ -398,11 +452,9 @@ ${vec("entitiesExtentsMax", eMax)}
   </block>
 </CMapData>
 `;
-    fs.writeFileSync(path.join(OUT, `${name}.ymap.xml`), xml);
+    fs.writeFileSync(path.join(outDir, `${name}.ymap.xml`), xml);
     files.push({ file: `${name}.ymap.xml`, pieces: ents.length, roads: [...new Set(ents.map(e => e.road))] });
     total += ents.length;
   }
-  fs.writeFileSync(path.join(OUT, "roads-index.json"),
-    JSON.stringify({ config: CONFIG, rows: ROWS, totalPieces: total, junctions: junctions.length, unlevelJunctions: gaps, ymaps: files, roads: index }, null, 1) + "\n");
-  console.log(`${roads.length} roads -> ${total} pieces in ${files.length} ymaps (island-roads/xml/)`);
-})().catch(e => { console.error(e); process.exit(1); });
+  return { files, total };
+}

@@ -3,7 +3,7 @@
 // deploy-to-server.js — put this repo's resources into your FXServer, in one go
 //
 // Run it on your PC from inside this repo, after a git pull:
-//   node tools/deploy-to-server.js "C:\txData\<server>"              (copy world, crew, island-terrain, island-roads)
+//   node tools/deploy-to-server.js "C:\txData\<server>"              (copy world, crew + the island's map resources)
 //   node tools/deploy-to-server.js "C:\txData\<server>" --dry-run    (show what would happen, change nothing)
 //   node tools/deploy-to-server.js "C:\txData\<server>" --link       (link instead of copy — set up once,
 //                                                                     after that git pull IS the deploy)
@@ -12,9 +12,9 @@
 // The path can be the server data folder (the one with server.cfg) or its resources/ folder.
 //
 // What it does:
-//   1. Copies world/, crew/, island-terrain/ and island-roads/ into resources/ under the same names
+//   1. Copies world/, crew/, island-terrain/, island-roads/ and island-bridges/ into resources/ under the same names
 //      (and js-snippets/ as fourtune/ with --with-fourtune — the folder name is the resource name).
-//      island-terrain and island-roads only go in once their stream/ holds every built file
+//      The island-* map resources only go in once their stream/ holds every built file
 //      (each README.md); until then they're skipped with a note saying what's missing.
 //      Only stream/, fxmanifest.lua and README.md are copied; obj/ and xml/ stay in the repo.
 //   2. Replaces the old copy each time, so nothing stale is left behind.
@@ -45,6 +45,8 @@ const RESOURCES = [
     { from: "island-terrain", name: "island-terrain", only: ["fxmanifest.lua", "README.md", "stream"],
       needs: () => { const tiles = terrainTiles(); return { ".ydr": tiles, ".ybn": tiles, ".ytd": 1, ".ytyp": 1, ".ymap": 1 }; } },
     { from: "island-roads", name: "island-roads", only: ["fxmanifest.lua", "README.md", "stream"],
+      needs: () => ({ ".ymap": 1 }) },
+    { from: "island-bridges", name: "island-bridges", only: ["fxmanifest.lua", "README.md", "stream"],
       needs: () => ({ ".ymap": 1 }) },
 ];
 // how many terrain tiles there are (one .ydr + one .ybn each)

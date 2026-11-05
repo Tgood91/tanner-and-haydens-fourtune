@@ -25,6 +25,16 @@
   "bridgeDeck": 40,
   "bridgeGrade": 0.05,
   "bridgeMinSpan": 25,
+  "mainlandBridge": {
+   "name": "The Island Bridge",
+   "fromRoad": "312-H1",
+   "to": {
+    "x": -1600,
+    "y": -3300,
+    "z": 6
+   },
+   "rows": 2
+  },
   "cell": 512,
   "lodDist": 400
  },

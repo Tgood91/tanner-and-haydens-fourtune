@@ -310,6 +310,14 @@ RegisterCommand('whereami', function(src)
     tell(src, Describe(coordsOf(src)))
 end, false)
 
+-- /coords: your exact position and heading, for placing things (the island bridge's landing point)
+RegisterCommand('coords', function(src)
+    if src == 0 then return print('Players only.') end
+    local ped = GetPlayerPed(src)
+    local c = GetEntityCoords(ped)
+    tell(src, string.format('X %.1f  Y %.1f  Z %.1f  heading %.0f', c.x, c.y, c.z, GetEntityHeading(ped)))
+end, false)
+
 RegisterCommand('places', function(src)
     if src == 0 then return print('Players only.') end
     tell(src, ListFor(CityAt(coordsOf(src))))
