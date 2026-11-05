@@ -5,9 +5,9 @@
 `tools/gen-island-terrain.py` builds the ground the roads sit on, as **99 tiles of 256 m**
 (33 × 33 height samples, 8 m apart):
 
-- **Land:** at road level (Z 10), with farm swells of up to about 8 m.
+- **Land:** at road level (Z 25, so 25 m above the sea), with farm swells of up to about 8 m.
 - **Coast:** a 45 m beach down to the waterline, then a seabed falling to −20 m.
-- **The mountain:** about 300 m above road level. The west hills rise 140 m and the east ridge 65 m.
+- **The mountain:** about 800 m above road level. The west hills rise 140 m and the east ridge 65 m.
 - **Flat pads:** the 312 grid, the 1017 towers, the west tower district and the airport. The airport is a raised pad with a sea wall.
 - **Under every road:** the ground is flat at the road's height and blends back to the land within 28 m. Where a road climbs a hill, the ground is cut or filled to match it.
 
@@ -57,6 +57,6 @@ ensure island-roads
 
 - **Junctions:** roads meet level (the road generator pins the smaller road to the bigger one). It reports any it can't level.
 - **The west tower district** is a flat pad set into the west hills, so it reads as a bowl, deeper now the hills are 140 m.
-- **Roads past the coast:** the bridge south of the airport is raised to a deck 25 m above the sea, with an embankment up to it on land. Ground is never filled under a road more than 30 m out to sea.
+- **Roads past the coast:** the bridge south of the airport is raised to a deck 40 m above the sea, with an embankment up to it on land. Ground is never filled under a road more than 30 m out to sea.
 - **No LOD models:** each tile draws out to 1,500 m.
 - **No ocean check:** whether GTA's ocean covers this spot (X −5500, Y −6500) hasn't been checked. Move `centre` in `tools/gen-road-ymaps.js` if needed and rerun.

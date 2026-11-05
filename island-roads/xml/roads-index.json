@@ -9,7 +9,7 @@
    "x": -5500,
    "y": -6500
   },
-  "z": 10,
+  "z": 25,
   "maxGrade": 0.12,
   "backroadHills": {
    "kinds": [
@@ -22,7 +22,7 @@
    "wave2": 90,
    "flatAtJunction": 60
   },
-  "bridgeDeck": 25,
+  "bridgeDeck": 40,
   "bridgeGrade": 0.05,
   "bridgeMinSpan": 25,
   "cell": 512,
@@ -40,7 +40,7 @@
  "junctions": 356,
  "unlevelJunctions": [
   {
-   "gap": 0.5,
+   "gap": 3.7,
    "roads": [
     "770-B5",
     "770-A1"
@@ -51,7 +51,7 @@
    ]
   },
   {
-   "gap": 0.5,
+   "gap": 3.7,
    "roads": [
     "770-A1",
     "770-B5"

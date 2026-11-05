@@ -18,7 +18,7 @@ shaped to match, since `island-terrain/` lays the land along the road pieces. Ve
 sit entirely inside that 60 m, so they stay level.
 
 A road crossing open sea (at least 25 m past where `island-terrain/` stops filling land under
-roads) is a bridge: it climbs from the shore at 5% to a deck 25 m above the sea. Today that is
+roads) is a bridge: it climbs from the shore at 5% to a deck 40 m above the sea (15 m above road level). Today that is
 the south end of The Connector. All of these are `CONFIG` settings (`backroadHills`,
 `bridgeDeck`, `bridgeGrade`, `bridgeMinSpan`).
 
@@ -38,7 +38,7 @@ The road prop and its size are settings at the top of `tools/gen-road-ymaps.js` 
 |---|---|---|
 | `pieceModel` | `stt_prop_track_straight_s` | Search the name in the model browser. If it isn't there, pick any flat, drivable prop. |
 | `pieceLength` / `pieceWidth` | 10 m / 8 m | The model's bounding box. Its length must run along the model's own +Y axis. |
-| `centre`, `z` | X -5500, Y -6500, Z 10 | Where the island sits: open sea south-west of Los Santos. Move it if it clashes with anything. |
+| `centre`, `z` | X -5500, Y -6500, Z 25 | Where the island sits: open sea south-west of Los Santos. Move it if it clashes with anything. |
 | `metresPerUnit` | 2 | 1500 map units → a 3 km wide island. |
 
 Change them, rerun the script, and every ymap is rebuilt.
@@ -56,7 +56,7 @@ Change them, rerun the script, and every ymap is rebuilt.
 ensure island-roads
 ```
 
-Then teleport to the island's centre, X -5500, Y -6500, Z 15.
+Then teleport to the island's centre, X -5500, Y -6500, Z 30.
 
 ## What this is and isn't
 

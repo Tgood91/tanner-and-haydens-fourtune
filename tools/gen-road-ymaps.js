@@ -34,7 +34,7 @@ const CONFIG = {
   // Where the island sits in the GTA world. Map units: x 0..1500, y 0..1000 (y down).
   metresPerUnit: 2.0,     // 1500 units -> a 3 km wide island
   centre: { x: -5500.0, y: -6500.0 },   // world X/Y of map point (750, 500): open sea, away from Los Santos and Cayo Perico
-  z: 10.0,                // road surface height, flat; 10 m clears the sea
+  z: 25.0,                // road level: the island's land sits 25 m above the sea
 
   maxGrade: 0.12,         // steepest a road may climb (12%); steeper ground gets cut
 
@@ -43,7 +43,7 @@ const CONFIG = {
   backroadHills: { kinds: ["backroad", "track"], amp: 4.0, wave: 220, amp2: 1.5, wave2: 90, flatAtJunction: 60 },  // level for 60 m either side of a junction
   // A road over the sea is a bridge: it climbs from the shore at bridgeGrade to a deck bridgeDeck
   // metres above the sea, so boats pass under. Where "the sea" starts comes from island-terrain.
-  bridgeDeck: 25.0,
+  bridgeDeck: 40.0,       // 15 m above road level
   bridgeGrade: 0.05,
   bridgeMinSpan: 25,      // metres of open sea before a road counts as a bridge (a road's tip touching a dock doesn't)
   cell: 512,              // metres per ymap grid cell
