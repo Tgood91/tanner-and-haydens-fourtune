@@ -2624,3 +2624,59 @@ test("lumber yard: 12 logs an hour each, and relogging doesn't reset it", () => 
     // the first log was felled at 9 min: an hour after that, one more is allowed
     assert.match(game.command(as(1, { pos: TREE[7], now: 9 * 60000 + 60 * 60000 }), "fell").msg, /Timber!/);
 });
+
+// ---------------- elevation ----------------
+const elevation = require("./elevation");
+
+test("elevation: the summit, the snowline, the sea and the road level come from the island", () => {
+    const { PEAK } = elevation;
+    assert.equal(elevation.heightAt(PEAK), PEAK.z, "the summit is exact, not flattened by the grid");
+    assert.ok(PEAK.z > 800 && PEAK.z < 1000, `summit at ${PEAK.z}`);
+    assert.equal(elevation.hasSnow(PEAK), true);
+    assert.equal(elevation.describeHeight(PEAK), `the summit country, ${Math.round(PEAK.z)} m up, in the snow`);
+    for (const h of elevation.HILLTOPS) assert.equal(elevation.heightAt(h), h.z, h.name);
+    for (const h of elevation.HEIGHTS) assert.ok(h.z <= PEAK.z, `${h.name} is not above the summit`);
+    assert.equal(elevation.describeHeight({ x: 0, y: 0 }), "off the island");
+    assert.equal(elevation.ROAD_LEVEL, 25);
+    const palisade = elevation.ROADS.find((r) => r.code === "312-A1");
+    const p = palisade.line[5];
+    assert.equal(elevation.describeHeight({ x: p[0], y: p[1] }), "lowland, 25 m up");
+});
+
+test("elevation: a bridge is at deck height over the water, not the sea bed", () => {
+    const bridge = elevation.ROADS.find((r) => r.name === "Channel Bridge");
+    const over = bridge.line.find((q) => elevation.groundAt(q[0], q[1]) < elevation.WATERLINE);
+    assert.ok(over, "part of the bridge is over water");
+    assert.ok(elevation.heightAt({ x: over[0], y: over[1] }) > 30, "deck height");
+    assert.match(elevation.describeHeight({ x: over[0], y: over[1] }), /^on Channel Bridge, \d+ m above the water$/);
+    assert.equal(elevation.isSea({ x: over[0], y: over[1] }), false);
+});
+
+test("elevation: every road the island draws has a level, and no building floats", () => {
+    // Roads in places.js that the island hasn't drawn yet have no ground to measure: run
+    // tools/sync-from-island.js --to-island and regenerate the island to bring them in.
+    const drawn = new Set(elevation.ROADS.map((r) => r.code));
+    for (const r of require("./places").ROADS.filter((q) => drawn.has(q.code))) {
+        const p = elevation.roadProfile(r);
+        assert.ok(p, `${r.code} ${r.name} has a profile`);
+        assert.ok(p.min >= 0 && p.max >= p.min && p.climb >= 0 && p.descent >= 0, r.name);
+    }
+    for (const b of elevation.BUILDINGS) {
+        assert.ok(b.top > b.base, b.label);
+        assert.ok(b.base <= elevation.groundAt(b.x, b.y) + 1.5, `${b.label} doesn't float above the ground`);
+    }
+});
+
+test("/height and /whereami report heights; /height <road> gives a road's level", () => {
+    const { game } = setup();
+    const { PEAK, ROADS } = elevation;
+    const at = (pos) => ({ id: 1, pos: { ...pos, z: 0 }, now: 0 });
+    assert.match(game.command(at(PEAK), "height").msg, /^The summit country, \d+ m up, in the snow\. You're on the summit of Mt\. Fuugee\.$/);
+    const p = ROADS.find((r) => r.code === "312-A1").line[5];
+    assert.match(game.command(at({ x: p[0], y: p[1] }), "height").msg, /^Lowland, 25 m up\. On Palisade Boulevard \(312-A1\): 25 m to 25 m along it\. Mt\. Fuugee summit: \d+ m, \d+ m above you\. Snow from 700 m\.$/);
+    assert.match(game.command(at({ x: p[0], y: p[1] }), "whereami").msg, / · lowland, 25 m up$/);
+    assert.match(game.command(at({ x: p[0], y: p[1] }), "height", ["channel", "bridge"]).msg, /^Channel Bridge \(\S+\), \d+ m long: .*over the water on a bridge\.$/);
+    assert.match(game.command(at({ x: p[0], y: p[1] }), "height", ["312-a1"]).msg, /^Palisade Boulevard \(312-A1\), \d+ m long: level at 25 m\.$/);
+    assert.match(game.command(at({ x: p[0], y: p[1] }), "height", ["nowhere"]).msg, /^No road called nowhere/);
+    assert.equal(game.command(at({ x: 0, y: 0 }), "height").msg, "You're off the island: no heights here.");
+});

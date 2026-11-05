@@ -307,7 +307,24 @@ end
 
 RegisterCommand('whereami', function(src)
     if src == 0 then return print('Players only.') end
-    tell(src, Describe(coordsOf(src)))
+    local pos = coordsOf(src)
+    local text = Describe(pos)
+    if FourtuneElevation and FourtuneElevation.HeightAt(pos) then text = text .. ' · ' .. FourtuneElevation.DescribeHeight(pos) end
+    tell(src, text)
+end, false)
+
+-- /height [road]: how high you are, or one road's level (world/elevation.lua)
+RegisterCommand('height', function(src, args)
+    local which = table.concat(args or {}, ' ')
+    local text
+    if which ~= '' then
+        text = FourtuneElevation.RoadReport(which) or ('No road called ' .. which .. '. Try a name like Summit Road, or a number like 312-S45.')
+    elseif src == 0 then
+        text = 'From the console, name a road: height <road name or number>'
+    else
+        text = FourtuneElevation.HeightReport(coordsOf(src))
+    end
+    if src == 0 then print(text) else tell(src, text) end
 end, false)
 
 -- /coords: your exact position and heading, for placing things (the island bridge's landing point)

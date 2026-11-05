@@ -36,6 +36,7 @@ const inventory = require("./inventory");
 const vehicles = require("./vehicles");
 const economy = require("./economy");
 const jobs = require("./jobs");
+const elevation = require("./elevation");
 const needs = require("./needs");
 const cities = require("./cities");
 const shops = require("./shops");
@@ -66,7 +67,7 @@ const { createCharacter, serialize } = require("./character");
 
 const PAY_INTERVAL_MIN = 30;
 const ALLOWED_WHILE_DOWN = ["help", "status", "respawn", "911"];
-const ALLOWED_WHILE_HELD = ["help", "status", "inventory", "balance", "ammo", "job", "whereami", "cities", "jailtime"];
+const ALLOWED_WHILE_HELD = ["help", "status", "inventory", "balance", "ammo", "job", "whereami", "height", "cities", "jailtime"];
 
 function reply(msg, extra = {}) {
     return { msg, notify: [], actions: [], ...extra };
@@ -581,8 +582,19 @@ function createGame(opts = {}) {
             },
         },
         whereami: {
-            help: "the road, area and city you're standing in",
-            run: ({ ctx }) => reply(places.describe(ctx.pos)),
+            help: "the road, area and city you're standing in, and how high",
+            run: ({ ctx }) => {
+                const z = elevation.heightAt(ctx.pos);
+                return reply(z === null ? places.describe(ctx.pos) : `${places.describe(ctx.pos)} · ${elevation.describeHeight(ctx.pos)}`);
+            },
+        },
+        height: {
+            help: "[road] — how high you are (band, metres, the road under you), or one road's level by name or number",
+            run: ({ args, ctx }) => {
+                if (!args.length) return reply(elevation.heightReport(ctx.pos));
+                const which = args.join(" ");
+                return reply(elevation.roadReport(which) || `No road called ${which}. Try a name like Summit Road, or a number like 312-S45.`);
+            },
         },
         mark: {
             help: "[label] — print where you're standing, ready to paste into js-snippets (see docs/WALK-LIST.md)",
