@@ -296,9 +296,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-120.000000" y="-34.000000" z="19.306625" />
-      <bbMax x="-66.000000" y="-8.000000" z="43.012067" />
-      <bsCentre x="-93.000000" y="-21.000000" z="31.159346" />
-      <bsRadius value="32.225564" />
+      <bbMax x="-66.000000" y="-8.000000" z="43.013294" />
+      <bsCentre x="-93.000000" y="-21.000000" z="31.159960" />
+      <bsRadius value="32.225790" />
       <hdTextureDist value="750" />
       <name>island_bldg_05_04</name>
       <textureDictionary>island_buildings</textureDictionary>

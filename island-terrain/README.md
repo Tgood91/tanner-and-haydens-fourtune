@@ -7,7 +7,7 @@
 
 - **Land:** at road level (Z 25, so 25 m above the sea), with farm swells of up to about 8 m.
 - **Coast:** a 45 m beach down to the waterline, then a seabed falling to −20 m.
-- **The mountain:** about 800 m above road level. The west hills rise 140 m and the east ridge 65 m.
+- **The mountain:** about 800 m above road level, with seven soft ridges that fade out towards the peak. The west hills rise 140 m and the east ridge 65 m.
 - **Flat pads:** the 312 grid, the 1017 towers, the west tower district and the airport. The airport is a raised pad with a sea wall.
 - **Under every road:** the ground is flat at the road's height and blends back to the land within 28 m. Where a road climbs a hill, the ground is cut or filled to match it.
 

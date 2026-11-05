@@ -746,9 +746,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.700000" />
-      <bbMax x="128.000000" y="128.000000" z="30.730000" />
-      <bsCentre x="0.000000" y="0.000000" z="27.715000" />
-      <bsRadius value="181.044443" />
+      <bbMax x="128.000000" y="128.000000" z="31.100000" />
+      <bsCentre x="0.000000" y="0.000000" z="27.900000" />
+      <bsRadius value="181.047618" />
       <hdTextureDist value="750" />
       <name>island_terrain_06_03</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -764,9 +764,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.700000" />
-      <bbMax x="128.000000" y="128.000000" z="27.620000" />
-      <bsCentre x="0.000000" y="0.000000" z="26.160000" />
-      <bsRadius value="181.025224" />
+      <bbMax x="128.000000" y="128.000000" z="27.680000" />
+      <bsCentre x="0.000000" y="0.000000" z="26.190000" />
+      <bsRadius value="181.025468" />
       <hdTextureDist value="750" />
       <name>island_terrain_07_03</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -944,9 +944,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="20.830000" />
-      <bbMax x="128.000000" y="128.000000" z="33.660000" />
-      <bsCentre x="0.000000" y="0.000000" z="27.245000" />
-      <bsRadius value="181.132968" />
+      <bbMax x="128.000000" y="128.000000" z="34.060000" />
+      <bsCentre x="0.000000" y="0.000000" z="27.445000" />
+      <bsRadius value="181.140162" />
       <hdTextureDist value="750" />
       <name>island_terrain_04_04</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -962,9 +962,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="20.200000" />
-      <bbMax x="128.000000" y="128.000000" z="364.890000" />
-      <bsCentre x="0.000000" y="0.000000" z="192.545000" />
-      <bsRadius value="249.941591" />
+      <bbMax x="128.000000" y="128.000000" z="395.870000" />
+      <bsCentre x="0.000000" y="0.000000" z="208.035000" />
+      <bsRadius value="260.863925" />
       <hdTextureDist value="750" />
       <name>island_terrain_05_04</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -980,9 +980,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.730000" />
-      <bbMax x="128.000000" y="128.000000" z="780.320000" />
-      <bsCentre x="0.000000" y="0.000000" z="402.525000" />
-      <bsRadius value="418.923695" />
+      <bbMax x="128.000000" y="128.000000" z="807.210000" />
+      <bsCentre x="0.000000" y="0.000000" z="415.970000" />
+      <bsRadius value="431.087854" />
       <hdTextureDist value="750" />
       <name>island_terrain_06_04</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -998,9 +998,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.730000" />
-      <bbMax x="128.000000" y="128.000000" z="719.260000" />
-      <bsCentre x="0.000000" y="0.000000" z="371.995000" />
-      <bsRadius value="391.613304" />
+      <bbMax x="128.000000" y="128.000000" z="739.400000" />
+      <bsCentre x="0.000000" y="0.000000" z="382.065000" />
+      <bsRadius value="400.569972" />
       <hdTextureDist value="750" />
       <name>island_terrain_07_04</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -1016,9 +1016,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="23.920000" />
-      <bbMax x="128.000000" y="128.000000" z="106.460000" />
-      <bsCentre x="0.000000" y="0.000000" z="65.190000" />
-      <bsRadius value="185.664248" />
+      <bbMax x="128.000000" y="128.000000" z="120.980000" />
+      <bsCentre x="0.000000" y="0.000000" z="72.450000" />
+      <bsRadius value="187.411742" />
       <hdTextureDist value="750" />
       <name>island_terrain_08_04</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -1196,9 +1196,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.700000" />
-      <bbMax x="128.000000" y="128.000000" z="374.510000" />
-      <bsCentre x="0.000000" y="0.000000" z="199.605000" />
-      <bsRadius value="251.713645" />
+      <bbMax x="128.000000" y="128.000000" z="395.870000" />
+      <bsCentre x="0.000000" y="0.000000" z="210.285000" />
+      <bsRadius value="259.248514" />
       <hdTextureDist value="750" />
       <name>island_terrain_05_05</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -1213,10 +1213,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-128.000000" y="-128.000000" z="25.090000" />
-      <bbMax x="128.000000" y="128.000000" z="828.500000" />
-      <bsCentre x="0.000000" y="0.000000" z="426.795000" />
-      <bsRadius value="440.607430" />
+      <bbMin x="-128.000000" y="-128.000000" z="25.080000" />
+      <bbMax x="128.000000" y="128.000000" z="828.730000" />
+      <bsCentre x="0.000000" y="0.000000" z="426.905000" />
+      <bsRadius value="440.716837" />
       <hdTextureDist value="750" />
       <name>island_terrain_06_05</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -1232,9 +1232,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.700000" />
-      <bbMax x="128.000000" y="128.000000" z="684.710000" />
-      <bsCentre x="0.000000" y="0.000000" z="354.705000" />
-      <bsRadius value="376.392481" />
+      <bbMax x="128.000000" y="128.000000" z="739.400000" />
+      <bsCentre x="0.000000" y="0.000000" z="382.050000" />
+      <bsRadius value="400.583353" />
       <hdTextureDist value="750" />
       <name>island_terrain_07_05</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -1250,9 +1250,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="23.670000" />
-      <bbMax x="128.000000" y="128.000000" z="131.220000" />
-      <bsCentre x="0.000000" y="0.000000" z="77.445000" />
-      <bsRadius value="188.837895" />
+      <bbMax x="128.000000" y="128.000000" z="136.080000" />
+      <bsCentre x="0.000000" y="0.000000" z="79.875000" />
+      <bsRadius value="189.544195" />
       <hdTextureDist value="750" />
       <name>island_terrain_08_05</name>
       <textureDictionary>island_terrain</textureDictionary>
@@ -1430,9 +1430,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-128.000000" y="-128.000000" z="24.700000" />
-      <bbMax x="128.000000" y="128.000000" z="29.160000" />
-      <bsCentre x="0.000000" y="0.000000" z="26.930000" />
-      <bsRadius value="181.033071" />
+      <bbMax x="128.000000" y="128.000000" z="29.520000" />
+      <bsCentre x="0.000000" y="0.000000" z="27.110000" />
+      <bsRadius value="181.035378" />
       <hdTextureDist value="750" />
       <name>island_terrain_06_06</name>
       <textureDictionary>island_terrain</textureDictionary>

@@ -50,7 +50,7 @@
  "junctions": 356,
  "unlevelJunctions": [
   {
-   "gap": 3.7,
+   "gap": 4.1,
    "roads": [
     "770-B5",
     "770-A1"
@@ -61,7 +61,7 @@
    ]
   },
   {
-   "gap": 3.7,
+   "gap": 4.1,
    "roads": [
     "770-A1",
     "770-B5"
