@@ -26,15 +26,32 @@
     layer.appendChild(g);
     return { g, x: m.x, y: m.y };
   });
-  // nudge markers that land on top of each other apart, so each can be hovered
-  for (let i = 0; i < marks.length; i++) for (let j = 0; j < i; j++) {
-    if (Math.abs(marks[i].x - marks[j].x) < 6 && Math.abs(marks[i].y - marks[j].y) < 6) marks[i].x = marks[j].x + 7;
-  }
   const W = 4660;
+  // Markers keep a steady size on screen, so which ones overlap depends on the zoom. Each time
+  // the view changes, markers closer than one badge apart are gathered into a cluster and laid
+  // out side by side around the cluster's centre, so every one can be seen and hovered.
   const place = () => {
-    const vb = (svg.getAttribute("viewBox") || "0 0 " + W).split(/\s+/).map(Number);
+    const vb = (svg.getAttribute("viewBox") || "0 0 " + W).split(/s+/).map(Number);
     const k = 2.2 / Math.pow(W / (vb[2] || W), 0.75);   // about 13 px on screen for the whole island, growing a little as you zoom
-    for (const m of marks) m.g.setAttribute("transform", "translate(" + m.x + " " + m.y + ") scale(" + k + ")");
+    const size = 18 * k, gap = size * 1.1;              // a badge is 18 units across before scaling
+    const left = marks.slice(), clusters = [];
+    while (left.length) {
+      const c = [left.shift()];
+      for (let grown = true; grown;) {                   // pull in anything touching any member
+        grown = false;
+        for (let i = left.length - 1; i >= 0; i--)
+          if (c.some((m) => Math.abs(m.x - left[i].x) < gap && Math.abs(m.y - left[i].y) < gap)) { c.push(left.splice(i, 1)[0]); grown = true; }
+      }
+      clusters.push(c);
+    }
+    for (const c of clusters) {
+      const cx = c.reduce((a, m) => a + m.x, 0) / c.length, cy = c.reduce((a, m) => a + m.y, 0) / c.length;
+      c.sort((a, b) => a.x - b.x);
+      c.forEach((m, i) => {
+        const x = c.length === 1 ? m.x : cx + (i - (c.length - 1) / 2) * gap, y = c.length === 1 ? m.y : cy;
+        m.g.setAttribute("transform", "translate(" + x + " " + y + ") scale(" + k + ")");
+      });
+    }
   };
   place();
   new MutationObserver(place).observe(svg, { attributes: true, attributeFilter: ["viewBox"] });
