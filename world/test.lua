@@ -44,6 +44,8 @@ local COMMANDS = {}
 _G.RegisterCommand = function(name, fn) COMMANDS[name] = fn end
 
 dofile('world/data.lua')
+dofile('world/elevation_data.lua')
+dofile('world/elevation.lua')
 dofile('world/main.lua')
 local Data = FourtuneWorldData
 
@@ -123,6 +125,32 @@ COMMANDS.streets(7, { 'all' })
 ok(chat[#chat].msg:find('312 Chicago', 1, true) and chat[#chat].msg:find('770 GeePee', 1, true) and chat[#chat].msg:find('1017 Atlanta', 1, true), '/streets all shows every city')
 COMMANDS.streets(7, { 'mars' })
 ok(chat[#chat].msg:find('No city called mars', 1, true) ~= nil, '/streets with a bad name says so')
+
+-- ---------- elevation (same facts as js-snippets/game.test.js) ----------
+local EL = FourtuneElevation
+local ED = ELEVATION_DATA
+same(W.HeightAt(ED.peak), ED.peak.z, 'the summit is exact')
+same(W.HasSnow(ED.peak), true, 'snow on the summit')
+same(W.DescribeHeight(ED.peak), string.format('the summit country, %d m up, in the snow', math.floor(ED.peak.z + 0.5)), 'the summit described')
+for _, h in ipairs(ED.hilltops) do same(W.HeightAt(h), h.z, h.name .. ' is exact') end
+same(W.DescribeHeight({ x = 0, y = 0 }), 'off the island', 'off the island')
+local pal
+for _, r in ipairs(ED.roads) do if r.code == '312-A1' then pal = r end end
+local pp = { x = pal.line[16], y = pal.line[17] }
+same(W.DescribeHeight(pp), 'lowland, 25 m up', 'Palisade Boulevard is at the road level')
+local br
+for _, r in ipairs(ED.roads) do if r.name == 'Channel Bridge' then br = r end end
+local over
+for i = 1, #br.line, 3 do
+    if W.GroundAt({ x = br.line[i], y = br.line[i + 1] }) < ED.waterline then over = { x = br.line[i], y = br.line[i + 1] } break end
+end
+ok(over ~= nil and W.HeightAt(over) > 30, 'the bridge is at deck height over the water')
+ok(over ~= nil and W.DescribeHeight(over):match('^on Channel Bridge, %d+ m above the water$') ~= nil, 'the bridge described')
+same(W.IsSea(over), false, 'a bridge is not the sea')
+-- every road the island draws has a level (roads it hasn't drawn yet have no ground to measure)
+for _, r in ipairs(ED.roads) do ok(W.RoadProfile(r.code) ~= nil and r.max >= r.min, r.name .. ' has a level') end
+ok(EL.RoadReport('312-a1'):match('^Palisade Boulevard %(312%-A1%), %d+ m long: level at 25 m%.$') ~= nil, '/height <road> reports a level road')
+ok(EL.HeightReport(ED.peak):match("You're on the summit of Mt%. Fuugee%.$") ~= nil, '/height on the summit')
 
 print(string.format('# pass %d\n# fail %d', passed, failed))
 os.exit(failed == 0 and 0 or 1)

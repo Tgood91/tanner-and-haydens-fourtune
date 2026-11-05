@@ -24,7 +24,8 @@
     "world/",
     "crew/",
     "world-map/",
-    "tools/atlas-template.html"
+    "tools/atlas-template.html",
+    "js-snippets/elevation-data.json"
   ],
   "scripts": {
     "test": "node --test js-snippets/game.test.js tools/kb.test.js",
@@ -39,7 +40,8 @@
     "gen:world": "node tools/gen-world-data.js > world/data.lua",
     "join-server": "node tools/join-server.js",
     "gen:atlas": "node tools/gen-atlas.js > docs/atlas.html",
-    "test:lua": "lua world/test.lua && lua crew/test.lua && lua world-map/test.lua"
+    "test:lua": "lua world/test.lua && lua crew/test.lua && lua world-map/test.lua",
+    "gen:elevation": "node tools/gen-elevation.js"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
