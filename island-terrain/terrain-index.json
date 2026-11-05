@@ -12,7 +12,7 @@
  "heightmapMinZ": -20.0,
  "roadLevel": 25,
  "groundUnderRoads": 24.7,
- "peak": 828.7,
+ "peak": 898.5,
  "collisionMaterials": {
   "island_grass": "GRASS",
   "island_sand": "SAND_COMPACT",
@@ -594,7 +594,7 @@
     -6784.0
    ],
    "zmin": 24.7,
-   "zmax": 31.1,
+   "zmax": 68.38,
    "materials": [
     "pavement"
    ]
@@ -606,7 +606,7 @@
     -6784.0
    ],
    "zmin": 24.7,
-   "zmax": 27.68,
+   "zmax": 65.29,
    "materials": [
     "grass",
     "pavement"
@@ -766,7 +766,7 @@
     -6528.0
    ],
    "zmin": 24.73,
-   "zmax": 807.21,
+   "zmax": 898.49,
    "materials": [
     "grass",
     "pavement",
@@ -780,7 +780,7 @@
     -6528.0
    ],
    "zmin": 24.73,
-   "zmax": 739.4,
+   "zmax": 753.29,
    "materials": [
     "grass",
     "pavement",
@@ -794,7 +794,7 @@
     -6528.0
    ],
    "zmin": 23.92,
-   "zmax": 120.98,
+   "zmax": 136.68,
    "materials": [
     "grass",
     "pavement",
@@ -943,7 +943,7 @@
     -6272.0
    ],
    "zmin": 25.08,
-   "zmax": 828.73,
+   "zmax": 863.94,
    "materials": [
     "grass",
     "pavement",
@@ -971,7 +971,7 @@
     -6272.0
    ],
    "zmin": 23.67,
-   "zmax": 136.08,
+   "zmax": 136.75,
    "materials": [
     "grass",
     "pavement",
@@ -1279,7 +1279,7 @@
     -5760.0
    ],
    "zmin": -7.02,
-   "zmax": 27.8,
+   "zmax": 27.79,
    "materials": [
     "pavement",
     "rock",

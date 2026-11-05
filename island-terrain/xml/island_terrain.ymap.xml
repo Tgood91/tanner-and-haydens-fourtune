@@ -6,9 +6,9 @@
   <flags value="0" />
   <contentFlags value="1" />
   <streamingExtentsMin x="-8668.000000" y="-9180.000000" z="-1520.000000" />
-  <streamingExtentsMax x="-2340.000000" y="-3876.000000" z="2328.730000" />
+  <streamingExtentsMax x="-2340.000000" y="-3876.000000" z="2398.490000" />
   <entitiesExtentsMin x="-7168.000000" y="-7680.000000" z="-20.000000" />
-  <entitiesExtentsMax x="-3840.000000" y="-5376.000000" z="828.730000" />
+  <entitiesExtentsMax x="-3840.000000" y="-5376.000000" z="898.490000" />
   <entities>
     <Item type="CEntityDef">
       <archetypeName>island_terrain_02_00</archetypeName>

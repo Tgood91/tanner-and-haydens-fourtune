@@ -41,6 +41,7 @@ def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2
 ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
           (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
 MOUNTAIN = (780, 455)
+YARD = (1212, 398, 1328, 562)       # the East Shipping Yard's paved footprint: x0, y0, x1, y1
 WEST_TOWERS = (370, 510, 128, 102)  # the west tower district (FAFO ST ... EUPHORIA Lane): no trees or farms in it
 RING = (760, 470, 620, 345)        # The Perimeter: round the 312 waterfront, shares the south run with the Inner Loop
 INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
@@ -95,6 +96,7 @@ def forest(cx, cy, rx, ry, n, dark="#2f5a2c", light="#3f7036", title=""):
         t = random.uniform(0, 2*math.pi); r = math.sqrt(random.random())
         x = cx + rx*r*math.cos(t); y = cy + ry*r*math.sin(t)
         if inside_ellipse(x, y, *WEST_TOWERS): continue          # cleared for the west towers
+        if YARD[0] - 8 < x < YARD[2] + 8 and YARD[1] - 8 < y < YARD[3] + 8: continue   # and for the shipping yard
         s = random.uniform(4, 7.5)
         a(f'  <circle cx="{f(x)}" cy="{f(y)}" r="{f(s)}" fill="{random.choice([dark, light])}"/>')
     a('</g>')
@@ -107,12 +109,20 @@ forest(1080, 340, 60, 26, 40)
 # ---------------------------------------------------------------- the mountain
 mx, my = MOUNTAIN
 forest(mx, my + 40, 235, 150, 520, title="The mountain's forest")
-peak = [(mx-200,my+95),(mx-150,my+20),(mx-95,my-55),(mx-40,my-120),(mx+5,my-150),(mx+55,my-110),(mx+120,my-40),
-        (mx+175,my+25),(mx+215,my+100),(mx+120,my+130),(mx,my+120),(mx-110,my+135)]
-a(f'<path d="{smooth(peak)}" fill="url(#rock)" opacity=".95"><title>The mountain</title></path>')
+# The rock face is drawn at 3/4 of its outline about (790, 470), so it sits inside County Line
+# Road with room to spare and clear of the Connector and the Inner Loop: no road climbs the rock.
+ROCK_K, ROCK_C = 0.75, (mx + 10, my + 15)
+def rk(x, y): return (ROCK_C[0] + (x - ROCK_C[0]) * ROCK_K, ROCK_C[1] + (y - ROCK_C[1]) * ROCK_K)
+ROCK = (788, 453, 158, 109)        # an ellipse round the drawn rock, for routing streets clear of it
+peak = [rk(x, y) for x, y in [(mx-200,my+95),(mx-150,my+20),(mx-95,my-55),(mx-40,my-120),(mx+5,my-150),(mx+55,my-110),(mx+120,my-40),
+        (mx+175,my+25),(mx+215,my+100),(mx+120,my+130),(mx,my+120),(mx-110,my+135)]]
+a(f'<path id="mountain-rock" d="{smooth(peak)}" fill="url(#rock)" opacity=".95"><title>The mountain</title></path>')
+top = rk(mx+5, my-150)
 for dx, dy in [(-130,90),(-70,95),(-20,100),(40,95),(100,100),(160,90)]:
-    a(f'<path d="M{mx+5} {my-150} Q{mx+dx*.5} {my-30} {mx+dx} {my+dy}" stroke="rgba(60,52,40,.45)" stroke-width="3" fill="none"/>')
-a(f'<path d="M{mx-35} {my-125} L{mx+5} {my-152} L{mx+50} {my-112} Q{mx+5} {my-120} {mx-35} {my-125}Z" fill="#f1f0ea"/>')
+    c, e = rk(mx+dx*.5, my-30), rk(mx+dx, my+dy)
+    a(f'<path d="M{f(top[0])} {f(top[1])} Q{f(c[0])} {f(c[1])} {f(e[0])} {f(e[1])}" stroke="rgba(60,52,40,.45)" stroke-width="2.4" fill="none"/>')
+snow = [rk(x, y) for x, y in [(mx-35,my-125),(mx+5,my-152),(mx+50,my-112),(mx+5,my-120)]]
+a(f'<path d="M{f(snow[0][0])} {f(snow[0][1])} L{f(snow[1][0])} {f(snow[1][1])} L{f(snow[2][0])} {f(snow[2][1])} Q{f(snow[3][0])} {f(snow[3][1])} {f(snow[0][0])} {f(snow[0][1])}Z" fill="#f1f0ea"/>')
 forest(mx-60, my+80, 90, 40, 120)
 forest(mx+90, my+70, 90, 40, 120)
 
@@ -157,7 +167,6 @@ for gx in range(430, 1130, 34):
             bw, bh = random.uniform(7, 14), random.uniform(6, 10)
             bx, by = gx + 4 + random.uniform(0, 26 - bw - 2), gy + 4 + random.uniform(0, 22 - bh - 2)
             bld("city-312", bx, by, bw, bh, f'  <rect x="{f(bx)}" y="{f(by)}" width="{f(bw)}" height="{f(bh)}" fill="{shade}" filter="url(#shadow)"/>')
-a('%%city-312%%')          # after the pavement, so the buildings sit on top of it
 a('</g>')
 
 # ---------------------------------------------------------------- 1017 houses (east and west of downtown)
@@ -174,8 +183,6 @@ for gx in range(330, 560, 26):
         if not inside_ellipse(gx, gy, *RING[:2], RING[2]-20, RING[3]-20): continue
         if random.random() < .3: continue
         bld("houses-1017", gx - 1, gy - 4, 20, 20, f'  <rect x="{gx}" y="{gy}" width="18" height="12" fill="#8d8579" transform="rotate(-28 {gx+9} {gy+6})" filter="url(#shadow)"/>')
-a('%%houses-1017%%')
-a('%%frontage%%')
 a('</g>')
 
 # ---------------------------------------------------------------- roads
@@ -194,7 +201,7 @@ road("ironline", "Ironline Expressway", smooth([(330,210),(420,250),(480,320),(4
 road("palisade", "Palisade Boulevard", "M440 300 L1120 300", "arterial")
 road("causeway", "The Causeway — to the 312 docks", "M1120 230 L1300 150", "arterial")
 # ends at County Line Road: carrying on to The Connector, ~20 m higher only 120 m on, was too steep to join both
-road("backroads", "The Backroads", smooth([(420,560),(470,470),(550,424)], closed=False), "street")
+road("backroads", "Backroads Lane", smooth([(420,560),(470,470),(550,424)], closed=False), "street")
 road("backroads-hwy", "Backroads Highway", smooth([(1105,460),(1180,520),(1240,620),(1280,700)], closed=False), "arterial")
 road("red-clay", "Red Clay Expressway", "M560 680 L960 690", "arterial")
 road("westside-run", "Westside Run", smooth([(150,700),(260,690),(390,680)], closed=False), "arterial")
@@ -212,6 +219,9 @@ road("cope-st", "COPE ST", "M368 418 L368 600", "street")
 road("euphoria-ln", "EUPHORIA Lane", smooth([(285,590),(340,575),(400,540),(440,500),(470,450)], closed=False) + " M400 540 L420 560", "street")
 road("hodl-st", "HODL ST", smooth([(286,505),(289,530),(291,555),(296,572),(302,586)], closed=False), "street")   # FOMO ST down to EUPHORIA Lane
 road("patience-ln", "Patience Lane", "M307.4 505 L288.9 529.5", "street")   # FOMO ST down to HODL ST
+# The East Shipping Yard's two ways in: from Backroads Highway, and out to the Perimeter.
+road("freight-way", "Freight Way", "M1152 500 L1212 500", "street")
+road("container-rd", "Container Road", "M1328 470 L1379 470", "street")
 FARM_NAMES = ["Orchard Track", "Millpond Lane", "Windmill Lane", "Sawmill Track", "Pasture Way", "Haybale Lane", "Ridge Track"]
 for i, (x1, y1, x2, y2) in enumerate([(500,640,575,610),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
     road(f"farm-{i+1}", FARM_NAMES[i], f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
@@ -267,6 +277,21 @@ def fitter(city):
 FIT_PARAMS = {}   # the same fit, handed to the page: "you are here" and click-to-waypoint use it
 FIT = {c: fitter(c) for c in CITY_BOX}
 
+def around_rock(pts, margin=12):
+    """Bend a street round the mountain's rock: add points every 6 units, then move any that
+    fall on the rock out to just past its edge, so the street goes round the foot of it."""
+    dense = [pts[0]]
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        n = max(1, int(math.dist((x1, y1), (x2, y2)) / 6))
+        dense += [(x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n) for k in range(1, n + 1)]
+    cx, cy, rx, ry = ROCK
+    out = []
+    for x, y in dense:
+        d = math.hypot((x - cx) / (rx + margin), (y - cy) / (ry + margin))
+        if d < 1: x, y = cx + (x - cx) / max(d, 1e-6), cy + (y - cy) / max(d, 1e-6)
+        out.append((x, y))
+    return out
+
 # Every road on the island gets a name and a number. Roads the game knows keep their
 # places.js number (1017-H1 ...); the map-only ones carry on each city's sequence.
 CODE_BY_NAME = {r["name"]: r["code"] for r in GAME["roads"]}
@@ -276,6 +301,7 @@ for r in ALL_GAME_ROADS:
     key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
 MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
             "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"), "patience-ln": ("geepee", "S"),
+            "freight-way": ("geepee", "S"), "container-rd": ("geepee", "S"),
             "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
             "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S"),
             "cut-st": ("chicago", "S")}
@@ -296,11 +322,18 @@ STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
 LABELS = []   # (path id, name, kind)
 STREET_LINES = []   # (points, width, kind, city) of every game street drawn, for the buildings
+# ---------------------------------------------------------------- the East Shipping Yard (ground)
+yx0, yy0, yx1, yy1 = YARD
+a(f'<g id="yard-ground"><title>East Shipping Yard</title>'
+  f'<rect x="{yx0}" y="{yy0}" width="{yx1 - yx0}" height="{yy1 - yy0}" rx="4" fill="#a4a09a" stroke="#6f6c67" stroke-width="2"/>'
+  + "".join(f'<line x1="{yx0 + 4}" y1="{y}" x2="{yx1 - 4}" y2="{y}" stroke="#f2f0ea" stroke-width=".6" stroke-dasharray="4 3" opacity=".7"/>' for y in (430, 526))
+  + f'<rect x="{yx0 + 54}" y="{yy0 + 30}" width="8" height="{yy1 - yy0 - 60}" fill="#8f8b85"/></g>')   # the centre lane
+
 a('<g id="streets" fill="none" stroke-linecap="round" stroke-linejoin="round">')
 for kind in ["backroad", "street", "arterial", "highway"]:
     for i, r in enumerate(GAME["roads"]):
         if r["kind"] != kind or r["name"] in ON_ISLAND: continue
-        pts = [FIT[r["city"]](x, y) for x, y in r["points"]]
+        pts = around_rock([FIT[r["city"]](x, y) for x, y in r["points"]])
         if pts[-1][0] < pts[0][0]: pts.reverse()                    # so the label reads left to right
         d = "M" + " L".join(f"{f(x)} {f(y)}" for x, y in pts)
         w, fill, casing, dash = STREET_STYLE[kind]
@@ -328,6 +361,14 @@ for x, y, name in [(760,655,"The central interchange"),(760,798,"The south stack
     a(f'<circle cx="{x}" cy="{y}" r="22" fill="none" stroke="#cfd0cc" stroke-width="7"><title>{name}</title></circle>')
 
 # ---------------------------------------------------------------- 1017 towers (25+ floors)
+# Everything with height is drawn above the roads, so a building's shadow falls across
+# the street the way it would, and nothing flat is ever painted over something standing.
+a('<g id="buildings">')
+a('%%city-312%%')
+a('%%houses-1017%%')
+a('%%frontage%%')
+a('%%yard%%')
+a('</g>')
 a('<g id="towers">')
 def towers(x0, x1, y0, y1, step, label):
     for gx in range(x0, x1, step):
@@ -359,6 +400,25 @@ for _ in range(260):
         f'<rect x="{f(x_ + sz * .4)}" y="{f(y_ + sz * .4)}" width="{f(sz * .2)}" height="{f(sz * .2)}" fill="#8d959d"/></g>')
 a('%%towers%%')
 a('</g>')
+
+# ---------------------------------------------------------------- the East Shipping Yard (standing)
+# Two warehouses along the top; container stacks in rows either side of the centre lane,
+# gantry cranes straddling them; trucks waiting in the loading lane along the bottom.
+for x, w in ((1218, 46), (1272, 50)):
+    bld("yard", x, 404, w, 20, f'  <g><title>Warehouse — East Shipping Yard</title><rect x="{x + 2}" y="406" width="{w}" height="20" fill="rgba(20,24,30,.38)"/>'
+        f'<rect x="{x}" y="404" width="{w}" height="20" rx="1" fill="#c9c2b6" stroke="#5b564e" stroke-width="1"/>'
+        + "".join(f'<line x1="{x + k}" y1="404" x2="{x + k}" y2="424" stroke="#a69e90" stroke-width=".8"/>' for k in range(6, w, 6)) + '</g>')
+for row, y in enumerate(range(436, 520, 14)):
+    for x0, x1 in ((1222, 1264), (1276, 1318)):
+        L = x1 - x0 - random.choice((0, 6, 10))
+        bld("yard", x0, y, L, 9, f'  <g><title>Container stack</title><rect x="{x0 + 1.4}" y="{y + 1.4}" width="{L}" height="9" fill="rgba(20,24,30,.35)"/>'
+            f'<rect x="{x0}" y="{y}" width="{L}" height="9" fill="url(#containers)" stroke="#3a3f45" stroke-width=".6"/></g>')
+for x in (1240, 1296):                      # gantry cranes: legs either side of a row block, beam across
+    bld("yard", x - 9, 430, 18, 98, f'  <g><title>Gantry crane</title><rect x="{x - 9}" y="430" width="18" height="98" fill="none" stroke="#f2c230" stroke-width="2.2"/>'
+        f'<rect x="{x - 9}" y="{470 + (x % 7)}" width="18" height="4" fill="#f2c230" stroke="#7a5d0a" stroke-width=".6"/></g>')
+for x, flip in ((1228, 0), (1252, 0), (1284, 180)):
+    bld("yard", x - 1, 535, 20, 8, f'  <g transform="rotate({flip} {x + 9} 539)"><title>Truck</title><rect x="{x}" y="535" width="14" height="8" fill="url(#containers)" stroke="#333" stroke-width=".5"/>'
+        f'<rect x="{x + 14.5}" y="536" width="4.5" height="6" rx="1" fill="#e8e6df" stroke="#333" stroke-width=".5"/></g>')
 
 # ---------------------------------------------------------------- the airport
 a('<g id="airport">')
@@ -451,7 +511,9 @@ for rid, t in [("perimeter",.27),("connector",.57),("county-line",.25),("inner-l
 a('<g id="on-road"></g>')
 
 # ---------------------------------------------------------------- stations (fixed)
+STATION_SPOTS = []    # every job station's centre: buildings keep off them, carts too
 def station(x, y, kind, title):
+    STATION_SPOTS.append((x, y))
     if kind == "glizzy":
         a(f'<g class="station" transform="translate({x} {y})"><title>{title} — /apply glizzys</title>'
           '<rect x="-12" y="-12" width="24" height="24" rx="5" fill="#f7c948" stroke="#d62828" stroke-width="3"/>'
@@ -466,6 +528,7 @@ for x, y, t in [(705,705,"Glizzys-2-Go, south towers"),(890,630,"Glizzys-2-Go, n
     station(x, y, "glizzy", t)
 station(1290, 745, "dock", "Dockhand, 1017 Harbor")
 station(1150, 255, "dock", "Dockhand, 312 Port")
+station(1300, 546, "dock", "Dockhand, East Shipping Yard")
 a('</g>')
 
 # casings
@@ -489,11 +552,12 @@ for rid, name, d, k in ROADS:
     else:
         a(f'  <text class="name main-name" font-size="8" fill="#fff" stroke-width="2.4" dy="2.6"><textPath href="#{rid}" startOffset="{25 if d.endswith("Z") else 50}%" text-anchor="middle">{label}{num(ROAD_CODE[rid], 6)}</textPath></text>')
 for rid, name, kind, code in LABELS:
-    a(f'  <text class="name street-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}{num(code, 3.8)}</textPath></text>')
+    a(f'  <text class="name street-name game-name" font-size="{5 if kind != "backroad" else 4.4}" fill="{"#fff" if kind != "backroad" else "#f3e2b8"}" stroke-width="1.6" dy="1.7"><textPath href="#{rid}" startOffset="50%" text-anchor="middle">{name}{num(code, 3.8)}</textPath></text>')
 for z in GAME["zones"]:
     x, y = FIT[z["city"]](z["x"], z["y"])
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
       f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
+a(f'  <text class="name zone-name" x="1270" y="393" text-anchor="middle" font-size="7" font-style="italic" fill="#ffe9a8" stroke-width="2.4">East Shipping Yard</text>')
 a('</g>')
 
 # ---------------------------------------------------------------- you-are-here and the waypoint (placed by script)
@@ -568,7 +632,7 @@ def on_land(x, y):
         if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
     return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
 
-kept = {"312-towers": [], "city-312": [], "houses-1017": [], "towers": [], "west-towers": []}
+kept = {"312-towers": [], "city-312": [], "houses-1017": [], "towers": [], "west-towers": [], "yard": []}
 TAKEN = {}        # footprints already used, so frontage never lands on a building
 def take(x, y, w, h):
     for cx in range(int(x // CELL), int((x + w) // CELL) + 1):
@@ -582,6 +646,7 @@ def taken(x, y, w, h, gap=1.5):
 cleared = 0
 for group, x, y, w, h, svg in BUILDINGS:
     if on_road(x, y, w, h) or (group in ("312-towers", "city-312", "west-towers") and taken(x, y, w, h, 1.5)): cleared += 1; continue
+    if any(x - 15 < sx < x + w + 15 and y - 15 < sy < y + h + 15 for sx, sy in STATION_SPOTS): cleared += 1; continue
     kept[group].append(svg); take(x, y, w, h)
 
 # Frontage: walk each city street and set a building on either side every few units,
@@ -608,6 +673,7 @@ def frontage_along(pts, w, city):
                 r = math.hypot(bw, bh) / 2          # the turned footprint's bounding box
                 bx, by, bs = cx - r, cy - r, 2 * r
                 if not on_land(cx, cy) or on_road(bx + 2, by + 2, bs - 4, bs - 4, 0.5) or taken(bx + 1, by + 1, bs - 2, bs - 2, 0.5): continue
+                if any(math.dist((cx, cy), sp) < 22 for sp in STATION_SPOTS): continue
                 take(bx + 1, by + 1, bs - 2, bs - 2)
                 frontage.append(f'  <rect x="{f(cx - bw / 2)}" y="{f(cy - bh / 2)}" width="{bw}" height="{bh}" fill="{random.choice(colours)}" '
                                 f'transform="rotate({f(ang)} {f(cx)} {f(cy)})" filter="url(#shadow)"/>')
@@ -619,7 +685,7 @@ for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the
     d = next(d for r, n, d, k in ROADS if r == rid)
     frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
 
-FILL = {"%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
+FILL = {"%%yard%%": "\n".join(kept["yard"]), "%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
         "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"] + kept["312-towers"]), "%%frontage%%": "\n".join(frontage)}
 out = [FILL.get(line, line) for line in out]
 print(f"buildings: {len(BUILDINGS) - cleared} kept, {cleared} left out (on a road, or overlapping in a 312 block), {len(frontage)} added along streets", file=sys.stderr)
@@ -689,6 +755,7 @@ print(f'''<!DOCTYPE html>
   #island {{ touch-action: none; cursor: grab; }}
   #island.dragging {{ cursor: grabbing; }}
   #island .name {{ display: none; pointer-events: none; }}
+  #island .name.culled {{ visibility: hidden; }}
   #island .marker {{ pointer-events: none; }}
   #island .pulse {{ animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }}
   @keyframes pulse {{ from {{ transform: scale(.6); opacity: 1; }} to {{ transform: scale(1.6); opacity: 0; }} }}
@@ -735,10 +802,31 @@ window.placeOnRoad = function () {{
   const ON = {json.dumps(ON)};
   const el = (tag, attrs, parent) => {{ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; }};
   const tip = (g, text) => {{ const t = document.createElementNS(NS, "title"); t.textContent = text; g.appendChild(t); }};
+  // Carts get a random spot each time, but only on the island (not the airport, the bridge or
+  // the sea), at least 26 units from any job station and 18 from another cart; 40 tries each.
+  const coast = document.getElementById("coast");
+  const svgEl = document.getElementById("island");
+  const onIsland = (x, y) => {{ const pt = svgEl.createSVGPoint(); pt.x = x; pt.y = y; return coast.isPointInFill(pt); }};
+  const stations = [...document.querySelectorAll("#stations .station")].map((s) => {{
+    const m = s.getAttribute("transform").match(/translate\\(([-\\d.]+)[ ,]+([-\\d.]+)\\)/); return [+m[1], +m[2]]; }});
+  const carts = [];
+  const cartSpot = (L, path) => {{
+    for (let k = 0; k < 40; k++) {{
+      const t = 0.04 + Math.random() * 0.92, p = path.getPointAtLength(L * t);
+      if (!onIsland(p.x, p.y)) continue;
+      if (stations.some(([sx, sy]) => Math.hypot(p.x - sx, p.y - sy) < 26)) continue;
+      if (carts.some(([cx, cy]) => Math.hypot(p.x - cx, p.y - cy) < 18)) continue;
+      return t;
+    }}
+    return null;
+  }};
   for (const [cls, rid, t0, lane, extra] of ON) {{
     const path = document.getElementById(rid); if (!path) continue;
-    const t = extra.includes('data-random') ? 0.04 + Math.random() * 0.92 : t0;
-    const L = path.getTotalLength(), p = path.getPointAtLength(L * t), q = path.getPointAtLength(Math.min(L, L * t + 1));
+    const L = path.getTotalLength();
+    const t = extra.includes('data-random') ? cartSpot(L, path) : t0;
+    if (t === null) continue;                      // no good spot on this road this time: leave the cart out
+    const p = path.getPointAtLength(L * t), q = path.getPointAtLength(Math.min(L, L * t + 1));
+    if (cls === "cart") carts.push([p.x, p.y]);
     let ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
     const nx = -(q.y - p.y), ny = q.x - p.x, nl = Math.hypot(nx, ny) || 1;
     const x = p.x + nx / nl * lane, y = p.y + ny / nl * lane;
@@ -771,6 +859,7 @@ window.placeOnRoad();
     const z = W / vb.w;
     svg.classList.toggle("z-main", z >= 1.6);
     svg.classList.toggle("z-street", z >= 2.6);
+    cullLabels();
     drawMarkers(z);
   }};
 
@@ -843,6 +932,73 @@ window.placeOnRoad();
     if (e.key === "-" || e.key === "_") window.mapZoom("out");
     if (e.key === "0") window.mapZoom("reset");
   }});
+  // ---- label culling. Text size is in map units, so whether two labels collide doesn't
+  // depend on the zoom: measure every glyph once (when the map is first on screen), keep
+  // labels greedily by rank, and hide the ones that would sit on a kept label.
+  let culled = false;
+  function cullLabels() {{
+    if (culled || svg.getBoundingClientRect().width === 0) return;      // not on screen yet
+    const all = [...svg.querySelectorAll("#names text")];
+    // main roads, then districts, then the game's own streets (the names /whereami says), then map-only streets
+    const rank = (t) => t.classList.contains("main-name") ? 0 : t.classList.contains("zone-name") ? 1 : t.classList.contains("game-name") ? 2 : 3;
+    const was = all.map((t) => t.style.display);
+    const kept = [];
+    const PAD = 1;      // a little air round every name, so near-touches don't count as clear
+    const hits = (a, b) => a[0] - PAD < b[2] && b[0] - PAD < a[2] && a[1] - PAD < b[3] && b[1] - PAD < a[3];
+    const measure = (t) => {{ const g = []; let shown = 0, n = 0;
+      try {{ n = t.getNumberOfChars(); for (let i = 0; i < n; i++) {{ const e = t.getExtentOfChar(i); if (e.width > 0) {{ shown++; g.push([e.x, e.y, e.x + e.width, e.y + e.height]); }} }} }} catch (_) {{}}
+      return {{ g, whole: n > 0 && shown === n }};      // whole: no letter ran off the end of its street
+    }};
+    all.forEach((t) => {{ t.style.display = "inline"; }});
+    for (const t of all.sort((a, b) => rank(a) - rank(b))) {{
+      // Try the label where it is, then further along its own road, then a little smaller;
+      // keep the first spot where every letter shows and none lands on a label already kept.
+      const tp = t.querySelector("textPath");
+      const size0 = parseFloat(t.getAttribute("font-size")), off0 = tp ? tp.getAttribute("startOffset") : null;
+      const offsets = tp ? [off0, "50%", "30%", "70%", "18%", "82%"] : [null];
+      let placed = null;
+      for (const scale of [1, 0.85, 0.7]) {{
+        t.setAttribute("font-size", size0 * scale);
+        for (const off of offsets) {{
+          if (tp) tp.setAttribute("startOffset", off);
+          const m = measure(t);
+          if (m.whole && !m.g.some((g) => kept.some((k) => hits(g, k)))) {{ placed = m.g; break; }}
+        }}
+        if (placed) break;
+      }}
+      if (!placed && tp) {{
+        // Too short or too crowded to follow its road: write the name straight, beside the
+        // road's middle (above, below, either side), as long as it lands on nothing.
+        t.setAttribute("font-size", size0); tp.setAttribute("startOffset", off0);
+        const road = document.querySelector(tp.getAttribute("href"));
+        const L = road.getTotalLength(), mid = road.getPointAtLength(L / 2);
+        const flat = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        for (const at of ["class", "fill", "stroke-width", "font-weight"]) if (t.getAttribute(at)) flat.setAttribute(at, t.getAttribute(at));
+        flat.classList.add("flat-name"); flat.setAttribute("text-anchor", "middle");
+        flat.innerHTML = tp.innerHTML;
+        flat.style.display = "inline";               // measurable now; the zoom rules take over after
+        t.parentNode.appendChild(flat);
+        for (const scale of [1, 0.85, 0.7, 0.6]) {{
+          flat.setAttribute("font-size", size0 * scale);
+          for (const [dx, dy] of [[0, -6], [0, 9], [0, 0], [-18, 0], [18, 0], [0, -14], [0, 16], [-30, -8], [30, -8], [-30, 10], [30, 10], [0, -22], [0, 24]]) {{
+            flat.setAttribute("x", mid.x + dx); flat.setAttribute("y", mid.y + dy);
+            const m = measure(flat);
+            if (m.whole && !m.g.some((g) => kept.some((k) => hits(g, k)))) {{ placed = m.g; break; }}
+          }}
+          if (placed) break;
+        }}
+        if (placed) {{ flat.style.display = ""; t.classList.add("culled"); kept.push(...placed); continue; }}   // the flat copy shows instead
+        flat.remove();
+      }}
+      if (!placed) {{ t.setAttribute("font-size", size0); if (tp) tp.setAttribute("startOffset", off0); t.classList.add("culled"); continue; }}
+      kept.push(...placed);
+    }}
+    all.forEach((t, i) => {{ t.style.display = was[i]; }});
+    culled = true;
+  }}
+  window.mapRefreshLabels = () => {{ culled = false; svg.querySelectorAll(".flat-name").forEach((t) => t.remove());
+    svg.querySelectorAll(".culled").forEach((t) => t.classList.remove("culled")); cullLabels(); }};
+
   apply();
 }})();
 </script>
