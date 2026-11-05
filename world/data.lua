@@ -234,7 +234,6 @@ FourtuneWorldData = {
         { name = "Old Mill Track", code = "770-B3", city = "geepee", kind = "backroad", width = 11, points = {
             { x = 1430, y = 4600 },
             { x = 1560, y = 4560 },
-            { x = 1655, y = 4490 },
         } },
         { name = "Creekbed Lane", code = "770-B4", city = "geepee", kind = "backroad", width = 11, points = {
             { x = 1840, y = 4640 },

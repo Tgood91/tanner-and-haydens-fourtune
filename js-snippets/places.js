@@ -106,7 +106,8 @@ const ROAD_DEFS = [
     // ---- back roads: unlit, unsigned, useful ----
     { name: "Silo Track",              city: "geepee",   kind: "backroad",  points: [{ x: 1700, y: 4200 }, { x: 1762, y: 4122 }, { x: 1839, y: 4054 }] },
     { name: "Dust Road",               city: "geepee",   kind: "backroad",  points: [{ x: 1550, y: 4352 }, { x: 1652, y: 4302 }] },
-    { name: "Old Mill Track",          city: "geepee",   kind: "backroad",  points: [{ x: 1430, y: 4600 }, { x: 1560, y: 4560 }, { x: 1655, y: 4490 }] },
+    // ends at County Line Road: it used to run on along Grain Elevator Road, and over The Connector 20 m below it
+    { name: "Old Mill Track",          city: "geepee",   kind: "backroad",  points: [{ x: 1430, y: 4600 }, { x: 1560, y: 4560 }] },
     { name: "Creekbed Lane",           city: "geepee",   kind: "backroad",  points: [{ x: 1840, y: 4640 }, { x: 1960, y: 4540 }, { x: 2050, y: 4420 }] },
     { name: "Hollow Road",             city: "geepee",   kind: "backroad",  points: [{ x: 1500, y: 4100 }, { x: 1620, y: 4060 }, { x: 1740, y: 4000 }] },
     { name: "Fence Line Track",        city: "geepee",   kind: "backroad",  points: [{ x: 1808, y: 4183 }, { x: 2000, y: 4120 }, { x: 2080, y: 3990 }] },

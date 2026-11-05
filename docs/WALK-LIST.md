@@ -120,7 +120,7 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Thresher Lane** · 770-S2 · street · 2 points: (1912, 3674) → (1960, 3740)
 - [ ] **Silo Track** · 770-B1 · backroad · 3 points: (1700, 4200) → (1762, 4122) → (1839, 4054)
 - [ ] **Dust Road** · 770-B2 · backroad · 2 points: (1550, 4352) → (1652, 4302)
-- [ ] **Old Mill Track** · 770-B3 · backroad · 3 points: (1430, 4600) → (1560, 4560) → (1655, 4490)
+- [ ] **Old Mill Track** · 770-B3 · backroad · 2 points: (1430, 4600) → (1560, 4560)
 - [ ] **Creekbed Lane** · 770-B4 · backroad · 3 points: (1840, 4640) → (1960, 4540) → (2050, 4420)
 - [ ] **Hollow Road** · 770-B5 · backroad · 3 points: (1500, 4100) → (1620, 4060) → (1740, 4000)
 - [ ] **Fence Line Track** · 770-B6 · backroad · 3 points: (1808, 4183) → (2000, 4120) → (2080, 3990)
@@ -228,4 +228,4 @@ and they'll be added to the data so the game knows about them too.
 - [ ] The 1017 Harbor and the 312 Port: a point on each quay
 - [ ] The airport: the terminal door and the runway's two ends
 
-_Totals: 2 borders, 15 zones, 66 roads (209 points), 50 pins._
+_Totals: 2 borders, 15 zones, 66 roads (208 points), 50 pins._

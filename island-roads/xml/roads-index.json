@@ -22,42 +22,9 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9305,
- "junctions": 359,
+ "totalPieces": 9286,
+ "junctions": 357,
  "unlevelJunctions": [
-  {
-   "gap": 26.1,
-   "roads": [
-    "770-B3",
-    "770-A2"
-   ],
-   "at": [
-    -5650,
-    -6307
-   ]
-  },
-  {
-   "gap": 23.6,
-   "roads": [
-    "770-A2",
-    "770-B3"
-   ],
-   "at": [
-    -5730,
-    -6291
-   ]
-  },
-  {
-   "gap": 7.1,
-   "roads": [
-    "770-B3",
-    "770-A1"
-   ],
-   "at": [
-    -5846,
-    -6283
-   ]
-  },
   {
    "gap": 5.9,
    "roads": [
@@ -288,7 +255,7 @@
   },
   {
    "file": "island_roads_m12_m13.ymap.xml",
-   "pieces": 613,
+   "pieces": 594,
    "roads": [
     "1017-H1",
     "312-H3",
@@ -478,7 +445,7 @@
    "name": "Old Mill Track",
    "kind": "backroad",
    "rows": 1,
-   "pieces": 46
+   "pieces": 27
   },
   {
    "code": "770-B4",
