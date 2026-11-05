@@ -22,20 +22,9 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9286,
- "junctions": 357,
+ "totalPieces": 9272,
+ "junctions": 356,
  "unlevelJunctions": [
-  {
-   "gap": 5.9,
-   "roads": [
-    "770-S3",
-    "770-A1"
-   ],
-   "at": [
-    -5904,
-    -6350
-   ]
-  },
   {
    "gap": 0.5,
    "roads": [
@@ -255,7 +244,7 @@
   },
   {
    "file": "island_roads_m12_m13.ymap.xml",
-   "pieces": 594,
+   "pieces": 580,
    "roads": [
     "1017-H1",
     "312-H3",
@@ -977,7 +966,7 @@
    "name": "The Backroads",
    "kind": "street",
    "rows": 1,
-   "pieces": 54
+   "pieces": 40
   },
   {
    "code": "1017-A1",
