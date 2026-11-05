@@ -3,7 +3,7 @@
 // deploy-to-server.js — put this repo's resources into your FXServer, in one go
 //
 // Run it on your PC from inside this repo, after a git pull:
-//   node tools/deploy-to-server.js "C:\txData\<server>"              (copy world + crew)
+//   node tools/deploy-to-server.js "C:\txData\<server>"              (copy world, crew + island-roads)
 //   node tools/deploy-to-server.js "C:\txData\<server>" --dry-run    (show what would happen, change nothing)
 //   node tools/deploy-to-server.js "C:\txData\<server>" --link       (link instead of copy — set up once,
 //                                                                     after that git pull IS the deploy)
@@ -12,8 +12,10 @@
 // The path can be the server data folder (the one with server.cfg) or its resources/ folder.
 //
 // What it does:
-//   1. Copies world/ and crew/ into resources/ under the same names
-//      (and js-snippets/ as fourtune/ with --with-fourtune — the folder name is the resource name)
+//   1. Copies world/, crew/ and island-roads/ into resources/ under the same names
+//      (and js-snippets/ as fourtune/ with --with-fourtune — the folder name is the resource name).
+//      island-roads only goes in once its stream/ holds the binary .ymap files CodeWalker makes
+//      (island-roads/README.md); until then it's skipped with a note. Its xml/ stays behind.
 //   2. Replaces the old copy each time, so nothing stale is left behind.
 //      It only ever replaces a folder that is one of these resources (has an fxmanifest.lua);
 //      anything else in the way and it STOPS.
@@ -37,6 +39,8 @@ const REPO = path.resolve(__dirname, "..");
 const RESOURCES = [
     { from: "world", name: "world" },
     { from: "crew", name: "crew" },
+    // the server only streams stream/*.ymap; the CodeWalker XML they're made from stays in the repo
+    { from: "island-roads", name: "island-roads", skipDirs: ["xml"], needsStream: true },
 ];
 const FOURTUNE = { from: "js-snippets", name: "fourtune" };
 
@@ -72,10 +76,20 @@ const wanted = withFourtune ? [...RESOURCES, FOURTUNE] : RESOURCES;
 
 // ---------------- 1+2. plan each resource ----------------
 const plan = [];
+const notYet = [];
 for (const r of wanted) {
     const src = path.join(REPO, r.from);
     const dest = path.join(resourcesDir, r.name);
     if (!fs.existsSync(path.join(src, "fxmanifest.lua"))) fail(`${r.from}/ has no fxmanifest.lua — is this the right repo?`);
+    if (r.needsStream) {
+        const streamDir = path.join(src, "stream");
+        const ymaps = fs.existsSync(streamDir) ? fs.readdirSync(streamDir).filter((f) => /\.ymap$/i.test(f)) : [];
+        if (!ymaps.length) {
+            notYet.push(`${r.from}/stream/ has no .ymap files yet — convert xml/ in CodeWalker first (${r.from}/README.md)`);
+            continue;
+        }
+        r.ymaps = ymaps.length;
+    }
 
     let state = "new";
     if (fs.existsSync(dest) || isLink(dest)) {
@@ -90,7 +104,7 @@ for (const r of wanted) {
     if (state === "link-elsewhere") {
         fail(`resources/${r.name} is a link to somewhere else: ${safeRealpath(dest)}\n  Remove that link yourself if it's stale, then run this again.`);
     }
-    plan.push({ ...r, src, dest, state, files: link ? [] : listFiles(src) });
+    plan.push({ ...r, src, dest, state, files: link ? [] : listFiles(src, "", new Set(r.skipDirs || [])) });
 }
 
 function isLink(p) {
@@ -102,13 +116,13 @@ function safeRealpath(p) {
 function sameFolder(a, b) {
     return safeRealpath(a).toLowerCase() === path.resolve(b).toLowerCase();
 }
-function listFiles(dir, rel = "") {
+function listFiles(dir, rel = "", skipDirs = new Set()) {
     const out = [];
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
         const relPath = path.join(rel, entry.name);
         if (entry.isSymbolicLink()) continue;
         if (entry.isDirectory()) {
-            if (!SKIP_DIRS.has(entry.name)) out.push(...listFiles(path.join(dir, entry.name), relPath));
+            if (!SKIP_DIRS.has(entry.name) && !(rel === "" && skipDirs.has(entry.name))) out.push(...listFiles(path.join(dir, entry.name), relPath, skipDirs));
             continue;
         }
         if (!SKIP_FILE.some((re) => re.test(entry.name))) out.push(relPath);
@@ -124,7 +138,7 @@ if (fs.existsSync(cfgPath)) {
     ensured = new Set(
         lines.map((l) => l.match(/^\s*(?:ensure|start)\s+(\S+)/i)).filter(Boolean).map((m) => m[1].toLowerCase()),
     );
-    for (const r of wanted) {
+    for (const r of plan) {
         if (!ensured.has(r.name)) cfgWarnings.push(`no "ensure ${r.name}" line — add it after ensure chat`);
     }
     if (ensured.has("js-snippets")) cfgWarnings.push('"ensure js-snippets" won\'t work — the resource is called fourtune');
@@ -161,8 +175,9 @@ for (const p of plan) {
         replace: link ? "replace the copy with a link" : `replace with ${p.files.length} files`,
         linked: "already linked — git pull keeps it current, nothing to do",
     }[p.state];
-    console.log(`  ${p.from.padEnd(12)} -> resources/${p.name.padEnd(9)} ${what}`);
+    console.log(`  ${p.from.padEnd(12)} -> resources/${p.name.padEnd(12)} ${what}${p.ymaps ? ` (${p.ymaps} ymaps)` : ""}`);
 }
+for (const n of notYet) console.log(`  skipped: ${n}`);
 if (cfgWarnings.length) console.log(`\nserver.cfg:\n  ! ${cfgWarnings.join("\n  ! ")}`);
 
 if (dryRun) {
