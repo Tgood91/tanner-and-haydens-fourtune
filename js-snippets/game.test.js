@@ -2696,3 +2696,10 @@ test("the in-game map shows every job station, shift, store, supply spot, hospit
     assert.ok(fs.readFileSync(path.join(html, "index.html"), "utf8").includes('<script src="work.js"></script>'));
     assert.ok(fs.existsSync(path.join(html, "work.js")));
 });
+
+test("the map's work layer is up to date with the game (run npm run gen:work-map if this fails)", () => {
+    const { collect, layerScript } = require("../tools/gen-work-map");
+    const fs = require("fs"), path = require("path");
+    const committed = fs.readFileSync(path.join(__dirname, "..", "world-map", "html", "work.js"), "utf8");
+    assert.equal(committed, layerScript(collect()), "world-map/html/work.js is stale: run npm run gen:work-map and commit it");
+});
