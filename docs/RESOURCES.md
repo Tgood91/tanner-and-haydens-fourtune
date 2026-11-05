@@ -12,9 +12,11 @@ Source for both: **https://github.com/Tgood91/tanner-and-haydens-fourtune**
 |---|---|---|---|
 | `world` | `world/` | `chat` | Cities, districts, parks, roads and spawns, in Lua. Other resources ask it where things are through its exports |
 | `crew` | `crew/` | `chat` | Crews and ranks, in Lua. The economy is optional: with none running it still plays, and says when it skips a charge |
-| `island-terrain` | `island-terrain/` | — | The island's ground: 99 tiles with collision. Only what's in `stream/` loads; build it from `obj/` and `xml/` in Blender + Sollumz and CodeWalker first (`island-terrain/README.md`). Ensure it before `island-roads` |
-| `island-roads` | `island-roads/` | — | The island's road surface as map files. Only the binary `.ymap`s in `stream/` load; make them from `xml/` in CodeWalker first (`island-roads/README.md`) |
-| `island-bridges` | `island-bridges/` | — | The bridge from the island to Los Santos, as map files. Built like `island-roads`; its landing point needs setting from `/coords` in game first (`island-bridges/README.md`) |
+| `world-map` | `world-map/` | — | The in-game map (M or `/map`), client-only. Its page is generated in fourtune-island and copied here by `tools/sync-from-island.js` |
+| `island-streets` | fourtune-island: `island-streets/` | — | Street names on the HUD, signs at junctions, pause-map blips for the island |
+| `island-terrain` | fourtune-island: `island-terrain/` | — | The island's ground, with collision. Only what's in `stream/` loads; build it in Blender + Sollumz and CodeWalker first (its README). Ensure it before `island-roads` |
+| `island-roads` | fourtune-island: `island-roads/` | — | The island's road surface as map files. Only the binary `.ymap`s in `stream/` load; make them in CodeWalker first (its README) |
+| `island-bridges` | fourtune-island: `island-bridges/` | — | The bridge from the island to Los Santos, as map files. Built like `island-roads`; its landing point needs setting from `/coords` in game first (its README) |
 | `fourtune` | `js-snippets/` | `chat`, `spawnmanager` | The game core in JavaScript: inventory, money, jobs, police, medical, vehicles, crews and the rest |
 | `chat` | ships with FXServer | — | Every reply both resources send goes through `chat:addMessage` |
 | `spawnmanager` | ships with FXServer | — | `fourtune` turns auto-spawn **off** so revive, jail and login decide where you land |
@@ -54,10 +56,19 @@ node tools/deploy-to-server.js "<server>"             # copy world + crew
 node tools/deploy-to-server.js "<server>" --link      # once: after this, git pull is the deploy
 ```
 
-Add `--with-fourtune` to include `fourtune`. `island-terrain`, `island-roads` and `island-bridges` go in automatically once
-their `stream/` holds every built file (99 `.ydr` + 99 `.ybn` + `.ytd` + `.ytyp` + `.ymap` for the
-terrain, the `.ymap`s for the roads and the bridge), and are skipped with a note saying what's missing until then.
-Only `stream/`, `fxmanifest.lua` and `README.md` are copied; `obj/` and `xml/` stay in the repo. To update later, pull and run it again. A symlink works too and saves the
+Add `--with-fourtune` to include `fourtune`.
+
+**The island lives in its own repo**, [fourtune-island](https://github.com/Tgood91/fourtune-island).
+Clone it next to this one (`../fourtune-island`) and the deploy script finds it, or pass
+`--island "<path>"`. `island-streets` goes in as it is. `island-terrain`, `island-roads` and
+`island-bridges` go in once their `stream/` holds every built file, and are skipped with a note saying
+what's missing until then. Only `stream/`, `fxmanifest.lua` and `README.md` are copied.
+
+`node tools/sync-from-island.js` copies the two island-generated files this repo uses
+(`world/streets_geo.lua`, `world-map/html/index.html`); `--to-island` sends `places.js` and
+`cities.js` the other way, since the island map fits its streets from them.
+
+To update later, pull (both repos) and run it again. A symlink works too and saves the
 copy step, if your OS and FXServer are happy with one.
 
 ## server.cfg

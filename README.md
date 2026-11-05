@@ -34,3 +34,9 @@ And it loops back to your Lua lessons nicely: Lesson 2's function shape is exact
 ##
 #
 so I have a server ID and key
+## The island
+
+The island (map, terrain, roads, bridges, buildings, street list) now lives in its own repo,
+[fourtune-island](https://github.com/Tgood91/fourtune-island). Clone it next to this one;
+`tools/deploy-to-server.js` installs its resources, and `tools/sync-from-island.js` keeps the two in step
+(see `docs/RESOURCES.md`).

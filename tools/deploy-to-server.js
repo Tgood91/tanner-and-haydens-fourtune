@@ -8,15 +8,19 @@
 //   node tools/deploy-to-server.js "C:\txData\<server>" --link       (link instead of copy — set up once,
 //                                                                     after that git pull IS the deploy)
 //   node tools/deploy-to-server.js "C:\txData\<server>" --with-fourtune   (also js-snippets -> fourtune)
+//   node tools/deploy-to-server.js "C:\txData\<server>" --island "<path>"  (where fourtune-island is)
 //
 // The path can be the server data folder (the one with server.cfg) or its resources/ folder.
+// The island's resources come from a fourtune-island checkout (https://github.com/Tgood91/fourtune-island):
+// clone it next to this repo and it's found on its own (tools/island-path.js); without it they're skipped.
 //
 // What it does:
-//   1. Copies world/, crew/, island-terrain/, island-roads/ and island-bridges/ into resources/ under the same names
+//   1. Copies world/, crew/ and world-map/ from here, and island-terrain/, island-roads/, island-bridges/
+//      and island-streets/ from fourtune-island, into resources/ under the same names
 //      (and js-snippets/ as fourtune/ with --with-fourtune — the folder name is the resource name).
 //      The island-* map resources only go in once their stream/ holds every built file
 //      (each README.md); until then they're skipped with a note saying what's missing.
-//      Only stream/, fxmanifest.lua and README.md are copied; obj/ and xml/ stay in the repo.
+//      Only stream/, fxmanifest.lua and README.md are copied; obj/ and xml/ stay in fourtune-island.
 //   2. Replaces the old copy each time, so nothing stale is left behind.
 //      It only ever replaces a folder that is one of these resources (has an fxmanifest.lua);
 //      anything else in the way and it STOPS.
@@ -33,25 +37,30 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { execFileSync } = require("child_process");
+const { islandPath } = require("./island-path");
 
 const REPO = path.resolve(__dirname, "..");
+const ISLAND = islandPath();
 
 // repo folder -> resource name. Lua was chosen, so fourtune is opt-in (docs/RESOURCES.md).
 const RESOURCES = [
     { from: "world", name: "world" },
     { from: "crew", name: "crew" },
+    { from: "world-map", name: "world-map" },
+    // From fourtune-island (repo: "island"). island-streets is ready to run as it is.
+    { repo: "island", from: "island-streets", name: "island-streets" },
     // Map resources: the server only needs what's in stream/, built from obj/ and xml/ in Blender/CodeWalker
     // (each README.md). Until stream/ holds all of it they're skipped, so a half-built map can't go in.
-    { from: "island-terrain", name: "island-terrain", only: ["fxmanifest.lua", "README.md", "stream"],
+    { repo: "island", from: "island-terrain", name: "island-terrain", only: ["fxmanifest.lua", "README.md", "stream"],
       needs: () => { const tiles = terrainTiles(); return { ".ydr": tiles, ".ybn": tiles, ".ytd": 1, ".ytyp": 1, ".ymap": 1 }; } },
-    { from: "island-roads", name: "island-roads", only: ["fxmanifest.lua", "README.md", "stream"],
+    { repo: "island", from: "island-roads", name: "island-roads", only: ["fxmanifest.lua", "README.md", "stream"],
       needs: () => ({ ".ymap": 1 }) },
-    { from: "island-bridges", name: "island-bridges", only: ["fxmanifest.lua", "README.md", "stream"],
+    { repo: "island", from: "island-bridges", name: "island-bridges", only: ["fxmanifest.lua", "README.md", "stream"],
       needs: () => ({ ".ymap": 1 }) },
 ];
 // how many terrain tiles there are (one .ydr + one .ybn each)
 function terrainTiles() {
-    try { return JSON.parse(fs.readFileSync(path.join(REPO, "island-terrain", "terrain-index.json"), "utf8")).tiles.length; } catch { return 1; }
+    try { return JSON.parse(fs.readFileSync(path.join(ISLAND.path, "island-terrain", "terrain-index.json"), "utf8")).tiles.length; } catch { return 1; }
 }
 const FOURTUNE = { from: "js-snippets", name: "fourtune" };
 
@@ -63,7 +72,7 @@ const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const link = args.includes("--link");
 const withFourtune = args.includes("--with-fourtune");
-const target = args.find((a) => !a.startsWith("--"));
+const target = args.find((a, i) => !a.startsWith("--") && args[i - 1] !== "--island");
 
 function fail(msg) {
     console.error(`\n✗ ${msg}`);
@@ -89,9 +98,13 @@ const wanted = withFourtune ? [...RESOURCES, FOURTUNE] : RESOURCES;
 const plan = [];
 const notYet = [];
 for (const r of wanted) {
-    const src = path.join(REPO, r.from);
+    if (r.repo === "island" && !ISLAND.found) {
+        notYet.push(`${r.from} — no fourtune-island checkout at ${ISLAND.path} (clone it there, or pass --island "<path>")`);
+        continue;
+    }
+    const src = path.join(r.repo === "island" ? ISLAND.path : REPO, r.from);
     const dest = path.join(resourcesDir, r.name);
-    if (!fs.existsSync(path.join(src, "fxmanifest.lua"))) fail(`${r.from}/ has no fxmanifest.lua — is this the right repo?`);
+    if (!fs.existsSync(path.join(src, "fxmanifest.lua"))) fail(`${r.from}/ has no fxmanifest.lua — is this the right ${r.repo === "island" ? "fourtune-island checkout" : "repo"}?`);
     if (r.needs) {
         const streamDir = path.join(src, "stream");
         const have = {};
@@ -189,6 +202,7 @@ try {
 } catch { /* not a git checkout — fine */ }
 
 console.log(`From:    ${REPO}${commit ? `\n         at ${commit}` : ""}`);
+console.log(`Island:  ${ISLAND.found ? ISLAND.path : `not found (${ISLAND.path})`}`);
 console.log(`Into:    ${resourcesDir}`);
 console.log(`Mode:    ${link ? "link (one-time setup)" : "copy"}`);
 for (const p of plan) {
