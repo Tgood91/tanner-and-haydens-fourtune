@@ -2624,3 +2624,25 @@ test("lumber yard: 12 logs an hour each, and relogging doesn't reset it", () => 
     // the first log was felled at 9 min: an hour after that, one more is allowed
     assert.match(game.command(as(1, { pos: TREE[7], now: 9 * 60000 + 60 * 60000 }), "fell").msg, /Timber!/);
 });
+
+// ---------------- elevation ----------------
+const elevation = require("./elevation");
+
+test("elevation: Mt. Fuugee is the high point, just under 800, with snow on top", () => {
+    const summit = { x: 500, y: 5605 };
+    const z = elevation.heightAt(summit);
+    assert.ok(z > 700 && z < 800, `summit at ${z}`);
+    assert.equal(elevation.hasSnow(summit), true);
+    assert.equal(elevation.bandAt(summit), "the summit country");
+    assert.equal(elevation.describeHeight(summit), `the summit country, ${z} up`);
+    for (const zone of require("./places").ZONES) assert.ok(elevation.zoneHeight(zone) < z, `${zone.name} is lower than the summit`);
+});
+
+test("elevation: the reference table agrees with the model, and every road has a profile", () => {
+    for (const h of elevation.HEIGHTS) assert.equal(h.z, elevation.heightAt(h), h.name);
+    for (const r of require("./places").ROADS) {
+        const p = elevation.roadProfile(r);
+        assert.ok(Number.isFinite(p.min) && p.min >= 1 && p.max >= p.min, r.name);
+        assert.ok(p.climb >= 0 && p.descent >= 0 && p.highPoint.z === p.max, r.name);
+    }
+});
