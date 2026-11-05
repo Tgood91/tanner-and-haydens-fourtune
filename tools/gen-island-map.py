@@ -211,6 +211,7 @@ road("fud-st", "FUD ST", "M262 555 L478 555", "street")
 road("cope-st", "COPE ST", "M368 418 L368 600", "street")
 road("euphoria-ln", "EUPHORIA Lane", smooth([(285,590),(340,575),(400,540),(440,500),(470,450)], closed=False) + " M400 540 L420 560", "street")
 road("hodl-st", "HODL ST", smooth([(286,505),(289,530),(291,555),(296,572),(302,586)], closed=False), "street")   # FOMO ST down to EUPHORIA Lane
+road("patience-ln", "Patience Lane", "M307.4 505 L296.4 519.6", "street")   # off FOMO ST, down towards HODL ST
 FARM_NAMES = ["Orchard Track", "Millpond Lane", "Windmill Lane", "Sawmill Track", "Pasture Way", "Haybale Lane", "Ridge Track"]
 for i, (x1, y1, x2, y2) in enumerate([(500,640,575,610),(980,560,1100,600),(1180,420,1260,330),(260,330,380,300),(1050,380,1170,330),(480,470,520,560),(1000,250,1080,330)]):
     road(f"farm-{i+1}", FARM_NAMES[i], f"M{x1} {y1} Q{(x1+x2)/2+20} {(y1+y2)/2-20} {x2} {y2}", "track")
@@ -263,7 +264,7 @@ for r in GAME["roads"]:
     if r["pinned"]: continue                  # its own number, not a place in the sequence
     key = (r["city"], GAME["kindLetter"][r["kind"]]); NEXT[key] = NEXT.get(key, 0) + 1
 MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("geepee", "S"),
-            "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"),
+            "cope-st": ("geepee", "S"), "euphoria-ln": ("geepee", "S"), "hodl-st": ("geepee", "S"), "patience-ln": ("geepee", "S"),
             "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
             "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S"),
             "cut-st": ("chicago", "S")}
