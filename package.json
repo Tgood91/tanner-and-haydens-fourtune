@@ -34,6 +34,7 @@
     "demo": "node js-snippets/02-demo.js",
     "streets": "node tools/print-streets.js",
     "stores": "node tools/print-stores.js",
+    "gen:work-map": "node tools/gen-work-map.js",
     "gen:map": "node tools/gen-map.js > docs/city-map.html",
     "gen:map-detail": "node tools/gen-map-detail-layer.js",
     "gen:walk-list": "node tools/gen-walk-list.js > docs/WALK-LIST.md",

@@ -2680,3 +2680,19 @@ test("/height and /whereami report heights; /height <road> gives a road's level"
     assert.match(game.command(at({ x: p[0], y: p[1] }), "height", ["nowhere"]).msg, /^No road called nowhere/);
     assert.equal(game.command(at({ x: 0, y: 0 }), "height").msg, "You're off the island: no heights here.");
 });
+
+test("the in-game map shows every job station, shift, store, supply spot, hospital, jail and impound lot", () => {
+    const { collect } = require("../tools/gen-work-map");
+    const labels = new Set(collect().map((s) => s.label));
+    const { JOBS } = require("./jobs");
+    for (const job of Object.values(JOBS)) if (job.stations) assert.ok(labels.has(job.label), job.label);
+    assert.ok(labels.has(JOBS.lumbermill.label));
+    for (const s of Object.values(require("./shops").SHOPS)) assert.ok(labels.has(s.label), s.label);
+    for (const s of require("./drugs").SUPPLY_SPOTS) assert.ok(labels.has(s.label), s.label);
+    for (const list of Object.values(require("./medical").HOSPITALS)) for (const h of list) assert.ok(labels.has(h.label), h.label);
+    for (const l of require("./impound").LOTS) assert.ok(labels.has(l.label), l.label);
+    const fs = require("fs"), path = require("path");
+    const html = path.join(__dirname, "..", "world-map", "html");
+    assert.ok(fs.readFileSync(path.join(html, "index.html"), "utf8").includes('<script src="work.js"></script>'));
+    assert.ok(fs.existsSync(path.join(html, "work.js")));
+});
