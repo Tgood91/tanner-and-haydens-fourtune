@@ -29,7 +29,7 @@ node tools/gen-map-detail-layer.js            # redraw the big map's gameplay ro
 node tools/gen-walk-list.js > docs/WALK-LIST.md  # the in-game checklist of every coordinate to walk (/mark)
 node tools/print-streets.js [city]                # print every street the game knows, by city and kind
 node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, fuel stop and clothing store, by city
-node tools/audit-map.js                         # glitch audit of the in-game map (needs Playwright + Chromium)
+node tools/sync-from-island.js                  # copy the island's street list and in-game map page in from fourtune-island
 ```
 
 ## What's in here
@@ -127,7 +127,7 @@ newest version of each file, so plots made in other sessions show up before they
 
 - **Game world**: districts, parks, all roads by kind, the city borders, and every pin: 24/7s, gun shops,
   fuel, clothing, hospitals, spawns, houses, impound lots, job stations, supply spots, the jail
-- **The island**: the coastline, every street from `street-renders/streets.json` and every building
-  from `island-buildings/buildings.json`
+- **The island**: the coastline, every street and every building, read from a fourtune-island checkout
+  next to this repo (or `--island "<path>"`); without one the atlas is drawn without it
 
 Search by name or road code (`312-S35`), toggle layers, and tap a pin to copy its `vector3`.

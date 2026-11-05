@@ -19,7 +19,10 @@
 //   The island  the custom landmass: its coastline (tools/gen-island-map.py),
 //               every street (street-renders/streets.json) and every building
 //               (island-buildings/buildings.json), over the island concept art
-//               itself (island-map.html: ships, docks, farms, woods, towers)
+//               itself (island-map.html: ships, docks, farms, woods, towers).
+//               These come from the fourtune-island checkout (tools/island-path.js:
+//               ../fourtune-island, FOURTUNE_ISLAND or --island "<path>"), not git
+//               branches; without one the atlas is drawn without the island.
 //
 // The game world also gets a Scenery layer: generated town streets, buildings,
 // fields, woods, roads between the cities and ships offshore. It is illustration
@@ -192,12 +195,21 @@ function catmull(pts) {
     return out;
 }
 
+// The island's files, from the fourtune-island checkout as it is on disk.
+const ISLAND = require("./island-path").islandPath();
+function readIsland(file) {
+    const p = path.join(ISLAND.path, file);
+    if (!ISLAND.found || !fs.existsSync(p)) return null;
+    sources.push({ file: `fourtune-island/${file}`, from: "island checkout", commit: "", date: "" });
+    return fs.readFileSync(p, "utf8");
+}
+
 function island() {
-    const py = read("tools/gen-island-map.py");
-    const streetsRaw = read("street-renders/streets.json");
-    const bldgRaw = read("island-buildings/buildings.json");
-    const roadsIdx = read("island-roads/xml/roads-index.json");
-    const artHtml = read("island-map.html");
+    const py = readIsland("tools/gen-island-map.py");
+    const streetsRaw = readIsland("street-renders/streets.json");
+    const bldgRaw = readIsland("island-buildings/buildings.json");
+    const roadsIdx = readIsland("island-roads/xml/roads-index.json");
+    const artHtml = readIsland("island-map.html");
     if (!py && !streetsRaw && !bldgRaw && !artHtml) return null;
 
     // The island concept map itself (ships, docks, farms, woods, towers, traffic), drawn
