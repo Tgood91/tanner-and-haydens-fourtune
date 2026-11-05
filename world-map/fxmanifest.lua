@@ -9,4 +9,4 @@ description 'Fourtune world map (NUI): the whole island, 312 to 1017'
 client_script 'client.lua'
 
 ui_page 'html/index.html'
-files { 'html/index.html' }
+files { 'html/index.html', 'html/work.js' }

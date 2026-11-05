@@ -22,6 +22,7 @@ const REPO = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const toIsland = args.includes("--to-island");
+const { addWorkLayer } = require("./gen-work-map");
 const island = islandPath(args);
 
 if (!island.found) {
@@ -36,8 +37,11 @@ const FILES = toIsland
 let changed = 0;
 for (const [from, to] of FILES) {
     if (!fs.existsSync(from)) { console.log(`  missing: ${from}`); continue; }
-    const same = fs.existsSync(to) && fs.readFileSync(from).equals(fs.readFileSync(to));
+    // the map page gets this repo's work layer (every job, shift and op) put back on it
+    const data = !toIsland && to.endsWith(path.join("world-map", "html", "index.html"))
+        ? Buffer.from(addWorkLayer(fs.readFileSync(from, "utf8"))) : fs.readFileSync(from);
+    const same = fs.existsSync(to) && data.equals(fs.readFileSync(to));
     console.log(`  ${same ? "same    " : "update  "} ${path.relative(toIsland ? island.path : REPO, to)}`);
-    if (!same) { changed++; if (!dryRun) { fs.mkdirSync(path.dirname(to), { recursive: true }); fs.copyFileSync(from, to); } }
+    if (!same) { changed++; if (!dryRun) { fs.mkdirSync(path.dirname(to), { recursive: true }); fs.writeFileSync(to, data); } }
 }
 console.log(dryRun ? "\nDry run — nothing copied." : changed ? `\n✓ ${changed} file(s) copied.${toIsland ? " Now regenerate and commit in fourtune-island (its README)." : " Commit them here."}` : "\n✓ Already in step.");

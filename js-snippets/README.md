@@ -31,6 +31,7 @@ node tools/print-streets.js [city]                # print every street the game 
 node tools/print-stores.js [city] [--stock]       # print every shop, gun shop, fuel stop and clothing store, by city
 node tools/sync-from-island.js                  # copy the island's street list and in-game map page in from fourtune-island
 node tools/gen-elevation.js                     # the island's real heights (ground, every road, every building) -> elevation-data.json + world/elevation_data.lua
+node tools/gen-work-map.js                      # every job, shift and op (stations, stores, supply, jail, impound) -> world-map/html/work.js
 ```
 
 ## What's in here
