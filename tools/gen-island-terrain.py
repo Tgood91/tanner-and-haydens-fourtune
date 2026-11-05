@@ -121,12 +121,12 @@ flat = np.maximum.reduce([smooth((1.08 - ell(770, 190, 360, 120)) / .15),   # th
                           smooth((1.05 - ell(760, 700, 380, 115)) / .15),   # the 1017 towers
                           smooth((1.15 - ell(*WEST_TOWERS)) / .2),           # the west towers
                           in_air.astype(float)])
-swell = (value_noise(220, 1) * 2.2 + value_noise(70, 2) * .8) * (1 - flat)  # farm country rolls a little
+swell = (value_noise(220, 1) * 6.0 + value_noise(70, 2) * 2.2) * (1 - flat)  # farm country rolls, up to ~8 m
 mr = ell(MOUNTAIN[0], MOUNTAIN[1], 210, 135)
 ang = np.arctan2(MY - MOUNTAIN[1], MX - MOUNTAIN[0])
 mountain = 320 * np.clip(1 - mr, 0, 1) ** 1.45 * (1 + .12 * np.sin(ang * 7 + mr * 5)) * (1 + .08 * value_noise(60, 3))
-west = 70 * np.clip(1 - ell(250, 470, 190, 215) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(90, 4))
-east = 32 * np.clip(1 - ell(1360, 560, 90, 150) ** 2, 0, 1) ** 2
+west = 140 * np.clip(1 - ell(250, 470, 190, 215) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(90, 4))
+east = 65 * np.clip(1 - ell(1360, 560, 90, 150) ** 2, 0, 1) ** 2
 hills = (mountain + (west + east) * (1 - flat)) * smooth(s / 150)           # hills never reach the beach
 
 h = Z0 - ROAD_SINK + swell + hills
