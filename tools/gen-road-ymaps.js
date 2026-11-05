@@ -42,6 +42,74 @@ const CONFIG = {
 };
 const ROWS = { highway: 3, arterial: 2, street: 1, street312: 1, backroad: 1, track: 1 };
 
+// Bigger roads keep their height at a junction; smaller ones meet them.
+const RANK = { highway: 5, arterial: 4, street312: 3, street: 3, backroad: 2, track: 1 };
+
+// point at distance d along a line (world metres)
+function pointAt(L, d) {
+  const { cum, w } = L;
+  let i = 1; while (i < cum.length - 1 && cum[i] < d) i++;
+  const t = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
+  return [w[i - 1][0] + (w[i][0] - w[i - 1][0]) * t, w[i - 1][1] + (w[i][1] - w[i - 1][1]) * t];
+}
+// road surface height at distance d along a line, as the pieces lay it
+function zAt(L, d) {
+  const k = Math.min(L.pieces - 1, Math.max(0, Math.floor(d / L.step)));
+  const t = Math.min(1, Math.max(0, d / L.step - k));
+  return L.zj[k] + (L.zj[k + 1] - L.zj[k]) * t;
+}
+
+// Junctions between lines: centre lines that cross, plus a line ending on (or just short of)
+// another road's surface. One junction per pair of lines within 20 m along both.
+function findJunctions(lines) {
+  const G = 32, grid = new Map(), out = [];
+  const cellsOf = (x0, y0, x1, y1, pad) => {
+    const ks = [];
+    for (let cx = Math.floor((Math.min(x0, x1) - pad) / G); cx <= Math.floor((Math.max(x0, x1) + pad) / G); cx++)
+      for (let cy = Math.floor((Math.min(y0, y1) - pad) / G); cy <= Math.floor((Math.max(y0, y1) + pad) / G); cy++) ks.push(cx + "," + cy);
+    return ks;
+  };
+  lines.forEach((L) => L.w.forEach((p, i) => {
+    if (!i) return;
+    const q = L.w[i - 1];
+    for (const k of cellsOf(q[0], q[1], p[0], p[1], 0)) { if (!grid.has(k)) grid.set(k, []); grid.get(k).push([L, i]); }
+  }));
+  const add = (A, dA, B, dB) => {
+    if (out.some((j) => (j.a.line === A && j.b.line === B && Math.abs(j.a.d - dA) < 20 && Math.abs(j.b.d - dB) < 20) ||
+                        (j.a.line === B && j.b.line === A && Math.abs(j.a.d - dB) < 20 && Math.abs(j.b.d - dA) < 20))) return;
+    out.push({ a: { line: A, d: dA }, b: { line: B, d: dB } });
+  };
+  // crossings
+  for (const A of lines) A.w.forEach((p, i) => {
+    if (!i) return;
+    const q = A.w[i - 1], seen = new Set();
+    for (const k of cellsOf(q[0], q[1], p[0], p[1], 0)) for (const [B, jIdx] of grid.get(k) || []) {
+      if (B === A || seen.has(B.road.code + B.li + ":" + jIdx)) continue;
+      seen.add(B.road.code + B.li + ":" + jIdx);
+      const r = B.w[jIdx - 1], s = B.w[jIdx];
+      const d1x = p[0] - q[0], d1y = p[1] - q[1], d2x = s[0] - r[0], d2y = s[1] - r[1];
+      const den = d1x * d2y - d1y * d2x; if (Math.abs(den) < 1e-9) continue;
+      const t = ((r[0] - q[0]) * d2y - (r[1] - q[1]) * d2x) / den, u = ((r[0] - q[0]) * d1y - (r[1] - q[1]) * d1x) / den;
+      if (t < 0 || t > 1 || u < 0 || u > 1) continue;
+      add(A, A.cum[i - 1] + t * (A.cum[i] - A.cum[i - 1]), B, B.cum[jIdx - 1] + u * (B.cum[jIdx] - B.cum[jIdx - 1]));
+    }
+  });
+  // a line ending on another road's surface (T-junctions that stop short of the centre line)
+  for (const A of lines) for (const [end, dA] of [[A.w[0], 0], [A.w.at(-1), A.total]]) {
+    let best = null;
+    for (const k of cellsOf(end[0], end[1], end[0], end[1], 30)) for (const [B, jIdx] of grid.get(k) || []) {
+      if (B === A) continue;
+      const r = B.w[jIdx - 1], s = B.w[jIdx], dx = s[0] - r[0], dy = s[1] - r[1], l2 = dx * dx + dy * dy || 1;
+      const u = Math.min(1, Math.max(0, ((end[0] - r[0]) * dx + (end[1] - r[1]) * dy) / l2));
+      const dist = Math.hypot(end[0] - r[0] - u * dx, end[1] - r[1] - u * dy);
+      const reach = (B.road.rows * CONFIG.pieceWidth) / 2 + CONFIG.pieceLength;   // its edge, plus one piece
+      if (dist <= reach && (!best || dist < best.dist)) best = { B, dist, dB: B.cum[jIdx - 1] + u * (B.cum[jIdx] - B.cum[jIdx - 1]) };
+    }
+    if (best) add(A, dA, best.B, best.dB);
+  }
+  return out;
+}
+
 const REPO = path.resolve(__dirname, "..");
 const OUT = path.join(REPO, "island-roads", "xml");
 
@@ -97,53 +165,102 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
   }, stepUnits);
   await browser.close();
 
-  // ---- 2. lay pieces along each line
-  const cells = new Map();     // "col_row" -> [entity]
-  const index = [];
+  // ---- 2. each line's joints and heights, before junctions
   const pitch = CONFIG.pieceLength - CONFIG.overlap;
+  const lines = [];            // one per sub-path: { road, w, cum, total, pieces, step, zj }
   for (const r of roads) {
-    const rows = ROWS[r.kind] || 1;
-    let count = 0;
-    for (const line of r.lines) {
+    r.rows = ROWS[r.kind] || 1;
+    r.lines.forEach((line, li) => {
       const w = line.map(([x, y]) => toWorld(x, y));
       const cum = [0];                                                  // distance along the line, in metres
       for (let i = 1; i < w.length; i++) cum.push(cum[i - 1] + Math.hypot(w[i][0] - w[i - 1][0], w[i][1] - w[i - 1][1]));
-      const total = cum.at(-1); if (total < 1) continue;
+      const total = cum.at(-1); if (total < 1) return;
       const pieces = Math.max(1, Math.ceil((total - CONFIG.overlap) / pitch));
       const step = total / pieces;                                      // stretch evenly so the last piece ends on the end
-      const at = (d) => {                                               // point + direction at distance d
-        let i = 1; while (i < cum.length - 1 && cum[i] < d) i++;
-        const t = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
-        return [w[i - 1][0] + (w[i][0] - w[i - 1][0]) * t, w[i - 1][1] + (w[i][1] - w[i - 1][1]) * t];
-      };
+      const L = { road: r, li, w, cum, total, pieces, step };
       // Heights at every piece joint: the hills, smoothed, then held to maxGrade both ways.
       let zj = [];
-      for (let k = 0; k <= pieces; k++) { const q = at(Math.min(total, k * step)); zj.push(groundZ(q[0], q[1])); }
+      for (let k = 0; k <= pieces; k++) { const q = pointAt(L, Math.min(total, k * step)); zj.push(groundZ(q[0], q[1])); }
       for (let pass = 0; pass < 3; pass++)
         zj = zj.map((_, k) => { let sum = 0, n = 0; for (let o = -3; o <= 3; o++) if (zj[k + o] !== undefined) { sum += zj[k + o]; n++; } return sum / n; });
       const rise = CONFIG.maxGrade * step;
       for (let k = 1; k <= pieces; k++) zj[k] = Math.min(zj[k], zj[k - 1] + rise);
       for (let k = pieces - 1; k >= 0; k--) zj[k] = Math.min(zj[k], zj[k + 1] + rise);
-      zj = zj.map(z => Math.max(CONFIG.z, z));
-      for (let k = 0; k < pieces; k++) {
-        const a = at(k * step), b = at(Math.min(total, (k + 1) * step)), mid = at((k + .5) * step);
-        const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
-        const heading = Math.atan2(dy, dx) - Math.PI / 2;               // model's +Y along the road
-        const pitch = Math.atan2(zj[k + 1] - zj[k], len);               // nose up when climbing
-        const zMid = (zj[k] + zj[k + 1]) / 2;
-        const nx = -dy / len, ny = dx / len;                            // left of travel
-        for (let row = 0; row < rows; row++) {
-          const off = (row - (rows - 1) / 2) * CONFIG.pieceWidth;
-          const x = mid[0] + nx * off, y = mid[1] + ny * off;
-          const key = `${Math.floor(x / CONFIG.cell)}_${Math.floor(y / CONFIG.cell)}`;
-          if (!cells.has(key)) cells.set(key, []);
-          cells.get(key).push({ x, y, z: zMid, heading, pitch, road: r.code });
-          count++;
-        }
+      L.zj = zj.map(z => Math.max(CONFIG.z, z));
+      lines.push(L);
+    });
+  }
+
+  // ---- 2b. junctions: where two lines cross, or one ends on another
+  // Every height is worked out per road, so on a hill two roads that meet could sit metres apart.
+  // The bigger road keeps its height; the smaller one is pinned to it there and eases back to
+  // its own hills on either side, never steeper than maxGrade. Equal roads: the later one gives way.
+  const junctions = findJunctions(lines);
+  lines.sort((a, b) => RANK[b.road.kind] - RANK[a.road.kind] || a.road.code.localeCompare(b.road.code) || a.li - b.li);
+  const done = new Set();
+  for (const L of lines) {
+    const want = [];                                                    // [joint, z, rank of the other road]
+    for (const j of junctions) {
+      const [mine, other] = j.a.line === L ? [j.a, j.b] : j.b.line === L ? [j.b, j.a] : [];
+      if (!mine || !done.has(other.line)) continue;
+      // pin both joints around the junction, so the piece sitting on it is level with the other road
+      const k = Math.min(L.pieces - 1, Math.floor(mine.d / L.step)), z = zAt(other.line, other.d);
+      want.push([k, z, RANK[other.line.road.kind]], [k + 1, z, RANK[other.line.road.kind]]);
+    }
+    // Keep a pin only if the road can still reach every pin kept so far at maxGrade; bigger roads first.
+    // A pin that can't be kept leaves that junction unlevel, and it's reported below.
+    const rise = CONFIG.maxGrade * L.step, pins = [];
+    for (const [k, z] of want.sort((a, b) => b[2] - a[2])) {
+      if (pins.every(([pk, pz]) => Math.abs(z - pz) <= rise * Math.abs(k - pk) + 1e-6)) pins.push([k, z]);
+    }
+    if (pins.length) {
+      // Lowest/highest each joint may be and still reach every pin at maxGrade; then stay as near the hills as that allows.
+      L.zj = L.zj.map((z, k) => {
+        let lo = -Infinity, hi = Infinity;
+        for (const [pk, pz] of pins) { const r = rise * Math.abs(k - pk); lo = Math.max(lo, pz - r); hi = Math.min(hi, pz + r); }
+        return Math.min(Math.max(z, lo), hi);
+      });
+    }
+    done.add(L);
+  }
+
+  // ---- 2c. lay pieces along each line
+  const cells = new Map();     // "col_row" -> [entity]
+  for (const L of lines) {
+    const { road: r, step, pieces, zj } = L;
+    const rows = r.rows;
+    r.count = r.count || 0;
+    for (let k = 0; k < pieces; k++) {
+      const a = pointAt(L, k * step), b = pointAt(L, Math.min(L.total, (k + 1) * step)), mid = pointAt(L, (k + .5) * step);
+      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+      const heading = Math.atan2(dy, dx) - Math.PI / 2;                 // model's +Y along the road
+      const pitch = Math.atan2(zj[k + 1] - zj[k], len);                 // nose up when climbing
+      const zMid = (zj[k] + zj[k + 1]) / 2;
+      const nx = -dy / len, ny = dx / len;                              // left of travel
+      for (let row = 0; row < rows; row++) {
+        const off = (row - (rows - 1) / 2) * CONFIG.pieceWidth;
+        const x = mid[0] + nx * off, y = mid[1] + ny * off;
+        const key = `${Math.floor(x / CONFIG.cell)}_${Math.floor(y / CONFIG.cell)}`;
+        if (!cells.has(key)) cells.set(key, []);
+        cells.get(key).push({ x, y, z: zMid, heading, pitch, road: r.code });
+        r.count++;
       }
     }
-    index.push({ code: r.code, name: r.name, kind: r.kind, rows, pieces: count });
   }
+  const index = roads.map((r) => ({ code: r.code, name: r.name, kind: r.kind, rows: r.rows, pieces: r.count || 0 }));
+
+  // check: at every junction both roads now sit at the same height
+  const gaps = [];
+  for (const j of junctions) {
+    const gap = Math.abs(zAt(j.a.line, j.a.d) - zAt(j.b.line, j.b.d));
+    if (gap > 0.25) {
+      const [x, y] = pointAt(j.a.line, j.a.d);
+      gaps.push({ gap: +gap.toFixed(1), roads: [j.a.line.road.code, j.b.line.road.code], at: [Math.round(x), Math.round(y)] });
+    }
+  }
+  gaps.sort((a, b) => b.gap - a.gap);
+  console.log(`${junctions.length} junctions, ${junctions.length - gaps.length} level`);
+  for (const g of gaps) console.warn(`! ${g.roads.join(" x ")} still ${g.gap} m apart at X ${g.at[0]}, Y ${g.at[1]}: too close to another junction for a ${CONFIG.maxGrade * 100}% grade`);
 
   // ---- 3. one ymap per cell
   fs.mkdirSync(OUT, { recursive: true });
@@ -225,6 +342,6 @@ ${vec("entitiesExtentsMax", eMax)}
     total += ents.length;
   }
   fs.writeFileSync(path.join(OUT, "roads-index.json"),
-    JSON.stringify({ config: CONFIG, rows: ROWS, totalPieces: total, ymaps: files, roads: index }, null, 1) + "\n");
+    JSON.stringify({ config: CONFIG, rows: ROWS, totalPieces: total, junctions: junctions.length, unlevelJunctions: gaps, ymaps: files, roads: index }, null, 1) + "\n");
   console.log(`${roads.length} roads -> ${total} pieces in ${files.length} ymaps (island-roads/xml/)`);
 })().catch(e => { console.error(e); process.exit(1); });
