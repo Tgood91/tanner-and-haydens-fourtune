@@ -164,9 +164,9 @@ Drive north across each line and mark where the city should change. Only the **y
 
 ## 4. Places players use — pins
 
-54 spots. Stand where the player interacts.
+55 spots. Stand where the player interacts.
 
-### 1017 Atlanta — 24 spots
+### 1017 Atlanta — 25 spots
 
 - [ ] **Alder Street** · Spawn · now `-269.4, -955.3, 31.2` · `js-snippets/spawns.js (SPAWNS, also set heading)`
 - [ ] **Lantern Square** · Spawn · now `195.2, -933.8, 30.7` · `js-snippets/spawns.js (SPAWNS, also set heading)`
@@ -178,6 +178,7 @@ Drive north across each line and mark where the city should change. Only the **y
 - [ ] **Shooters Armoury** · Gun shop · now `22, -1110, 29.8` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Halfway Diner** · Shop · now `622, 1530, 0` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Halfway Feed & Seed** · Shop · now `578, 1395, 0` · `js-snippets/shops.js (SHOPS)`
+- [ ] **Antler Lodge** · Gun shop · now `-7510, -6301, 27.1` · `js-snippets/shops.js (SHOPS)`
 - [ ] **Gasco Groveland** · Fuel · now `-70.2, -1761.8, 29.5` · `js-snippets/fuel.js (GAS_STATIONS)`
 - [ ] **Koreatown Gas** · Fuel · now `-526, -1211, 18.2` · `js-snippets/fuel.js (GAS_STATIONS)`
 - [ ] **Halfway Fuel** · Fuel · now `628, 1220, 0` · `js-snippets/fuel.js (GAS_STATIONS)`
@@ -240,4 +241,4 @@ and they'll be added to the data so the game knows about them too.
 - [ ] The 1017 Harbor and the 312 Port: a point on each quay
 - [ ] The airport: the terminal door and the runway's two ends
 
-_Totals: 2 borders, 16 zones, 73 roads (224 points), 54 pins._
+_Totals: 2 borders, 16 zones, 73 roads (224 points), 55 pins._

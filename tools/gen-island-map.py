@@ -13,7 +13,9 @@
 # ============================================================
 import json, math, random, pathlib, re, subprocess, sys
 random.seed(1017312)
-W, H = 1500, 1000
+# The canvas. Map units are fixed (750, 500 = world X -5500, Y -6500; 2 m a unit), so growing
+# the canvas west and east moves nothing that was already built.
+VX0, VY0, W, H = -620, 0, 3400, 1300
 out = []
 def a(s): out.append(s)
 def f(v): return f"{v:.1f}"
@@ -38,8 +40,15 @@ def ellipse_path(cx, cy, rx, ry):
 
 def inside_ellipse(x, y, cx, cy, rx, ry): return ((x-cx)/rx)**2 + ((y-cy)/ry)**2 <= 1
 
-ISLAND = [(150,330),(240,205),(420,150),(640,105),(900,92),(1120,112),(1290,165),(1395,265),(1445,420),
-          (1435,600),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(115,735),(72,600),(62,455),(90,375)]
+# The coast. The north (the 312 ports) and the 1017 harbour bay are the original coast;
+# Grande P joins on east of the 312 port, and the west woods grow out past the old
+# west shore. Everything stays inside world X/Y -8192..8192 (GTA's path-node grid), and
+# well clear of Los Santos (north) and Cayo Perico (far east).
+ISLAND = [(-540,700),(-560,520),(-500,380),(-380,290),(-200,250),(-20,280),(150,330),(240,205),(420,150),(640,105),
+          (900,92),(1120,112),(1290,165),(1395,265),(1470,330),(1600,280),(1800,200),(2050,140),(2330,120),(2560,180),
+          (2700,320),(2740,520),(2700,760),(2600,980),(2420,1140),(2150,1230),(1850,1250),(1640,1190),(1560,1040),
+          (1540,860),(1500,720),(1445,660),(1390,745),(1300,840),(1180,872),(760,880),(300,872),(195,840),(120,940),
+          (0,1080),(-200,1160),(-400,1100),(-510,920)]
 MOUNTAIN = (780, 455)
 YARD = (1212, 398, 1328, 562)       # the East Shipping Yard's paved footprint: x0, y0, x1, y1
 WEST_TOWERS = (370, 510, 128, 102)  # the west tower district (FAFO ST ... EUPHORIA Lane): no trees or farms in it
@@ -48,7 +57,7 @@ INNER = (760, 700, 380, 115)       # the Inner Loop round the 1017 towers
 MLOOP = (820, 470, 285, 150)       # County Line Road, round the mountain (clear of the 312)
 
 # ---------------------------------------------------------------- defs
-a(f'''<svg id="island" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south">
+a(f'''<svg id="island" viewBox="{VX0} {VY0} {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The island: 312 north, the mountain, 1017 south, Grande P and the west woods">
 <defs>
   <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a6f9a"/><stop offset="1" stop-color="#174f78"/></linearGradient>
   <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa36f"/><stop offset=".5" stop-color="#8f9a5e"/><stop offset="1" stop-color="#a49c70"/></linearGradient>
@@ -59,10 +68,10 @@ a(f'''<svg id="island" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" 
   <pattern id="containers" width="12" height="6" patternUnits="userSpaceOnUse">
     <rect width="6" height="6" fill="#c0392b"/><rect x="6" width="6" height="6" fill="#2e86c1"/></pattern>
 </defs>
-<rect width="{W}" height="{H}" fill="url(#sea)"/>
+<rect x="{VX0}" y="{VY0}" width="{W}" height="{H}" fill="url(#sea)"/>
 <g id="waves" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none">''')
 for i in range(40):
-    x, y = random.uniform(0, W), random.uniform(0, H)
+    x, y = VX0 + random.uniform(0, W), VY0 + random.uniform(0, H)
     a(f'  <path d="M{f(x)} {f(y)} q8 -4 16 0 t16 0"/>')
 a('</g>')
 
@@ -126,12 +135,83 @@ a(f'<path d="M{f(snow[0][0])} {f(snow[0][1])} L{f(snow[1][0])} {f(snow[1][1])} L
 forest(mx-60, my+80, 90, 40, 120)
 forest(mx+90, my+70, 90, 40, 120)
 
+# ---------------------------------------------------------------- the expansion's ground: fields, woods, the park
+ER = random.Random(2740)
+def woods(cx, cy, rx, ry, n, title=""):
+    a('<g class="woods">' + (f'<title>{title}</title>' if title else ''))
+    for _ in range(n):
+        t = ER.uniform(0, 2 * math.pi); r = math.sqrt(ER.random())
+        a(f'  <circle cx="{f(cx + rx * r * math.cos(t))}" cy="{f(cy + ry * r * math.sin(t))}" r="{f(ER.uniform(4, 7.5))}" fill="{ER.choice(["#2f5a2c", "#3f7036"])}"/>')
+    a('</g>')
+a('<g id="expansion-ground" clip-path="url(#clip-island)">')
+for x0, x1, y0, y1 in [(1560, 1950, 530, 700), (2420, 2600, 600, 880), (-520, -340, 420, 620), (2060, 2400, 790, 960)]:
+    for gx in range(x0, x1, 46):
+        for gy in range(y0, y1, 40):
+            x, y = gx + ER.uniform(-6, 6), gy + ER.uniform(-5, 5); w, h = ER.uniform(30, 44), ER.uniform(26, 36)
+            a(f'  <rect x="{f(x)}" y="{f(y)}" width="{f(w)}" height="{f(h)}" fill="{ER.choice(FIELD_COLORS)}" '
+              f'transform="rotate({f(ER.uniform(-8, 8))} {f(x + w / 2)} {f(y + h / 2)})" opacity=".9"/>')
+a('<ellipse cx="2450" cy="370" rx="230" ry="130" fill="url(#hill)"/>')
+a('<ellipse cx="-280" cy="990" rx="210" ry="130" fill="url(#hill)"/>')
+woods(-300, 430, 230, 120, 420, "The west woods")
+woods(-280, 990, 170, 100, 220, "The Copper Hills")
+woods(2450, 380, 210, 110, 360, "Harrow Heights")
+woods(-430, 820, 60, 120, 90)
+a('<rect x="1530" y="322" width="380" height="160" rx="6" fill="#7c7f82" opacity=".85"><title>Foundry Flats — the industrial yards</title></rect>')
+a('<ellipse cx="2250" cy="700" rx="126" ry="68" fill="#4f8a44" stroke="#2f5a2c" stroke-width="2"><title>Kestrel Park</title></ellipse>')
+woods(2250, 700, 100, 50, 90)
+a('</g>')
+# The West Woods hunting grounds: inside the dashed line, between Timberline Road and the West Reach Parkway
+LOGGING_SPOTS = [(-390, 950), (-350, 1035), (-300, 925), (-250, 1050), (-205, 960), (-170, 1010), (-345, 975), (-225, 905)]
+HUNT = (-290, 425, 245, 112)      # centre x, y, radius x, y (map units)
+a('<g id="hunting">')
+a(f'<ellipse cx="{HUNT[0]}" cy="{HUNT[1]}" rx="{HUNT[2]}" ry="{HUNT[3]}" fill="rgba(217,119,6,.08)" stroke="#f59e0b" stroke-width="2.5" '
+  f'stroke-dasharray="9 6"><title>West Woods Hunting Grounds — deer and boar, licence needed</title></ellipse>')
+a('<g transform="translate(-255 392)" filter="url(#shadow)"><title>Antler Lodge — hunting licenses, .308 ammo and rifles; meat and hides bought (/sellgame)</title>'
+  '<rect x="-11" y="-7" width="22" height="14" fill="#6b4a2e" stroke="#3b2716" stroke-width="1.2"/>'
+  '<path d="M-6 -2 L-3 -6 M-3 -2 L-3 -6 L0 -2 M0 -2 L3 -6 L6 -2 M3 -6 L3 -2" stroke="#f3e2b8" stroke-width="1.2" fill="none"/></g>')
+for x, y in [(-470, 410), (-420, 360), (-360, 480), (-300, 360), (-200, 470), (-140, 400), (-90, 450), (-330, 420), (-240, 440)]:
+    a(f'<g transform="translate({x} {y})"><title>Hunting stand</title><rect x="-3" y="-3" width="6" height="6" fill="#8b5a2b" stroke="#3b2716"/>'
+      f'<rect x="-1.5" y="-1.5" width="3" height="3" fill="#d4a373"/></g>')
+for _ in range(16):
+    t = ER.uniform(0, 2 * math.pi); r = math.sqrt(ER.random()) * .85
+    x, y = HUNT[0] + HUNT[2] * r * math.cos(t), HUNT[1] + HUNT[3] * r * math.sin(t)
+    boar = ER.random() < .3
+    a(f'<g transform="translate({f(x)} {f(y)}) rotate({ER.randint(0, 359)})"><title>{"Boar" if boar else "Deer"}</title>'
+      f'<ellipse rx="3.6" ry="2" fill="{"#4a3b31" if boar else "#b07d4f"}" stroke="#2b1d12" stroke-width=".6"/>'
+      f'<circle cx="3.6" cy="0" r="1.3" fill="{"#4a3b31" if boar else "#b07d4f"}"/></g>')
+a('</g>')
+
+# Hollow Creek Lumber Yard (lumbermill.js): a dirt yard behind a fence, the mill shed west of
+# Millyard Road, the office and log piles east of it. Logging is in the Copper Hills woods.
+LUMBER = (-45, 505, 150, 150)     # yard x, y, w, h (map units)
+a('<g id="lumber-yard">')
+a(f'<rect x="{LUMBER[0]}" y="{LUMBER[1]}" width="{LUMBER[2]}" height="{LUMBER[3]}" rx="4" fill="#9c8a63" stroke="#5b4a2e" stroke-width="2" '
+  f'stroke-dasharray="5 3"><title>Hollow Creek Lumber Yard — /apply lumbermill</title></rect>')
+for i in range(5):                # log piles: rows of log ends
+    gx, gy = 42 + (i % 2) * 30, 555 + (i // 2) * 30
+    a(f'<g><title>Log pile</title><rect x="{gx}" y="{gy}" width="24" height="16" rx="3" fill="#7a5230" stroke="#3b2716"/>'
+      + "".join(f'<circle cx="{gx + 4 + k * 5.3}" cy="{gy + 8}" r="2.3" fill="#d9b382" stroke="#6b4423" stroke-width=".6"/>' for k in range(4)) + '</g>')
+for gx, gy in [(-35, 600), (-20, 600), (-5, 600), (-35, 615), (-20, 615)]:   # plank stacks
+    a(f'<rect x="{gx}" y="{gy}" width="12" height="9" fill="#e3c58f" stroke="#8a6a3a"><title>Plank stack</title></rect>')
+a('<circle cx="86" cy="644" r="9" fill="#c9a66b" opacity=".9"><title>Sawdust pile</title></circle>')   # the empty south-east corner, clear of Timber Yard Lane
+for x, y in LOGGING_SPOTS:        # Copper Hills felling spots (lumbermill.js FELL_SPOTS)
+    a(f'<g transform="translate({x} {y})"><title>Felling spot — /fell</title><circle r="3.4" fill="#d9b382" stroke="#6b4423" stroke-width="1"/>'
+      f'<circle r="1.4" fill="none" stroke="#6b4423" stroke-width=".6"/></g>')
+a('</g>')
+
+a('<g transform="translate(2716 470)"><title>Lighthouse Point</title><circle r="6" fill="#f4f4f0" stroke="#b03a2e" stroke-width="3"/></g>')
+
 # ---------------------------------------------------------------- 312 city blocks (grid)
 # Buildings are collected here and drawn once every road is known (see "buildings meet
 # the streets" near the end): any that would sit on a road are left out, and the city
 # streets get buildings along both sides, facing the street.
 BUILDINGS = []    # (group, x, y, w, h, svg) — x, y, w, h is the footprint's bounding box
 def bld(group, x, y, w, h, svg): BUILDINGS.append((group, x, y, w, h, svg))
+# the lumber yard's mill shed (grey: a works building) and office
+bld("houses-1017", -32, 560, 50, 30, '  <rect x="-32" y="560" width="50" height="30" fill="#8f9499" filter="url(#shadow)"><title>Hollow Creek mill shed — /mill</title></rect>')
+bld("houses-1017", 45, 518, 16, 12, '  <rect x="45" y="518" width="16" height="12" fill="#a8674c" filter="url(#shadow)"><title>Hollow Creek yard office — /sellplanks</title></rect>')
+# the lodge as a building (gen-island-buildings turns it into a 3D model)
+bld("houses-1017", -266, 385, 22, 14, '  <rect x="-266" y="385" width="22" height="14" fill="#6b4a2e" filter="url(#shadow)"/>')
 
 # 312 high-rises: every block gets a tower, tallest in the core round the Connector and
 # B Avenue and stepping down to the waterfront. Candidates in order of preference: one big
@@ -234,6 +314,60 @@ for n, gy in enumerate(range(170, 290, 30)):   # A-D: the ring road is the water
 # Added after the grid so it takes the next 312 number and nothing else is renumbered.
 road("cut-st", "Cut St.", smooth([(821,189),(815,208),(817,228),(810,250),(812,270),(819,288),(822,300)], closed=False), "street")   # the 312: the Skyway down to Palisade
 
+# ---------------------------------------------------------------- the expansion (added after everything above,
+# so every existing road keeps its number). Prefix = whose numbers it takes:
+# e312- the 312's (Grande P, north half), e1017- the 1017's (Grande P, south half), w770- the 770's (west woods).
+def straight(*pts): return "M" + " L".join(f"{x} {y}" for x, y in pts)
+def curve(*pts): return smooth(list(pts), closed=False)
+# Grande P: the trunk roads
+road("e312-east-reach", "Grande P Expressway — off the Perimeter, across Grande P to the east shore",
+     curve((1380,470),(1600,480),(1900,520),(2250,560),(2655,600)))
+road("e312-bayfront", "Bayfront Drive — Grande P's north shore", curve((1560,330),(1700,290),(1900,235),(2150,190),(2400,182),(2590,250)), "arterial")
+road("e312-eastline", "Eastline Avenue — north to south through Grande P", curve((1960,222),(1985,480),(2000,700),(1990,1000),(1965,1165)), "arterial")
+road("e312-east-shore", "East Shore Drive — down the east coast", curve((2590,250),(2650,380),(2662,560),(2620,760),(2560,900)), "street")
+road("e1017-channel-bridge", "Channel Bridge — over the harbour channel, 1017 to Eastgate", curve((1320,790),(1450,762),(1560,748),(1680,740)), "arterial")
+road("e1017-strand", "Strand Boulevard — the Saltwater Strand seafront", curve((1700,1120),(1950,1170),(2200,1140),(2420,1060),(2560,900)), "arterial")
+# Foundry Flats: the industrial grid east of the 312 port
+for i, (name, y) in enumerate([("Foundry Road", 350), ("Smelter Street", 390), ("Boiler Row", 430), ("Rivet Street", 465)]):
+    road(f"e312-foundry-h{i}", name, straight((1540, y), (1900, y)), "arterial" if i == 0 else "street")
+for i, (name, x) in enumerate([("Anvil Lane", 1580), ("Gantry Way", 1650), ("Slag Street", 1720), ("Forge Street", 1790), ("Kiln Street", 1860)]):
+    road(f"e312-foundry-v{i}", name, straight((x, 330 if x > 1600 else 340), (x, 465)), "street")
+road("e312-rail-yard", "Rail Yard Lane — the Foundry Flats freight sidings", curve((1540,500),(1700,505),(1880,500),(1960,490)), "track")
+# Harrow Heights: hill roads in the north-east
+road("e312-summit", "Summit Road — up Harrow Heights", curve((2290,300),(2420,340),(2500,420),(2620,440)), "street")
+road("e312-pinecrest", "Pinecrest Drive", curve((2280,420),(2380,380),(2480,300),(2560,250)), "street")
+road("e312-ridgeback", "Ridgeback Way", curve((2400,480),(2450,400),(2520,360)), "street")
+road("e312-lighthouse", "Lighthouse Road — out to Lighthouse Point", curve((2662,480),(2690,470),(2712,470)), "track")
+# Kestrel Park
+road("e1017-kestrel-loop", "Kestrel Park Loop — round Kestrel Park", ellipse_path(2250, 700, 140, 80), "street")
+road("e1017-kestrel-rd", "Kestrel Park Road", straight((2000, 700), (2110, 700)), "street")
+# Eastgate: suburbs on a grid (tree names north to south, west to east)
+for i, (name, x) in enumerate([("Aspen Street", 1680), ("Birch Street", 1740), ("Larch Street", 1800), ("Dogwood Street", 1860), ("Sycamore Street", 1920)]):
+    road(f"e1017-eastgate-v{i}", name, straight((x, 740), (x, 990)), "street")
+for i, (name, y) in enumerate([("Maple Avenue", 740), ("Oak Avenue", 820), ("Willow Avenue", 900), ("Hawthorn Avenue", 980)]):
+    road(f"e1017-eastgate-h{i}", name, straight((1680 if i else 1680, y), (1990, y)), "street")
+# Saltwater Strand: the beach streets
+for i, (name, x0, y0, x1, y1) in enumerate([("Coral Street", 1900, 1158, 1900, 1040), ("Gull Street", 2050, 1162, 2050, 1022),
+                                            ("Pelican Street", 2200, 1140, 2200, 1004), ("Tidewater Street", 2350, 1088, 2335, 986)]):
+    road(f"e1017-strand-{i}", name, straight((x0, y0), (x1, y1)), "street")
+road("e1017-boardwalk", "Boardwalk Avenue — a block back from the beach", straight((1880,1040),(2050,1022),(2200,1004),(2335,986)), "street")
+road("e1017-marina", "Marina Drive — down to the Strand marina", curve((2420,1060),(2455,1090),(2475,1112)), "street")
+# The west woods
+road("w770-west-reach", "West Reach Parkway — off the Perimeter into the west woods", curve((140,470),(-50,480),(-250,520),(-420,600)))
+for i, (name, x) in enumerate([("Hollow Street", -300), ("Fern Street", -240), ("Moss Street", -180), ("Bramble Street", -120)]):
+    road(f"w770-hollow-v{i}", name, straight((x, 640), (x, 800)), "street")
+for i, (name, y) in enumerate([("Pine Hollow Road", 660), ("Acorn Avenue", 730), ("Thistle Avenue", 800)]):
+    road(f"w770-hollow-h{i}", name, straight((-320, y), (-100, y)), "street")
+road("w770-timberline", "Timberline Road — through the west woods", curve((-480,440),(-380,360),(-250,322),(-80,332),(60,362),(152,400)), "street")
+road("w770-copper-hills", "Copper Hills Road", curve((-200,800),(-260,900),(-330,1000),(-260,1080),(-120,1090)), "street")
+road("w770-quarry", "Quarry Road — from the Copper Hills to Westside Run", curve((-120,1090),(-20,1010),(60,920),(110,800),(150,700)), "track")
+road("w770-sundown", "Sundown Beach Road — along the west beach", curve((-420,600),(-480,700),(-470,850),(-400,950)), "street")
+road("w770-lumber-mill", "Lumber Mill Lane", curve((-250,520),(-200,600),(-180,640)), "track")
+road("w770-antler-lodge", "Antler Lodge Track — off Timberline Road to the hunting lodge", curve((-265,326),(-262,355),(-255,382)), "track")
+# Hollow Creek Lumber Yard: in off the West Reach Parkway, and a lane from Pine Hollow
+road("w770-millyard", "Millyard Road — off the West Reach Parkway into Hollow Creek Lumber Yard", straight((30, 478), (30, 640)), "street")
+road("w770-timber-yard", "Timber Yard Lane — Pine Hollow Road to the lumber yard", curve((-100, 660), (-40, 652), (30, 640)), "street")
+
 STYLE = {"highway": (16, "#5c5f63", "#cfd0cc"), "arterial": (11, "#5c5f63", "#d4d4cf"),
          "street": (7, "#6a6c6e", "#d9d6cc"), "street312": (4, None, "#8a8e93"), "track": (3, None, "#c9b48a")}
 # ---------------------------------------------------------------- every gameplay street (from js-snippets/places.js)
@@ -305,7 +439,11 @@ MAP_ONLY = {"fafo-st": ("geepee", "S"), "fomo-st": ("geepee", "S"), "fud-st": ("
             "inner-loop": ("atlanta", "H"), "flyover": ("atlanta", "A"), "backroads": ("geepee", "S"),
             "highfield": ("atlanta", "S"), "airport-road": ("atlanta", "S"),
             "cut-st": ("chicago", "S")}
-def map_only_kind(rid):
+EXPANSION_CITY = {"e312-": "chicago", "e1017-": "atlanta", "w770-": "geepee"}
+EXPANSION_LETTER = {"highway": "H", "arterial": "A", "street": "S", "track": "B"}
+def map_only_kind(rid, kind=None):
+    for prefix, city in EXPANSION_CITY.items():
+        if rid.startswith(prefix): return (city, EXPANSION_LETTER[kind])
     if rid in MAP_ONLY: return MAP_ONLY[rid]
     if rid.startswith("farm-"): return ("geepee", "B")
     if rid.startswith("st312-"): return ("chicago", "S")
@@ -314,9 +452,12 @@ ROAD_CODE = {}
 for rid, name, d, k in ROADS:
     base = name.split(" — ")[0]
     if base in CODE_BY_NAME: ROAD_CODE[rid] = CODE_BY_NAME[base]; continue
-    city, letter = map_only_kind(rid)
-    NEXT[(city, letter)] = NEXT.get((city, letter), 0) + 1
-    ROAD_CODE[rid] = f'{GAME["cityCode"][city]}-{letter}{NEXT[(city, letter)]}'
+    city, letter = map_only_kind(rid, k)
+    while True:   # the next number in the city's sequence that no road already has (Cut St. pins 312-S35)
+        NEXT[(city, letter)] = NEXT.get((city, letter), 0) + 1
+        code = f'{GAME["cityCode"][city]}-{letter}{NEXT[(city, letter)]}'
+        if code not in CODE_BY_NAME.values() and code not in ROAD_CODE.values(): break
+    ROAD_CODE[rid] = code
 assert len(set(ROAD_CODE.values())) == len(ROAD_CODE), "two island roads share a number"
 STREET_STYLE = {"highway": (6, "#cfd0cc", "#5c5f63", ""), "arterial": (5, "#d4d4cf", "#5c5f63", ""),
                 "street": (3.2, "#d9d6cc", "#6a6c6e", ""), "backroad": (2.2, "#c9b48a", None, "4 3")}
@@ -466,20 +607,20 @@ pier(240, 185, 140, 26, -18, "312 west port")
 boxes(255, 188, 90, 14, -18); crane(270, 180, -18); crane(320, 163, -18)
 ship(230, 150, 85, -18, "cargo"); ship(120, 260, 70, 70, "tanker")
 ship(560, 70, 90, -4, "ferry")
-# 1017 west marina
-pier(105, 690, 105, 70, 0, "1017 west yard")
-boxes(115, 700, 60, 40)
-crane(190, 700)
-for y in (770, 790, 810): a(f'<rect x="90" y="{y}" width="70" height="4" fill="#8a7d6b"><title>Marina jetty</title></rect>')
-ship(60, 735, 70, 90, "cargo")
-for x, y in [(110,780),(120,800),(100,820)]: ship(x, y, 22, 0, "boat")
+# 1017 west marina: on the water between the south-west shore and the airport (the west woods now cover its old spot)
+pier(150, 898, 55, 58, 0, "1017 west yard")
+boxes(156, 906, 40, 34)
+crane(200, 902)
+for y in (965, 980, 995): a(f'<rect x="130" y="{y}" width="70" height="4" fill="#8a7d6b"><title>Marina jetty</title></rect>')
+ship(178, 1030, 70, 0, "cargo")
+for x, y in [(150,972),(160,987),(140,1002)]: ship(x, y, 22, 0, "boat")
 # 1017 harbor (east)
 pier(1300, 760, 26, 90, 0, "1017 Harbor quay")
 for y in (770, 800, 830): pier(1326, y, 90, 10, 0, "1017 Harbor pier")
 crane(1318, 785, 90); crane(1318, 815, 90)
 ship(1375, 787, 80, 0, "cargo"); ship(1375, 817, 76, 0, "tanker")
 ship(1460, 700, 90, -60, "cargo"); ship(1120, 990, 100, 180, "tanker"); ship(380, 992, 100, 0, "cargo")
-for x, y in [(60,200),(1460,420),(40,560),(1470,560)]:
+for x, y in [(60,200),(1500,232),(-600,500),(1700,1272)]:
     a(f'<path d="M{x} {y-8} L{x+6} {y+6} L{x-6} {y+6} Z" fill="#f4f4f0" filter="url(#shadow)"><title>Sailboat</title></path>')
 a('</g>')
 
@@ -558,6 +699,12 @@ for z in GAME["zones"]:
     a(f'  <text class="name zone-name" x="{f(x)}" y="{f(y)}" text-anchor="middle" font-size="{9 if z["kind"] == "district" else 7}" font-style="italic" '
       f'fill="{"#ffe9a8" if z["kind"] == "district" else "#c9f2b8"}" stroke-width="2.4">{z["name"]}</text>')
 a(f'  <text class="name zone-name" x="1270" y="393" text-anchor="middle" font-size="7" font-style="italic" fill="#ffe9a8" stroke-width="2.4">East Shipping Yard</text>')
+for x, y, name, kind in [(1715, 316, "Foundry Flats", "district"), (2450, 470, "Harrow Heights", "district"), (2000, 250, "Bayfront", "district"),
+                         (2250, 704, "Kestrel Park", "park"), (2010, 455, "Grande P", "district"), (1800, 870, "Eastgate", "district"), (2130, 1085, "Saltwater Strand", "district"),
+                         (2690, 448, "Lighthouse Point", "park"), (-210, 610, "Pine Hollow", "district"), (-300, 430, "The west woods", "district"),
+                         (-280, 960, "Copper Hills", "district"), (-330, 455, "Hunting Grounds", "park"), (30, 500, "Hollow Creek Lumber Yard", "district"), (-290, 1062, "Copper Hills logging", "park"), (-505, 760, "Sundown Beach", "park")]:
+    a(f'  <text class="name zone-name" x="{x}" y="{y}" text-anchor="middle" font-size="{9 if kind == "district" else 7}" font-style="italic" '
+      f'fill="{"#ffe9a8" if kind == "district" else "#c9f2b8"}" stroke-width="2.4">{name}</text>')
 a('</g>')
 
 # ---------------------------------------------------------------- you-are-here and the waypoint (placed by script)
@@ -568,7 +715,7 @@ a('<g id="you" class="marker" style="display:none"><title>You are here</title>'
   '<circle r="16" fill="rgba(56,189,248,.25)" class="pulse"/><circle r="8" fill="#38bdf8" stroke="#fff" stroke-width="2.5"/>'
   '<path class="heading" d="M0 -17 L5 -9 L-5 -9 Z" fill="#fff" stroke="#0c4a6e" stroke-width="1"/></g>')
 
-for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104)]:   # 1017 sits over the east houses, off the towers
+for x, y, t, s in [(770,120,"312",96),(1010,600,"1017",104),(2150,620,"GRANDE P",70),(-250,560,"WEST WOODS",56)]:   # 1017 sits over the east houses, off the towers
     a(f'<text x="{x}" y="{y}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="{s}" '
       f'fill="#fff" stroke="#111" stroke-width="7" paint-order="stroke" style="filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))">{t}</text>')
 a('</svg>')
@@ -630,7 +777,8 @@ def on_land(x, y):
     for k in range(len(poly)):
         (x1, y1), (x2, y2) = poly[k], poly[(k + 1) % len(poly)]
         if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): inside = not inside
-    return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and y < 866
+    on_airport = 210 <= x <= 1470 and 830 <= y <= 975
+    return inside and not inside_ellipse(x, y, MOUNTAIN[0], MOUNTAIN[1] - 20, 205, 150) and not on_airport
 
 kept = {"312-towers": [], "city-312": [], "houses-1017": [], "towers": [], "west-towers": [], "yard": []}
 TAKEN = {}        # footprints already used, so frontage never lands on a building
@@ -651,7 +799,8 @@ for group, x, y, w, h, svg in BUILDINGS:
 
 # Frontage: walk each city street and set a building on either side every few units,
 # turned to face the street. 312 gets grey city buildings, 1017 houses, 770 the odd farmhouse.
-FRONT_STYLE = {"chicago": (["#8f9499","#a2a6aa","#7d838a","#b2b0a8"], 11, 8, 14),
+FRONT_STYLE = {"industrial": (["#8f9499","#7d838a"], 16, 12, 24),
+               "chicago": (["#8f9499","#a2a6aa","#7d838a","#b2b0a8"], 11, 8, 14),
                "atlanta": (["#a8674c","#8f5e48","#b9b2a3","#7b8b9a","#c4a07a"], 8, 7, 12),
                "geepee":  (["#b9a27e","#a8674c","#c4a07a"], 8, 7, 40)}
 frontage = []
@@ -684,6 +833,14 @@ for pts, w, kind, city in STREET_LINES:
 for rid in ("highfield", "primrose", "crystal-lake", "airport-road"):      # the island's own 1017 streets
     d = next(d for r, n, d, k in ROADS if r == rid)
     frontage_along(sample_path(d, 6), STYLE["street"][0], "atlanta")
+# The expansion: warehouses in Foundry Flats, offices on Bayfront, houses in Eastgate, the Strand and Pine Hollow,
+# the odd farmhouse along the west woods roads.
+for rid, name, d, k in ROADS:
+    if not rid.startswith(("e312-", "e1017-", "w770-")) or k not in ("street", "arterial") or any(k_ in rid for k_ in ("kestrel", "millyard", "timber-yard")): continue   # the park and the lumber yard keep their own buildings
+    style = ("industrial" if "foundry" in rid else "chicago" if rid in ("e312-bayfront",) else
+             "atlanta" if rid.startswith("e1017-") or "hollow" in rid else "geepee" if rid.startswith("w770-") else None)
+    # width + casing + a pavement, so each building clears the road it faces
+    if style: frontage_along(sample_path(d, 6), STYLE[k][0] + (10 if style == "industrial" else 5), style)
 
 FILL = {"%%yard%%": "\n".join(kept["yard"]), "%%city-312%%": "\n".join(kept["city-312"]), "%%houses-1017%%": "\n".join(kept["houses-1017"]),
         "%%towers%%": "\n".join(kept["towers"] + kept["west-towers"] + kept["312-towers"]), "%%frontage%%": "\n".join(frontage)}
@@ -706,6 +863,15 @@ LEGEND = [
  ('<circle cx="14" cy="14" r="6" fill="#2f5a2c"/><circle cx="26" cy="20" r="6" fill="#3f7036"/><circle cx="37" cy="12" r="6" fill="#2f5a2c"/>', "Forest"),
  ('<path d="M6 30 L26 4 L46 30 Z" fill="#8a8172"/><path d="M20 12 L26 4 L32 12 Z" fill="#f1f0ea"/>', "The mountain"),
  ('<circle cx="26" cy="17" r="11" fill="#4f8a44" stroke="#2f5a2c" stroke-width="2"/>', "Park"),
+ ('<rect x="4" y="5" width="44" height="24" rx="10" fill="rgba(217,119,6,.15)" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 3"/>', "Hunting grounds (licence needed)"),
+ ('<rect x="15" y="10" width="22" height="14" fill="#6b4a2e" stroke="#3b2716"/>', "Hunting lodge"),
+ ('<rect x="4" y="5" width="44" height="24" rx="3" fill="#9c8a63" stroke="#5b4a2e" stroke-width="2" stroke-dasharray="5 3"/>', "Lumber yard (/apply lumbermill)"),
+ ('<rect x="10" y="9" width="32" height="16" rx="3" fill="#7a5230" stroke="#3b2716"/><circle cx="17" cy="17" r="3" fill="#d9b382"/><circle cx="26" cy="17" r="3" fill="#d9b382"/><circle cx="35" cy="17" r="3" fill="#d9b382"/>', "Log pile"),
+ ('<rect x="14" y="11" width="24" height="12" fill="#e3c58f" stroke="#8a6a3a"/>', "Plank stack"),
+ ('<circle cx="26" cy="17" r="7" fill="#d9b382" stroke="#6b4423" stroke-width="2"/><circle cx="26" cy="17" r="3" fill="none" stroke="#6b4423"/>', "Felling spot (/fell)"),
+ ('<rect x="20" y="11" width="12" height="12" fill="#8b5a2b" stroke="#3b2716"/><rect x="23" y="14" width="6" height="6" fill="#d4a373"/>', "Hunting stand"),
+ ('<ellipse cx="22" cy="17" rx="9" ry="5" fill="#b07d4f" stroke="#2b1d12"/><circle cx="32" cy="17" r="3.2" fill="#b07d4f"/>', "Deer"),
+ ('<ellipse cx="22" cy="17" rx="9" ry="5" fill="#4a3b31" stroke="#2b1d12"/><circle cx="32" cy="17" r="3.2" fill="#4a3b31"/>', "Boar"),
  ('<rect x="6" y="11" width="40" height="12" fill="#8a8f93" stroke="#55595d"/><rect x="10" y="13" width="28" height="7" fill="url(#lg-cont)"/>', "Pier / dock yard"),
  ('<rect x="22" y="12" width="8" height="8" fill="#f2c230" stroke="#7a5d0a"/><rect x="24.5" y="2" width="3" height="11" fill="#f2c230" stroke="#7a5d0a" stroke-width=".6"/>', "Crane"),
  ('<path d="M6 13 L38 13 L46 17 L38 21 L6 21 Z" fill="#2f3a46"/><rect x="9" y="15" width="25" height="4" fill="url(#lg-cont)"/>', "Cargo ship"),
@@ -746,7 +912,7 @@ print(f'''<!DOCTYPE html>
          display: flex; flex-direction: column; align-items: center; padding: 24px 16px; }}
   h1 {{ color: #e8eef7; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }}
   p.note {{ color: #8fa5c0; font-size: 13px; margin-bottom: 16px; text-align: center; }}
-  .frame {{ width: min(96vw, 1500px); border-radius: 18px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.55); }}
+  .frame {{ width: min(96vw, 1800px); border-radius: 18px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.55); }}
   #island {{ display: block; width: 100%; height: auto; }}
   #island .road {{ cursor: help; }}
   #island .road:hover {{ stroke: #fff6c2; }}
@@ -765,7 +931,7 @@ print(f'''<!DOCTYPE html>
   .zoombar button {{ background: #13223a; color: #dfe7f2; border: 1px solid rgba(143,165,192,.35); border-radius: 8px;
                      padding: 5px 12px; font: 600 13px Arial, sans-serif; cursor: pointer; }}
   .zoombar button:hover {{ background: #1c3254; }}
-  .legend {{ width: min(96vw, 1500px); margin-top: 18px; padding: 16px 18px 18px; background: #13223a;
+  .legend {{ width: min(96vw, 1800px); margin-top: 18px; padding: 16px 18px 18px; background: #13223a;
              border: 1px solid rgba(143,165,192,.25); border-radius: 14px; font-size: 13px; }}
   .legend h2 {{ font-size: 13px; letter-spacing: 2px; color: #8fa5c0; margin-bottom: 12px; }}
   .legend ul {{ list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px 18px; }}
@@ -775,7 +941,7 @@ print(f'''<!DOCTYPE html>
 </head>
 <body>
   <h1>THE ISLAND — 312 TO 1017</h1>
-  <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south.<br>
+  <p class="note">The whole island, top down: the 312 port city north, the farm country and the mountain, the 1017 and the airport south, Grande P and the west woods.<br>
   Scroll or + / − to zoom in for every street name, drag to move around. Hover roads, towers and stations for names. Schematic — real positions come from docs/WALK-LIST.md.</p>
   <div class="frame">
 {SVG}
@@ -850,15 +1016,15 @@ window.placeOnRoad();
 // every street's name from 2.6x. Wheel zooms on the cursor; drag pans; + - 0 on the keyboard.
 (function () {{
   const svg = document.getElementById("island");
-  const W = {W}, H = {H}, MIN = W / 8;
-  let vb = {{ x: 0, y: 0, w: W, h: H }};
+  const X0 = {VX0}, Y0 = {VY0}, W = {W}, H = {H}, MIN = W / 14;
+  let vb = {{ x: X0, y: Y0, w: W, h: H }};
   const apply = () => {{
     vb.w = Math.min(W, Math.max(MIN, vb.w)); vb.h = vb.w * H / W;
-    vb.x = Math.min(W - vb.w, Math.max(0, vb.x)); vb.y = Math.min(H - vb.h, Math.max(0, vb.y));
+    vb.x = Math.min(X0 + W - vb.w, Math.max(X0, vb.x)); vb.y = Math.min(Y0 + H - vb.h, Math.max(Y0, vb.y));
     svg.setAttribute("viewBox", `${{vb.x}} ${{vb.y}} ${{vb.w}} ${{vb.h}}`);
-    const z = W / vb.w;
-    svg.classList.toggle("z-main", z >= 1.6);
-    svg.classList.toggle("z-street", z >= 2.6);
+    const z = W / vb.w, zi = 1500 / vb.w;          // zi: zoom against the original 1500-unit island
+    svg.classList.toggle("z-main", zi >= 1.6);
+    svg.classList.toggle("z-street", zi >= 2.6);
     cullLabels();
     drawMarkers(z);
   }};
@@ -868,7 +1034,13 @@ window.placeOnRoad();
   const FIT = {json.dumps(FIT_PARAMS)};
   const BORDERS = {json.dumps(GAME["borders"])};
   const cityAt = (y) => y >= BORDERS.chicago ? "chicago" : y >= BORDERS.geepee ? "geepee" : "atlanta";
+  // The island in the GTA world: map unit (750, 500) is world (-5500, -6500), 2 m a unit, map y runs south.
+  const ISLE = {{ cx: -5500, cy: -6500, m: 2 }};
+  const onIsland = (x, y) => x > ISLE.cx + (X0 - 750) * ISLE.m && x < ISLE.cx + (X0 + W - 750) * ISLE.m &&
+                             y < ISLE.cy - (Y0 - 500) * ISLE.m && y > ISLE.cy - (Y0 + H - 500) * ISLE.m;
+  window.islandMode = false;    // set while the player is on the island: clicks then give island coordinates
   window.gameToMap = (x, y) => {{
+    if (onIsland(x, y)) return {{ x: 750 + (x - ISLE.cx) / ISLE.m, y: 500 - (y - ISLE.cy) / ISLE.m, off: false }};
     const f = FIT[cityAt(y)];
     let px = f.x0 + (x - f.minX) / (f.maxX - f.minX) * (f.x1 - f.x0);
     let py = f.y0 + (f.maxY - y) / (f.maxY - f.minY) * (f.y1 - f.y0);
@@ -877,6 +1049,7 @@ window.placeOnRoad();
     return {{ x: px, y: py, off }};
   }};
   window.mapToGame = (px, py) => {{
+    if (window.islandMode) return {{ x: ISLE.cx + (px - 750) * ISLE.m, y: ISLE.cy - (py - 500) * ISLE.m }};
     for (const f of Object.values(FIT)) {{
       if (px < f.x0 || px > f.x1 || py < f.y0 || py > f.y1) continue;
       return {{ x: f.minX + (px - f.x0) / (f.x1 - f.x0) * (f.maxX - f.minX),
@@ -899,7 +1072,7 @@ window.placeOnRoad();
       g2.style.display = ""; g2.setAttribute("transform", `translate(${{m.x}} ${{m.y}}) scale(${{k}})`); }}
     else g2.style.display = "none";
   }}
-  window.mapSetPlayer = (p) => {{ you = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); }};
+  window.mapSetPlayer = (p) => {{ you = p && isFinite(p.x) && isFinite(p.y) ? p : null; window.islandMode = !!(you && onIsland(you.x, you.y)); drawMarkers(); }};
   window.mapSetWaypoint = (p) => {{ wp = p && isFinite(p.x) && isFinite(p.y) ? p : null; drawMarkers(); }};
   window.mapCentreOn = (x, y) => {{ const m = window.gameToMap(x, y); vb.x = m.x - vb.w / 2; vb.y = m.y - vb.h / 2; apply(); }};
 
@@ -910,7 +1083,7 @@ window.placeOnRoad();
   const zoomAt = (k, px, py) => {{ const nw = Math.min(W, Math.max(MIN, vb.w / k)); const f = nw / vb.w;
     vb.x = px - (px - vb.x) * f; vb.y = py - (py - vb.y) * f; vb.w = nw; apply(); }};
   window.mapZoom = (how) => {{
-    if (how === "reset") {{ vb = {{ x: 0, y: 0, w: W, h: H }}; return apply(); }}
+    if (how === "reset") {{ vb = {{ x: X0, y: Y0, w: W, h: H }}; return apply(); }}
     zoomAt(how === "in" ? 1.6 : 1 / 1.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
   }};
   svg.addEventListener("wheel", (e) => {{ e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, p.x, p.y); }}, {{ passive: false }});

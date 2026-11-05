@@ -9,7 +9,7 @@
   "barn": 6,
   "silo": 6
  },
- "tallest": 370,
+ "tallest": 361,
  "materials": {
   "bldg_glass_tower": "CONCRETE",
   "bldg_concrete": "CONCRETE",
@@ -23,7 +23,7 @@
  },
  "tiles": [
   {
-   "name": "island_bldg_02_04",
+   "name": "island_bldg_07_07",
    "centre": [
     -6528,
     -6528
@@ -38,11 +38,11 @@
    "bbMax": [
     107.79998779296875,
     100,
-    362.01795653613397
+    361.3227613712898
    ]
   },
   {
-   "name": "island_bldg_02_05",
+   "name": "island_bldg_07_08",
    "centre": [
     -6528,
     -6272
@@ -52,16 +52,16 @@
    "bbMin": [
     104.5999755859375,
     -117.5999755859375,
-    23.708607811187008
+    23.71033145621582
    ],
    "bbMax": [
     128.5999755859375,
     -93.5999755859375,
-    213.97559504537753
+    215.8376819093524
    ]
   },
   {
-   "name": "island_bldg_03_01",
+   "name": "island_bldg_08_04",
    "centre": [
     -6272,
     -7296
@@ -80,7 +80,7 @@
    ]
   },
   {
-   "name": "island_bldg_03_03",
+   "name": "island_bldg_08_06",
    "centre": [
     -6272,
     -6784
@@ -90,16 +90,16 @@
    "bbMin": [
     -52.79998779296875,
     75.199951171875,
-    23.700000762939453
+    23.65709967760682
    ],
    "bbMax": [
     103.20001220703125,
     125.800048828125,
-    350.6799891193887
+    350.6431214062938
    ]
   },
   {
-   "name": "island_bldg_03_04",
+   "name": "island_bldg_08_07",
    "centre": [
     -6272,
     -6528
@@ -118,7 +118,7 @@
    ]
   },
   {
-   "name": "island_bldg_03_05",
+   "name": "island_bldg_08_08",
    "centre": [
     -6272,
     -6272
@@ -133,11 +133,11 @@
    "bbMax": [
     133.79998779296875,
     36,
-    393.38490912312284
+    384.5504377303066
    ]
   },
   {
-   "name": "island_bldg_04_01",
+   "name": "island_bldg_09_04",
    "centre": [
     -6016,
     -7296
@@ -156,7 +156,7 @@
    ]
   },
   {
-   "name": "island_bldg_04_03",
+   "name": "island_bldg_09_06",
    "centre": [
     -6016,
     -6784
@@ -166,7 +166,7 @@
    "bbMin": [
     -137.79998779296875,
     79.800048828125,
-    23.700000762939453
+    22.366414732335468
    ],
    "bbMax": [
     -106,
@@ -175,7 +175,7 @@
    ]
   },
   {
-   "name": "island_bldg_04_04",
+   "name": "island_bldg_09_07",
    "centre": [
     -6016,
     -6528
@@ -185,7 +185,7 @@
    "bbMin": [
     -86.79998779296875,
     -135.5999755859375,
-    23.64419131779141
+    20.729248541523702
    ],
    "bbMax": [
     -24.4000244140625,
@@ -194,7 +194,7 @@
    ]
   },
   {
-   "name": "island_bldg_04_05",
+   "name": "island_bldg_09_08",
    "centre": [
     -6016,
     -6272
@@ -204,16 +204,16 @@
    "bbMin": [
     -114.4000244140625,
     -101,
-    23.700000762939453
+    23.06985199245173
    ],
    "bbMax": [
     -82.4000244140625,
     -69,
-    236.7740052431982
+    234.8275738219636
    ]
   },
   {
-   "name": "island_bldg_04_06",
+   "name": "island_bldg_09_09",
    "centre": [
     -6016,
     -6016
@@ -223,7 +223,7 @@
    "bbMin": [
     -114,
     -45.20001220703125,
-    22.230792850255966
+    23.700000762939453
    ],
    "bbMax": [
     133,
@@ -232,7 +232,7 @@
    ]
   },
   {
-   "name": "island_bldg_04_07",
+   "name": "island_bldg_09_10",
    "centre": [
     -6016,
     -5760
@@ -251,7 +251,7 @@
    ]
   },
   {
-   "name": "island_bldg_05_01",
+   "name": "island_bldg_10_04",
    "centre": [
     -5760,
     -7296
@@ -270,7 +270,7 @@
    ]
   },
   {
-   "name": "island_bldg_05_02",
+   "name": "island_bldg_10_05",
    "centre": [
     -5760,
     -7040
@@ -289,7 +289,7 @@
    ]
   },
   {
-   "name": "island_bldg_05_03",
+   "name": "island_bldg_10_06",
    "centre": [
     -5760,
     -6784
@@ -308,7 +308,7 @@
    ]
   },
   {
-   "name": "island_bldg_05_04",
+   "name": "island_bldg_10_07",
    "centre": [
     -5760,
     -6528
@@ -318,16 +318,16 @@
    "bbMin": [
     -120,
     -34,
-    19.30662530930016
+    17.367708206176758
    ],
    "bbMax": [
     -66,
     -8,
-    43.01329393954461
+    41.580278102347776
    ]
   },
   {
-   "name": "island_bldg_05_06",
+   "name": "island_bldg_10_09",
    "centre": [
     -5760,
     -6016
@@ -346,7 +346,7 @@
    ]
   },
   {
-   "name": "island_bldg_05_07",
+   "name": "island_bldg_10_10",
    "centre": [
     -5760,
     -5760
@@ -365,7 +365,7 @@
    ]
   },
   {
-   "name": "island_bldg_06_02",
+   "name": "island_bldg_11_05",
    "centre": [
     -5504,
     -7040
@@ -384,7 +384,7 @@
    ]
   },
   {
-   "name": "island_bldg_06_03",
+   "name": "island_bldg_11_06",
    "centre": [
     -5504,
     -6784
@@ -403,7 +403,7 @@
    ]
   },
   {
-   "name": "island_bldg_06_06",
+   "name": "island_bldg_11_09",
    "centre": [
     -5504,
     -6016
@@ -422,7 +422,7 @@
    ]
   },
   {
-   "name": "island_bldg_06_07",
+   "name": "island_bldg_11_10",
    "centre": [
     -5504,
     -5760
@@ -441,7 +441,7 @@
    ]
   },
   {
-   "name": "island_bldg_07_01",
+   "name": "island_bldg_12_04",
    "centre": [
     -5248,
     -7296
@@ -460,7 +460,7 @@
    ]
   },
   {
-   "name": "island_bldg_07_02",
+   "name": "island_bldg_12_05",
    "centre": [
     -5248,
     -7040
@@ -479,7 +479,7 @@
    ]
   },
   {
-   "name": "island_bldg_07_03",
+   "name": "island_bldg_12_06",
    "centre": [
     -5248,
     -6784
@@ -498,7 +498,7 @@
    ]
   },
   {
-   "name": "island_bldg_07_06",
+   "name": "island_bldg_12_09",
    "centre": [
     -5248,
     -6016
@@ -517,7 +517,7 @@
    ]
   },
   {
-   "name": "island_bldg_08_01",
+   "name": "island_bldg_13_04",
    "centre": [
     -4992,
     -7296
@@ -536,7 +536,7 @@
    ]
   },
   {
-   "name": "island_bldg_08_04",
+   "name": "island_bldg_13_07",
    "centre": [
     -4992,
     -6528
@@ -546,7 +546,7 @@
    "bbMin": [
     -8,
     -114,
-    23.718780517578125
+    23.655202865600586
    ],
    "bbMax": [
     46,
@@ -555,7 +555,7 @@
    ]
   },
   {
-   "name": "island_bldg_08_06",
+   "name": "island_bldg_13_09",
    "centre": [
     -4992,
     -6016
@@ -565,7 +565,7 @@
    "bbMin": [
     -118,
     -50,
-    23.5578635558486
+    23.700000762939453
    ],
    "bbMax": [
     129.99995136260986,
@@ -574,7 +574,7 @@
    ]
   },
   {
-   "name": "island_bldg_08_07",
+   "name": "island_bldg_13_10",
    "centre": [
     -4992,
     -5760
@@ -593,7 +593,7 @@
    ]
   },
   {
-   "name": "island_bldg_09_05",
+   "name": "island_bldg_14_08",
    "centre": [
     -4736,
     -6272
@@ -603,16 +603,16 @@
    "bbMin": [
     36,
     -90,
-    21.97198247909546
+    24.22162389755249
    ],
    "bbMax": [
     90,
     -64,
-    49.53379489851213
+    49.63405417879946
    ]
   },
   {
-   "name": "island_bldg_09_06",
+   "name": "island_bldg_14_09",
    "centre": [
     -4736,
     -6016
@@ -627,11 +627,11 @@
    "bbMax": [
     -15,
     100,
-    107.35080450773239
+    105.67991590499878
    ]
   },
   {
-   "name": "island_bldg_09_07",
+   "name": "island_bldg_14_10",
    "centre": [
     -4736,
     -5760
@@ -641,16 +641,16 @@
    "bbMin": [
     -97.199951171875,
     -62.600006103515625,
-    22.089472161847283
+    18.432119141802318
    ],
    "bbMax": [
     5.60009765625,
     -32.20001220703125,
-    133.39472301513337
+    133.34320518836222
    ]
   },
   {
-   "name": "island_bldg_10_05",
+   "name": "island_bldg_15_08",
    "centre": [
     -4480,
     -6272
@@ -660,16 +660,16 @@
    "bbMin": [
     -60,
     110,
-    25.90596079826355
+    22.372087478637695
    ],
    "bbMax": [
     -6,
     136,
-    50.435573754724004
+    48.90281965777692
    ]
   },
   {
-   "name": "island_bldg_11_01",
+   "name": "island_bldg_16_04",
    "centre": [
     -4224,
     -7296
@@ -1243,8 +1243,8 @@
    "type": "west-tower",
    "label": "West towers — 56 floors",
    "floors": 56,
-   "base": 23.7,
-   "top": 221.3,
+   "base": 22.37,
+   "top": 220.7,
    "footprint": [
     [
      -6153.8,
@@ -1318,8 +1318,8 @@
    "type": "west-tower",
    "label": "West towers — 92 floors",
    "floors": 92,
-   "base": 23.7,
-   "top": 346.71,
+   "base": 23.66,
+   "top": 346.7,
    "footprint": [
     [
      -6196.8,
@@ -1369,7 +1369,7 @@
    "label": "West towers — 82 floors",
    "floors": 82,
    "base": 23.7,
-   "top": 311.82,
+   "top": 311.81,
    "footprint": [
     [
      -6468,
@@ -1394,7 +1394,7 @@
    "label": "West towers — 49 floors",
    "floors": 49,
    "base": 23.7,
-   "top": 207.42,
+   "top": 211.04,
    "footprint": [
     [
      -6488.8,
@@ -1418,8 +1418,8 @@
    "type": "west-tower",
    "label": "West towers — 64 floors",
    "floors": 64,
-   "base": 23.7,
-   "top": 248.85,
+   "base": 22.87,
+   "top": 248.7,
    "footprint": [
     [
      -6102.8,
@@ -1444,7 +1444,7 @@
    "label": "West towers — 51 floors",
    "floors": 51,
    "base": 23.71,
-   "top": 213.98,
+   "top": 215.84,
    "footprint": [
     [
      -6423.4,
@@ -1469,7 +1469,7 @@
    "label": "West towers — 88 floors",
    "floors": 88,
    "base": 23.7,
-   "top": 393.38,
+   "top": 384.55,
    "footprint": [
     [
      -6387.2,
@@ -1519,7 +1519,7 @@
    "label": "West towers — 85 floors",
    "floors": 85,
    "base": 23.7,
-   "top": 322.38,
+   "top": 322.41,
    "footprint": [
     [
      -6452.2,
@@ -1643,8 +1643,8 @@
    "type": "west-tower",
    "label": "West towers — 87 floors",
    "floors": 87,
-   "base": 23.77,
-   "top": 362.02,
+   "base": 23.76,
+   "top": 361.32,
    "footprint": [
     [
      -6465.6,
@@ -1668,8 +1668,8 @@
    "type": "west-tower",
    "label": "West towers — 60 floors",
    "floors": 60,
-   "base": 23.7,
-   "top": 236.77,
+   "base": 23.07,
+   "top": 234.83,
    "footprint": [
     [
      -6130.4,
@@ -1694,7 +1694,7 @@
    "label": "West towers — 63 floors",
    "floors": 63,
    "base": 23.7,
-   "top": 245.83,
+   "top": 245.82,
    "footprint": [
     [
      -6162.2,
@@ -1744,7 +1744,7 @@
    "label": "West towers — 93 floors",
    "floors": 93,
    "base": 23.7,
-   "top": 350.68,
+   "top": 350.64,
    "footprint": [
     [
      -6324.8,
@@ -1893,8 +1893,8 @@
    "type": "west-tower",
    "label": "West towers — 66 floors",
    "floors": 66,
-   "base": 23.64,
-   "top": 255.94,
+   "base": 20.73,
+   "top": 255.7,
    "footprint": [
     [
      -6068.4,
@@ -1919,7 +1919,7 @@
    "label": "312 high-rise — 24 floors",
    "floors": 24,
    "base": -0.01,
-   "top": 98.83,
+   "top": 98.76,
    "footprint": [
     [
      -6130,
@@ -1943,7 +1943,7 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 1.5,
+   "base": 1.47,
    "top": 128,
    "footprint": [
     [
@@ -1968,8 +1968,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 23.67,
-   "top": 122.7,
+   "base": 23.7,
+   "top": 122.71,
    "footprint": [
     [
      -6125.4,
@@ -1993,8 +1993,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 22.73,
-   "top": 122.68,
+   "base": 23.71,
+   "top": 123.1,
    "footprint": [
     [
      -6107,
@@ -2018,8 +2018,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 30 floors",
    "floors": 30,
-   "base": 22.23,
-   "top": 129.65,
+   "base": 23.71,
+   "top": 130.17,
    "footprint": [
     [
      -6130,
@@ -2143,8 +2143,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 25 floors",
    "floors": 25,
-   "base": 23.66,
-   "top": 112.2,
+   "base": 23.7,
+   "top": 112.27,
    "footprint": [
     [
      -6062,
@@ -2168,8 +2168,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 25 floors",
    "floors": 25,
-   "base": 23.69,
-   "top": 112.2,
+   "base": 23.7,
+   "top": 112.22,
    "footprint": [
     [
      -6038,
@@ -2193,8 +2193,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 18 floors",
    "floors": 18,
-   "base": 23.37,
-   "top": 87.8,
+   "base": 23.87,
+   "top": 90.47,
    "footprint": [
     [
      -6056.4,
@@ -2344,7 +2344,7 @@
    "label": "312 high-rise — 30 floors",
    "floors": 30,
    "base": 23.7,
-   "top": 130.38,
+   "top": 130.09,
    "footprint": [
     [
      -5994,
@@ -3419,7 +3419,7 @@
    "label": "312 high-rise — 38 floors",
    "floors": 38,
    "base": 23.7,
-   "top": 157.7,
+   "top": 157.71,
    "footprint": [
     [
      -5104.4,
@@ -3544,7 +3544,7 @@
    "label": "312 high-rise — 33 floors",
    "floors": 33,
    "base": 23.7,
-   "top": 140.49,
+   "top": 141.46,
    "footprint": [
     [
      -5019,
@@ -3643,8 +3643,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 22 floors",
    "floors": 22,
-   "base": 23.67,
-   "top": 101.78,
+   "base": 23.71,
+   "top": 105.19,
    "footprint": [
     [
      -4974,
@@ -3668,8 +3668,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 22 floors",
    "floors": 22,
-   "base": 23.56,
-   "top": 101.75,
+   "base": 23.91,
+   "top": 105.32,
    "footprint": [
     [
      -4950,
@@ -3744,7 +3744,7 @@
    "label": "312 high-rise — 23 floors",
    "floors": 23,
    "base": 23.7,
-   "top": 105.23,
+   "top": 105.3,
    "footprint": [
     [
      -4899.2,
@@ -3768,8 +3768,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 23.71,
-   "top": 133.33,
+   "base": 23.8,
+   "top": 135.58,
    "footprint": [
     [
      -4882,
@@ -3793,8 +3793,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 23.73,
-   "top": 133.3,
+   "base": 24.34,
+   "top": 136.12,
    "footprint": [
     [
      -4874.8,
@@ -3818,8 +3818,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 31 floors",
    "floors": 31,
-   "base": 23.7,
-   "top": 133.39,
+   "base": 23.69,
+   "top": 133.34,
    "footprint": [
     [
      -4833.2,
@@ -3868,8 +3868,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 22 floors",
    "floors": 22,
-   "base": 23.72,
-   "top": 102.8,
+   "base": 23.74,
+   "top": 102.97,
    "footprint": [
     [
      -4831.8,
@@ -3893,8 +3893,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 19 floors",
    "floors": 19,
-   "base": 23.8,
-   "top": 93.55,
+   "base": 23.85,
+   "top": 92.98,
    "footprint": [
     [
      -4831.4,
@@ -3918,8 +3918,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 28 floors",
    "floors": 28,
-   "base": 22.09,
-   "top": 123.18,
+   "base": 18.43,
+   "top": 121.08,
    "footprint": [
     [
      -4762.4,
@@ -3943,8 +3943,8 @@
    "type": "highrise-312",
    "label": "312 high-rise — 23 floors",
    "floors": 23,
-   "base": 23.81,
-   "top": 107.35,
+   "base": 23.75,
+   "top": 105.68,
    "footprint": [
     [
      -4770,
@@ -4199,8 +4199,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 56.35,
-   "top": 80.49,
+   "base": 72.12,
+   "top": 91.55,
    "footprint": [
     [
      -6340,
@@ -4223,8 +4223,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 51.68,
-   "top": 82.56,
+   "base": 64.93,
+   "top": 98.7,
    "footprint": [
     [
      -6287.34,
@@ -4279,8 +4279,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 21.97,
-   "top": 30.92,
+   "base": 24.22,
+   "top": 33.72,
    "footprint": [
     [
      -4700,
@@ -4303,8 +4303,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 22.44,
-   "top": 49.53,
+   "base": 24.34,
+   "top": 49.63,
    "footprint": [
     [
      -4647.34,
@@ -4359,7 +4359,7 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 23.72,
+   "base": 23.66,
    "top": 36.09,
    "footprint": [
     [
@@ -4519,8 +4519,8 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 25.91,
-   "top": 35.54,
+   "base": 22.8,
+   "top": 32.81,
    "footprint": [
     [
      -4540,
@@ -4543,8 +4543,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 26.3,
-   "top": 50.44,
+   "base": 22.37,
+   "top": 48.9,
    "footprint": [
     [
      -4487.34,
@@ -4599,7 +4599,7 @@
   {
    "type": "barn",
    "floors": 1,
-   "base": 19.89,
+   "base": 17.75,
    "top": 31.7,
    "footprint": [
     [
@@ -4623,8 +4623,8 @@
   {
    "type": "silo",
    "floors": 1,
-   "base": 19.31,
-   "top": 43.01,
+   "base": 17.37,
+   "top": 41.58,
    "footprint": [
     [
      -5827.34,

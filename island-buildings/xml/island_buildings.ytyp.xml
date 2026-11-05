@@ -8,35 +8,35 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="39.200012" y="-125.400024" z="23.700001" />
-      <bbMax x="107.799988" y="100.000000" z="362.017957" />
-      <bsCentre x="73.500000" y="-12.700012" z="192.858979" />
-      <bsRadius value="206.137191" />
+      <bbMax x="107.799988" y="100.000000" z="361.322761" />
+      <bsCentre x="73.500000" y="-12.700012" z="192.511381" />
+      <bsRadius value="205.852044" />
       <hdTextureDist value="750" />
-      <name>island_bldg_02_04</name>
+      <name>island_bldg_07_07</name>
       <textureDictionary>island_buildings</textureDictionary>
       <clipDictionary />
       <drawableDictionary />
       <physicsDictionary />
       <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_02_04</assetName>
+      <assetName>island_bldg_07_07</assetName>
       <extensions />
     </Item>
     <Item type="CBaseArchetypeDef">
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="104.599976" y="-117.599976" z="23.708608" />
-      <bbMax x="128.599976" y="-93.599976" z="213.975595" />
-      <bsCentre x="116.599976" y="-105.599976" z="118.842101" />
-      <bsRadius value="96.635302" />
+      <bbMin x="104.599976" y="-117.599976" z="23.710331" />
+      <bbMax x="128.599976" y="-93.599976" z="215.837682" />
+      <bsCentre x="116.599976" y="-105.599976" z="119.774007" />
+      <bsRadius value="97.551165" />
       <hdTextureDist value="750" />
-      <name>island_bldg_02_05</name>
+      <name>island_bldg_07_08</name>
       <textureDictionary>island_buildings</textureDictionary>
       <clipDictionary />
       <drawableDictionary />
       <physicsDictionary />
       <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_02_05</assetName>
+      <assetName>island_bldg_07_08</assetName>
       <extensions />
     </Item>
     <Item type="CBaseArchetypeDef">
@@ -47,456 +47,6 @@
       <bbMax x="92.000000" y="20.000000" z="39.700001" />
       <bsCentre x="-18.000000" y="-2.000000" z="31.700001" />
       <bsRadius value="112.463327" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_03_01</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_03_01</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-52.799988" y="75.199951" z="23.700001" />
-      <bbMax x="103.200012" y="125.800049" z="350.679989" />
-      <bsCentre x="25.200012" y="100.500000" z="187.189995" />
-      <bsRadius value="182.901806" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_03_03</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_03_03</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-131.000000" y="-125.400024" z="23.700001" />
-      <bbMax x="125.200012" y="84.799988" z="325.700001" />
-      <bsCentre x="-2.899994" y="-20.300018" z="174.700001" />
-      <bsRadius value="224.179889" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_03_04</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_03_04</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-115.200012" y="-109.400024" z="23.700001" />
-      <bbMax x="133.799988" y="36.000000" z="393.384909" />
-      <bsCentre x="9.299988" y="-36.700012" z="208.542455" />
-      <bsRadius value="234.419015" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_03_05</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_03_05</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-104.000000" y="-24.000000" z="23.700001" />
-      <bbMax x="76.000000" y="20.000000" z="39.700001" />
-      <bsCentre x="-14.000000" y="-2.000000" z="31.700001" />
-      <bsRadius value="92.994624" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_04_01</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_04_01</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-137.799988" y="79.800049" z="23.700001" />
-      <bbMax x="-106.000000" y="136.000000" z="234.700001" />
-      <bsCentre x="-121.899994" y="107.900024" z="129.200001" />
-      <bsRadius value="110.329817" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_04_03</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_04_03</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-86.799988" y="-135.599976" z="23.644191" />
-      <bbMax x="-24.400024" y="-1.599976" z="297.700001" />
-      <bsCentre x="-55.600006" y="-68.599976" z="160.672096" />
-      <bsRadius value="155.689067" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_04_04</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_04_04</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-114.400024" y="-101.000000" z="23.700001" />
-      <bbMax x="-82.400024" y="-69.000000" z="236.774005" />
-      <bsCentre x="-98.400024" y="-85.000000" z="130.237003" />
-      <bsRadius value="108.913419" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_04_05</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_04_05</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-114.000000" y="-45.200012" z="22.230793" />
-      <bbMax x="133.000000" y="106.000000" z="164.700001" />
-      <bsCentre x="9.500000" y="30.399994" z="93.465397" />
-      <bsRadius value="161.375276" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_04_06</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_04_06</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-114.000000" y="-126.000000" z="-0.012543" />
-      <bbMax x="133.000000" y="-30.000000" z="150.700001" />
-      <bsCentre x="9.500000" y="-78.000000" z="75.343729" />
-      <bsRadius value="152.429714" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_04_07</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_04_07</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-136.000000" y="-12.000000" z="23.700001" />
-      <bbMax x="-104.000000" y="20.000000" z="72.700001" />
-      <bsCentre x="-120.000000" y="4.000000" z="48.200001" />
-      <bsRadius value="33.350412" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_05_01</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_05_01</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="66.000000" y="-14.000000" z="23.700001" />
-      <bbMax x="142.000000" y="62.000000" z="234.700001" />
-      <bsCentre x="104.000000" y="24.000000" z="129.200001" />
-      <bsRadius value="118.398691" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_05_02</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_05_02</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-120.000000" y="-138.000000" z="23.700001" />
-      <bbMax x="98.000000" y="8.000000" z="185.700001" />
-      <bsCentre x="-11.000000" y="-65.000000" z="104.700001" />
-      <bsRadius value="154.178468" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_05_03</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_05_03</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-120.000000" y="-34.000000" z="19.306625" />
-      <bbMax x="-66.000000" y="-8.000000" z="43.013294" />
-      <bsCentre x="-93.000000" y="-21.000000" z="31.159960" />
-      <bsRadius value="32.225790" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_05_04</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_05_04</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-98.000000" y="-45.000000" z="23.700001" />
-      <bbMax x="142.800049" y="46.000000" z="171.700001" />
-      <bsCentre x="22.400024" y="0.500000" z="97.700001" />
-      <bsRadius value="148.466885" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_05_06</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_05_06</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-98.000000" y="-107.000000" z="23.700001" />
-      <bbMax x="125.000000" y="-49.000000" z="196.200001" />
-      <bsCentre x="13.500000" y="-78.000000" z="109.950001" />
-      <bsRadius value="143.917728" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_05_07</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_05_07</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-102.000000" y="-14.000000" z="23.700001" />
-      <bbMax x="106.000000" y="106.000000" z="199.700001" />
-      <bsCentre x="2.000000" y="46.000000" z="111.700001" />
-      <bsRadius value="148.862353" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_06_02</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_06_02</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="70.000000" y="-10.000000" z="23.700001" />
-      <bbMax x="138.000000" y="18.000000" z="178.700001" />
-      <bsCentre x="104.000000" y="4.000000" z="101.200001" />
-      <bsRadius value="85.780242" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_06_03</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_06_03</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-82.000000" y="-48.400000" z="23.700001" />
-      <bbMax x="97.000000" y="87.000000" z="252.200001" />
-      <bsCentre x="7.500000" y="19.300000" z="137.950001" />
-      <bsRadius value="160.145567" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_06_06</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_06_06</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-126.000000" y="-66.000000" z="23.700001" />
-      <bbMax x="97.000000" y="-49.000000" z="206.700001" />
-      <bsCentre x="-14.500000" y="-57.500000" z="115.200001" />
-      <bsRadius value="144.487889" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_06_07</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_06_07</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-32.000000" y="-24.000000" z="23.700001" />
-      <bbMax x="168.000000" y="20.000000" z="39.700001" />
-      <bsCentre x="68.000000" y="-2.000000" z="31.700001" />
-      <bsRadius value="102.703457" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_07_01</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_07_01</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-138.000000" y="-14.000000" z="23.700001" />
-      <bbMax x="26.000000" y="106.000000" z="224.200001" />
-      <bsCentre x="-56.000000" y="46.000000" z="123.950001" />
-      <bsRadius value="142.737740" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_07_02</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_07_02</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-66.000000" y="-10.000000" z="23.700001" />
-      <bbMax x="-38.000000" y="18.000000" z="133.200001" />
-      <bsCentre x="-52.000000" y="4.000000" z="78.450001" />
-      <bsRadius value="58.219949" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_07_03</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_07_03</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-110.000000" y="-47.599976" z="23.700001" />
-      <bbMax x="113.000000" y="103.399994" z="203.200001" />
-      <bsCentre x="1.500000" y="27.900009" z="113.450001" />
-      <bsRadius value="161.825709" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_07_06</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_07_06</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="12.000000" y="-24.000000" z="23.700001" />
-      <bbMax x="232.000000" y="20.000000" z="39.700001" />
-      <bsCentre x="122.000000" y="-2.000000" z="31.700001" />
-      <bsRadius value="112.463327" />
-      <hdTextureDist value="750" />
-      <name>island_bldg_08_01</name>
-      <textureDictionary>island_buildings</textureDictionary>
-      <clipDictionary />
-      <drawableDictionary />
-      <physicsDictionary />
-      <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_08_01</assetName>
-      <extensions />
-    </Item>
-    <Item type="CBaseArchetypeDef">
-      <lodDist value="1500" />
-      <flags value="0" />
-      <specialAttribute value="0" />
-      <bbMin x="-8.000000" y="-114.000000" z="23.718781" />
-      <bbMax x="46.000000" y="-88.000000" z="48.250059" />
-      <bsCentre x="19.000000" y="-101.000000" z="35.984420" />
-      <bsRadius value="32.379714" />
       <hdTextureDist value="750" />
       <name>island_bldg_08_04</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -511,10 +61,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-118.000000" y="-50.000000" z="23.557864" />
-      <bbMax x="129.999951" y="102.000000" z="185.700001" />
-      <bsCentre x="5.999976" y="26.000000" z="104.628932" />
-      <bsRadius value="166.506793" />
+      <bbMin x="-52.799988" y="75.199951" z="23.657100" />
+      <bbMax x="103.200012" y="125.800049" z="350.643121" />
+      <bsCentre x="25.200012" y="100.500000" z="187.150111" />
+      <bsRadius value="182.904503" />
       <hdTextureDist value="750" />
       <name>island_bldg_08_06</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -529,10 +79,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-50.000000" y="-126.000000" z="23.700001" />
-      <bbMax x="105.000000" y="-94.200012" z="168.200001" />
-      <bsCentre x="27.500000" y="-110.100006" z="95.950001" />
-      <bsRadius value="107.140666" />
+      <bbMin x="-131.000000" y="-125.400024" z="23.700001" />
+      <bbMax x="125.200012" y="84.799988" z="325.700001" />
+      <bsCentre x="-2.899994" y="-20.300018" z="174.700001" />
+      <bsRadius value="224.179889" />
       <hdTextureDist value="750" />
       <name>island_bldg_08_07</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -547,28 +97,46 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="36.000000" y="-90.000000" z="21.971982" />
-      <bbMax x="90.000000" y="-64.000000" z="49.533795" />
-      <bsCentre x="63.000000" y="-77.000000" z="35.752889" />
-      <bsRadius value="32.983532" />
+      <bbMin x="-115.200012" y="-109.400024" z="23.700001" />
+      <bbMax x="133.799988" y="36.000000" z="384.550438" />
+      <bsCentre x="9.299988" y="-36.700012" z="204.125219" />
+      <bsRadius value="230.951946" />
       <hdTextureDist value="750" />
-      <name>island_bldg_09_05</name>
+      <name>island_bldg_08_08</name>
       <textureDictionary>island_buildings</textureDictionary>
       <clipDictionary />
       <drawableDictionary />
       <physicsDictionary />
       <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_09_05</assetName>
+      <assetName>island_bldg_08_08</assetName>
       <extensions />
     </Item>
     <Item type="CBaseArchetypeDef">
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-97.199951" y="-44.200012" z="23.700001" />
-      <bbMax x="-15.000000" y="100.000000" z="107.350805" />
-      <bsCentre x="-56.099976" y="27.899994" z="65.525403" />
-      <bsRadius value="92.935371" />
+      <bbMin x="-104.000000" y="-24.000000" z="23.700001" />
+      <bbMax x="76.000000" y="20.000000" z="39.700001" />
+      <bsCentre x="-14.000000" y="-2.000000" z="31.700001" />
+      <bsRadius value="92.994624" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_09_04</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_09_04</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-137.799988" y="79.800049" z="22.366415" />
+      <bbMax x="-106.000000" y="136.000000" z="234.700001" />
+      <bsCentre x="-121.899994" y="107.900024" z="128.533208" />
+      <bsRadius value="110.967592" />
       <hdTextureDist value="750" />
       <name>island_bldg_09_06</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -583,10 +151,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-97.199951" y="-62.600006" z="22.089472" />
-      <bbMax x="5.600098" y="-32.200012" z="133.394723" />
-      <bsCentre x="-45.799927" y="-47.400009" z="77.742098" />
-      <bsRadius value="77.267180" />
+      <bbMin x="-86.799988" y="-135.599976" z="20.729249" />
+      <bbMax x="-24.400024" y="-1.599976" z="297.700001" />
+      <bsCentre x="-55.600006" y="-68.599976" z="159.214625" />
+      <bsRadius value="156.973368" />
       <hdTextureDist value="750" />
       <name>island_bldg_09_07</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -601,10 +169,82 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-60.000000" y="110.000000" z="25.905961" />
-      <bbMax x="-6.000000" y="136.000000" z="50.435574" />
-      <bsCentre x="-33.000000" y="123.000000" z="38.170767" />
-      <bsRadius value="32.379399" />
+      <bbMin x="-114.400024" y="-101.000000" z="23.069852" />
+      <bbMax x="-82.400024" y="-69.000000" z="234.827574" />
+      <bsCentre x="-98.400024" y="-85.000000" z="128.948713" />
+      <bsRadius value="108.269724" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_09_08</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_09_08</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-114.000000" y="-45.200012" z="23.700001" />
+      <bbMax x="133.000000" y="106.000000" z="164.700001" />
+      <bsCentre x="9.500000" y="30.399994" z="94.200001" />
+      <bsRadius value="161.052355" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_09_09</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_09_09</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-114.000000" y="-126.000000" z="-0.012543" />
+      <bbMax x="133.000000" y="-30.000000" z="150.700001" />
+      <bsCentre x="9.500000" y="-78.000000" z="75.343729" />
+      <bsRadius value="152.429714" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_09_10</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_09_10</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-136.000000" y="-12.000000" z="23.700001" />
+      <bbMax x="-104.000000" y="20.000000" z="72.700001" />
+      <bsCentre x="-120.000000" y="4.000000" z="48.200001" />
+      <bsRadius value="33.350412" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_10_04</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_10_04</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="66.000000" y="-14.000000" z="23.700001" />
+      <bbMax x="142.000000" y="62.000000" z="234.700001" />
+      <bsCentre x="104.000000" y="24.000000" z="129.200001" />
+      <bsRadius value="118.398691" />
       <hdTextureDist value="750" />
       <name>island_bldg_10_05</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -619,18 +259,378 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-176.000000" y="12.000000" z="23.700001" />
-      <bbMax x="8.000000" y="56.000000" z="72.700001" />
-      <bsCentre x="-84.000000" y="34.000000" z="48.200001" />
-      <bsRadius value="97.715147" />
+      <bbMin x="-120.000000" y="-138.000000" z="23.700001" />
+      <bbMax x="98.000000" y="8.000000" z="185.700001" />
+      <bsCentre x="-11.000000" y="-65.000000" z="104.700001" />
+      <bsRadius value="154.178468" />
       <hdTextureDist value="750" />
-      <name>island_bldg_11_01</name>
+      <name>island_bldg_10_06</name>
       <textureDictionary>island_buildings</textureDictionary>
       <clipDictionary />
       <drawableDictionary />
       <physicsDictionary />
       <assetType>ASSET_TYPE_DRAWABLE</assetType>
-      <assetName>island_bldg_11_01</assetName>
+      <assetName>island_bldg_10_06</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-120.000000" y="-34.000000" z="17.367708" />
+      <bbMax x="-66.000000" y="-8.000000" z="41.580278" />
+      <bsCentre x="-93.000000" y="-21.000000" z="29.473993" />
+      <bsRadius value="32.319686" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_10_07</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_10_07</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-98.000000" y="-45.000000" z="23.700001" />
+      <bbMax x="142.800049" y="46.000000" z="171.700001" />
+      <bsCentre x="22.400024" y="0.500000" z="97.700001" />
+      <bsRadius value="148.466885" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_10_09</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_10_09</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-98.000000" y="-107.000000" z="23.700001" />
+      <bbMax x="125.000000" y="-49.000000" z="196.200001" />
+      <bsCentre x="13.500000" y="-78.000000" z="109.950001" />
+      <bsRadius value="143.917728" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_10_10</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_10_10</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-102.000000" y="-14.000000" z="23.700001" />
+      <bbMax x="106.000000" y="106.000000" z="199.700001" />
+      <bsCentre x="2.000000" y="46.000000" z="111.700001" />
+      <bsRadius value="148.862353" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_11_05</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_11_05</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="70.000000" y="-10.000000" z="23.700001" />
+      <bbMax x="138.000000" y="18.000000" z="178.700001" />
+      <bsCentre x="104.000000" y="4.000000" z="101.200001" />
+      <bsRadius value="85.780242" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_11_06</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_11_06</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-82.000000" y="-48.400000" z="23.700001" />
+      <bbMax x="97.000000" y="87.000000" z="252.200001" />
+      <bsCentre x="7.500000" y="19.300000" z="137.950001" />
+      <bsRadius value="160.145567" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_11_09</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_11_09</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-126.000000" y="-66.000000" z="23.700001" />
+      <bbMax x="97.000000" y="-49.000000" z="206.700001" />
+      <bsCentre x="-14.500000" y="-57.500000" z="115.200001" />
+      <bsRadius value="144.487889" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_11_10</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_11_10</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-32.000000" y="-24.000000" z="23.700001" />
+      <bbMax x="168.000000" y="20.000000" z="39.700001" />
+      <bsCentre x="68.000000" y="-2.000000" z="31.700001" />
+      <bsRadius value="102.703457" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_12_04</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_12_04</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-138.000000" y="-14.000000" z="23.700001" />
+      <bbMax x="26.000000" y="106.000000" z="224.200001" />
+      <bsCentre x="-56.000000" y="46.000000" z="123.950001" />
+      <bsRadius value="142.737740" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_12_05</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_12_05</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-66.000000" y="-10.000000" z="23.700001" />
+      <bbMax x="-38.000000" y="18.000000" z="133.200001" />
+      <bsCentre x="-52.000000" y="4.000000" z="78.450001" />
+      <bsRadius value="58.219949" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_12_06</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_12_06</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-110.000000" y="-47.599976" z="23.700001" />
+      <bbMax x="113.000000" y="103.399994" z="203.200001" />
+      <bsCentre x="1.500000" y="27.900009" z="113.450001" />
+      <bsRadius value="161.825709" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_12_09</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_12_09</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="12.000000" y="-24.000000" z="23.700001" />
+      <bbMax x="232.000000" y="20.000000" z="39.700001" />
+      <bsCentre x="122.000000" y="-2.000000" z="31.700001" />
+      <bsRadius value="112.463327" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_13_04</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_13_04</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-8.000000" y="-114.000000" z="23.655203" />
+      <bbMax x="46.000000" y="-88.000000" z="48.250059" />
+      <bsCentre x="19.000000" y="-101.000000" z="35.952631" />
+      <bsRadius value="32.391770" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_13_07</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_13_07</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-118.000000" y="-50.000000" z="23.700001" />
+      <bbMax x="129.999951" y="102.000000" z="185.700001" />
+      <bsCentre x="5.999976" y="26.000000" z="104.700001" />
+      <bsRadius value="166.472202" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_13_09</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_13_09</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-50.000000" y="-126.000000" z="23.700001" />
+      <bbMax x="105.000000" y="-94.200012" z="168.200001" />
+      <bsCentre x="27.500000" y="-110.100006" z="95.950001" />
+      <bsRadius value="107.140666" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_13_10</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_13_10</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="36.000000" y="-90.000000" z="24.221624" />
+      <bbMax x="90.000000" y="-64.000000" z="49.634054" />
+      <bsCentre x="63.000000" y="-77.000000" z="36.927839" />
+      <bsRadius value="32.549161" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_14_08</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_14_08</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-97.199951" y="-44.200012" z="23.700001" />
+      <bbMax x="-15.000000" y="100.000000" z="105.679916" />
+      <bsCentre x="-56.099976" y="27.899994" z="64.689958" />
+      <bsRadius value="92.562387" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_14_09</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_14_09</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-97.199951" y="-62.600006" z="18.432119" />
+      <bbMax x="5.600098" y="-32.200012" z="133.343205" />
+      <bsCentre x="-45.799927" y="-47.400009" z="75.887662" />
+      <bsRadius value="78.575708" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_14_10</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_14_10</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-60.000000" y="110.000000" z="22.372087" />
+      <bbMax x="-6.000000" y="136.000000" z="48.902820" />
+      <bsCentre x="-33.000000" y="123.000000" z="35.637454" />
+      <bsRadius value="32.771481" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_15_08</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_15_08</assetName>
+      <extensions />
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="1500" />
+      <flags value="0" />
+      <specialAttribute value="0" />
+      <bbMin x="-176.000000" y="12.000000" z="23.700001" />
+      <bbMax x="8.000000" y="56.000000" z="72.700001" />
+      <bsCentre x="-84.000000" y="34.000000" z="48.200001" />
+      <bsRadius value="97.715147" />
+      <hdTextureDist value="750" />
+      <name>island_bldg_16_04</name>
+      <textureDictionary>island_buildings</textureDictionary>
+      <clipDictionary />
+      <drawableDictionary />
+      <physicsDictionary />
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>island_bldg_16_04</assetName>
       <extensions />
     </Item>
   </archetypes>

@@ -24,6 +24,10 @@ const STOCK_AMMUNATION = { ammo_9mm: 75, ammo_45acp: 120, ammo_762: 150, ammo_12
 // weapon license (licenses.js). Weights are in inventory.js.
 // At ~45 gold per on-duty paycheck, a Glizzy is about 10 paychecks (5 hours) of work.
 const GUNS_AMMUNATION = { glizzy: 444, pumpshotgun: 750, uzi: 900, huntingrifle: 1200, chopper: 1500 };
+// Antler Lodge (the island's West Woods): hunting supplies. Its one gun, the
+// Bolt Rifle, needs the hunting licence the lodge sells, not a weapon licence.
+const STOCK_LODGE = { ammo_308: 250, water: 5, sandwich: 8, bandage: 25 };
+const GUNS_LODGE = { huntingrifle: 1200 };
 
 const SHOPS = {
     atl_247:      { label: "Open 24 Atlanta",       city: "atlanta", pos: { x: 25.7,   y: -1347.3, z: 29.5 }, items: STOCK_247 },
@@ -40,6 +44,8 @@ const SHOPS = {
     // until someone walks them and sets z (/mark, docs/WALK-LIST.md)
     hw_diner:     { label: "Halfway Diner",     city: "atlanta", pos: { x: 622.0,  y: 1530.0,  z: 0 }, items: STOCK_DINER },
     hw_feedseed:  { label: "Halfway Feed & Seed", city: "atlanta", pos: { x: 578.0, y: 1395.0, z: 0 }, items: STOCK_HARDWARE },
+    // Same counter as hunting.js LODGE.pos (/sellgame is there too)
+    isl_lodge:    { label: "Antler Lodge",     city: "atlanta", pos: { x: -7510.0, y: -6301.0, z: 40.5 }, items: STOCK_LODGE, goldItems: GUNS_LODGE, goldNeedsLicense: "hunting", sellsLicenses: ["hunting"] },
     chi_ammu:     { label: "Gunworks Chicago", city: "chicago", pos: { x: -330.2, y: 6083.9,  z: 31.5 }, items: STOCK_AMMUNATION, goldItems: GUNS_AMMUNATION, goldNeedsLicense: "weapon", sellsLicenses: ["weapon"] },
 };
 

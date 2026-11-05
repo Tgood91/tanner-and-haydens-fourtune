@@ -120,15 +120,25 @@ s = np.where(land, dco, -dco)                  # signed distance to the waterlin
 flat = np.maximum.reduce([smooth((1.08 - ell(770, 190, 360, 120)) / .15),   # the 312 grid
                           smooth((1.05 - ell(760, 700, 380, 115)) / .15),   # the 1017 towers
                           smooth((1.15 - ell(*WEST_TOWERS)) / .2),           # the west towers
+                          smooth((1.08 - ell(1720, 405, 205, 95)) / .15),    # Foundry Flats (paved yards)
                           in_air.astype(float)])
-swell = (value_noise(220, 1) * 6.0 + value_noise(70, 2) * 2.2) * (1 - flat)  # farm country rolls, up to ~8 m
+# Level ground for the new suburbs (no farm swells), but grass, not pavement
+level = np.maximum.reduce([flat, smooth((1.1 - ell(1820, 865, 200, 150)) / .15),     # Eastgate
+                           smooth((1.1 - ell(2130, 1080, 330, 110)) / .15),           # Saltwater Strand
+                           smooth((1.1 - ell(-210, 720, 140, 110)) / .15),            # Pine Hollow
+                           smooth((1.12 - ell(30, 580, 95, 95)) / .15)])              # Hollow Creek Lumber Yard
+swell = (value_noise(220, 1) * 6.0 + value_noise(70, 2) * 2.2) * (1 - level)  # farm country rolls, up to ~8 m
 mr = ell(MOUNTAIN[0], MOUNTAIN[1], 210, 135)
 ang = np.arctan2(MY - MOUNTAIN[1], MX - MOUNTAIN[0])
 # seven soft ridges, fading out towards the peak (where they bunch up), plus a little roughness
 mountain = 910 * np.clip(1 - mr, 0, 1) ** 1.45 * (1 + .05 * np.clip(mr, 0, 1) * np.sin(ang * 7 + mr * 5)) * (1 + .03 * value_noise(60, 3))
 west = 140 * np.clip(1 - ell(250, 470, 190, 215) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(90, 4))
 east = 65 * np.clip(1 - ell(1360, 560, 90, 150) ** 2, 0, 1) ** 2
-hills = (mountain + (west + east) * (1 - flat)) * smooth(s / 150)           # hills never reach the beach
+# The expansion: Harrow Heights (Grande P, north-east), the Copper Hills (south-west), the west woods' rolls
+harrow = 90 * np.clip(1 - ell(2450, 370, 230, 130) ** 2, 0, 1) ** 2 * (1 + .2 * value_noise(80, 5))
+copper = 60 * np.clip(1 - ell(-280, 990, 210, 130) ** 2, 0, 1) ** 2 * (1 + .25 * value_noise(70, 6))
+woods = 18 * np.clip(1 - ell(-300, 430, 260, 140) ** 2, 0, 1) * (1 + .5 * value_noise(60, 7))
+hills = (mountain + (west + east + harrow + copper + woods) * (1 - level)) * smooth(s / 150)   # hills never reach the beach
 
 h = Z0 - ROAD_SINK + swell + hills
 beach = smooth(s / BEACH)

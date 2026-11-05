@@ -46,11 +46,11 @@
   "backroad": 1,
   "track": 1
  },
- "totalPieces": 9327,
- "junctions": 374,
+ "totalPieces": 14418,
+ "junctions": 470,
  "unlevelJunctions": [
   {
-   "gap": 57.4,
+   "gap": 56.8,
    "roads": [
     "770-B1",
     "770-B5"
@@ -61,7 +61,7 @@
    ]
   },
   {
-   "gap": 49.4,
+   "gap": 48.8,
    "roads": [
     "770-B1",
     "770-B5"
@@ -72,7 +72,7 @@
    ]
   },
   {
-   "gap": 41.1,
+   "gap": 40.5,
    "roads": [
     "770-B5",
     "770-A3"
@@ -83,7 +83,7 @@
    ]
   },
   {
-   "gap": 37.9,
+   "gap": 37.3,
    "roads": [
     "770-B1",
     "770-B5"
@@ -94,7 +94,7 @@
    ]
   },
   {
-   "gap": 33.3,
+   "gap": 32.8,
    "roads": [
     "770-B5",
     "770-A3"
@@ -105,7 +105,7 @@
    ]
   },
   {
-   "gap": 28.4,
+   "gap": 27.8,
    "roads": [
     "770-B5",
     "770-A3"
@@ -116,7 +116,7 @@
    ]
   },
   {
-   "gap": 20.3,
+   "gap": 19.7,
    "roads": [
     "770-B1",
     "770-B5"
@@ -127,7 +127,7 @@
    ]
   },
   {
-   "gap": 17.1,
+   "gap": 16.5,
    "roads": [
     "770-B5",
     "770-A3"
@@ -138,7 +138,18 @@
    ]
   },
   {
-   "gap": 8.9,
+   "gap": 13.5,
+   "roads": [
+    "1017-H2",
+    "770-H2"
+   ],
+   "at": [
+    -6720,
+    -6440
+   ]
+  },
+  {
+   "gap": 8.4,
    "roads": [
     "770-B5",
     "770-A3"
@@ -451,17 +462,336 @@
   },
   {
    "file": "island_roads_m14_m13.ymap.xml",
-   "pieces": 139,
+   "pieces": 347,
    "roads": [
-    "1017-H2"
+    "1017-H2",
+    "770-H2",
+    "770-S20",
+    "770-S23"
    ]
   },
   {
    "file": "island_roads_m14_m14.ymap.xml",
-   "pieces": 12,
+   "pieces": 78,
    "roads": [
     "1017-H2",
-    "1017-H3"
+    "1017-H3",
+    "770-S23",
+    "770-S24",
+    "770-B14"
+   ]
+  },
+  {
+   "file": "island_roads_m14_m15.ymap.xml",
+   "pieces": 61,
+   "roads": [
+    "770-B14"
+   ]
+  },
+  {
+   "file": "island_roads_m15_m12.ymap.xml",
+   "pieces": 15,
+   "roads": [
+    "770-S20"
+   ]
+  },
+  {
+   "file": "island_roads_m15_m13.ymap.xml",
+   "pieces": 228,
+   "roads": [
+    "770-H2",
+    "770-S20",
+    "770-B15",
+    "770-B16"
+   ]
+  },
+  {
+   "file": "island_roads_m15_m14.ymap.xml",
+   "pieces": 293,
+   "roads": [
+    "770-S13",
+    "770-S14",
+    "770-S15",
+    "770-S16",
+    "770-S17",
+    "770-S18",
+    "770-S19",
+    "770-S21",
+    "770-S24",
+    "770-B15"
+   ]
+  },
+  {
+   "file": "island_roads_m15_m15.ymap.xml",
+   "pieces": 97,
+   "roads": [
+    "770-S21",
+    "770-B14"
+   ]
+  },
+  {
+   "file": "island_roads_m15_m16.ymap.xml",
+   "pieces": 5,
+   "roads": [
+    "770-S21"
+   ]
+  },
+  {
+   "file": "island_roads_m16_m13.ymap.xml",
+   "pieces": 61,
+   "roads": [
+    "770-H2",
+    "770-S20"
+   ]
+  },
+  {
+   "file": "island_roads_m16_m14.ymap.xml",
+   "pieces": 81,
+   "roads": [
+    "770-H2",
+    "770-S22"
+   ]
+  },
+  {
+   "file": "island_roads_m16_m15.ymap.xml",
+   "pieces": 28,
+   "roads": [
+    "770-S22"
+   ]
+  },
+  {
+   "file": "island_roads_m4_m12.ymap.xml",
+   "pieces": 87,
+   "roads": [
+    "312-A9",
+    "312-S36",
+    "312-S46"
+   ]
+  },
+  {
+   "file": "island_roads_m4_m13.ymap.xml",
+   "pieces": 105,
+   "roads": [
+    "312-S36",
+    "312-S45",
+    "312-S47",
+    "312-B6"
+   ]
+  },
+  {
+   "file": "island_roads_m4_m14.ymap.xml",
+   "pieces": 165,
+   "roads": [
+    "312-H4",
+    "312-S36"
+   ]
+  },
+  {
+   "file": "island_roads_m4_m15.ymap.xml",
+   "pieces": 71,
+   "roads": [
+    "1017-A12",
+    "312-S36"
+   ]
+  },
+  {
+   "file": "island_roads_m5_m12.ymap.xml",
+   "pieces": 131,
+   "roads": [
+    "312-A9",
+    "312-S45",
+    "312-S46"
+   ]
+  },
+  {
+   "file": "island_roads_m5_m13.ymap.xml",
+   "pieces": 222,
+   "roads": [
+    "312-H4",
+    "312-S45",
+    "312-S46",
+    "312-S47"
+   ]
+  },
+  {
+   "file": "island_roads_m5_m14.ymap.xml",
+   "pieces": 111,
+   "roads": [
+    "312-H4",
+    "1017-S20"
+   ]
+  },
+  {
+   "file": "island_roads_m5_m15.ymap.xml",
+   "pieces": 112,
+   "roads": [
+    "1017-A12",
+    "1017-S34",
+    "1017-S35",
+    "1017-S36"
+   ]
+  },
+  {
+   "file": "island_roads_m5_m16.ymap.xml",
+   "pieces": 67,
+   "roads": [
+    "1017-A12",
+    "1017-S36"
+   ]
+  },
+  {
+   "file": "island_roads_m6_m12.ymap.xml",
+   "pieces": 131,
+   "roads": [
+    "312-A10",
+    "312-A9"
+   ]
+  },
+  {
+   "file": "island_roads_m6_m13.ymap.xml",
+   "pieces": 262,
+   "roads": [
+    "312-H4",
+    "312-A10"
+   ]
+  },
+  {
+   "file": "island_roads_m6_m14.ymap.xml",
+   "pieces": 197,
+   "roads": [
+    "312-A10",
+    "1017-S20",
+    "1017-S21",
+    "1017-S27",
+    "1017-S28"
+   ]
+  },
+  {
+   "file": "island_roads_m6_m15.ymap.xml",
+   "pieces": 200,
+   "roads": [
+    "312-A10",
+    "1017-S29",
+    "1017-S30",
+    "1017-S32",
+    "1017-S33",
+    "1017-S35"
+   ]
+  },
+  {
+   "file": "island_roads_m6_m16.ymap.xml",
+   "pieces": 161,
+   "roads": [
+    "1017-A12",
+    "312-A10",
+    "1017-S32",
+    "1017-S33"
+   ]
+  },
+  {
+   "file": "island_roads_m7_m12.ymap.xml",
+   "pieces": 124,
+   "roads": [
+    "312-A10",
+    "312-A9"
+   ]
+  },
+  {
+   "file": "island_roads_m7_m13.ymap.xml",
+   "pieces": 489,
+   "roads": [
+    "312-H4",
+    "312-A11",
+    "312-S37",
+    "312-S38",
+    "312-S39",
+    "312-S42",
+    "312-S43",
+    "312-S44",
+    "312-B5"
+   ]
+  },
+  {
+   "file": "island_roads_m7_m14.ymap.xml",
+   "pieces": 180,
+   "roads": [
+    "1017-S23",
+    "1017-S24",
+    "1017-S25",
+    "1017-S26",
+    "1017-S27",
+    "1017-S28"
+   ]
+  },
+  {
+   "file": "island_roads_m7_m15.ymap.xml",
+   "pieces": 259,
+   "roads": [
+    "1017-S23",
+    "1017-S24",
+    "1017-S25",
+    "1017-S26",
+    "1017-S29",
+    "1017-S30",
+    "1017-S31",
+    "1017-S35"
+   ]
+  },
+  {
+   "file": "island_roads_m7_m16.ymap.xml",
+   "pieces": 121,
+   "roads": [
+    "1017-A12",
+    "312-A10",
+    "1017-S31"
+   ]
+  },
+  {
+   "file": "island_roads_m8_m12.ymap.xml",
+   "pieces": 51,
+   "roads": [
+    "312-A9"
+   ]
+  },
+  {
+   "file": "island_roads_m8_m13.ymap.xml",
+   "pieces": 430,
+   "roads": [
+    "312-H4",
+    "312-A11",
+    "312-A9",
+    "312-S37",
+    "312-S38",
+    "312-S39",
+    "312-S40",
+    "312-S41",
+    "312-B5"
+   ]
+  },
+  {
+   "file": "island_roads_m8_m14.ymap.xml",
+   "pieces": 124,
+   "roads": [
+    "1017-A11",
+    "1017-S22",
+    "1017-S27",
+    "1017-S28"
+   ]
+  },
+  {
+   "file": "island_roads_m8_m15.ymap.xml",
+   "pieces": 44,
+   "roads": [
+    "1017-S22",
+    "1017-S29",
+    "1017-S30"
+   ]
+  },
+  {
+   "file": "island_roads_m8_m16.ymap.xml",
+   "pieces": 4,
+   "roads": [
+    "1017-A12"
    ]
   },
   {
@@ -475,9 +805,10 @@
   },
   {
    "file": "island_roads_m9_m13.ymap.xml",
-   "pieces": 224,
+   "pieces": 269,
    "roads": [
     "1017-H2",
+    "312-H4",
     "312-H1",
     "770-H1",
     "770-S11",
@@ -487,9 +818,10 @@
   },
   {
    "file": "island_roads_m9_m14.ymap.xml",
-   "pieces": 219,
+   "pieces": 274,
    "roads": [
     "1017-H2",
+    "1017-A11",
     "770-H1",
     "1017-S18",
     "1017-B2"
@@ -1079,6 +1411,41 @@
    "pieces": 24
   },
   {
+   "code": "312-B5",
+   "name": "Rail Yard Lane",
+   "kind": "track",
+   "rows": 1,
+   "pieces": 86
+  },
+  {
+   "code": "312-B6",
+   "name": "Lighthouse Road",
+   "kind": "track",
+   "rows": 1,
+   "pieces": 11
+  },
+  {
+   "code": "770-B14",
+   "name": "Quarry Road",
+   "kind": "track",
+   "rows": 1,
+   "pieces": 99
+  },
+  {
+   "code": "770-B15",
+   "name": "Lumber Mill Lane",
+   "kind": "track",
+   "rows": 1,
+   "pieces": 29
+  },
+  {
+   "code": "770-B16",
+   "name": "Antler Lodge Track",
+   "kind": "track",
+   "rows": 1,
+   "pieces": 12
+  },
+  {
    "code": "770-S3",
    "name": "Backroads Lane",
    "kind": "street",
@@ -1191,6 +1558,293 @@
    "pieces": 24
   },
   {
+   "code": "312-S36",
+   "name": "East Shore Drive",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 139
+  },
+  {
+   "code": "312-S37",
+   "name": "Smelter Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 74
+  },
+  {
+   "code": "312-S38",
+   "name": "Boiler Row",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 74
+  },
+  {
+   "code": "312-S39",
+   "name": "Rivet Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 74
+  },
+  {
+   "code": "312-S40",
+   "name": "Anvil Lane",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 26
+  },
+  {
+   "code": "312-S41",
+   "name": "Gantry Way",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 28
+  },
+  {
+   "code": "312-S42",
+   "name": "Slag Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 28
+  },
+  {
+   "code": "312-S43",
+   "name": "Forge Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 28
+  },
+  {
+   "code": "312-S44",
+   "name": "Kiln Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 28
+  },
+  {
+   "code": "312-S45",
+   "name": "Summit Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 76
+  },
+  {
+   "code": "312-S46",
+   "name": "Pinecrest Drive",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 68
+  },
+  {
+   "code": "312-S47",
+   "name": "Ridgeback Way",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 36
+  },
+  {
+   "code": "1017-S20",
+   "name": "Kestrel Park Loop",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 143
+  },
+  {
+   "code": "1017-S21",
+   "name": "Kestrel Park Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 23
+  },
+  {
+   "code": "1017-S22",
+   "name": "Aspen Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 51
+  },
+  {
+   "code": "1017-S23",
+   "name": "Birch Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 51
+  },
+  {
+   "code": "1017-S24",
+   "name": "Larch Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 51
+  },
+  {
+   "code": "1017-S25",
+   "name": "Dogwood Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 51
+  },
+  {
+   "code": "1017-S26",
+   "name": "Sycamore Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 51
+  },
+  {
+   "code": "1017-S27",
+   "name": "Maple Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 63
+  },
+  {
+   "code": "1017-S28",
+   "name": "Oak Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 63
+  },
+  {
+   "code": "1017-S29",
+   "name": "Willow Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 63
+  },
+  {
+   "code": "1017-S30",
+   "name": "Hawthorn Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 63
+  },
+  {
+   "code": "1017-S31",
+   "name": "Coral Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 24
+  },
+  {
+   "code": "1017-S32",
+   "name": "Gull Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 29
+  },
+  {
+   "code": "1017-S33",
+   "name": "Pelican Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 28
+  },
+  {
+   "code": "1017-S34",
+   "name": "Tidewater Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 21
+  },
+  {
+   "code": "1017-S35",
+   "name": "Boardwalk Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 94
+  },
+  {
+   "code": "1017-S36",
+   "name": "Marina Drive",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 16
+  },
+  {
+   "code": "770-S13",
+   "name": "Hollow Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 33
+  },
+  {
+   "code": "770-S14",
+   "name": "Fern Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 33
+  },
+  {
+   "code": "770-S15",
+   "name": "Moss Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 33
+  },
+  {
+   "code": "770-S16",
+   "name": "Bramble Street",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 33
+  },
+  {
+   "code": "770-S17",
+   "name": "Pine Hollow Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 45
+  },
+  {
+   "code": "770-S18",
+   "name": "Acorn Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 45
+  },
+  {
+   "code": "770-S19",
+   "name": "Thistle Avenue",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 45
+  },
+  {
+   "code": "770-S20",
+   "name": "Timberline Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 138
+  },
+  {
+   "code": "770-S21",
+   "name": "Copper Hills Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 101
+  },
+  {
+   "code": "770-S22",
+   "name": "Sundown Beach Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 80
+  },
+  {
+   "code": "770-S23",
+   "name": "Millyard Road",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 33
+  },
+  {
+   "code": "770-S24",
+   "name": "Timber Yard Lane",
+   "kind": "street",
+   "rows": 1,
+   "pieces": 27
+  },
+  {
    "code": "770-A1",
    "name": "County Line Road",
    "kind": "arterial",
@@ -1261,6 +1915,41 @@
    "pieces": 98
   },
   {
+   "code": "312-A9",
+   "name": "Bayfront Drive",
+   "kind": "arterial",
+   "rows": 2,
+   "pieces": 432
+  },
+  {
+   "code": "312-A10",
+   "name": "Eastline Avenue",
+   "kind": "arterial",
+   "rows": 2,
+   "pieces": 386
+  },
+  {
+   "code": "1017-A11",
+   "name": "Channel Bridge",
+   "kind": "arterial",
+   "rows": 2,
+   "pieces": 148
+  },
+  {
+   "code": "1017-A12",
+   "name": "Strand Boulevard",
+   "kind": "arterial",
+   "rows": 2,
+   "pieces": 390
+  },
+  {
+   "code": "312-A11",
+   "name": "Foundry Road",
+   "kind": "arterial",
+   "rows": 2,
+   "pieces": 148
+  },
+  {
    "code": "1017-H2",
    "name": "The Perimeter",
    "kind": "highway",
@@ -1280,6 +1969,20 @@
    "kind": "highway",
    "rows": 3,
    "pieces": 612
+  },
+  {
+   "code": "312-H4",
+   "name": "Grande P Expressway",
+   "kind": "highway",
+   "rows": 3,
+   "pieces": 783
+  },
+  {
+   "code": "770-H2",
+   "name": "West Reach Parkway",
+   "kind": "highway",
+   "rows": 3,
+   "pieces": 357
   }
  ]
 }

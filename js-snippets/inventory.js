@@ -49,6 +49,18 @@ const ITEMS = {
     greenpack:  { label: "Green Pack", weight: 0.3, usable: false },
     whitepack:  { label: "White Pack", weight: 0.25, usable: false },
 
+    // Hollow Creek Lumber Yard (lumbermill.js): logs are heavy (two fill a
+    // bag; a truck's trunk carries more), planks are what they're milled into.
+    log:      { label: "Log",   weight: 12.0, usable: false },
+    plank:    { label: "Plank", weight: 2.0,  usable: false },
+
+    // Game from the West Woods Hunting Grounds (hunting.js). Heavy on purpose:
+    // about four animals fill a bag, then it's back to Antler Lodge to sell.
+    venison:  { label: "Venison",   weight: 2.0, usable: false },
+    deerhide: { label: "Deer Hide", weight: 3.0, usable: false },
+    boarmeat: { label: "Boar Meat", weight: 2.5, usable: false },
+    boarhide: { label: "Boar Hide", weight: 2.5, usable: false },
+
     // Ammo boxes: weight is for the whole box (close to real-world boxes).
     // Rounds per box live in ammo.js; prices live in shops.js.
     ammo_9mm:   { label: "9mm box (50)",          weight: 0.6,  usable: false },

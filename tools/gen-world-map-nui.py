@@ -24,8 +24,8 @@ shell_css = """<style>
   #app h1, #app p.note { text-shadow: 0 2px 6px rgba(0,0,0,.8); }
   /* map and legend side by side; the map takes what's left after the header, hint and legend */
   .stage { display: flex; gap: 14px; align-items: flex-start; justify-content: center; }
-  .frame { width: min(calc(100vw - 32px), calc((100vh - 190px) * 1.5)); flex: 0 0 auto; }
-  .stage.with-legend .frame { width: min(calc(100vw - 32px - 314px), calc((100vh - 190px) * 1.5)); }
+  .frame { width: min(calc(100vw - 32px), calc((100vh - 190px) * 2.615)); flex: 0 0 auto; }
+  .stage.with-legend .frame { width: min(calc(100vw - 32px - 314px), calc((100vh - 190px) * 2.615)); }
   .legend { display: none; width: 300px; margin-top: 0; padding: 12px 12px 14px;
             max-height: calc(100vh - 190px); overflow-y: auto; flex: 0 0 300px; }
   .stage.with-legend .legend { display: block; }
