@@ -707,7 +707,7 @@
     -6528.0
    ],
    "zmin": 9.7,
-   "zmax": 10.56,
+   "zmax": 10.82,
    "materials": [
     "pavement"
    ]
@@ -719,7 +719,7 @@
     -6528.0
    ],
    "zmin": 8.28,
-   "zmax": 10.8,
+   "zmax": 15.38,
    "materials": [
     "grass",
     "pavement"
@@ -895,7 +895,7 @@
     -6272.0
    ],
    "zmin": 9.63,
-   "zmax": 12.37,
+   "zmax": 17.56,
    "materials": [
     "grass",
     "pavement"
