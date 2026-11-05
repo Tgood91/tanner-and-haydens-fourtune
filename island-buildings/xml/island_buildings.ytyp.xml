@@ -565,10 +565,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-106.586627" y="-114.000000" z="8.700000" />
-      <bbMax x="46.000000" y="-3.646647" z="31.705052" />
-      <bsCentre x="-30.293314" y="-58.823323" z="20.202526" />
-      <bsRadius value="94.854855" />
+      <bbMin x="-106.586627" y="-114.000000" z="8.707003" />
+      <bbMax x="46.000000" y="-3.646647" z="33.250060" />
+      <bsCentre x="-30.293314" y="-58.823323" z="20.978531" />
+      <bsRadius value="94.951176" />
       <hdTextureDist value="750" />
       <name>island_bldg_08_04</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -638,9 +638,9 @@
       <flags value="0" />
       <specialAttribute value="0" />
       <bbMin x="-104.000000" y="-120.000000" z="7.537197" />
-      <bbMax x="124.000000" y="64.000000" z="21.961135" />
-      <bsCentre x="10.000000" y="-28.000000" z="14.749166" />
-      <bsRadius value="146.669740" />
+      <bbMax x="124.000000" y="64.000000" z="22.026597" />
+      <bsCentre x="10.000000" y="-28.000000" z="14.781897" />
+      <bsRadius value="146.671353" />
       <hdTextureDist value="750" />
       <name>island_bldg_09_03</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -655,10 +655,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="36.000000" y="-90.000000" z="8.069967" />
-      <bbMax x="90.000000" y="-64.000000" z="31.669737" />
-      <bsCentre x="63.000000" y="-77.000000" z="19.869852" />
-      <bsRadius value="32.206168" />
+      <bbMin x="36.000000" y="-90.000000" z="8.074068" />
+      <bbMax x="90.000000" y="-64.000000" z="34.586838" />
+      <bsCentre x="63.000000" y="-77.000000" z="21.330453" />
+      <bsRadius value="32.767846" />
       <hdTextureDist value="750" />
       <name>island_bldg_09_05</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -709,10 +709,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-120.000000" y="-92.000000" z="8.882170" />
-      <bbMax x="-72.000000" y="36.000000" z="22.727945" />
-      <bsCentre x="-96.000000" y="-28.000000" z="15.805058" />
-      <bsRadius value="68.701720" />
+      <bbMin x="-120.000000" y="-92.000000" z="9.007196" />
+      <bbMax x="-72.000000" y="36.000000" z="26.159148" />
+      <bsCentre x="-96.000000" y="-28.000000" z="17.583172" />
+      <bsRadius value="68.887933" />
       <hdTextureDist value="750" />
       <name>island_bldg_10_03</name>
       <textureDictionary>island_buildings</textureDictionary>
@@ -727,10 +727,10 @@
       <lodDist value="1500" />
       <flags value="0" />
       <specialAttribute value="0" />
-      <bbMin x="-60.000000" y="110.000000" z="8.794011" />
-      <bbMax x="-6.000000" y="136.000000" z="32.945987" />
-      <bsCentre x="-33.000000" y="123.000000" z="20.869999" />
-      <bsRadius value="32.308350" />
+      <bbMin x="-60.000000" y="110.000000" z="9.509031" />
+      <bbMax x="-6.000000" y="136.000000" z="34.164036" />
+      <bsCentre x="-33.000000" y="123.000000" z="21.836534" />
+      <bsRadius value="32.403199" />
       <hdTextureDist value="750" />
       <name>island_bldg_10_05</name>
       <textureDictionary>island_buildings</textureDictionary>

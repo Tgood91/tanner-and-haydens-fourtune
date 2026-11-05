@@ -11,6 +11,20 @@
   },
   "z": 10,
   "maxGrade": 0.12,
+  "backroadHills": {
+   "kinds": [
+    "backroad",
+    "track"
+   ],
+   "amp": 4,
+   "wave": 220,
+   "amp2": 1.5,
+   "wave2": 90,
+   "flatAtJunction": 60
+  },
+  "bridgeDeck": 25,
+  "bridgeGrade": 0.05,
+  "bridgeMinSpan": 25,
   "cell": 512,
   "lodDist": 400
  },

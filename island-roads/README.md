@@ -2,7 +2,7 @@
 
 `tools/gen-road-ymaps.js` reads every named road on `island-map.html` and lays road-piece props
 end to end along each one: one row for a street, two for an arterial, three for a highway.
-That is **9,305 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as CodeWalker XML.
+That is **9,272 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as CodeWalker XML.
 `xml/roads-index.json` lists which roads are in which ymap and how many pieces each road has.
 
 ```
@@ -11,6 +11,16 @@ node tools/gen-road-ymaps.js          # roads only, on the last terrain's hills
 ```
 
 Roads climb the island's hills (from `island-terrain/`) at no more than 12%, each piece tilted to its slope.
+
+Back roads and tracks roll: each gets two gentle swells of its own on top of the hills (up to
+about 5.5 m, never steeper than 12%), levelling out within 60 m of a junction. The ground is
+shaped to match, since `island-terrain/` lays the land along the road pieces. Very short alleys
+sit entirely inside that 60 m, so they stay level.
+
+A road crossing open sea (at least 25 m past where `island-terrain/` stops filling land under
+roads) is a bridge: it climbs from the shore at 5% to a deck 25 m above the sea. Today that is
+the south end of The Connector. All of these are `CONFIG` settings (`backroadHills`,
+`bridgeDeck`, `bridgeGrade`, `bridgeMinSpan`).
 
 Where two roads meet, they meet at the same height: the bigger road (highway > arterial > street >
 backroad > track) keeps its height and the smaller one is pinned to it, easing back to its own hills

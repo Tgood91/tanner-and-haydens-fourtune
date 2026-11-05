@@ -37,6 +37,15 @@ const CONFIG = {
   z: 10.0,                // road surface height, flat; 10 m clears the sea
 
   maxGrade: 0.12,         // steepest a road may climb (12%); steeper ground gets cut
+
+  // Back roads and tracks roll: two swells added on top of the ground, at most amp + amp2 metres,
+  // each road with its own phase. Their steepest is about 11%; maxGrade still applies after.
+  backroadHills: { kinds: ["backroad", "track"], amp: 4.0, wave: 220, amp2: 1.5, wave2: 90, flatAtJunction: 60 },  // level for 60 m either side of a junction
+  // A road over the sea is a bridge: it climbs from the shore at bridgeGrade to a deck bridgeDeck
+  // metres above the sea, so boats pass under. Where "the sea" starts comes from island-terrain.
+  bridgeDeck: 25.0,
+  bridgeGrade: 0.05,
+  bridgeMinSpan: 25,      // metres of open sea before a road counts as a bridge (a road's tip touching a dock doesn't)
   cell: 512,              // metres per ymap grid cell
   lodDist: 400,           // how far away a piece still draws
 };
@@ -57,6 +66,45 @@ function zAt(L, d) {
   const k = Math.min(L.pieces - 1, Math.max(0, Math.floor(d / L.step)));
   const t = Math.min(1, Math.max(0, d / L.step - k));
   return L.zj[k] + (L.zj[k + 1] - L.zj[k]) * t;
+}
+
+// A line's joint heights from its smoothed ground: back-road swells (level near junctions),
+// held to maxGrade, kept above the sea, then lifted onto a bridge deck wherever it crosses open sea.
+function shapeHeights(L, junctions) {
+  const { road: r, li, step, pieces } = L;
+  let zj = L.ground.slice();
+  const hills = CONFIG.backroadHills;
+  if (hills.kinds.includes(r.kind)) {
+    const at = junctions.flatMap((j) => [j.a, j.b]).filter((e) => e.line === L).map((e) => e.d);
+    const p1 = phase(r.code + li) * 2 * Math.PI, p2 = phase(r.code + li + "b") * 2 * Math.PI;
+    zj = zj.map((z, k) => {
+      const d = k * step;
+      const near = at.length ? Math.min(...at.map((a) => Math.abs(a - d))) : Infinity;
+      const fade = Math.min(1, Math.max(0, (near - hills.flatAtJunction / 2) / (hills.flatAtJunction / 2)));   // 0 at a junction, 1 from 60 m out
+      return z + fade * (hills.amp * (0.5 + 0.5 * Math.sin(2 * Math.PI * d / hills.wave + p1))
+                       + hills.amp2 * (0.5 + 0.5 * Math.sin(2 * Math.PI * d / hills.wave2 + p2)));
+    });
+  }
+  const rise = CONFIG.maxGrade * step;
+  for (let k = 1; k <= pieces; k++) zj[k] = Math.min(zj[k], zj[k - 1] + rise);
+  for (let k = pieces - 1; k >= 0; k--) zj[k] = Math.min(zj[k], zj[k + 1] + rise);
+  zj = zj.map((z) => Math.max(CONFIG.z, z));
+  // bridges: runs of joints over open sea at least bridgeMinSpan long
+  const seaJoints = [];
+  for (let k = 0; k <= pieces; ) {
+    if (!L.sea[k]) { k++; continue; }
+    let e = k; while (e + 1 <= pieces && L.sea[e + 1]) e++;
+    if ((e - k + 1) * step >= CONFIG.bridgeMinSpan) for (let q = k; q <= e; q++) seaJoints.push(q);
+    k = e + 1;
+  }
+  if (seaJoints.length) {
+    zj = zj.map((z, k) => {
+      const away = Math.min(...seaJoints.map((sk) => Math.abs(k - sk))) * step;    // metres to the nearest joint over the sea
+      return Math.max(z, CONFIG.bridgeDeck - CONFIG.bridgeGrade * away);
+    });
+    L.bridge = { joints: seaJoints.length, deck: Math.min(...seaJoints.map((k) => zj[k])) };
+  }
+  L.zj = zj;
 }
 
 // Junctions between lines: centre lines that cross, plus a line ending on (or just short of)
@@ -121,6 +169,10 @@ const GUIDE = (() => {
     const meta = JSON.parse(fs.readFileSync(path.join(dir, "road-guide.json"), "utf8"));
     const buf = fs.readFileSync(path.join(dir, "road-guide.f32"));
     meta.z = new Float32Array(buf.buffer, buf.byteOffset, buf.length / 4);
+    if (meta.coast) {
+      const c = fs.readFileSync(path.join(dir, meta.coast));
+      meta.coastD = new Float32Array(c.buffer, c.byteOffset, c.length / 4);
+    }
     return meta;
   } catch { return null; }
 })();
@@ -131,6 +183,15 @@ const groundZ = (x, y) => {
   const i = Math.floor(gx), j = Math.floor(gy), fx = gx - i, fy = gy - j, Z = (c, r) => GUIDE.z[r * GUIDE.cols + c];
   return Math.max(CONFIG.z, (Z(i, j) * (1 - fx) + Z(i + 1, j) * fx) * (1 - fy) + (Z(i, j + 1) * (1 - fx) + Z(i + 1, j + 1) * fx) * fy);
 };
+// true where a point is far enough out to sea to be on a bridge (island-terrain's rule)
+const overSea = (x, y) => {
+  if (!GUIDE || !GUIDE.coastD) return false;
+  const i = Math.round((x - GUIDE.x0) / GUIDE.spacing), j = Math.round((y - GUIDE.y0) / GUIDE.spacing);
+  if (i < 0 || j < 0 || i >= GUIDE.cols || j >= GUIDE.rows) return true;               // off the grid: open sea
+  return GUIDE.coastD[j * GUIDE.cols + i] < GUIDE.bridgeAt;
+};
+// a steady number in [0, 1) from a string, so each road's swells sit in their own place every run
+const phase = (str) => { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return (h >>> 0) / 2 ** 32; };
 const toWorld = (mx, my) => [CONFIG.centre.x + (mx - 750) * CONFIG.metresPerUnit,
                              CONFIG.centre.y - (my - 500) * CONFIG.metresPerUnit];   // map y runs south, world y north
 const n6 = (v) => (Math.abs(v) < 5e-7 ? 0 : v).toFixed(6);
@@ -180,13 +241,11 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
       const L = { road: r, li, w, cum, total, pieces, step };
       // Heights at every piece joint: the hills, smoothed, then held to maxGrade both ways.
       let zj = [];
-      for (let k = 0; k <= pieces; k++) { const q = pointAt(L, Math.min(total, k * step)); zj.push(groundZ(q[0], q[1])); }
+      const sea = [];
+      for (let k = 0; k <= pieces; k++) { const q = pointAt(L, Math.min(total, k * step)); zj.push(groundZ(q[0], q[1])); sea.push(overSea(q[0], q[1])); }
       for (let pass = 0; pass < 3; pass++)
         zj = zj.map((_, k) => { let sum = 0, n = 0; for (let o = -3; o <= 3; o++) if (zj[k + o] !== undefined) { sum += zj[k + o]; n++; } return sum / n; });
-      const rise = CONFIG.maxGrade * step;
-      for (let k = 1; k <= pieces; k++) zj[k] = Math.min(zj[k], zj[k - 1] + rise);
-      for (let k = pieces - 1; k >= 0; k--) zj[k] = Math.min(zj[k], zj[k + 1] + rise);
-      L.zj = zj.map(z => Math.max(CONFIG.z, z));
+      L.ground = zj; L.sea = sea;
       lines.push(L);
     });
   }
@@ -196,6 +255,7 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
   // The bigger road keeps its height; the smaller one is pinned to it there and eases back to
   // its own hills on either side, never steeper than maxGrade. Equal roads: the later one gives way.
   const junctions = findJunctions(lines);
+  for (const L of lines) shapeHeights(L, junctions);
   lines.sort((a, b) => RANK[b.road.kind] - RANK[a.road.kind] || a.road.code.localeCompare(b.road.code) || a.li - b.li);
   const done = new Set();
   for (const L of lines) {
@@ -259,6 +319,7 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
     }
   }
   gaps.sort((a, b) => b.gap - a.gap);
+  for (const L of lines) if (L.bridge) console.log(`bridge: ${L.road.name} (${L.road.code}), ${Math.round(L.bridge.joints * L.step)} m over the sea, deck at ${L.bridge.deck.toFixed(1)} m or more`);
   console.log(`${junctions.length} junctions, ${junctions.length - gaps.length} level`);
   for (const g of gaps) console.warn(`! ${g.roads.join(" x ")} still ${g.gap} m apart at X ${g.at[0]}, Y ${g.at[1]}: too close to another junction for a ${CONFIG.maxGrade * 100}% grade`);
 

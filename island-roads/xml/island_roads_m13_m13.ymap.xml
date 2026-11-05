@@ -4099,8 +4099,8 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-6475.594340" y="-6158.081618" z="26.508239" />
-      <rotation x="0.011615" y="-0.007625" z="0.548705" w="0.835901" />
+      <position x="-6475.594340" y="-6158.081618" z="27.908150" />
+      <rotation x="0.002840" y="-0.001864" z="0.548755" w="0.835977" />
       <scaleXY value="1" />
       <scaleZ value="1" />
       <parentIndex value="-1" />
@@ -4118,8 +4118,8 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-6466.764141" y="-6154.288546" z="26.220375" />
-      <rotation x="0.013387" y="-0.008852" z="0.551500" w="0.834020" />
+      <position x="-6466.764141" y="-6154.288546" z="27.735750" />
+      <rotation x="0.012126" y="-0.008018" z="0.551513" w="0.834040" />
       <scaleXY value="1" />
       <scaleZ value="1" />
       <parentIndex value="-1" />
@@ -4137,8 +4137,8 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-6457.907781" y="-6150.556968" z="25.896410" />
-      <rotation x="0.014684" y="-0.009787" z="0.554496" w="0.831999" />
+      <position x="-6457.907781" y="-6150.556968" z="27.370426" />
+      <rotation x="0.019515" y="-0.013006" z="0.554430" w="0.831900" />
       <scaleXY value="1" />
       <scaleZ value="1" />
       <parentIndex value="-1" />
@@ -4156,8 +4156,8 @@
       <archetypeName>stt_prop_track_straight_s</archetypeName>
       <flags value="1572864" />
       <guid value="0" />
-      <position x="-6449.023702" y="-6146.891875" z="25.411329" />
-      <rotation x="0.027197" y="-0.018276" z="0.557456" w="0.829560" />
+      <position x="-6449.023702" y="-6146.891875" z="26.774672" />
+      <rotation x="0.031900" y="-0.021437" z="0.557343" w="0.829392" />
       <scaleXY value="1" />
       <scaleZ value="1" />
       <parentIndex value="-1" />
