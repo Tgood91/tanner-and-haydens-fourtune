@@ -2,7 +2,7 @@
 
 `tools/gen-road-ymaps.js` reads every named road on `island-map.html` and lays road-piece props
 end to end along each one: one row for a street, two for an arterial, three for a highway.
-That is **9,267 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as CodeWalker XML.
+That is **9,305 pieces in 22 ymaps**, one per 512 m grid cell, in `xml/` as CodeWalker XML.
 `xml/roads-index.json` lists which roads are in which ymap and how many pieces each road has.
 
 ```
@@ -11,6 +11,13 @@ node tools/gen-road-ymaps.js          # roads only, on the last terrain's hills
 ```
 
 Roads climb the island's hills (from `island-terrain/`) at no more than 12%, each piece tilted to its slope.
+
+Where two roads meet, they meet at the same height: the bigger road (highway > arterial > street >
+backroad > track) keeps its height and the smaller one is pinned to it, easing back to its own hills
+on either side, still at no more than 12%. The script prints any junction it can't level, and
+`roads-index.json` lists them under `unlevelJunctions`. A junction stays unlevel when two other
+junctions on the same road are too close together, at heights too far apart for a 12% grade. The fix
+for those is in the map (move a road, or drop a link), not here.
 
 ## 1. Check the piece model first (once)
 
@@ -48,5 +55,5 @@ Then teleport to the island's centre, X -5500, Y -6500, Z 15.
   - Ground: that's `island-terrain/`.
   - Traffic paths: AI cars and peds need paths built for these roads, which this doesn't include.
   - Lane markings: the pieces look like whatever model you choose.
-  - Joins: at junctions the pieces just overlap.
+  - Joins: at junctions the pieces sit at the same height but just overlap.
 - The island itself (land, buildings, the mountain) needs custom models. These roads are the layout to build them around.
